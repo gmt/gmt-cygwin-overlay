@@ -69,8 +69,9 @@ warn_export() {
 CYG_REBASE="${CYG_REBASE:-$( cyg_which rebase )}"
 CYG_PEFLAGS="${CYG_PEFLAGS:-$( cyg_which peflags )}"
 
-# paranoia: overrdie BASH, CONFIG_SHELL
-# FIXME: do these even /do/ anything?
+# fixme: maybe this belongs in prefix profile?  I'd say probably yes
+# or better yet figure out where all this /bin/bash is coming from and
+# fix it in portage (or wherever).
 warn_export BASH="$( cyg_which bash )"
 warn_export CONFIG_SHELL="${BASH}"
 
@@ -220,36 +221,144 @@ cyg_fix-retarded-compiler-flag() {
 # update LDFLAGS
 cyg_update-ldflags() {
 	declare -a force_ldflags
+	declare -a force_ldflags_needed
+	declare -a censor_ldflags
 	declare -a old_ldflags
-	declare -a resultant_ldflags
-
-	resultant_ldflags=( )
+	declare -a new_ldflags
 
 	if [[ ${LDFLAGS+yes} == yes ]] ; then
+		new_ldflags=( )
+		local old_ldflag
+		local censor_ldflag
+		local force_ldflag
+		local handled_ldflag
+		local force_ldflag_needed
+		local i
+
 		# modifying this list will force the listed LDFLAGS into the ebuild environment
 		force_ldflags=( \
 			"-Wl,--enable-auto-image-base" \
-			"-L${EPREFIX}/usr/lib" \
-			"-L${EPREFIX}/lib" \
+			"$( cyg_fix-retarded-compiler-flag ld -L${EPREFIX}/usr/lib )" \
+			"$( cyg_fix-retarded-compiler-flag ld -L${EPREFIX}/lib )" \
+		)
+		force_ldflags_needed=( "${force_ldflags[@]}" )
+		# FIXME: if they did "-Wl,--image-base -Wl,0xf00" (instead of, say,
+		# "-Wl,--image-base=0xf00"), we break shit here
+		censor_ldflags=( \
+			"-Wl,--image-base" \
 		)
 		old_ldflags=( $LDFLAGS )
-		# we want to err on the side of /not/ changing LDFLAGS unnecesarily so drop items
-		# from force_ldflags if they are already in LDFLAGS
+
+		for old_ldflag in "${old_ldflags[@]}" ; do
+			handled_ldflag=no
+			old_ldflag="$( cyg_fix-retarded-compiler-flag ld ${old_ldflag} )"
+			for censor_ldflag in ${censor_ldflag[@]} ; do
+				if [[ $old_ldflag == ${censor_ldflag}* ]] ; then
+					handled_ldflag=yes
+					break
+				fi
+			done
+			[[ $handled_ldflag == yes ]] && continue
+			for force_ldflag in "${force_ldflags[@]}" ; do
+				if [[ $old_ldflag == ${force_ldflag}* ]] ; then
+					# remove $old_ldflag from ${force_ldflags_needed} since
+					# we found it in old_ldflags
+					for i in ${!force_ldflags_needed[*]} ; do
+						if [[ ${force_ldflags_needed[i]} == ${force_ldflag} ]] ; then
+							unset force_ldflags_needed[i]
+							new_ldflags[${#new_ldflags[*]}]="${old_ldflag}"
+							handled_ldflag=yes
+							break
+						fi
+					done
+					if [[ $handled_ldflag == no ]] ; then
+						# ideally we would remove all duplicate ldflags.
+						# however, this is not neccesarily smart -- there could
+						# be legitimate reasons for duplicate ld flags to
+						# be used.  But, at least, amongst the forced ldflags
+						# we are confident that it is safe to remove duplicates.
+						#
+						# we know this was a duplicate because we searched force_ldflags_needed
+						# for the flag in question, but it wasn't there; therefore, it had
+						# already been removed and, hence, found.
+						handled_ldflag=yes
+					fi
+					break
+				fi
+			done
+			if [[ $handled_ldflag == no ]] ; then
+				# pass the flag along unmodified
+				new_ldflags[${#new_ldflags[*]}]="${old_ldflag}"
+			fi
+		done
+		new_ldflags=( "${force_ldflags_needed[@]}" "${new_ldflags[@]}" )
+		# FIXME: was that unneccesarily complicated enough?  couldn't we somehow add more
+		# useless bells and whistles to further slow down portage?  anyhow...
+		# new_ldflags now has everything and just needs to be composed and exported.
+		warn_export LDFLAGS="$( echo "${new_ldflags[@]}" )"
 	else
 		LDFLAGS="-Wl,--enable-auto-image-base -L${EPREFIX}/usr/lib -L${EPREFIX}/lib"
+		einfo "added LDFLAGS: \"${LDFLAGS}\""
 	fi
 }
 
 cyg_update-ldflags
 
+# $1 == rebase adderss
+# $2 == dir
+# $3 == dir
+# ...
+cyg_rebase-dirs() {
+	local rebase_address
+	local rebase_lst
+	local i
+	declare -a rebase_dirs
+
+	local mktemp="$( cyg_which mktemp )"
+
+	rebase_address="$1"
+	[[ -z "${rebase_address}" ]] && {
+		ewarn cyg_rebase-dirs called without rebase_address argument
+		return 1
+	}
+	shift
+
+	rebase_dirs=( "$@" )
+	[[ ${#rebase_dirs[*]} == 0 ]] &&  {
+		ewarn cyg_rebase-dirs called without any dirs
+		return 1
+	}
+
+	for i in ${!rebase_dirs[*]} ; do
+		if [[ ! -d "${rebase_dirs[i]}" ]] ; then
+			ewarn "Removing directory \"${rebase_dirs[i]}\" from list: not a directory!"
+			unset rebase_dirs[i]
+		fi
+	done
+
+	rebase_lst="$( ${mktemp} "${T}"/cyg_rebase_XXXX.lst )"
+}
+
+# we are using the following assumptions to guide our rebase hacks:
+
+# I have not done any reasearch into whether these values are reasonable/safe/etc
+# I simply pulled them out of a hat.  So looking into this might be something TODO.
+
+# 0x70000000: regular cygwin rebase address (FIXME: vanilla?)
+# 0x90000000: rebaseall_pfx -- prefix full-system rebase base
+#             this would also be used, presumably, for any portage
+#             rebase driver/script
+# 0xA0000000: WORKDIR rebase address (cyg_rebase-portage-workdir)
+# 0xC0000000: DESTDIR rebase address (cyg_rebase-portage-destdir)
+
 cyg_rebase-portage-workdir() {
-	einfo "Rebasing dynamic libraries in \"${WORKDIR}\"..."
+	einfo "Rebasing built dynamic libraries in \"${WORKDIR}\"..."
+	cyg_rebase-dirs 0xA0000000 "${WORKDIR}"
 }
 
 cyg_rebase-portage-destdir() {
-	einfo "Rebasing dynamic libraries in \"${D}\"..."
-
-	die
+	einfo "Rebasing installed dynamic libraries in \"${D}\"..."
+	cyg_rebase-dirs 0xC0000000 "${D}"
 }
 
 # FIXME, comment this out
