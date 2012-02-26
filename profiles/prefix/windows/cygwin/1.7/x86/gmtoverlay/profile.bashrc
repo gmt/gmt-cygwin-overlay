@@ -309,16 +309,34 @@ cyg_update-ldflags
 # $3 == dir
 # ...
 cyg_rebase-dirs() {
-	local rebase_address
+	local rebase_base_address
 	local rebase_lst
 	local i
 	declare -a rebase_dirs
 
 	local mktemp="$( cyg_which mktemp )"
+	local grep="$( cyg_which grep )"
+	local sed="$( cyg_which sed )"
+	local uname="$( cyg_which uname )"
+	local cat="$( cyg_which cat )"
+	local rm="$( cyg_which rm )"
+	local cyg_rebase_suffixes="${CYG_REBASE_SUFFIXES:-dll|so}"
+	local db_file_i386="${CYG_REBASE_DB_I386:-/etc/rebase.db.i386}"
+	local db_file_x86_64="${CYG_REBASE_DB_X86_64:-/etc/rebase.db.x86_64}"
+	local rebase_db_file
+	local rebase_mach
+	local rebase_offset="${CYG_REBASE_OFFSET:-0}"
+	local rebase_verbose="${CYG_REBASE_VERBOSE:--v}"
+	local rslt=0
 
-	rebase_address="$1"
-	[[ -z "${rebase_address}" ]] && {
-		ewarn cyg_rebase-dirs called without rebase_address argument
+	if [[ ${CYG_DONT_REBASE:-0} == 1 ]] ; then
+		einfo "Skipping rebase due to CYG_DONT_REBASE"
+		return 0
+	fi
+
+	rebase_base_address="$1"
+	[[ -z "${rebase_base_address}" ]] && {
+		ewarn cyg_rebase-dirs called without rebase_base_address argument
 		return 1
 	}
 	shift
@@ -337,6 +355,45 @@ cyg_rebase-dirs() {
 	done
 
 	rebase_lst="$( ${mktemp} "${T}"/cyg_rebase_XXXX.lst )"
+
+	case `${uname} -m` in
+		i[3456]86)
+			rebase_db_file="${db_file_i386}";
+			rebase_mach="-4"
+			;;
+		x86_64)
+			rebase_db_file="${db_file_x86_64}"
+			rebase_mach="-8"
+			;;
+		*)
+			ewarn "Can't find mach for rebase"
+			return 1
+			;;
+	esac
+
+	( for i in "${rebase_dirs[@]}" ; do
+		find "${i}" -type f
+	done ) | \
+		${grep} -E "\.($cyg_rebase_suffixes)\$" | \
+		${sed} -e '/cygwin1\.dll$/d' -e '/cyglsa.*\.dll$/d' \
+		-e '/sys-root\/mingw/d' -e '/d?ash\.exe$/d' \
+		-e '/rebase\.exe$/d' >"${rebase_lst}"
+
+	einfo "Attempting rebase from file \"${rebase_lst}\""
+
+	# a bit much...
+	# if [[ ${rebase_verbose} == -v ]] ; then
+	# 	${cat} "${rebase_lst}" | while read i ; do
+	# 		einfo "  ${i}"
+	# 	done
+	# fi
+
+	${CYG_REBASE} "${rebase_verbose}" -s "${rebase_mach}" -b "${rebase_base_address}" \
+		-o "${rebase_offset}" -T "${rebase_lst}" || \
+			{ ewarn "Rebase failure" ; rslt=1 ; }
+
+	${rm} "${rebase_lst}"
+	return "${rslt}"
 }
 
 # we are using the following assumptions to guide our rebase hacks:
@@ -362,7 +419,7 @@ cyg_rebase-portage-destdir() {
 }
 
 # FIXME, comment this out
-einfo "gmt overlay profile.bashrc: EBUILD_PHASE=\"${EBUILD_PHASE}\""
+# einfo "gmt overlay profile.bashrc: EBUILD_PHASE=\"${EBUILD_PHASE}\""
 
 if [[ "${EBUILD_PHASE}" == "test" ]] ; then
 	cyg_rebase-portage-workdir
