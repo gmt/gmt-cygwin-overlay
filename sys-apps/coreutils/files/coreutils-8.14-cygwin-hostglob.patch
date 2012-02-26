@@ -1,0 +1,42 @@
+diff -urN coreutils-8.14.orig/configure coreutils-8.14/configure
+--- coreutils-8.14.orig/configure	2012-02-24 12:51:15.560830900 -0800
++++ coreutils-8.14/configure	2012-02-24 13:14:40.656793900 -0800
+@@ -8778,7 +8778,7 @@
+         # special semantics and is distinct from /, please report it to
+         # <bug-gnulib@gnu.org>.
+         case $host in
+-          *-cygwin | i370-ibm-openedition)
++          *-cygwin* | i370-ibm-openedition)
+             gl_cv_double_slash_root=yes ;;
+           *)
+             # Be optimistic and assume that / and // are the same when we
+@@ -25308,7 +25308,7 @@
+         # special semantics and is distinct from /, please report it to
+         # <bug-gnulib@gnu.org>.
+         case $host in
+-          *-cygwin | i370-ibm-openedition)
++          *-cygwin* | i370-ibm-openedition)
+             gl_cv_double_slash_root=yes ;;
+           *)
+             # Be optimistic and assume that / and // are the same when we
+@@ -56330,7 +56330,7 @@
+   gnu[0-9]* | \
+   linux-* | linux | \
+   freebsd2.2* | freebsd[3-9]* | freebsd[1-9][0-9]* | \
+-  cygwin | \
++  cygwin* | \
+   mingw*)
+ 
+ $as_echo "#define UNLINK_CANNOT_UNLINK_DIR 1" >>confdefs.h
+diff -urN coreutils-8.14.orig/m4/unlinkdir.m4 coreutils-8.14/m4/unlinkdir.m4
+--- coreutils-8.14.orig/m4/unlinkdir.m4	2011-06-17 01:03:03.000000000 -0700
++++ coreutils-8.14/m4/unlinkdir.m4	2012-02-24 13:17:02.996256100 -0800
+@@ -24,7 +24,7 @@
+   gnu[[0-9]]* | \
+   linux-* | linux | \
+   freebsd2.2* | freebsd[[3-9]]* | freebsd[[1-9]][[0-9]]* | \
+-  cygwin | \
++  cygwin* | \
+   mingw*)
+     AC_DEFINE([UNLINK_CANNOT_UNLINK_DIR], [1],
+       [Define to 1 if unlink (dir) cannot possibly succeed.]);;

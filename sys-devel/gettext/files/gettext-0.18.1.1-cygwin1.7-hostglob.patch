@@ -1,0 +1,66 @@
+diff -urN gettext-0.18.1.1.orig/build-aux/ltmain.sh gettext-0.18.1.1/build-aux/ltmain.sh
+--- gettext-0.18.1.1.orig/build-aux/ltmain.sh	2012-02-23 16:19:18.115515400 -0800
++++ gettext-0.18.1.1/build-aux/ltmain.sh	2012-02-23 16:31:31.582515400 -0800
+@@ -2394,7 +2394,7 @@
+ 	      eval '$GREP -f "$output_objdir/$outputname.exp" < "$nlist" > "$nlist"T'
+ 	      eval '$MV "$nlist"T "$nlist"'
+ 	      case $host in
+-	        *cygwin | *mingw* | *cegcc* )
++	        *cygwin* | *mingw* | *cegcc* )
+ 	          eval "echo EXPORTS "'> "$output_objdir/$outputname.def"'
+ 	          eval 'cat "$nlist" >> "$output_objdir/$outputname.def"'
+ 	          ;;
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/configure gettext-0.18.1.1/gettext-runtime/configure
+--- gettext-0.18.1.1.orig/gettext-runtime/configure	2012-02-23 16:19:47.383015400 -0800
++++ gettext-0.18.1.1/gettext-runtime/configure	2012-02-23 16:36:25.051515400 -0800
+@@ -18372,7 +18372,7 @@
+         # special semantics and is distinct from /, please report it to
+         # <bug-gnulib@gnu.org>.
+         case $host in
+-          *-cygwin | i370-ibm-openedition)
++          *-cygwin* | i370-ibm-openedition)
+             gl_cv_double_slash_root=yes ;;
+           *)
+             # Be optimistic and assume that / and // are the same when we
+@@ -22066,7 +22066,7 @@
+         # special semantics and is distinct from /, please report it to
+         # <bug-gnulib@gnu.org>.
+         case $host in
+-          *-cygwin | i370-ibm-openedition)
++          *-cygwin* | i370-ibm-openedition)
+             gl_cv_double_slash_root=yes ;;
+           *)
+             # Be optimistic and assume that / and // are the same when we
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/gnulib-m4/double-slash-root.m4 gettext-0.18.1.1/gettext-runtime/gnulib-m4/double-slash-root.m4
+--- gettext-0.18.1.1.orig/gettext-runtime/gnulib-m4/double-slash-root.m4	2010-02-16 13:31:29.000000000 -0800
++++ gettext-0.18.1.1/gettext-runtime/gnulib-m4/double-slash-root.m4	2012-02-23 16:37:33.564015400 -0800
+@@ -16,7 +16,7 @@
+         # special semantics and is distinct from /, please report it to
+         # <bug-gnulib@gnu.org>.
+         case $host in
+-          *-cygwin | i370-ibm-openedition)
++          *-cygwin* | i370-ibm-openedition)
+             gl_cv_double_slash_root=yes ;;
+           *)
+             # Be optimistic and assume that / and // are the same when we
+diff -urN gettext-0.18.1.1.orig/gettext-tools/configure gettext-0.18.1.1/gettext-tools/configure
+--- gettext-0.18.1.1.orig/gettext-tools/configure	2012-02-23 16:20:22.502515400 -0800
++++ gettext-0.18.1.1/gettext-tools/configure	2012-02-23 16:40:32.061515400 -0800
+@@ -20281,7 +20281,7 @@
+         # special semantics and is distinct from /, please report it to
+         # <bug-gnulib@gnu.org>.
+         case $host in
+-          *-cygwin | i370-ibm-openedition)
++          *-cygwin* | i370-ibm-openedition)
+             gl_cv_double_slash_root=yes ;;
+           *)
+             # Be optimistic and assume that / and // are the same when we
+@@ -31201,7 +31201,7 @@
+         # special semantics and is distinct from /, please report it to
+         # <bug-gnulib@gnu.org>.
+         case $host in
+-          *-cygwin | i370-ibm-openedition)
++          *-cygwin* | i370-ibm-openedition)
+             gl_cv_double_slash_root=yes ;;
+           *)
+             # Be optimistic and assume that / and // are the same when we

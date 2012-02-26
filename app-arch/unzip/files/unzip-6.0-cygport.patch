@@ -1,0 +1,454 @@
+diff -urN unzip60.orig/crypt.h unzip60/crypt.h
+--- unzip60.orig/crypt.h	2007-01-05 07:55:24.000000000 -0800
++++ unzip60/crypt.h	2012-02-11 15:31:10.312174100 -0800
+@@ -79,7 +79,7 @@
+ #  define __GPRO__
+ #endif
+ 
+-#if defined(MSDOS) || defined(OS2) || defined(WIN32)
++#if defined(MSDOS) || defined(OS2) || (defined(WIN32) && !defined(__CYGWIN__))
+ #  ifndef DOS_OS2_W32
+ #    define DOS_OS2_W32
+ #  endif
+diff -urN unzip60.orig/process.c unzip60/process.c
+--- unzip60.orig/process.c	2009-03-05 17:25:10.000000000 -0800
++++ unzip60/process.c	2012-02-11 15:31:10.317174100 -0800
+@@ -342,6 +342,31 @@
+   ---------------------------------------------------------------------------*/
+ 
+ #ifdef SFX
++# if defined(__CYGWIN__)
++/* Grr.  Because cygwin no longer includes .exe in argv[0], sfx ALWAYS fails 
++   first time thru, before appending .exe.  So, for this platform only, we
++   reverse the test: append .exe FIRST, and then try undecorated. */
++    {
++#ifdef EXE_EXTENSION
++        int len=strlen(G.argv0);
++
++        /* append .exe if appropriate; also .sfx? */
++        if ( (G.zipfn = (char *)malloc(len+sizeof(EXE_EXTENSION))) !=
++            (char *)NULL ) {
++            strcpy(G.zipfn, G.argv0);
++            strcpy(G.zipfn+len, EXE_EXTENSION);
++            error = do_seekable(__G__ 0);
++            free(G.zipfn);
++            G.zipfn = G.argv0;  /* for "cannot find myself" message only */
++        }
++        if (error == PK_NOZIP) {
++            error = do_seekable(__G__ 0); /* now that G.zipfn == G.argv0 again */
++        }
++#else
++        error = do_seekable(__G__ 0);
++#endif
++    }
++#else /* ?CYGWIN */
+     if ((error = do_seekable(__G__ 0)) == PK_NOZIP) {
+ #ifdef EXE_EXTENSION
+         int len=strlen(G.argv0);
+@@ -360,6 +385,7 @@
+         G.zipfn = G.argv0;  /* for "cannot find myself" message only */
+ #endif
+     }
++#endif /* ?CYGWIN */
+     if (error) {
+         if (error == IZ_DIR)
+             error_in_archive = PK_NOZIP;
+diff -urN unzip60.orig/timezone.h unzip60/timezone.h
+--- unzip60.orig/timezone.h	2001-01-13 13:39:20.000000000 -0800
++++ unzip60/timezone.h	2012-02-11 15:31:10.320174100 -0800
+@@ -18,7 +18,7 @@
+  */
+ #define TZ_MAX_TIMES    272 /* (=2*(LastGoodYr + 1 - FirstGoodYr) */
+ #define TZ_MAX_TYPES    2   /* We only support basic standard and daylight */
+-#ifdef WIN32    /* Win32 tzinfo supplies at max (2 * 32) chars of tz names */
++#if defined(WIN32) && !defined(__CYGWIN__)    /* Win32 tzinfo supplies at max (2 * 32) chars of tz names */
+ #define TZ_MAX_CHARS    64  /* Maximum number of abbreviation characters */
+ #else
+ #define TZ_MAX_CHARS    50  /* Maximum number of abbreviation characters */
+diff -urN unzip60.orig/ttyio.h unzip60/ttyio.h
+--- unzip60.orig/ttyio.h	2004-09-08 15:03:46.000000000 -0700
++++ unzip60/ttyio.h	2012-02-11 15:31:10.322174100 -0800
+@@ -34,7 +34,7 @@
+ #  define ZCONST const
+ #endif
+ 
+-#if (defined(MSDOS) || defined(OS2) || defined(WIN32))
++#if (defined(MSDOS) || defined(OS2) || (defined(WIN32) && !defined(__CYGWIN__)))
+ #  ifndef DOS_OS2_W32
+ #    define DOS_OS2_W32
+ #  endif
+diff -urN unzip60.orig/unix/Makefile unzip60/unix/Makefile
+--- unzip60.orig/unix/Makefile	2009-01-18 14:41:18.000000000 -0800
++++ unzip60/unix/Makefile	2012-02-11 15:31:10.335174100 -0800
+@@ -38,17 +38,32 @@
+ # MACRO DEFINITIONS #
+ #####################
+ 
++ifdef SRC
++VPATH = $(SRC)
++else
++SRC = .
++endif
++
++DESTDIR=
++
+ # Defaults most systems use (use LOCAL_UNZIP in environment to add flags,
+ # such as -DDOSWILD).
+ 
++VER=6.0
+ # UnZip flags
+ CC = cc#	try using "gcc" target rather than changing this (CC and LD
+ LD = $(CC)#	must match, else "unresolved symbol:  ___main" is possible)
+ AS = as
++
++ifdef MINGW
++MINGW_CCFLAGS=-mno-cygwin -I/usr/include/mingw
++MINGW_LDFLAGS=-mno-cygwin -L/usr/lib/mingw
++endif
++
+ LOC = $(D_USE_BZ2) $(LOCAL_UNZIP)
+ AF = $(LOC)
+ CFLAGS = -O
+-CF_NOOPT = -I. -I$(IZ_BZIP2) -DUNIX $(LOC)
++CF_NOOPT = -I. -I$(SRC) -I$(IZ_BZIP2) -DUNIX $(LOC)
+ CF = $(CFLAGS) $(CF_NOOPT)
+ LFLAGS1 =
+ LF = -o unzip$E $(LFLAGS1)
+@@ -68,8 +83,8 @@
+ LN = ln
+ RM = rm -f
+ CHMOD = chmod
+-BINPERMS = 755
+-MANPERMS = 644
++BINPERMS = 775
++MANPERMS = 664
+ STRIP = strip
+ E =
+ O = .o
+@@ -116,19 +131,26 @@
+ 
+ # installation
+ # (probably can change next two to `install' and `install -d' if you have it)
+-INSTALL = cp
+-INSTALL_PROGRAM = $(INSTALL)
+-INSTALL_D = mkdir -p
++INSTALL = install
++INSTALL_PROGRAM = install -s -m $(BINPERMS)
++INSTALL_SCRIPT = install -m $(BINPERMS)
++INSTALL_DATA = install -m $(MANPERMS)
++INSTALL_D = install -d -m $(BINPERMS)
+ # on some systems, manext=l and MANDIR=/usr/man/man$(manext) may be appropriate
+ manext = 1
+ prefix = /usr/local
+ BINDIR = $(prefix)/bin#			where to install executables
+ MANDIR = $(prefix)/man/man$(manext)#	where to install man pages
+-INSTALLEDBIN = $(BINDIR)/funzip$E $(BINDIR)/unzip$E $(BINDIR)/unzipsfx$E \
+-	$(BINDIR)/zipgrep$E $(BINDIR)/zipinfo$E
+-INSTALLEDMAN = $(MANDIR)/funzip.$(manext) $(MANDIR)/unzip.$(manext) \
+-	$(MANDIR)/unzipsfx.$(manext) $(MANDIR)/zipgrep.$(manext) \
+-	$(MANDIR)/zipinfo.$(manext)
++INSTALLEDBIN = $(DESTDIR)$(BINDIR)/funzip$E \
++	$(DESTDIR)$(BINDIR)/unzip$E \
++	$(DESTDIR)$(BINDIR)/unzipsfx$E \
++	$(DESTDIR)$(BINDIR)/zipgrep \
++	$(DESTDIR)$(BINDIR)/zipinfo$E
++INSTALLEDMAN = $(DESTDIR)$(MANDIR)/funzip.$(manext) \
++	$(DESTDIR)$(MANDIR)/unzip.$(manext) \
++	$(DESTDIR)$(MANDIR)/unzipsfx.$(manext) \
++	$(DESTDIR)$(MANDIR)/zipgrep.$(manext) \
++	$(DESTDIR)$(MANDIR)/zipinfo.$(manext)
+ 
+ # Solaris 2.x stuff:
+ PKGDIR = IZunzip
+@@ -230,14 +252,14 @@
+ 
+ # yes, we should be able to use the $O macro to combine these two, but it
+ # fails on some brain-damaged makes (e.g., AIX's)...no big deal
+-.c.o:
+-	$(CC) -c $(CF) $*.c
++%.o : %.c
++	$(CC) -c $(CF) $< -o $@
+ 
+-.c.obj:
+-	$(CC) -c $(CF) $*.c
++%.obj : %.c
++	$(CC) -c $(CF) $< -o $@
+ 
+-.c.pic.o:
+-	$(CC) -c $(CF) -o $@ $*.c
++%.pic.o : %.c
++	$(CC) -c $(CF) $< -o $@
+ 
+ # this doesn't work...directories are always a pain with implicit rules
+ #.1.txt:		man/$<
+@@ -252,19 +274,19 @@
+ # systems...
+ 
+ funzip.txt:	man/funzip.1
+-	nroff -Tascii -man man/funzip.1 | col -bx | uniq | expand > $@
++	nroff -Tascii -man $< | col -bx | uniq | expand > $@
+ 
+ unzip.txt:	man/unzip.1
+-	nroff -Tascii -man man/unzip.1 | col -bx | uniq | expand > $@
++	nroff -Tascii -man $< | col -bx | uniq | expand > $@
+ 
+ unzipsfx.txt:	man/unzipsfx.1
+-	nroff -Tascii -man man/unzipsfx.1 | col -bx | uniq | expand > $@
++	nroff -Tascii -man $< | col -bx | uniq | expand > $@
+ 
+ zipgrep.txt:	man/zipgrep.1
+-	nroff -Tascii -man man/zipgrep.1 | col -bx | uniq | expand > $@
++	nroff -Tascii -man $< | col -bx | uniq | expand > $@
+ 
+ zipinfo.txt:	man/zipinfo.1
+-	nroff -Tascii -man man/zipinfo.1 | col -bx | uniq | expand > $@
++	nroff -Tascii -man $< | col -bx | uniq | expand > $@
+ 
+ 
+ all:		generic_msg generic
+@@ -375,44 +397,45 @@
+ 
+ # optional assembler replacements
+ crc_i86$O:	msdos/crc_i86.asm				# 16bit only
+-	$(AS) $(AF) msdos/crc_i86.asm $(ASEOL)
++	$(AS) $(AF) $< $(ASEOL)
+ 
+ crc_gcc$O:	crc_i386.S $(ACONF_DEP)				# 32bit, GNU AS
+-	$(AS) $(AF) -x assembler-with-cpp -c -o $@ crc_i386.S
++	$(AS) $(AF) -x assembler-with-cpp -c -o $@ $< 
+ 
+ crc_gcc.pic.o:	crc_i386.S $(ACONF_DEP)				# 32bit, GNU AS
+-	$(AS) $(AF) -x assembler-with-cpp -c -o $@ crc_i386.S
++	$(AS) $(AF) -x assembler-with-cpp -c -o $@ $< 
+ 
+ crc_sysv$O:	crc_i386.S $(ACONF_DEP)				# 32bit, SysV AS
+-	$(CC) -E $(AF) crc_i386.S > crc_i386s.s
++	$(CC) -E $(AF) $< > crc_i386s.s
+ 	$(AS) -o $@ crc_i386s.s
+ 	$(RM) crc_i386s.s
+ 
+ msdos$O:	msdos/msdos.c $(UNZIP_H) unzvers.h		# DOS only
+-	$(CC) -c $(CF) msdos/msdos.c
++	$(CC) -c $(CF) $< 
+ 
+ msdos_$O:	msdos/msdos.c $(UNZIP_H)			# DOS unzipsfx
+-	-$(CP) msdos/msdos.c msdos_.c > nul
+-	$(CC) -c $(CF) -DSFX msdos_.c
++	-$(CP) $< msdos_.c > nul
++	$(CC) -c $(CF) -DSFX msdos_.c -o $@
+ 	$(RM) msdos_.c
+ 
+ #os2$O:		os2/os2.c $(UNZIP_H)				# OS/2 only
+-#	$(CC) -c $(CF) os2/os2.c
++#	$(CC) -c $(CF) $<
+ 
+ unix$O:		unix/unix.c $(UNZIP_H) unzvers.h		# Unix only
+-	$(CC) -c $(CF) unix/unix.c
++	$(CC) -c $(CF) $< -o $@
+ 
+ unix_$O:	unix/unix.c $(UNZIP_H)				# Unix unzipsfx
+-	$(CC) -c $(CF) -DSFX -o $@ unix/unix.c
++	$(CC) -c $(CF) -DSFX -o $@ $<
+ 
+ unix.pic.o:	unix/unix.c $(UNZIP_H) unzvers.h		# Unix shlib
+-	$(CC) -c $(CF) -o $@ unix/unix.c
++	$(CC) -c $(CF) -o $@ $<
+ 
+ 
+ unix_make:
+ #	@echo\
+ # '(Ignore any errors from `make'"' due to the following command; it's harmless.)"
+-	-@2>&1 $(LN) unix/Makefile . > /dev/null || echo > /dev/null
++	-@$(RM) Makefile
++	-@2>&1 $(CP) `realpath unix/Makefile` Makefile > /dev/null || echo > /dev/null
+ 
+ # this really only works for Unix targets, unless E and O specified on cmd line
+ clean:
+@@ -448,19 +471,17 @@
+ 	@echo " "
+ 
+ install:	$(MANS)
+-	-$(INSTALL_D) $(BINDIR)
+-	$(INSTALL_PROGRAM) $(UNZIPS) $(BINDIR)
+-	$(INSTALL) unix/zipgrep $(BINDIR)
+-	$(RM) $(BINDIR)/zipinfo$E
+-	$(LN) $(BINDIR)/unzip$E $(BINDIR)/zipinfo$E
+-	-$(INSTALL_D) $(MANDIR)
+-	$(INSTALL) man/funzip.1 $(MANDIR)/funzip.$(manext)
+-	$(INSTALL) man/unzip.1 $(MANDIR)/unzip.$(manext)
+-	$(INSTALL) man/unzipsfx.1 $(MANDIR)/unzipsfx.$(manext)
+-	$(INSTALL) man/zipgrep.1 $(MANDIR)/zipgrep.$(manext)
+-	$(INSTALL) man/zipinfo.1 $(MANDIR)/zipinfo.$(manext)
+-	$(CHMOD) $(BINPERMS) $(INSTALLEDBIN)
+-	$(CHMOD) $(MANPERMS) $(INSTALLEDMAN)
++	-$(INSTALL_D) $(DESTDIR)$(BINDIR)
++	-$(INSTALL_D) $(DESTDIR)$(MANDIR)
++	$(INSTALL_PROGRAM) $(UNZIPS) $(DESTDIR)$(BINDIR)
++	$(INSTALL_SCRIPT) $(SRC)/unix/zipgrep $(DESTDIR)$(BINDIR)
++	$(RM) $(DESTDIR)$(BINDIR)/zipinfo$E
++	(cd $(DESTDIR)$(BINDIR); $(LN) unzip$E zipinfo$E)
++	$(INSTALL_DATA) $(SRC)/man/funzip.1 $(DESTDIR)$(MANDIR)/funzip.$(manext)
++	$(INSTALL_DATA) $(SRC)/man/unzip.1 $(DESTDIR)$(MANDIR)/unzip.$(manext)
++	$(INSTALL_DATA) $(SRC)/man/unzipsfx.1 $(DESTDIR)$(MANDIR)/unzipsfx.$(manext)
++	$(INSTALL_DATA) $(SRC)/man/zipgrep.1 $(DESTDIR)$(MANDIR)/zipgrep.$(manext)
++	$(INSTALL_DATA) $(SRC)/man/zipinfo.1 $(DESTDIR)$(MANDIR)/zipinfo.$(manext)
+ 
+ uninstall:
+ 	$(RM) $(INSTALLEDBIN) $(INSTALLEDMAN)
+@@ -479,24 +500,24 @@
+ 	@echo '#####  This is a Unix-specific target.  (Just so you know.)'
+ 	@echo '#####     Make sure unzip, funzip and unzipsfx are compiled and'
+ 	@echo '#####     in this directory.'
+-	@if test ! -f ./unzip; then \
++	@if test ! -f ./unzip$E; then \
+ 	    echo "#####  ERROR:  can't find ./unzip"; exit 1; fi
+-	@if test ! -f ./funzip; then \
++	@if test ! -f ./funzip$E; then \
+ 	    echo "#####  ERROR:  can't find ./funzip"; exit 1; fi
+-	@if test ! -f ./unzipsfx; then \
++	@if test ! -f ./unzipsfx$E; then \
+ 	    echo "#####  ERROR:  can't find ./unzipsfx"; exit 1; fi
+ #
+-	@if test ! -f $(TESTZIP); then \
+-	    echo "#####  ERROR:  can't find test file $(TESTZIP)"; exit 1; fi
++	@if test ! -f $(SRC)/$(TESTZIP); then \
++	    echo "#####  ERROR:  can't find test file $(SRC)/$(TESTZIP)"; exit 1; fi
+ #
+ 	@echo "#####  testing extraction"
+-	@./unzip -bo $(TESTZIP) testmake.zipinfo
++	@./unzip -bo $(SRC)/$(TESTZIP) testmake.zipinfo
+ 	@if test ! -f testmake.zipinfo ; then \
+-	    echo "#####  ERROR:  file extraction from $(TESTZIP) failed"; \
++	    echo "#####  ERROR:  file extraction from $(SRC)/$(TESTZIP) failed"; \
+ 	    exit 1; fi
+ #
+ 	@echo '#####  testing zipinfo (unzip -Z)'
+-	@./unzip -Z $(TESTZIP) > testmake.unzip-Z
++	@./unzip -Z $(SRC)/$(TESTZIP) > testmake.unzip-Z
+ 	@if diff testmake.unzip-Z testmake.zipinfo; then echo "OK."; else \
+ 	    echo "#####  WARNING:  zipinfo output doesn't match stored version"; \
+ 	    echo '#####     (If the only difference is the file times, compare your'; \
+@@ -510,22 +531,22 @@
+ 	@$(RM) testmake.unzip-Z testmake.zipinfo
+ #
+ 	@echo '#####  testing unzip -d exdir option'
+-	@./unzip -bo $(TESTZIP) -d testun notes
++	@./unzip -bo $(SRC)/$(TESTZIP) -d testun notes
+ 	@cat testun/notes
+ #
+ 	@echo '#####  testing unzip -o and funzip (ignore funzip warning)'
+-	@./unzip -boq $(TESTZIP) notes -d testun
+-	@./funzip < $(TESTZIP) > testun/notes2
++	@./unzip -boq $(SRC)/$(TESTZIP) notes -d testun
++	@./funzip < $(SRC)/$(TESTZIP) > testun/notes2
+ 	@if diff testun/notes testun/notes2; then true; else \
+ 	    echo '#####  ERROR:  funzip output disagrees with unzip'; fi
+ #
+ 	@echo '#####  testing unzipsfx (self-extractor)'
+-	@cat unzipsfx $(TESTZIP) > testsfx
+-	@$(CHMOD) 0700 testsfx
++	@cat unzipsfx $(SRC)/$(TESTZIP) > testsfx$E
++	@$(CHMOD) 0700 testsfx$E
+ 	@./testsfx -bo notes
+ 	@if diff notes testun/notes; then true; else \
+ 	    echo '#####  ERROR:  unzipsfx file disagrees with unzip'; fi
+-	@$(RM) testsfx notes testun/notes testun/notes2
++	@$(RM) testsfx$E notes testun/notes testun/notes2
+ 	@rmdir testun
+ #
+ 	@echo '#####  testing complete.'
+@@ -541,11 +562,11 @@
+ 
+ # Well, try MAKE and see.  By now everyone may be happy.  10/28/04 EG
+ generic:	flags	   # now try autoconfigure first
+-	eval $(MAKE) $(MAKEF) unzips ACONF_DEP=flags `cat flags`
++	eval $(MAKE) $(MAKEF) unzips ACONF_DEP=flags SRC=$(SRC) `cat flags`
+ #	make $(MAKEF) unzips CF="${CF} `cat flags`"
+ 
+ generic_gcc:
+-	$(MAKE) $(MAKEF) generic CC=gcc IZ_BZIP2="$(IZ_BZIP2)"
++	$(MAKE) $(MAKEF) generic CC=gcc IZ_BZIP2="$(IZ_BZIP2)" SRC=$(SRC)
+ 
+ # extensions to perform SVR4 package-creation after compilation
+ generic_pkg:	generic svr4package
+@@ -746,10 +767,11 @@
+ # This port does not offer full access to the Windows file system.
+ # Info-ZIP recommends using "win32/Makefile.gcc" instead.
+ cygwin:		unix_make
+-	$(MAKE) unzips CC=gcc LD=gcc AS=gcc\
+-	 CFLAGS="-O3 -DASM_CRC -DNO_LCHOWN -DNO_LCHMOD"\
+-	 AF="-Di386 $(AF)" CRCA_O=crc_gcc$O\
+-	 E=".exe" CP="cp" LN="ln -s"
++	$(MAKE) $(MAKEF) generic CC=gcc LD=gcc AS=gcc \
++	 CFLAGS="$(CFLAGS) -DFORCE_UNIX_OVER_WIN32 $(LOC)" \
++	 AF="-Di386 $(AF)" SRC=$(SRC) \
++	 IZ_BZIP2="$(IZ_BZIP2)" \
++	 E=".exe" CP="cp" LN="ln"
+ 
+ # 680x0, DIAB dnix 5.2/5.3 (a Swedish System V clone)
+ #
+diff -urN unzip60.orig/unix/unxcfg.h unzip60/unix/unxcfg.h
+--- unzip60.orig/unix/unxcfg.h	2009-04-16 11:36:12.000000000 -0700
++++ unzip60/unix/unxcfg.h	2012-02-11 15:31:10.338674100 -0800
+@@ -103,7 +103,6 @@
+ #ifdef __CYGWIN__
+ #  include <unistd.h>
+ #  define DIRENT
+-#  define HAVE_TERMIOS_H
+ #  ifndef timezone
+ #    define timezone _timezone
+ #  endif
+diff -urN unzip60.orig/unzip.h unzip60/unzip.h
+--- unzip60.orig/unzip.h	2009-02-15 10:12:54.000000000 -0800
++++ unzip60/unzip.h	2012-02-11 15:31:10.349674100 -0800
+@@ -154,6 +154,10 @@
+ #  endif
+ #endif
+ 
++#if defined(__CYGWIN__)
++# undef WIN32
++#endif
++
+ #ifdef __COMPILER_KCC__
+ #  include <c-env.h>
+ #  ifdef SYS_T20
+diff -urN unzip60.orig/unzpriv.h unzip60/unzpriv.h
+--- unzip60.orig/unzpriv.h	2009-04-19 16:59:26.000000000 -0700
++++ unzip60/unzpriv.h	2012-02-11 15:31:10.355174100 -0800
+@@ -669,7 +669,9 @@
+    typedef unsigned int extent;
+ #endif /* ?MODERN */
+ 
+-
++#ifdef __CYGWIN__
++#  include <unistd.h>
++#endif
+ 
+ 
+ /*************/
+@@ -1119,6 +1121,15 @@
+ #  define FOPW "w8"
+ #endif /* TOPS20 */
+ 
++#ifdef __CYGWIN__
++#  define EXE_EXTENSION  ".exe"
++#  define FOPR  "rb"
++#  define FOPM  "r+b"
++#  define FOPW  "wbS"
++#  define FOPWT "wtS"
++#  define FOPWR "w+b"
++#endif
++
+ /* Defaults when nothing special has been defined previously. */
+ #ifdef MODERN
+ #  ifndef FOPR
+diff -urN unzip60.orig/zip.h unzip60/zip.h
+--- unzip60.orig/zip.h	2005-12-29 10:52:22.000000000 -0800
++++ unzip60/zip.h	2012-02-11 15:31:10.357174100 -0800
+@@ -22,4 +22,6 @@
+ #define ZE_MEM         PK_MEM
+ #define ziperr(c, h)   return
+ 
++#define ZCR_SEED2 (unsigned)getpid()
++
+ #endif /* !__zip_h */

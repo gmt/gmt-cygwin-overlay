@@ -1,0 +1,85 @@
+diff -urN readline-6.2.orig/examples/Makefile.in readline-6.2/examples/Makefile.in
+--- readline-6.2.orig/examples/Makefile.in	2010-12-28 12:55:32.000000000 -0800
++++ readline-6.2/examples/Makefile.in	2012-02-10 15:31:41.043528800 -0800
+@@ -54,12 +54,24 @@
+ INCLUDES = -I$(srcdir) -I$(top_srcdir) -I..
+ 
+ CCFLAGS  = $(DEFS) $(LOCAL_CFLAGS) $(CPPFLAGS) $(INCLUDES) $(CFLAGS)
+-LDFLAGS = -g -L.. @LDFLAGS@
++LDFLAGS = -g -L../shlib -L.. @LDFLAGS@
+ 
+ PURIFY = @PURIFY@
+ 
+-READLINE_LIB = ../libreadline.a
+-HISTORY_LIB = ../libhistory.a
++SHLIB_DOT = @SHLIB_DOT@
++SHLIB_LIBPREF = @SHLIB_LIBPREF@
++SHLIB_LIBSUFF = @SHLIB_LIBSUFF@
++
++SHLIB_LIBVERSION = @SHLIB_LIBVERSION@
++SHLIB_DLLVERSION = @SHLIB_DLLVERSION@
++
++SHLIB_MAJOR=		@SHLIB_MAJOR@
++SHLIB_MINOR=		.@SHLIB_MINOR@
++
++READLINE_LIB = ../shlib/$(SHLIB_LIBPREF)readline$(SHLIB_DOT)$(SHLIB_LIBVERSION)
++HISTORY_LIB = ../shlib/$(SHLIB_LIBPREF)history$(SHLIB_DOT)$(SHLIB_LIBVERSION)
++READLINE_LIB_STAT = ../libreadline.a
++HISTORY_LIB_STAT = ../libhistory.a
+ 
+ TERMCAP_LIB = @TERMCAP_LIB@
+ 
+@@ -70,15 +82,19 @@
+ SOURCES = excallback.c fileman.c histexamp.c manexamp.c rl-fgets.c rl.c \
+ 		rlcat.c rlevent.c rlptytest.c rltest.c rlversion.c
+ 
+-EXECUTABLES = fileman$(EXEEXT) rltest$(EXEEXT) rl$(EXEEXT) rlcat$(EXEEXT) \
++EXECUTABLES_DYN = fileman$(EXEEXT) rltest$(EXEEXT) rl$(EXEEXT) rlcat$(EXEEXT) \
+ 		rlevent$(EXEEXT) rlversion$(EXEEXT) histexamp$(EXEEXT)
++EXECUTABLES_STAT = fileman-stat$(EXEECT) rltest-stat$(EXEEXT) rl-stat$(EXEEXT) rlcat-stat$(EXEEXT) \
++		rlevent-stat$(EXEEXT) rlversion-stat$(EXEEXT) histexamp-stat$(EXEEXT)
++EXECUTABLES = $(EXECUTABLES_DYN) $(EXECUTABLES_STAT)
+ OBJECTS = fileman.o rltest.o rl.o rlevent.o rlcat.o rlversion.o histexamp.o
+ 
+ all: $(EXECUTABLES)
+ everything: all
+ 
+-check:	rlversion$(EXEEXT)
+-	@echo Readline version: `rlversion$(EXEEXT)`
++check:	rlversion$(EXEEXT) rlversion-stat$(EXEEXT)
++	@echo Readline version: `PATH=../shlib:$$PATH ./rlversion$(EXEEXT)`
++	@echo REadline version, static: `./rlversion-stat$(EXEEXT)`
+ 
+ installdirs:
+ 	-$(SHELL) $(top_srcdir)/support/mkdirs $(DESTDIR)$(installdir)
+@@ -119,6 +135,30 @@
+ histexamp$(EXEEXT): histexamp.o $(HISTORY_LIB)
+ 	$(PURIFY) $(CC) $(LDFLAGS) -o $@ histexamp.o -lhistory $(TERMCAP_LIB)
+ 
++rl-stat$(EXEEXT): rl.o $(READLINE_LIB_STAT)
++	$(PURIFY) $(CC) $(LDFLAGS) -o $@ rl.o $(READLINE_LIB_STAT) $(TERMCAP_LIB)
++
++rlcat-stat$(EXEEXT): rlcat.o $(READLINE_LIB_STAT)
++	$(PURIFY) $(CC) $(LDFLAGS) -o $@ rlcat.o $(READLINE_LIB_STAT) $(TERMCAP_LIB)
++
++rlevent-stat$(EXEEXT): rlevent.o $(READLINE_LIB_STAT)
++	$(PURIFY) $(CC) $(LDFLAGS) -o $@ rlevent.o $(READLINE_LIB_STAT) $(TERMCAP_LIB)
++
++fileman-stat$(EXEEXT): fileman.o $(READLINE_LIB_STAT)
++	$(PURIFY) $(CC) $(LDFLAGS) -o $@ fileman.o $(READLINE_LIB_STAT) $(TERMCAP_LIB)
++
++rltest-stat$(EXEEXT): rltest.o $(READLINE_LIB_STAT)
++	$(PURIFY) $(CC) $(LDFLAGS) -o $@ rltest.o $(READLINE_LIB_STAT) $(TERMCAP_LIB)
++
++rlptytest-stat$(EXEEXT): rlptytest.o $(READLINE_LIB_STAT)
++	$(PURIFY) $(CC) $(LDFLAGS) -o $@ rlptytest.o $(READLINE_LIB_STAT) $(TERMCAP_LIB)
++
++rlversion-stat$(EXEEXT): rlversion.o $(READLINE_LIB_STAT)
++	$(CC) $(LDFLAGS) -o $@ rlversion.o $(READLINE_LIB_STAT) $(TERMCAP_LIB)
++
++histexamp-stat$(EXEEXT): histexamp.o $(HISTORY_LIB)
++	$(PURIFY) $(CC) $(LDFLAGS) -o $@ histexamp.o -lhistory $(TERMCAP_LIB)
++
+ clean mostlyclean:
+ 	$(RM) $(OBJECTS)
+ 	$(RM) $(EXECUTABLES) *.exe

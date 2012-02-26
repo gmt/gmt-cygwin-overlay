@@ -1,0 +1,103 @@
+--- install-sh.orig	2012-02-17 01:26:45.205398700 -0800
++++ install-sh	2012-02-17 02:07:40.095898700 -0800
+@@ -68,6 +68,16 @@
+ rmprog=${RMPROG-rm}
+ stripprog=${STRIPPROG-strip}
+ 
++chgrpprog=` echo ${chgrpprog} | tr -s '/' `
++chmodprog=` echo ${chmodprog} | tr -s '/' `
++chownprog=` echo ${chownprog} | tr -s '/' `
++cmpprog=` echo ${cmpprog} | tr -s '/' `
++cpprog=` echo ${cpprog} | tr -s '/' `
++mkdirprog=` echo ${mkdirprog} | tr -s '/' `
++mvprog=` echo ${mvprog} | tr -s '/' `
++rmprog=` echo ${rmprog} | tr -s '/' `
++stripprog=` echo ${stripprog} | tr -s '/' `
++
+ posix_glob='?'
+ initialize_posix_glob='
+   test "$posix_glob" != "?" || {
+@@ -155,7 +165,7 @@
+ 
+     -s) stripcmd=$stripprog;;
+ 
+-    -t) dst_arg=$2
++    -t) dst_arg=`echo $2 | tr -s '/' `
+ 	shift;;
+ 
+     -T) no_target_directory=true;;
+@@ -237,9 +247,11 @@
+     -*) src=./$src;;
+   esac
+ 
++  src=` echo $src | tr -s '/' `
++
+   if test -n "$dir_arg"; then
+     dst=$src
+-    dstdir=$dst
++    dstdir=` echo $dst | tr -s '/' `
+     test -d "$dstdir"
+     dstdir_status=$?
+   else
+@@ -263,6 +275,8 @@
+       -*) dst=./$dst;;
+     esac
+ 
++    dst=` echo $dst | tr -s '/' `
++
+     # If destination is a directory, append the input filename; won't work
+     # if double slashes aren't ignored.
+     if test -d "$dst"; then
+@@ -272,6 +286,7 @@
+       fi
+       dstdir=$dst
+       dst=$dstdir/`basename "$src"`
++      dst=` echo $dst | tr -s '/' `
+       dstdir_status=0
+     else
+       # Prefer dirname, but fall back on a substitute if dirname fails.
+@@ -300,6 +315,7 @@
+ 		 }
+ 		 s/.*/./; q'
+       `
++      dstdir=` echo $dstdir | tr -s '/' `
+ 
+       test -d "$dstdir"
+       dstdir_status=$?
+@@ -343,6 +359,7 @@
+ 	    ;;
+ 	  *)
+ 	    tmpdir=${TMPDIR-/tmp}/ins$RANDOM-$$
++	    tmpdir=` echo $tmpdir | tr -s '/' `
+ 	    trap 'ret=$?; rmdir "$tmpdir/d" "$tmpdir" 2>/dev/null; exit $ret' 0
+ 
+ 	    if (umask $mkdir_umask &&
+@@ -409,7 +426,7 @@
+       do
+ 	test -z "$d" && continue
+ 
+-	prefix=$prefix$d
++	prefix=` echo $prefix$d | tr -s '/' `
+ 	if test -d "$prefix"; then
+ 	  prefixes=
+ 	else
+@@ -426,7 +443,7 @@
+ 	    prefixes="$prefixes '$qprefix'"
+ 	  fi
+ 	fi
+-	prefix=$prefix/
++	prefix=` echo $prefix/ | tr -s '/' `
+       done
+ 
+       if test -n "$prefixes"; then
+@@ -447,8 +464,8 @@
+   else
+ 
+     # Make a couple of temp file names in the proper directory.
+-    dsttmp=$dstdir/_inst.$$_
+-    rmtmp=$dstdir/_rm.$$_
++    dsttmp=` echo $dstdir/_inst.$$_ | tr -s '/' `
++    rmtmp=` echo $dstdir/_rm.$$_ | tr -s '/' `
+ 
+     # Trap to clean up those temp files at exit.
+     trap 'ret=$?; rm -f "$dsttmp" "$rmtmp" && exit $ret' 0

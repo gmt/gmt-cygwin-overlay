@@ -1,0 +1,169 @@
+diff -u  cpan/ExtUtils-Command/lib/ExtUtils/Command.pm.orig
+--- cpan/ExtUtils-Command/lib/ExtUtils/Command.pm.orig	2009-04-12 01:40:04.000000000 +0200
++++ cpan/ExtUtils-Command/lib/ExtUtils/Command.pm	2009-08-03 21:44:48.484375000 +0200
+@@ -10,9 +10,9 @@
+ require Exporter;
+ use vars qw(@ISA @EXPORT @EXPORT_OK $VERSION);
+ @ISA       = qw(Exporter);
+-@EXPORT    = qw(cp rm_f rm_rf mv cat eqtime mkpath touch test_f test_d chmod
++@EXPORT    = qw(cp rm_f rm_rf mv cat eqtime mkpath touch test_f test_s test_d chmod
+                 dos2unix);
+-$VERSION = '1.16';
++$VERSION = '1.16_01';
+ 
+ my $Is_VMS   = $^O eq 'VMS';
+ my $Is_VMS_mode = $Is_VMS;
+@@ -56,6 +56,7 @@
+   perl -MExtUtils::Command -e mkpath directories...
+   perl -MExtUtils::Command -e eqtime source destination
+   perl -MExtUtils::Command -e test_f file
++  perl -MExtUtils::Command -e test_s file
+   perl -MExtUtils::Command -e test_d directory
+   perl -MExtUtils::Command -e chmod mode files...
+   ...
+@@ -302,6 +303,19 @@
+  exit(-f $ARGV[0] ? 0 : 1);
+ }
+ 
++=item test_s
++
++    test_s file
++
++Tests if a file exists and is not empty (size > 0).  I<Exits> with 0 if it does, 1 if it does not.
++
++=cut 
++
++sub test_s
++{
++ exit(-s $ARGV[0] ? 0 : 1);
++}
++
+ =item test_d
+ 
+     test_d directory
+diff -u  cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm.orig
+--- cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm.orig	2009-07-16 13:14:06.000000000 +0200
++++ cpan/ExtUtils-MakeMaker/lib/ExtUtils/Liblist/Kid.pm	2009-08-03 21:40:20.921875000 +0200
+@@ -132,6 +132,7 @@
+ 	    } elsif (-f ($fullname="$thispth/lib$thislib$Config_libext")){
+ 	    } elsif (-f ($fullname="$thispth/$thislib$Config_libext")){
+             } elsif (-f ($fullname="$thispth/lib$thislib.dll$Config_libext")){
++            } elsif (-f ($fullname="$thispth/$thislib.dll")){
+ 	    } elsif (-f ($fullname="$thispth/Slib$thislib$Config_libext")){
+ 	    } elsif ($^O eq 'dgux'
+ 		 && -l ($fullname="$thispth/lib$thislib$Config_libext")
+diff -u  cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm.orig
+--- cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm.orig	2009-07-16 13:14:06.000000000 +0200
++++ cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Any.pm	2009-08-04 08:04:48.406250000 +0200
+@@ -475,7 +475,7 @@
+ #                    $(INST_BIN) $(INST_SCRIPT)
+ #                    $(INST_MAN1DIR) $(INST_MAN3DIR)
+ #                    $(INST_LIBDIR) $(INST_ARCHLIBDIR) $(INST_AUTODIR) 
+-#                    $(INST_STATIC) $(INST_DYNAMIC) $(INST_BOOT)
++#                    $(INST_STATIC) $(INST_DYNAMIC)
+ #                 );
+                   
+ 
+@@ -660,10 +660,11 @@
+ 
+ sub dynamic {
+ # --- Dynamic Loading Sections ---
++# Note:  $(INST_BOOT) moved to dynamic_lib to get rid of empty .bs
+ 
+     my($self) = shift;
+     '
+-dynamic :: $(FIRST_MAKEFILE) $(INST_DYNAMIC) $(INST_BOOT)
++dynamic :: $(FIRST_MAKEFILE) $(BOOTSTRAP) $(INST_DYNAMIC)
+ 	$(NOECHO) $(NOOP)
+ ';
+ }
+@@ -1726,6 +1727,7 @@
+   RM_RF             Remove a directory          
+   TOUCH             Update a file's timestamp   
+   TEST_F            Test for a file's existence 
++  TEST_S            Test for a file's emptyness 
+   CP                Copy a file                 
+   MV                Move a file                 
+   CHMOD             Change permissions on a file
+@@ -1748,6 +1750,7 @@
+     $self->{RM_F}     ||= $self->oneliner('rm_f',  ["-MExtUtils::Command"]);
+     $self->{RM_RF}    ||= $self->oneliner('rm_rf', ["-MExtUtils::Command"]);
+     $self->{TEST_F}   ||= $self->oneliner('test_f', ["-MExtUtils::Command"]);
++    $self->{TEST_S}   ||= $self->oneliner('test_s', ["-MExtUtils::Command"]);
+     $self->{FALSE}    ||= $self->oneliner('exit 1');
+     $self->{TRUE}     ||= $self->oneliner('exit 0');
+ 
+@@ -1865,7 +1868,7 @@
+ 
+     # We set PM_FILTER as late as possible so it can see all the earlier
+     # on macro-order sensitive makes such as nmake.
+-    for my $tool (qw{ SHELL CHMOD CP MV NOOP NOECHO RM_F RM_RF TEST_F TOUCH 
++    for my $tool (qw{ SHELL CHMOD CP MV NOOP NOECHO RM_F RM_RF TEST_F TEST_S TOUCH 
+                       UMASK_NULL DEV_NULL MKPATH EQUALIZE_TIMESTAMP
+                       FALSE TRUE
+                       ECHO ECHO_N
+diff -u  cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm.orig
+--- cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm.orig	2009-07-16 13:14:06.000000000 +0200
++++ cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Unix.pm	2009-08-03 21:40:18.671875000 +0200
+@@ -864,7 +864,7 @@
+ 
+ # As Mkbootstrap might not write a file (if none is required)
+ # we use touch to prevent make continually trying to remake it.
+-# The DynaLoader only reads a non-empty file.
++# BOOTSTRAP only gets installed if non-empty.
+ $(BOOTSTRAP) : $(FIRST_MAKEFILE) $(BOOTDEP) $(INST_ARCHAUTODIR)$(DFSEP).exists
+ 	$(NOECHO) $(ECHO) "Running Mkbootstrap for $(NAME) ($(BSLOADLIBS))"
+ 	$(NOECHO) $(PERLRUN) \
+@@ -872,11 +872,6 @@
+ 		-e "Mkbootstrap('$(BASEEXT)','$(BSLOADLIBS)');"
+ 	$(NOECHO) $(TOUCH) %s
+ 	$(CHMOD) $(PERM_RW) %s
+-
+-$(INST_BOOT) : $(BOOTSTRAP) $(INST_ARCHAUTODIR)$(DFSEP).exists
+-	$(NOECHO) $(RM_RF) %s
+-	- $(CP) $(BOOTSTRAP) %s
+-	$(CHMOD) $(PERM_RW) %s
+ MAKE_FRAG
+ }
+ 
+@@ -908,7 +903,7 @@
+ INST_DYNAMIC_DEP = '.$inst_dynamic_dep.'
+ INST_DYNAMIC_FIX = '.$ld_fix.'
+ 
+-$(INST_DYNAMIC): $(OBJECT) $(MYEXTLIB) $(BOOTSTRAP) $(INST_ARCHAUTODIR)$(DFSEP).exists $(EXPORT_LIST) $(PERL_ARCHIVE) $(PERL_ARCHIVE_AFTER) $(INST_DYNAMIC_DEP)
++$(INST_DYNAMIC): $(OBJECT) $(MYEXTLIB) $(INST_ARCHAUTODIR)$(DFSEP).exists $(EXPORT_LIST) $(PERL_ARCHIVE) $(PERL_ARCHIVE_AFTER) $(INST_DYNAMIC_DEP)
+ ');
+     if ($armaybe ne ':'){
+ 	$ldfrom = 'tmp$(LIB_EXT)';
+@@ -954,8 +949,12 @@
+ 	  $(INST_DYNAMIC_FIX)
+ MAKE
+ 
++    # copy .bs only if non-empty	
+     push @m, <<'MAKE';
+ 	$(CHMOD) $(PERM_RWX) $@
++	$(NOECHO) $(RM_RF) $(BOOTSTRAP)
++	- $(TEST_S) $(BOOTSTRAP) && $(CP) $(BOOTSTRAP) $(INST_BOOT) && \
++	  $(CHMOD) $(PERM_RW) $(INST_BOOT)
+ MAKE
+ 
+     return join('',@m);
+@@ -1735,7 +1734,7 @@
+ 
+ Initializes EXTRALIBS, BSLOADLIBS, LDLOADLIBS, LIBS, LD_RUN_PATH, LD,
+ OBJECT, BOOTDEP, PERLMAINCC, LDFROM, LINKTYPE, SHELL, NOOP,
+-FIRST_MAKEFILE, MAKEFILE_OLD, NOECHO, RM_F, RM_RF, TEST_F,
++FIRST_MAKEFILE, MAKEFILE_OLD, NOECHO, RM_F, RM_RF, TEST_F, TEST_S,
+ TOUCH, CP, MV, CHMOD, UMASK_NULL, ECHO, ECHO_N
+ 
+ =cut
+@@ -1749,6 +1748,7 @@
+     $self->{RM_RF}      ||= "rm -rf";
+     $self->{TOUCH}      ||= "touch";
+     $self->{TEST_F}     ||= "test -f";
++    $self->{TEST_S}     ||= "test -s";
+     $self->{CP}         ||= "cp";
+     $self->{MV}         ||= "mv";
+     $self->{CHMOD}      ||= "chmod";
+diff -u  perl-current/lib/ExtUtils/MM_VMS.pm.orig
+diff -u  perl-current/lib/ExtUtils/MM_Win32.pm.orig

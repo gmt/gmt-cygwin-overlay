@@ -1,0 +1,14 @@
+--- config.guess.orig	2002-07-27 13:38:17.000000000 -0700
++++ config.guess	2012-02-23 15:53:37.651015400 -0800
+@@ -756,7 +756,10 @@
+ 	rm -f $dummy.c && rmdir $tmpdir
+ 	echo ${UNAME_MACHINE}-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`${LIBC:+-$LIBC}
+ 	exit 0 ;;
+-    i*:CYGWIN*:*)
++    i*:CYGWIN*:1.7*:*)
++	echo ${UNAME_MACHINE}-pc-cygwin1.7
++	exit 0 ;;
++    i*:CYGWIN*:*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+ 	exit 0 ;;
+     i*:MINGW*:*)

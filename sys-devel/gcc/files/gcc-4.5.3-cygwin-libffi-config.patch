@@ -1,0 +1,21 @@
+diff -urN origsrc/gcc-4.5.3/libffi/configure src/gcc-4.5.3/libffi/configure
+--- origsrc/gcc-4.5.3/libffi/configure	2011-04-28 07:31:38.000000000 -0700
++++ src/gcc-4.5.3/libffi/configure	2012-02-22 12:56:35.814612900 -0800
+@@ -11360,7 +11360,7 @@
+   i?86-win32* | i?86-*-cygwin* | i?86-*-mingw*)
+ 	TARGET=X86_WIN32; TARGETDIR=x86
+ 	# All mingw/cygwin/win32 builds require this for sharedlib
+-	AM_LTLDFLAGS="-no-undefined"
++	AM_LTLDFLAGS='-no-undefined -bindir $(bindir)'
+ 	;;
+   i?86-*-darwin*)
+ 	TARGET=X86_DARWIN; TARGETDIR=x86
+@@ -12628,7 +12628,7 @@
+   toolexeclibdir='$(toolexecdir)/lib'
+ else
+   toolexecdir='$(libdir)/gcc-lib/$(target_alias)'
+-  toolexeclibdir='$(libdir)'
++  toolexeclibdir="${host__toolexeclibdir:-\$(libdir)}"
+ fi
+ multi_os_directory=`$CC -print-multi-os-directory`
+ case $multi_os_directory in

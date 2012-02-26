@@ -1,0 +1,114 @@
+diff -urN cpan/Cwd/lib/File/Spec/Cygwin.pm cpan/Cwd/lib/File/Spec/Cygwin.pm
+--- cpan/Cwd/lib/File/Spec/Cygwin.pm	2011-01-09 12:20:53.000000000 -0800
++++ cpan/Cwd/lib/File/Spec/Cygwin.pm	2012-02-12 07:13:13.310215400 -0800
+@@ -4,7 +4,7 @@
+ use vars qw(@ISA $VERSION);
+ require File::Spec::Unix;
+ 
+-$VERSION = '3.30';
++$VERSION = '3.3001';
+ $VERSION = eval $VERSION;
+ 
+ @ISA = qw(File::Spec::Unix);
+@@ -108,37 +108,35 @@
+ Override Unix. Cygwin case-tolerance depends on managed mount settings and
+ as with MsWin32 on GetVolumeInformation() $ouFsFlags == FS_CASE_SENSITIVE,
+ indicating the case significance when comparing file specifications.
++Since XP FS_CASE_SENSITIVE is effectively disabled for the NT subsystem.
++See http://cygwin.com/ml/cygwin/2007-07/msg00891.html
++Accepts an optional drive-mount argument.
+ Default: 1
+ 
+ =cut
+ 
++my %tmp_case_tolerant;
+ sub case_tolerant {
+   return 1 unless $^O eq 'cygwin'
+     and defined &Cygwin::mount_flags;
+ 
+   my $drive = shift;
++  $drive = shift if $drive =~ /^File::Spec/;
++  my $windrive;
+   if (! $drive) {
+-      my @flags = split(/,/, Cygwin::mount_flags('/cygwin'));
+-      my $prefix = pop(@flags);
+-      if (! $prefix || $prefix eq 'cygdrive') {
+-          $drive = '/cygdrive/c';
+-      } elsif ($prefix eq '/') {
+-          $drive = '/c';
+-      } else {
+-          $drive = "$prefix/c";
+-      }
++    $windrive = $ENV{SYSTEMDRIVE} || substr($ENV{WINDIR}, 0, 2);
++    $drive = Cygwin::win_to_posix_path($windrive."\\");
+   }
++  return $tmp_case_tolerant{$drive} if exists $tmp_case_tolerant{$drive};
+   my $mntopts = Cygwin::mount_flags($drive);
+   if ($mntopts and ($mntopts =~ /,managed/)) {
++    $tmp_case_tolerant{$drive} = 0;
+     return 0;
+   }
+-  eval { require Win32API::File; } or return 1;
+-  my $osFsType = "\0"x256;
+-  my $osVolName = "\0"x256;
+-  my $ouFsFlags = 0;
+-  Win32API::File::GetVolumeInformation($drive, $osVolName, 256, [], [], $ouFsFlags, $osFsType, 256 );
+-  if ($ouFsFlags & Win32API::File::FS_CASE_SENSITIVE()) { return 0; }
+-  else { return 1; }
++  require File::Spec::Win32;
++  $windrive = substr(Cygwin::posix_to_win_path($drive),0,2);
++  $tmp_case_tolerant{$drive} = File::Spec::Win32::case_tolerant($windrive);
++  return $tmp_case_tolerant{$drive};
+ }
+ 
+ =back
+diff -urN cpan/Cwd/lib/File/Spec/Win32.pm cpan/Cwd/lib/File/Spec/Win32.pm
+--- cpan/Cwd/lib/File/Spec/Win32.pm	2011-01-09 12:20:53.000000000 -0800
++++ cpan/Cwd/lib/File/Spec/Win32.pm	2012-02-12 07:02:11.126805200 -0800
+@@ -5,7 +5,7 @@
+ use vars qw(@ISA $VERSION);
+ require File::Spec::Unix;
+ 
+-$VERSION = '3.30';
++$VERSION = '3.3001';
+ $VERSION = eval $VERSION;
+ 
+ @ISA = qw(File::Spec::Unix);
+@@ -82,15 +82,23 @@
+ 
+ MSWin32 case-tolerance depends on GetVolumeInformation() $ouFsFlags == FS_CASE_SENSITIVE,
+ indicating the case significance when comparing file specifications.
+-Since XP FS_CASE_SENSITIVE is effectively disabled for the NT subsubsystem.
++Since XP FS_CASE_SENSITIVE is effectively disabled for the NT subsystem.
+ See http://cygwin.com/ml/cygwin/2007-07/msg00891.html
++Accepts an optional drive-letter argument.
+ Default: 1
+ 
+ =cut
+ 
+ sub case_tolerant {
++  use Win32;
++  my @ver = Win32::GetOSVersion();
++  # From XP on this is disabled.
++  if ($ver[4] >= 2 and $ver[1] >= 5 and $ver[2] >= 1) { return 1; }
++  if ($ver[4] < 2) { return 1; } # Win32s,95,ME are always case_tolerant.
+   eval { require Win32API::File; } or return 1;
+-  my $drive = shift || "C:";
++  my $drive = shift;
++  $drive = shift if $drive =~ /^File::Spec/;
++  $drive ||= $ENV{SYSTEMDRIVE} || substr($ENV{WINDIR}, 0, 2);
+   my $osFsType = "\0"x256;
+   my $osVolName = "\0"x256;
+   my $ouFsFlags = 0;
+diff -urN cpan/Cwd/lib/File/Spec.pm cpan/Cwd/lib/File/Spec.pm
+--- cpan/Cwd/lib/File/Spec.pm	2011-01-09 12:20:53.000000000 -0800
++++ cpan/Cwd/lib/File/Spec.pm	2012-02-12 07:02:11.123304500 -0800
+@@ -3,7 +3,7 @@
+ use strict;
+ use vars qw(@ISA $VERSION);
+ 
+-$VERSION = '3.31_01';
++$VERSION = '3.31_0101';
+ $VERSION = eval $VERSION;
+ 
+ my %module = (MacOS   => 'Mac',

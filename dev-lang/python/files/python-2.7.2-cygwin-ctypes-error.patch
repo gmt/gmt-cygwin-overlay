@@ -1,0 +1,20 @@
+--- Modules/_ctypes/_ctypes.c.orig	2012-02-25 05:02:39.584015500 -0800
++++ Modules/_ctypes/_ctypes.c	2012-02-25 05:00:44.301015500 -0800
+@@ -605,7 +605,7 @@
+ #ifdef __CYGWIN__
+ /* dlerror() isn't very helpful on cygwin */
+         PyErr_Format(PyExc_ValueError,
+-                     "symbol '%s' not found (%s) ",
++                     "symbol '%s' not found",
+                      name);
+ #else
+         PyErr_SetString(PyExc_ValueError, ctypes_dlerror());
+@@ -3344,7 +3344,7 @@
+ #ifdef __CYGWIN__
+ /* dlerror() isn't very helpful on cygwin */
+         PyErr_Format(PyExc_AttributeError,
+-                     "function '%s' not found (%s) ",
++                     "function '%s' not found",
+                      name);
+ #else
+         PyErr_SetString(PyExc_AttributeError, ctypes_dlerror());

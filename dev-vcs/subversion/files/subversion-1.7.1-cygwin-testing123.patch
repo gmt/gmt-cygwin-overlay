@@ -1,0 +1,22 @@
+--- build.conf.bak	2012-02-13 05:06:28.339991000 -0800
++++ build.conf	2012-02-13 05:09:53.810576900 -0800
+@@ -489,7 +489,7 @@
+ type = swig_lib
+ lang = perl
+ path = subversion/bindings/swig/perl/libsvn_swig_perl
+-libs = libsvn_delta libsvn_subr apriconv apr
++libs = libsvn_delta libsvn_subr apriconv apr perl
+ install = swig-pl-lib
+ # need special build rule to include
+ compile-cmd = $(COMPILE_SWIG_PL)
+@@ -1091,6 +1091,10 @@
+ external-lib = $(SVN_FS_LIB_LINK)
+ libs = libsvn_fs_base libsvn_fs_fs
+ 
++[perl]
++type = lib
++external-lib = -L/g2pfx/usr/lib/perl5/5.12.3/i686-linux/CORE -lperl
++
+ [__ALL__]
+ type = project
+ path = build/win32

@@ -1,0 +1,14 @@
+--- libiberty/pex-unix.c.orig	2012-02-16 02:51:22.354510700 -0800
++++ libiberty/pex-unix.c	2012-02-16 02:52:17.360510700 -0800
+@@ -57,8 +57,11 @@
+ #endif
+ #ifdef HAVE_PROCESS_H
+ #include <process.h>
++#elif (__CYGWIN__)
++#include <cygwin/process.h>
+ #endif
+ 
++
+ #ifdef vfork /* Autoconf may define this to fork for us. */
+ # define VFORK_STRING "fork"
+ #else

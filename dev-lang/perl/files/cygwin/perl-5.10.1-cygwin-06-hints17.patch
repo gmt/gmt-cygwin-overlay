@@ -1,0 +1,14 @@
+diff -urN hints/cygwin.sh hints/cygwin.sh
+--- hints/cygwin.sh	2011-01-09 12:20:55.000000000 -0800
++++ hints/cygwin.sh	2012-02-12 07:32:09.748957700 -0800
+@@ -36,8 +36,8 @@
+ test -z "$usethreads" && usethreads='define'
+ test -z "$usemymalloc" && usemymalloc='define'
+ ccflags="$ccflags -DPERL_USE_SAFE_PUTENV -U__STRICT_ANSI__"
+-# - otherwise i686-cygwin
+-archname='cygwin'
++# i686-cygwin
++archname='i686-cygwin'
+ 
+ # dynamic loading
+ # - otherwise -fpic

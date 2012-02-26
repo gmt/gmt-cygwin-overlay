@@ -1,0 +1,245 @@
+diff -urN a/Makefile.in b/Makefile.in
+--- a/Makefile.in	2010-04-19 21:12:21.000000000 -0700
++++ b/Makefile.in	2012-02-17 02:46:58.466398700 -0800
+@@ -34,7 +34,10 @@
+ SHAREDLIB=libz.so
+ SHAREDLIBV=libz.so.1.2.5
+ SHAREDLIBM=libz.so.1
+-LIBS=$(STATICLIB) $(SHAREDLIBV)
++IMPORTLIB=
++SHAREDLIBPOST='(rm -f $(SHAREDLIB) $(SHAREDLIBM); ln -s $@ $(SHAREDLIB) ; ln -s $@ $(SHAREDLIBM) )'
++SHAREDTARGET=$(SHAREDLIBV)
++LIBS=$(STATICLIB) $(SHAREDTARGET)
+ 
+ AR=ar rc
+ RANLIB=ranlib
+@@ -107,7 +110,7 @@
+ 	fi
+ 	-@rm -f foo.gz
+ 
+-libz.a: $(OBJS)
++$(STATICLIB): $(OBJS)
+ 	$(AR) $@ $(OBJS)
+ 	-@ ($(RANLIB) $@ || true) >/dev/null 2>&1
+ 
+@@ -124,42 +127,42 @@
+ 	rm -f _match.s
+ 
+ example64.o: example.c zlib.h zconf.h
+-	$(CC) $(CFLAGS) -D_FILE_OFFSET_BITS=64 -c -o $@ example.c
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -D_FILE_OFFSET_BITS=64 -c -o $@ example.c
+ 
+ minigzip64.o: minigzip.c zlib.h zconf.h
+-	$(CC) $(CFLAGS) -D_FILE_OFFSET_BITS=64 -c -o $@ minigzip.c
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -D_FILE_OFFSET_BITS=64 -c -o $@ minigzip.c
+ 
+ .SUFFIXES: .lo
+ 
++.c.o:
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -o $*.o $<
+ .c.lo:
+ 	-@mkdir objs 2>/dev/null || test -d objs
+-	$(CC) $(SFLAGS) -DPIC -c -o objs/$*.o $<
++	$(CC) $(SFLAGS) $(EXTRA_CFLAGS) -DPIC -c -o objs/$*.o $<
+ 	-@mv objs/$*.o $@
+ 
+-$(SHAREDLIBV): $(PIC_OBJS)
+-	$(LDSHARED) $(SFLAGS) -o $@ $(PIC_OBJS) $(LDSHAREDLIBC) $(LDFLAGS)
+-	rm -f $(SHAREDLIB) $(SHAREDLIBM)
+-	ln -s $@ $(SHAREDLIB)
+-	ln -s $@ $(SHAREDLIBM)
++$(SHAREDTARGET): $(PIC_OBJS)
++	$(LDSHARED) $(SFLAGS) -o $@ $(PIC_OBJS) $(LDSHAREDLIBC) $(LDFLAGS) $(EXTRA_LDFLAGS)
++	$(SHAREDLIBPOST)
+ 	-@rmdir objs
+ 
+ example$(EXE): example.o $(STATICLIB)
+-	$(CC) $(CFLAGS) -o $@ example.o $(TEST_LDFLAGS)
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ example.o $(TEST_LDFLAGS) $(EXTRA_LDFLAGS)
+ 
+ minigzip$(EXE): minigzip.o $(STATICLIB)
+-	$(CC) $(CFLAGS) -o $@ minigzip.o $(TEST_LDFLAGS)
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ minigzip.o $(TEST_LDFLAGS) $(EXTRA_LDFLAGS)
+ 
+-examplesh$(EXE): example.o $(SHAREDLIBV)
+-	$(CC) $(CFLAGS) -o $@ example.o -L. $(SHAREDLIBV)
++examplesh$(EXE): example.o $(SHAREDTARGET)
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ example.o -L. $(SHAREDTARGET)
+ 
+-minigzipsh$(EXE): minigzip.o $(SHAREDLIBV)
+-	$(CC) $(CFLAGS) -o $@ minigzip.o -L. $(SHAREDLIBV)
++minigzipsh$(EXE): minigzip.o $(SHAREDTARGET)
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ minigzip.o -L. $(SHAREDTARGET)
+ 
+ example64$(EXE): example64.o $(STATICLIB)
+-	$(CC) $(CFLAGS) -o $@ example64.o $(TEST_LDFLAGS)
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ example64.o $(TEST_LDFLAGS) $(EXTRA_LDFLAGS)
+ 
+ minigzip64$(EXE): minigzip64.o $(STATICLIB)
+-	$(CC) $(CFLAGS) -o $@ minigzip64.o $(TEST_LDFLAGS)
++	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ minigzip64.o $(TEST_LDFLAGS) $(EXTRA_LDFLAGS)
+ 
+ install-libs: $(LIBS)
+ 	-@if [ ! -d $(DESTDIR)$(exec_prefix)  ]; then mkdir -p $(DESTDIR)$(exec_prefix); fi
+@@ -167,16 +170,27 @@
+ 	-@if [ ! -d $(DESTDIR)$(sharedlibdir) ]; then mkdir -p $(DESTDIR)$(sharedlibdir); fi
+ 	-@if [ ! -d $(DESTDIR)$(man3dir)      ]; then mkdir -p $(DESTDIR)$(man3dir); fi
+ 	-@if [ ! -d $(DESTDIR)$(pkgconfigdir) ]; then mkdir -p $(DESTDIR)$(pkgconfigdir); fi
+-	cp $(STATICLIB) $(DESTDIR)$(libdir)
+-	cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir)
+-	cd $(DESTDIR)$(libdir); chmod u=rw,go=r $(STATICLIB)
+-	-@(cd $(DESTDIR)$(libdir); $(RANLIB) libz.a || true) >/dev/null 2>&1
+-	-@cd $(DESTDIR)$(sharedlibdir); if test "$(SHAREDLIBV)" -a -f $(SHAREDLIBV); then \
+-	  chmod 755 $(SHAREDLIBV); \
+-	  rm -f $(SHAREDLIB) $(SHAREDLIBM); \
+-	  ln -s $(SHAREDLIBV) $(SHAREDLIB); \
+-	  ln -s $(SHAREDLIBV) $(SHAREDLIBM); \
+-	  ($(LDCONFIG) || true)  >/dev/null 2>&1; \
++	cp $(STATICLIB) $(IMPORTLIB) $(DESTDIR)$(libdir)
++	cd $(DESTDIR)$(libdir); chmod u=rw,go=r $(STATICLIB) $(IMPORTLIB)
++	-@(cd $(DESTDIR)$(libdir); $(RANLIB) $(STATICLIB) || true) >/dev/null 2>&1
++	if test -z "$(IMPORTLIB)" ; then \
++	  if test -n "$(SHAREDTARGET)" ; then \
++	    if test -f "$(SHAREDTARGET)" ; then \
++	      cp $(SHAREDTARGET) $(DESTDIR)$(sharedlibdir); \
++	    fi; \
++	  fi; \
++	  cd $(DESTDIR)$(sharedlibdir); \
++	  if test -n "$(SHAREDLIBV)" ; then \
++	    if test -f "$(SHAREDLIBV)" ; then \
++	      rm -f $(SHAREDLIB) $(SHAREDLIBM); \
++	      ln -s $(SHAREDLIBV) $(SHAREDLIB); \
++	      ln -s $(SHAREDLIBV) $(SHAREDLIBM); \
++	      ($(LDCONFIG) || true)  >/dev/null 2>&1; \
++	    fi; \
++	  fi; \
++	else \
++	  cp $(SHAREDTARGET) $(DESTDIR)$(sharedlibdir); \
++	  (cd $(DESTDIR)$(sharedlibdir); chmod 755 $(SHAREDTARGET)); \
+ 	fi
+ 	cp zlib.3 $(DESTDIR)$(man3dir)
+ 	chmod 644 $(DESTDIR)$(man3dir)/zlib.3
+@@ -192,12 +206,15 @@
+ 
+ uninstall:
+ 	cd $(DESTDIR)$(includedir); rm -f zlib.h zconf.h
+-	cd $(DESTDIR)$(libdir); rm -f libz.a; \
+-	if test "$(SHAREDLIBV)" -a -f $(SHAREDLIBV); then \
+-	  rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
++	cd $(DESTDIR)$(libdir); rm -f $(STATICLIB) $(IMPORTLIB)
++	if test "$(SHAREDLIBV)"; then \
++	  if test -f $(SHAREDLIBV); then \
++	    rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
++	  fi \
+ 	fi
+ 	cd $(DESTDIR)$(man3dir); rm -f zlib.3
+ 	cd $(DESTDIR)$(pkgconfigdir); rm -f zlib.pc
++	cd $(DESTDIR)$(sharedlibdir); (rm -f $(SHAREDTARGET) || true) > /dev/null 2>&1
+ 
+ docs: zlib.3.pdf
+ 
+@@ -216,6 +233,7 @@
+ 	rm -f *.o *.lo *~ \
+ 	   example$(EXE) minigzip$(EXE) examplesh$(EXE) minigzipsh$(EXE) \
+ 	   example64$(EXE) minigzip64$(EXE) \
++	   $(STATICLIB) $(IMPORTLIB) $(SHAREDTARGET) $(SHAREDLIBV) $(SHAREDLIBV) $(SHAREDLIBM) \
+ 	   libz.* foo.gz so_locations \
+ 	   _match.s maketree contrib/infback9/*.o
+ 	rm -rf objs
+--- a/configure	2012-02-17 03:00:25.528898700 -0800
++++ b/configure	2012-02-17 03:09:53.025398700 -0800
+@@ -19,6 +19,7 @@
+ fi
+ 
+ STATICLIB=libz.a
++IMPORTLIB=
+ VER=`sed -n -e '/VERSION "/s/.*"\(.*\)".*/\1/p' < zlib.h`
+ VER3=`sed -n -e '/VERSION "/s/.*"\([0-9]*\\.[0-9]*\\.[0-9]*\).*/\1/p' < zlib.h`
+ VER2=`sed -n -e '/VERSION "/s/.*"\([0-9]*\\.[0-9]*\)\\..*/\1/p' < zlib.h`
+@@ -58,6 +59,7 @@
+ gcc=0
+ old_cc="$CC"
+ old_cflags="$CFLAGS"
++old_ldflags="$LDFLAGS"
+ 
+ while test $# -ge 1
+ do
+@@ -120,14 +122,23 @@
+   Linux* | linux* | SunOS* | solaris* | GNU | GNU/* | *BSD | DragonFly | freebsd* ) LDSHARED=${LDSHARED-"$cc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map"} ;;
+   AIX* | aix* ) LDSHARED=${LDSHARED-"$cc -shared -Wl,-soname,libz.so.1"} ;;
+   CYGWIN* | Cygwin* | cygwin* | OS/2*)
++          CFLAGS="${CFLAGS} -D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64"
++          SFLAGS="${CFLAGS}"
++  LDFLAGS="-L. -lz ${old_ldflags}"
++  shared_ext='.dll'
++  SHAREDLIB='cygz.dll'
++  IMPORTLIB='libz.dll.a'
++  LDSHARED=${LDSHARED-"$cc -shared -Wl,-export-all -Wl,--enable-auto-image-base -Wl,--out-implib=${IMPORTLIB}"}
++  LDSHAREDLIBC=''
+         EXE='.exe' ;;
+   MINGW*|mingw*)
+-# temporary bypass
+-        rm -f $test.[co] $test $test$shared_ext
+-        echo "Please use win32/Makefile.gcc instead."
+-        exit 1
+-        LDSHARED=${LDSHARED-"$cc -shared"}
+-        LDSHAREDLIBC=""
++         SFLAGS="${CFLAGS}"
++ LDFLAGS="-L. -lz ${old_ldflags}"
++ shared_ext='.dll'
++ SHAREDLIB='libz-1.dll'
++ IMPORTLIB='libz.dll.a'
++ LDSHARED=${LDSHARED-"$cc -shared -Wl,-export-all -Wl,--enable-auto-image-base -Wl,--out-implib=${IMPORTLIB}"}
++ LDSHAREDLIBC=''
+         EXE='.exe' ;;
+   QNX*)  # This is for QNX6. I suppose that the QNX rule below is for QNX2,QNX4
+          # (alain.bonnefoy@icbt.com)
+@@ -224,9 +235,28 @@
+   esac
+ fi
+ 
++case "$uname" in
++  *CYGWIN* | *Cygwin* | *cygwin* )
++    # On cygwin, we always build both shared and static libs
++    ALL="static shared"
++    SHAREDLIBPOST='true'
++    SHAREDTARGET=${SHAREDLIB}
++    TEST="all teststatic testshared"
++    ;;
++  *MINGW* | *Mingw* | *mingw* )
++    # On Mingw, we always build both shared and static libs
++    ALL="static shared"
++    SHAREDLIBPOST='true'
++    SHAREDTARGET=${SHAREDLIB}
++    TEST="all teststatic testshared"
++    ;;
++  *)
++
+ SHAREDLIB=${SHAREDLIB-"libz$shared_ext"}
+ SHAREDLIBV=${SHAREDLIBV-"libz$shared_ext.$VER"}
+ SHAREDLIBM=${SHAREDLIBM-"libz$shared_ext.$VER1"}
++SHAREDLIBPOST='(rm -f $(SHAREDLIB) $(SHAREDLIBM); ln -s $@ $(SHAREDLIB) ; ln -s $@ $(SHAREDLIBM) )'
++SHAREDTARGET='$(SHAREDLIBV)'
+ 
+ if test $shared -eq 1; then
+   echo Checking for shared library support...
+@@ -258,7 +288,8 @@
+   ALL="static shared"
+   TEST="all teststatic testshared"
+ fi
+-
++  ;;
++esac
+ cat > $test.c <<EOF
+ #include <sys/types.h>
+ off64_t dummy = 0;
+@@ -556,6 +587,9 @@
+ /^SHAREDLIB *=/s#=.*#=$SHAREDLIB#
+ /^SHAREDLIBV *=/s#=.*#=$SHAREDLIBV#
+ /^SHAREDLIBM *=/s#=.*#=$SHAREDLIBM#
++/^IMPORTLIB *=/s#=.*#=$IMPORTLIB#
++/^SHAREDLIBPOST *=/s#=.*#=$SHAREDLIBPOST#
++/^SHAREDTARGET *=/s#=.*#=$SHAREDTARGET#
+ /^AR *=/s#=.*#=$AR_RC#
+ /^RANLIB *=/s#=.*#=$RANLIB#
+ /^LDCONFIG *=/s#=.*#=$LDCONFIG#

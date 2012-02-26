@@ -1,0 +1,631 @@
+diff -urN glib-2.30.2.vanilla/configure.ac glib-2.30.2/configure.ac
+--- glib-2.30.2.vanilla/configure.ac	2011-11-11 14:11:22.000000000 -0800
++++ glib-2.30.2/configure.ac	2012-02-12 03:09:41.312174100 -0800
+@@ -2841,9 +2841,6 @@
+ dnl **********************
+ 
+ case $host in
+-  *-*-cygwin*)
+-	G_LIBS_EXTRA="-luser32 -lkernel32"
+-    ;;
+   *-*-mingw*)
+ 	G_LIBS_EXTRA="-lws2_32 -lole32"
+     ;;
+diff -urN glib-2.30.2.vanilla/gio/giomodule.c glib-2.30.2/gio/giomodule.c
+--- glib-2.30.2.vanilla/gio/giomodule.c	2011-11-11 10:00:58.000000000 -0800
++++ glib-2.30.2/gio/giomodule.c	2012-02-12 03:11:03.263674100 -0800
+@@ -647,7 +647,7 @@
+ extern GType _g_dummy_proxy_resolver_get_type (void);
+ extern GType _g_dummy_tls_backend_get_type (void);
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+ 
+ #include <windows.h>
+ 
+diff -urN glib-2.30.2.vanilla/gio/tests/live-g-file.c glib-2.30.2/gio/tests/live-g-file.c
+--- glib-2.30.2.vanilla/gio/tests/live-g-file.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.30.2/gio/tests/live-g-file.c	2012-02-12 03:11:03.269674100 -0800
+@@ -1147,7 +1147,7 @@
+ 	  write_test = TRUE;
+ 	  only_create_struct = FALSE;
+ 	  target_path = DEFAULT_TEST_DIR;
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+ 	  posix_compat = FALSE;
+ #else
+ 	  posix_compat = TRUE;
+diff -urN glib-2.30.2.vanilla/glib/gatomic.c glib-2.30.2/glib/gatomic.c
+--- glib-2.30.2.vanilla/glib/gatomic.c	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/glib/gatomic.c	2012-02-12 03:12:03.089674100 -0800
+@@ -455,7 +455,7 @@
+   return g_atomic_pointer_xor ((volatile gpointer *) atomic, val);
+ }
+ 
+-#elif defined (G_PLATFORM_WIN32) && defined(HAVE_WIN32_BUILTINS_FOR_ATOMIC_OPERATIONS)
++#elif defined (G_OS_WIN32) && defined(HAVE_WIN32_BUILTINS_FOR_ATOMIC_OPERATIONS)
+ 
+ #include <windows.h>
+ #if !defined(_M_AMD64) && !defined (_M_IA64) && !defined(_M_X64)
+diff -urN glib-2.30.2.vanilla/glib/gconvert.c glib-2.30.2/glib/gconvert.c
+--- glib-2.30.2.vanilla/glib/gconvert.c	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/glib/gconvert.c	2012-02-12 03:11:03.282174100 -0800
+@@ -33,9 +33,6 @@
+ 
+ #ifdef G_OS_WIN32
+ #include "win_iconv.c"
+-#endif
+-
+-#ifdef G_PLATFORM_WIN32
+ #define STRICT
+ #include <windows.h>
+ #undef STRICT
+@@ -1261,7 +1258,7 @@
+ 		      charset, "UTF-8", bytes_read, bytes_written, error);
+ }
+ 
+-#ifndef G_PLATFORM_WIN32
++#ifndef G_OS_WIN32
+ 
+ typedef struct _GFilenameCharsetCache GFilenameCharsetCache;
+ 
+@@ -1377,7 +1374,7 @@
+   return cache->is_utf8;
+ }
+ 
+-#else /* G_PLATFORM_WIN32 */
++#else /* G_OS_WIN32 */
+ 
+ gboolean
+ g_get_filename_charsets (const gchar ***filename_charsets) 
+@@ -1406,7 +1403,7 @@
+ #endif
+ }
+ 
+-#endif /* G_PLATFORM_WIN32 */
++#endif /* G_OS_WIN32 */
+ 
+ static gboolean
+ get_filename_charset (const gchar **filename_charset)
+diff -urN glib-2.30.2.vanilla/glib/glib.h glib-2.30.2/glib/glib.h
+--- glib-2.30.2.vanilla/glib/glib.h	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/glib/glib.h	2012-02-12 03:11:03.286174100 -0800
+@@ -91,7 +91,7 @@
+ #include <glib/gutils.h>
+ #include <glib/gvarianttype.h>
+ #include <glib/gvariant.h>
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+ #include <glib/gwin32.h>
+ #endif
+ 
+diff -urN glib-2.30.2.vanilla/glib/gstrfuncs.c glib-2.30.2/glib/gstrfuncs.c
+--- glib-2.30.2.vanilla/glib/gstrfuncs.c	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/glib/gstrfuncs.c	2012-02-12 03:16:18.992674100 -0800
+@@ -1421,12 +1421,12 @@
+ #ifdef HAVE_STRSIGNAL
+   const char *msg_locale;
+ 
+-#if defined(G_OS_BEOS) || defined(G_WITH_CYGWIN)
++#if defined(G_OS_BEOS)
+ extern const char *strsignal(int);
+ #else
+   /* this is declared differently (const) in string.h on BeOS */
+   extern char *strsignal (int sig);
+-#endif /* !G_OS_BEOS && !G_WITH_CYGWIN */
++#endif /* !G_OS_BEOS */
+   msg_locale = strsignal (signum);
+   if (g_get_charset (NULL))
+     return msg_locale;
+diff -urN glib-2.30.2.vanilla/glib/gutf8.c glib-2.30.2/glib/gutf8.c
+--- glib-2.30.2.vanilla/glib/gutf8.c	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/glib/gutf8.c	2012-02-12 03:11:03.291174100 -0800
+@@ -27,7 +27,7 @@
+ #endif
+ #include <string.h>
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+ #include <stdio.h>
+ #define STRICT
+ #include <windows.h>
+diff -urN glib-2.30.2.vanilla/glib/gutils.c glib-2.30.2/glib/gutils.c
+--- glib-2.30.2.vanilla/glib/gutils.c	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/glib/gutils.c	2012-02-12 03:11:03.300674100 -0800
+@@ -136,7 +136,7 @@
+ #define G_PATH_LENGTH   2048
+ #endif
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+ #  define STRICT		/* Strict typing, please */
+ #  include <windows.h>
+ #  undef STRICT
+@@ -145,9 +145,6 @@
+ #    define GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS 4
+ #  endif
+ #  include <lmcons.h>		/* For UNLEN */
+-#endif /* G_PLATFORM_WIN32 */
+-
+-#ifdef G_OS_WIN32
+ #  include <direct.h>
+ #  include <shlobj.h>
+    /* older SDK (e.g. msvc 5.0) does not have these*/
+@@ -189,7 +186,7 @@
+ const guint glib_interface_age = GLIB_INTERFACE_AGE;
+ const guint glib_binary_age = GLIB_BINARY_AGE;
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+ 
+ static HMODULE glib_dll = NULL;
+ 
+@@ -911,7 +908,7 @@
+ {
+   g_return_val_if_fail (file_name != NULL, NULL);
+   
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+   /* Skip \\server\share or //server/share */
+   if (G_IS_DIR_SEPARATOR (file_name[0]) &&
+       G_IS_DIR_SEPARATOR (file_name[1]) &&
+@@ -921,13 +918,11 @@
+       gchar *p;
+ 
+       p = strchr (file_name + 2, G_DIR_SEPARATOR);
+-#ifdef G_OS_WIN32
+       {
+ 	gchar *q = strchr (file_name + 2, '/');
+ 	if (p == NULL || (q != NULL && q < p))
+ 	  p = q;
+       }
+-#endif
+       if (p &&
+ 	  p > file_name + 2 &&
+ 	  p[1])
+@@ -3374,7 +3369,7 @@
+   if ((retval != NULL) && (retval[0] != '\0'))
+     return retval;
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+   /* g_win32_getlocale() first checks for LC_ALL, LC_MESSAGES and
+    * LANG, which we already did above. Oh well. The main point of
+    * calling g_win32_getlocale() is to get the thread's locale as used
+diff -urN glib-2.30.2.vanilla/glib/gutils.h glib-2.30.2/glib/gutils.h
+--- glib-2.30.2.vanilla/glib/gutils.h	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/glib/gutils.h	2012-02-12 03:11:03.307174100 -0800
+@@ -495,7 +495,7 @@
+  * On non-Windows platforms, expands to nothing.
+  */
+ 
+-#ifndef G_PLATFORM_WIN32
++#ifndef G_OS_WIN32
+ # define G_WIN32_DLLMAIN_FOR_DLL_NAME(static, dll_name)
+ #else
+ # define G_WIN32_DLLMAIN_FOR_DLL_NAME(static, dll_name)			\
+@@ -523,6 +523,6 @@
+ 
+ #endif	/* !G_DISABLE_DEPRECATED */
+ 
+-#endif /* G_PLATFORM_WIN32 */
++#endif /* G_OS_WIN32 */
+ 
+ #endif /* __G_UTILS_H__ */
+diff -urN glib-2.30.2.vanilla/glib/gwin32.h glib-2.30.2/glib/gwin32.h
+--- glib-2.30.2.vanilla/glib/gwin32.h	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/glib/gwin32.h	2012-02-12 03:11:03.312674100 -0800
+@@ -33,7 +33,7 @@
+ 
+ #include <glib/gtypes.h>
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+ 
+ G_BEGIN_DECLS
+ 
+@@ -41,8 +41,6 @@
+ #define MAXPATHLEN 1024
+ #endif
+ 
+-#ifdef G_OS_WIN32
+-
+ /*
+  * To get prototypes for the following POSIXish functions, you have to
+  * include the indicated non-POSIX headers. The functions are defined
+@@ -67,7 +65,6 @@
+  */
+ gint		g_win32_ftruncate	(gint		 f,
+ 					 guint		 size);
+-#endif /* G_OS_WIN32 */
+ 
+ /* The MS setlocale uses locale names of the form "English_United
+  * States.1252" etc. We want the Unixish standard form "en", "zh_TW"
+@@ -111,6 +108,6 @@
+ 
+ G_END_DECLS
+ 
+-#endif	 /* G_PLATFORM_WIN32 */
++#endif	 /* G_OS_WIN32 */
+ 
+ #endif /* __G_WIN32_H__ */
+diff -urN glib-2.30.2.vanilla/glib/libcharset/localcharset.c glib-2.30.2/glib/libcharset/localcharset.c
+--- glib-2.30.2.vanilla/glib/libcharset/localcharset.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.30.2/glib/libcharset/localcharset.c	2012-02-12 03:11:03.317174100 -0800
+@@ -46,10 +46,6 @@
+ #   include <locale.h>
+ #  endif
+ # endif
+-# ifdef __CYGWIN__
+-#  define WIN32_LEAN_AND_MEAN
+-#  include <windows.h>
+-# endif
+ #elif defined WIN32_NATIVE
+ # define WIN32_LEAN_AND_MEAN
+ # include <windows.h>
+@@ -111,7 +107,7 @@
+   cp = charset_aliases;
+   if (cp == NULL)
+     {
+-#if !(defined VMS || defined WIN32_NATIVE || defined __CYGWIN__)
++#if !(defined VMS || defined WIN32_NATIVE)
+       FILE *fp;
+       const char *dir;
+       const char *base = "charset.alias";
+@@ -237,7 +233,7 @@
+ 	   "DECKOREAN" "\0" "EUC-KR" "\0";
+ # endif
+ 
+-# if defined WIN32_NATIVE || defined __CYGWIN__
++# if defined WIN32_NATIVE
+       /* To avoid the troubles of installing a separate file in the same
+ 	 directory as the DLL and of retrieving the DLL's directory at
+ 	 runtime, simply inline the aliases here.  */
+@@ -292,53 +288,6 @@
+   /* Most systems support nl_langinfo (CODESET) nowadays.  */
+   codeset = nl_langinfo (CODESET);
+ 
+-#  ifdef __CYGWIN__
+-  /* Cygwin 2006 does not have locales.  nl_langinfo (CODESET) always
+-     returns "US-ASCII".  As long as this is not fixed, return the suffix
+-     of the locale name from the environment variables (if present) or
+-     the codepage as a number.  */
+-  if (codeset != NULL && strcmp (codeset, "US-ASCII") == 0)
+-    {
+-      const char *locale;
+-      static char buf[2 + 10 + 1];
+-
+-      locale = getenv ("LC_ALL");
+-      if (locale == NULL || locale[0] == '\0')
+-	{
+-	  locale = getenv ("LC_CTYPE");
+-	  if (locale == NULL || locale[0] == '\0')
+-	    locale = getenv ("LANG");
+-	}
+-      if (locale != NULL && locale[0] != '\0')
+-	{
+-	  /* If the locale name contains an encoding after the dot, return
+-	     it.  */
+-	  const char *dot = strchr (locale, '.');
+-
+-	  if (dot != NULL)
+-	    {
+-	      const char *modifier;
+-
+-	      dot++;
+-	      /* Look for the possible @... trailer and remove it, if any.  */
+-	      modifier = strchr (dot, '@');
+-	      if (modifier == NULL)
+-		return dot;
+-	      if (modifier - dot < sizeof (buf))
+-		{
+-		  memcpy (buf, dot, modifier - dot);
+-		  buf [modifier - dot] = '\0';
+-		  return buf;
+-		}
+-	    }
+-	}
+-
+-      /* Woe32 has a function returning the locale's codepage as a number.  */
+-      sprintf (buf, "CP%u", GetACP ());
+-      codeset = buf;
+-    }
+-#  endif
+-
+ # else
+ 
+   /* On old systems which lack it, use setlocale or getenv.  */
+diff -urN glib-2.30.2.vanilla/glib/tests/uri.c glib-2.30.2/glib/tests/uri.c
+--- glib-2.30.2.vanilla/glib/tests/uri.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.30.2/glib/tests/uri.c	2012-02-12 03:14:36.031674100 -0800
+@@ -56,7 +56,7 @@
+   { "c:\\windows", "otherhost", NULL, G_CONVERT_ERROR_NOT_ABSOLUTE_PATH},
+ #endif
+   { "etc", "localhost", NULL, G_CONVERT_ERROR_NOT_ABSOLUTE_PATH},
+-#ifndef G_PLATFORM_WIN32
++#ifndef G_OS_WIN32
+   { "/etc/\xE5\xE4\xF6", NULL, "file:///etc/%E5%E4%F6" },
+   { "/etc/\xC3\xB6\xC3\xA4\xC3\xA5", NULL, "file:///etc/%C3%B6%C3%A4%C3%A5"},
+ #endif
+diff -urN glib-2.30.2.vanilla/gmodule/gmodule-win32.c glib-2.30.2/gmodule/gmodule-win32.c
+--- glib-2.30.2.vanilla/gmodule/gmodule-win32.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.30.2/gmodule/gmodule-win32.c	2012-02-12 03:07:19.530174100 -0800
+@@ -38,8 +38,23 @@
+ #include <tlhelp32.h>
+ 
+ #ifdef G_WITH_CYGWIN
+-#include <sys/cygwin.h>
+-#endif
++#include <dlfcn.h>
++
++static gchar*
++fetch_dlerror (gboolean replace_null)
++{
++  gchar *msg = dlerror ();
++
++  /* make sure we always return an error message != NULL, if
++   * expected to do so. */
++
++  if (!msg && replace_null)
++    return "unknown dl-error";
++
++  return msg;
++}
++
++#else
+ 
+ static void
+ set_error (const gchar *format,
+@@ -64,20 +79,28 @@
+   g_free (error);
+ }
+ 
++#endif
++
+ /* --- functions --- */
+ static gpointer
+ _g_module_open (const gchar *file_name,
+ 		gboolean     bind_lazy,
+ 		gboolean     bind_local)
+ {
++#ifdef G_WITH_CYGWIN
++  gpointer handle;
++
++  handle = dlopen (file_name,
++          (bind_local ? 0 : RTLD_GLOBAL) | (bind_lazy ? RTLD_LAZY : RTLD_NOW));
++  if (!handle)
++    g_module_set_error (fetch_dlerror (TRUE));
++#else
+   HINSTANCE handle;
+   wchar_t *wfilename;
+-#ifdef G_WITH_CYGWIN
+   gchar tmp[MAX_PATH];
+ 
+   cygwin_conv_to_win32_path(file_name, tmp);
+   file_name = tmp;
+-#endif
+   wfilename = g_utf8_to_utf16 (file_name, -1, NULL, NULL, NULL);
+ 
+   handle = LoadLibraryW (wfilename);
+@@ -85,6 +108,7 @@
+       
+   if (!handle)
+     set_error ("`%s': ", file_name);
++#endif
+ 
+   return handle;
+ }
+@@ -95,16 +119,41 @@
+ static gpointer
+ _g_module_self (void)
+ {
++#ifdef G_WITH_CYGWIN
++  gpointer handle;
++
++  /* to query symbols from the program itself, special link options
++   * are required on some systems.
++   */
++
++  handle = dlopen (NULL, RTLD_GLOBAL | RTLD_LAZY);
++  if (!handle)
++    g_module_set_error (fetch_dlerror (TRUE));
++
++  return handle;
++#else
+   return null_module_handle;
++#endif
+ }
+ 
+ static void
+ _g_module_close (gpointer handle,
+ 		 gboolean is_unref)
+ {
++#ifdef G_WITH_CYGWIN
++  /* are there any systems out there that have dlopen()/dlclose()
++   * without a reference count implementation?
++   */
++  is_unref |= 1;
++
++  if (is_unref)
++    if (dlclose (handle) != 0)
++      g_module_set_error (fetch_dlerror (TRUE));
++#else
+   if (handle != null_module_handle)
+     if (!FreeLibrary (handle))
+       set_error ("");
++#endif
+ }
+ 
+ static gpointer
+@@ -150,6 +199,13 @@
+ {
+   gpointer p;
+   
++#ifdef G_WITH_CYGWIN
++  p = dlsym (handle, symbol_name);
++  if (!p)
++	p = find_in_any_module (symbol_name);
++  if (!p)
++    g_module_set_error (fetch_dlerror (FALSE));
++#else
+   if (handle == null_module_handle)
+     {
+       if ((p = GetProcAddress (GetModuleHandle (NULL), symbol_name)) == NULL)
+@@ -160,6 +216,7 @@
+ 
+   if (!p)
+     set_error ("");
++#endif
+ 
+   return p;
+ }
+diff -urN glib-2.30.2.vanilla/tests/Makefile.am glib-2.30.2/tests/Makefile.am
+--- glib-2.30.2.vanilla/tests/Makefile.am	2011-11-11 09:56:52.000000000 -0800
++++ glib-2.30.2/tests/Makefile.am	2012-02-12 03:11:03.321174100 -0800
+@@ -19,7 +19,9 @@
+ libadd_libglib = $(libglib)
+ if PLATFORM_WIN32
+ no_undefined = -no-undefined
++endif
+ 
++if OS_WIN32
+ module_test_exp = module-test.exp
+ 
+ module-test.exp: module-test.o
+diff -urN glib-2.30.2.vanilla/tests/module-test.c glib-2.30.2/tests/module-test.c
+--- glib-2.30.2.vanilla/tests/module-test.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.30.2/tests/module-test.c	2012-02-12 03:07:45.993174100 -0800
+@@ -85,9 +85,15 @@
+ 
+   dir = g_get_current_dir ();
+ 
+-  plugin_a = g_strconcat (dir, G_DIR_SEPARATOR_S "libmoduletestplugin_a", 
++#ifdef G_WITH_CYGWIN
++#define PLUGIN_NAME ".libs/cygmoduletestplugin"
++#else
++#define PLUGIN_NAME "libmoduletestplugin"
++#endif
++
++  plugin_a = g_strconcat (dir, G_DIR_SEPARATOR_S PLUGIN_NAME "_a", 
+ 			  NULL);
+-  plugin_b = g_strconcat (dir, G_DIR_SEPARATOR_S "libmoduletestplugin_b", 
++  plugin_b = g_strconcat (dir, G_DIR_SEPARATOR_S PLUGIN_NAME "_b", 
+ 			  NULL);
+ 
+   g_free (dir);
+@@ -96,38 +102,40 @@
+   
+   module_self = g_module_open (NULL, G_MODULE_BIND_LAZY);
+   if (!module_self)
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error1: %s", g_module_error ());
+ 
++#ifndef G_WITH_CYGWIN
+   if (!g_module_symbol (module_self, "g_module_close", (gpointer *) &f_self))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error2: %s", g_module_error ());
++#endif
+ 
+   module_a = g_module_open (plugin_a, G_MODULE_BIND_LAZY);
+   if (!module_a)
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error3: %s", g_module_error ());
+ 
+   module_b = g_module_open (plugin_b, G_MODULE_BIND_LAZY);
+   if (!module_b)
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error4: %s", g_module_error ());
+ 
+   /* get plugin state vars */
+ 
+   if (!g_module_symbol (module_a, "gplugin_a_state", 
+ 			(gpointer *) &gplugin_a_state))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error5: %s", g_module_error ());
+   
+   if (!g_module_symbol (module_b, "gplugin_b_state", 
+ 			(gpointer *) &gplugin_b_state))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error6: %s", g_module_error ());
+   test_states (NULL, NULL, "check-init");
+   
+   /* get plugin specific symbols and call them
+    */
+   if (!g_module_symbol (module_a, "gplugin_a_func", (gpointer *) &f_a))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error7: %s", g_module_error ());
+   test_states (NULL, NULL, NULL);
+  
+   if (!g_module_symbol (module_b, "gplugin_b_func", (gpointer *) &f_b))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error8: %s", g_module_error ());
+   test_states (NULL, NULL, NULL);
+  
+   f_a ();
+@@ -140,15 +148,15 @@
+    */
+  
+   if (!g_module_symbol (module_self, "g_clash_func", (gpointer *) &f_self))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error9: %s", g_module_error ());
+   test_states (NULL, NULL, NULL);
+ 
+   if (!g_module_symbol (module_a, "g_clash_func", (gpointer *) &f_a))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error10: %s", g_module_error ());
+   test_states (NULL, NULL, NULL);
+  
+   if (!g_module_symbol (module_b, "g_clash_func", (gpointer *) &f_b))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error11: %s", g_module_error ());
+   test_states (NULL, NULL, NULL);
+  
+   f_self ();
+@@ -163,11 +171,11 @@
+   /* get and call clashing plugin functions  */
+ 
+   if (!g_module_symbol (module_a, "gplugin_clash_func", (gpointer *) &f_a))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error12: %s", g_module_error ());
+   test_states (NULL, NULL, NULL);
+ 
+   if (!g_module_symbol (module_b, "gplugin_clash_func", (gpointer *) &f_b))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error13: %s", g_module_error ());
+   test_states (NULL, NULL, NULL);
+ 
+   plugin_clash_func = f_a;
+@@ -181,7 +189,7 @@
+   /* call gmodule function from A  */
+ 
+   if (!g_module_symbol (module_a, "gplugin_a_module_func", (gpointer *) &gmod_f))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error14: %s", g_module_error ());
+   test_states (NULL, NULL, NULL);
+ 
+   gmod_f (module_b);
+@@ -193,10 +201,10 @@
+   /* unload plugins  */
+ 
+   if (!g_module_close (module_a))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error15: %s", g_module_error ());
+ 
+   if (!g_module_close (module_b))
+-    g_error ("error: %s", g_module_error ());
++    g_error ("error16: %s", g_module_error ());
+  
+   return 0;
+ }
+diff -urN glib-2.30.2.vanilla/tests/testglib.c glib-2.30.2/tests/testglib.c
+--- glib-2.30.2.vanilla/tests/testglib.c	2011-11-11 09:56:53.000000000 -0800
++++ glib-2.30.2/tests/testglib.c	2012-02-12 03:12:52.976674100 -0800
+@@ -757,7 +757,7 @@
+ 
+   if (g_test_verbose())
+     {
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+       g_print ("current locale: %s\n", g_win32_getlocale ());
+ 
+       g_print ("found more.com as %s\n", g_find_program_in_path ("more.com"));

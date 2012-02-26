@@ -1,0 +1,11 @@
+--- configure.ac.orig	2012-02-11 18:10:46.026802000 -0800
++++ configure.ac	2012-02-11 18:11:09.674530600 -0800
+@@ -5,7 +5,7 @@
+ 
+ AM_CONFIG_HEADER(config.h)
+ 
+-AM_PROG_LIBTOOL
++LT_INIT([win32-dll disable-shared])
+ dnl when using libtool 2.x create libtool early, because it's used in configure
+ m4_ifdef([LT_OUTPUT], [LT_OUTPUT])
+ 

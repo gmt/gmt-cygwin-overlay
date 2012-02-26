@@ -1,0 +1,36 @@
+--- gmp-h.in.orig	2012-02-16 05:35:03.853522800 -0800
++++ gmp-h.in	2012-02-16 05:36:29.153022800 -0800
+@@ -151,10 +151,14 @@
+    "void _export foo();".  Would have to change the __GMP_DECLSPEC syntax to
+    make use of that.  Probably more trouble than it's worth.  */
+ 
+-#if defined (__GNUC__)
++#if defined (__GNUC__) && (!defined(__CYGWIN__))
+ #define __GMP_DECLSPEC_EXPORT  __declspec(__dllexport__)
+ #define __GMP_DECLSPEC_IMPORT  __declspec(__dllimport__)
+ #endif
++#if defined (__CYGWIN__)
++#define __GMP_DECLSPEC_EXPORT
++#define __GMP_DECLSPEC_IMPORT
++#endif
+ #if defined (_MSC_VER) || defined (__BORLANDC__)
+ #define __GMP_DECLSPEC_EXPORT  __declspec(dllexport)
+ #define __GMP_DECLSPEC_IMPORT  __declspec(dllimport)
+--- mp-h.in.orig	2012-02-16 05:34:54.787022800 -0800
++++ mp-h.in	2012-02-16 05:36:05.215022800 -0800
+@@ -67,10 +67,14 @@
+ #define __gmp_signed
+ #endif
+ 
+-#if defined (__GNUC__)
++#if defined (__GNUC__) && (!defined(__CYGWIN__))
+ #define __GMP_DECLSPEC_EXPORT  __declspec(__dllexport__)
+ #define __GMP_DECLSPEC_IMPORT  __declspec(__dllimport__)
+ #endif
++#if defined (__CYGWIN__)
++#define __GMP_DECLSPEC_EXPORT
++#define __GMP_DECLSPEC_IMPORT
++#endif
+ #if defined (_MSC_VER) || defined (__BORLANDC__)
+ #define __GMP_DECLSPEC_EXPORT  __declspec(dllexport)
+ #define __GMP_DECLSPEC_IMPORT  __declspec(dllimport)

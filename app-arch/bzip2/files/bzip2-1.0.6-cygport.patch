@@ -1,0 +1,326 @@
+diff -urN bzip2-1.0.6.orig/bzgrep bzip2-1.0.6/bzgrep
+--- bzip2-1.0.6.orig/bzgrep	2012-02-21 01:45:18.985210700 -0800
++++ bzip2-1.0.6/bzgrep	2012-02-21 01:59:16.632210700 -0800
+@@ -8,20 +8,55 @@
+ 
+ PATH="/g2pfx/usr/bin:$PATH"; export PATH
+ 
+-prog=`echo $0 | sed 's|.*/||'`
++prog=`echo "$0" | sed 's|.*/||'`
++
+ case "$prog" in
+ 	*egrep)	grep=${EGREP-egrep}	;;
+ 	*fgrep)	grep=${FGREP-fgrep}	;;
+ 	*)	grep=${GREP-grep}	;;
+ esac
+ pat=""
++after_dash_dash=""
++files_with_matches=0
++files_without_matches=0
++no_filename=0
++with_filename=0
++
+ while test $# -ne 0; do
+-  case "$1" in
+-  -e | -f) opt="$opt $1"; shift; pat="$1"
++
++
++  case "$after_dash_dash$1" in
++  --d* | --rec*)	echo >&2 "$0: $1: option not supported"; exit 2;;
++  --files-with-*)	files_with_matches=1;;
++  --files-witho*)	files_without_matches=1;;
++  --no-f*)	no_filename=1;;
++  --wi*)	with_filename=1;;
++  --*)	;;
++  -*)
++	case "$1" in
++	-*[dr]*) echo >&2 "$0: $1: option not supported"; exit 2;;
++	esac
++	case "$1" in
++	-*H*)	with_filename=1;;
++	esac
++	case "$1" in
++	-*h*)	no_filename=1;;
++	esac
++	case "$1" in
++	-*L*)	files_without_matches=1;;
++	esac
++	case "$1" in
++	-*l*)	files_with_matches=1;;
++	esac;;
++  esac
++  case "$after_dash_dash$1" in
++  -[ef])   opt="$opt $1"; shift; pat="$1"
++
+            if test "$grep" = grep; then  # grep is buggy with -e on SVR4
+              grep=egrep
+            fi;;
+-  -A | -B) opt="$opt $1 $2"; shift;;
++  -[ABCdm])opt="$opt $1 $2"; shift;;
++  --)      opt="$opt $1"; after_dash_dash=1;;
+   -*)	   opt="$opt $1";;
+    *)      if test -z "$pat"; then
+ 	     pat="$1"
+@@ -35,19 +70,9 @@
+ if test -z "$pat"; then
+   echo "grep through bzip2 files"
+   echo "usage: $prog [grep_options] pattern [files]"
+-  exit 1
++  exit 2
+ fi
+ 
+-list=0
+-silent=0
+-op=`echo "$opt" | sed -e 's/ //g' -e 's/-//g'`
+-case "$op" in
+-  *l*) list=1
+-esac
+-case "$op" in
+-  *h*) silent=1
+-esac
+-
+ if test $# -eq 0; then
+   bzip2 -cdfq | $grep $opt "$pat"
+   exit $?
+@@ -55,20 +80,40 @@
+ 
+ res=0
+ for i do
+-  if test -f "$i"; then :; else if test -f "$i.bz2"; then i="$i.bz2"; fi; fi
+-  if test $list -eq 1; then
+-    bzip2 -cdfq "$i" | $grep $opt "$pat" 2>&1 > /dev/null && echo $i
+-    r=$?
+-  elif test $# -eq 1 -o $silent -eq 1; then
+-    bzip2 -cdfq "$i" | $grep $opt "$pat"
+-    r=$?
+-  else
+-    # the backslashes here are doubled up as we have to escape each one for the
+-    # shell and then escape each one for the sed expression
+-    j=`printf "%s" "${i}" | sed -e 's:\\\\:\\\\\\\\:g' -e 's:[|]:\\\\|:g' -e 's:[&]:\\\\&:g' | tr '\n' ' '`
+-    bzip2 -cdfq "$i" | $grep $opt "$pat" | sed "s|^|${j}:|"
+-    r=$?
+-  fi
+-  test "$r" -ne 0 && res="$r"
++  bzip2 -cdfq -- "$i" |
++    if test $files_with_matches -eq 1; then
++      $grep $opt "$pat" > /dev/null && printf "%s\n" "$i"
++    elif test $files_without_matches -eq 1; then
++      $grep $opt "$pat" > /dev/null || printf "%s\n" "$i"
++    elif test $with_filename -eq 0 && { test $# -eq 1 || test $no_filename -eq 1; }; then
++      $grep $opt "$pat"
++    else
++      i=$(echo "$i" | sed -e 's/[\\|&]/\\&/g')
++      if test $with_filename -eq 1; then
++	sed_script="s|^[^:]*:|${i}:|"
++      else
++	sed_script="s|^|${i}:|"
++      fi
++      # Hack adapted from GPLed code at
++      # http://home.comcast.net/~j.p.h/cus-faq-2
++      # Has the same effect as the following two lines of bash:
++      #
++      # $grep $opt "$pat" | sed "$sed_script"
++      # exit ${PIPESTATUS[0]}
++      #
++      # Inside the `...`, fd4 goes to the pipe whose other end is read
++      # and passed to eval; fd1 is the normal standard output
++      # preserved the line before with exec 3>&1
++      exec 3>&1
++      eval `
++      exec 4>&1 >&3 3>&-
++      {
++       $grep $opt "$pat" 4>&-; echo "r=$?;" >&4
++      } | sed "$sed_script"
++      `
++      exit $r
++    fi
++  r=$?
++  test $res -lt $r && res=$r
+ done
+ exit $res
+diff -urN bzip2-1.0.6.orig/bzip2.c bzip2-1.0.6/bzip2.c
+--- bzip2-1.0.6.orig/bzip2.c	2012-02-21 01:45:17.618210700 -0800
++++ bzip2-1.0.6/bzip2.c	2012-02-21 01:47:32.310710700 -0800
+@@ -129,7 +129,7 @@
+ #if BZ_LCCWIN32
+ #   include <io.h>
+ #   include <fcntl.h>
+-#   include <sys\stat.h>
++#   include <sys/stat.h>
+ 
+ #   define NORETURN       /**/
+ #   define PATH_SEP       '\\'
+@@ -1191,8 +1191,8 @@
+ static 
+ void compress ( Char *name )
+ {
+-   FILE  *inStr;
+-   FILE  *outStr;
++   FILE  *inStr = NULL;
++   FILE  *outStr = NULL;
+    Int32 n, i;
+    struct MY_STAT statBuf;
+ 
+@@ -1372,8 +1372,8 @@
+ static 
+ void uncompress ( Char *name )
+ {
+-   FILE  *inStr;
+-   FILE  *outStr;
++   FILE  *inStr = NULL;
++   FILE  *outStr = NULL;
+    Int32 n, i;
+    Bool  magicNumberOK;
+    Bool  cantGuess;
+@@ -1570,7 +1570,7 @@
+ static 
+ void testf ( Char *name )
+ {
+-   FILE *inStr;
++   FILE *inStr = NULL;
+    Bool allOK;
+    struct MY_STAT statBuf;
+ 
+diff -urN bzip2-1.0.6.orig/bzip2recover.c bzip2-1.0.6/bzip2recover.c
+--- bzip2-1.0.6.orig/bzip2recover.c	2010-09-10 16:18:40.000000000 -0700
++++ bzip2-1.0.6/bzip2recover.c	2012-02-21 02:00:07.582710700 -0800
+@@ -24,6 +24,8 @@
+ #include <errno.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <fcntl.h>
++#include <unistd.h>
+ 
+ 
+ /* This program records bit locations in the file to be recovered.
+@@ -269,6 +271,19 @@
+        name[n-1] == '2');
+ }
+ 
++/*---------------------------------------------*/
++/* Open an output file safely with O_EXCL and good permissions */
++FILE* fopen_output( Char* name, const char* mode )
++{
++  FILE *fp;
++  int   fh;
++   
++  fh = open(name, O_WRONLY|O_CREAT|O_EXCL, 0600);
++  if (fh == -1) return NULL;
++  fp = fdopen(fh, mode);
++  if (fp == NULL) close(fh);
++  return fp;
++}
+ 
+ /*---------------------------------------------------*/
+ /*---                                             ---*/
+@@ -306,10 +321,12 @@
+    Int32       b, wrBlock, currBlock, rbCtr;
+    MaybeUInt64 bitsRead;
+ 
++
+    UInt32      buffHi, buffLo, blockCRC;
+    Char*       p;
+ 
+-   strcpy ( progName, argv[0] );
++   strncpy ( progName, argv[0], BZ_MAX_FILENAME-1);
++   progName[BZ_MAX_FILENAME-1]='\0';
+    inFileName[0] = outFileName[0] = 0;
+ 
+    fprintf ( stderr, 
+@@ -486,7 +503,7 @@
+          fprintf ( stderr, "   writing block %d to `%s' ...\n",
+                            wrBlock+1, outFileName );
+ 
+-         outFile = fopen ( outFileName, "wb" );
++         outFile = fopen_output ( outFileName, "wb" );
+          if (outFile == NULL) {
+             fprintf ( stderr, "%s: can't write `%s'\n",
+                       progName, outFileName );
+diff -urN bzip2-1.0.6.orig/bzlib.c bzip2-1.0.6/bzlib.c
+--- bzip2-1.0.6.orig/bzlib.c	2010-09-10 15:38:23.000000000 -0700
++++ bzip2-1.0.6/bzlib.c	2012-02-21 01:47:32.318710700 -0800
+@@ -1372,7 +1372,7 @@
+ #ifndef BZ_NO_STDIO
+ /*---------------------------------------------------*/
+ 
+-#if defined(_WIN32) || defined(OS2) || defined(MSDOS)
++#if defined(_WIN32) || defined(OS2) || defined(MSDOS) || defined(__CYGWIN__)
+ #   include <fcntl.h>
+ #   include <io.h>
+ #   define SET_BINARY_MODE(file) setmode(fileno(file),O_BINARY)
+diff -urN bzip2-1.0.6.orig/bzlib.h bzip2-1.0.6/bzlib.h
+--- bzip2-1.0.6.orig/bzlib.h	2010-09-10 16:08:42.000000000 -0700
++++ bzip2-1.0.6/bzlib.h	2012-02-21 01:47:32.322210700 -0800
+@@ -75,21 +75,39 @@
+ #include <stdio.h>
+ #endif
+ 
+-#ifdef _WIN32
++#if defined(_WIN32) && !defined(__CYGWIN__)
+ #   include <windows.h>
+ #   ifdef small
+       /* windows.h define small to char */
+ #      undef small
+ #   endif
+-#   ifdef BZ_EXPORT
+-#   define BZ_API(func) WINAPI func
+-#   define BZ_EXTERN extern
++#   ifndef __GNUC__
++       /* Use these rules only for non-gcc native win32 */
++#      ifdef BZ_EXPORT
++#      define BZ_API(func) WINAPI func
++#      define BZ_EXTERN extern
++#      else
++       /* import windows dll dynamically */
++#      define BZ_API(func) (WINAPI * func)
++#      define BZ_EXTERN
++#      endif
+ #   else
+-   /* import windows dll dynamically */
+-#   define BZ_API(func) (WINAPI * func)
+-#   define BZ_EXTERN
++       /* For gcc on native win32, use import library trampoline       */
++       /* functions on DLL import.  This avoids requiring clients to   */
++       /* use special compilation flags depending on whether eventual  */
++       /* link will be against static libbz2 or against DLL, at the    */
++       /* expense of a small loss of efficiency. */
++
++       /* Because libbz2 does not export any DATA items, GNU ld's      */
++       /* "auto-import" is not a factor; the MinGW-built DLL can be    */
++       /* used by other compilers, provided an import library suitable */
++       /* for that compiler is (manually) constructed using the .def   */
++       /* file and the appropriate tool. */
++#      define BZ_API(func) func
++#      define BZ_EXTERN extern
+ #   endif
+ #else
++    /* non-win32 platforms, and cygwin */
+ #   define BZ_API(func) func
+ #   define BZ_EXTERN extern
+ #endif
+diff -urN bzip2-1.0.6.orig/bzmore bzip2-1.0.6/bzmore
+--- bzip2-1.0.6.orig/bzmore	2012-02-21 01:45:19.048210700 -0800
++++ bzip2-1.0.6/bzmore	2012-02-21 01:47:32.325210700 -0800
+@@ -24,10 +24,10 @@
+   # 'stty min 1' resets eof to ^a on both SunOS and SysV!
+   cb='min 1 -icanon'; ncb='icanon eof ^d'
+ fi
+-if test $? -eq 0 -a -n "$oldtty"; then
+-   trap 'stty $oldtty 2>/dev/null; exit' 0 2 3 5 10 13 15
++if test $? -eq 0 && test -n "$oldtty"; then
++   trap 'stty $oldtty 2>/dev/null; exit' 0 INT QUIT TRAP USR1 PIPE TERM
+ else
+-   trap 'stty $ncb echo 2>/dev/null; exit' 0 2 3 5 10 13 15
++   trap 'stty $ncb echo 2>/dev/null; exit' 0 INT QUIT TRAP USR1 PIPE TERM
+ fi
+ 
+ if test $# = 0; then
+@@ -46,7 +46,7 @@
+ 		ANS=`dd bs=1 count=1 2>/dev/null` 
+ 		stty $ncb echo 2>/dev/null
+ 		echo " "
+-		if test "$ANS" = 'e' -o "$ANS" = 'q'; then
++		if test "$ANS" = 'e' || test "$ANS" = 'q'; then
+ 			exit
+ 		fi
+ 	fi

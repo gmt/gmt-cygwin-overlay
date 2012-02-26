@@ -1,0 +1,17 @@
+diff -urN libtool-2.4.vanilla/libltdl/config/ltmain.m4sh libtool-2.4/libltdl/config/ltmain.m4sh
+--- libtool-2.4.vanilla/libltdl/config/ltmain.m4sh	2012-02-17 00:58:46.433898700 -0800
++++ libtool-2.4/libltdl/config/ltmain.m4sh	2012-02-17 01:00:39.285398700 -0800
+@@ -5084,9 +5084,12 @@
+       # -tp=*                Portland pgcc target processor selection
+       # --sysroot=*          for sysroot support
+       # -O*, -flto*, -fwhopr*, -fuse-linker-plugin GCC link-time optimization
++      # -{shared,static}-libgcc, -static-{libgfortran|libstdc++}
++      #                      link against specified runtime library
+       -64|-mips[0-9]|-r[0-9][0-9]*|-xarch=*|-xtarget=*|+DA*|+DD*|-q*|-m*| \
+       -t[45]*|-txscale*|-p|-pg|--coverage|-fprofile-*|-F*|@*|-tp=*|--sysroot=*| \
+-      -O*|-flto*|-fwhopr*|-fuse-linker-plugin)
++      -O*|-flto*|-fwhopr*|-fuse-linker-plugin| \
++      -shared-libgcc|-static-libgcc|-static-libgfortran|-static-libstdc++)
+         func_quote_for_eval "$arg"
+ 	arg="$func_quote_for_eval_result"
+         func_append compile_command " $arg"

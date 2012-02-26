@@ -1,0 +1,14 @@
+--- lib/config.guess.orig	2012-02-23 15:58:35.570515400 -0800
++++ lib/config.guess	2012-02-23 15:59:11.788015400 -0800
+@@ -736,7 +736,10 @@
+     *:OpenBSD:*:*)
+ 	echo ${UNAME_MACHINE}-unknown-openbsd`echo ${UNAME_RELEASE}|sed -e 's/[-_].*/\./'`
+ 	exit 0 ;;
+-    i*:CYGWIN*:*)
++    i*:CYGWIN*:1.7*:*)
++	echo ${UNAME_MACHINE}-pc-cygwin1.7
++	exit 0 ;;
++    i*:CYGWIN*:*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+ 	exit 0 ;;
+     i*:MINGW*:*)

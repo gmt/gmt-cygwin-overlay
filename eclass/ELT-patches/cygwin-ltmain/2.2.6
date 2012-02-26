@@ -1,0 +1,11 @@
+--- ltmain.sh.orig	2012-02-23 21:02:05.071515500 -0800
++++ ltmain.sh	2012-02-23 21:03:21.596515500 -0800
+@@ -2378,7 +2378,7 @@
+ 	      eval '$GREP -f "$output_objdir/$outputname.exp" < "$nlist" > "$nlist"T'
+ 	      eval '$MV "$nlist"T "$nlist"'
+ 	      case $host in
+-	        *cygwin | *mingw* | *cegcc* )
++	        *cygwin* | *mingw* | *cegcc* )
+ 	          eval "echo EXPORTS "'> "$output_objdir/$outputname.def"'
+ 	          eval 'cat "$nlist" >> "$output_objdir/$outputname.def"'
+ 	          ;;

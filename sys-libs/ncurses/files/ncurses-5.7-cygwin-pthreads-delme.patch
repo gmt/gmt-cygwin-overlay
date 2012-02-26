@@ -1,0 +1,22 @@
+diff -urN ncurses-5.7.orig/configure ncurses-5.7/configure
+--- ncurses-5.7.orig/configure	2012-02-17 14:19:58.612284600 -0800
++++ ncurses-5.7/configure	2012-02-17 14:23:11.748284600 -0800
+@@ -9896,7 +9896,17 @@
+ LIBS=`echo "$LIBS" | sed -e 's/-lpthread[ 	]//g' -e 's/-lpthread$//'`
+ 
+     else
+-        LIB_SUFFIX="t${LIB_SUFFIX}"
++               # when not using weak symbols but with_reentrant,
++               # add 't' to the library suffix on all platforms
++               # except cygwin, where we only do that if ALSO
++               # compiling with full thread support.
++               case "$host" in
++               *cygwin* )
++                       if test "$with_pthread" = "yes" ; then
++                               LIB_SUFFIX="t${LIB_SUFFIX}"
++                       fi ;;
++               * ) LIB_SUFFIX="t${LIB_SUFFIX}" ;;
++               esac
+     fi
+ 	cat >>confdefs.h <<\EOF
+ #define USE_REENTRANT 1

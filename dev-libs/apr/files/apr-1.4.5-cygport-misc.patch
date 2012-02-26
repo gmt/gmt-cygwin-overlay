@@ -1,0 +1,95 @@
+diff --git a/test/Makefile.in b/test/Makefile.in
+index b371074..af1c38b 100644
+--- a/test/Makefile.in
++++ b/test/Makefile.in
+@@ -118,16 +118,16 @@ mod_test.lo: $(srcdir)/mod_test.c
+ 	$(LIBTOOL) $(LTFLAGS) --mode=compile $(COMPILE) -prefer-pic -o $@ \
+ 	  -c $(srcdir)/mod_test.c
+ 
+-OBJECTS_mod_test = mod_test.lo
++OBJECTS_mod_test = mod_test.lo $(LOCAL_LIBS)
+ mod_test.la: $(OBJECTS_mod_test)
+ 	$(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -rpath `pwd` -module \
+-	  -avoid-version $(LT_LDFLAGS) $(ALL_LDFLAGS) -o $@ \
++	  -avoid-version -no-undefined $(LT_LDFLAGS) $(ALL_LDFLAGS) -o $@ \
+ 	  $(OBJECTS_mod_test)
+ 
+ OBJECTS_libmod_test = mod_test.lo $(LOCAL_LIBS)
+ libmod_test.la: $(OBJECTS_libmod_test)
+ 	$(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -rpath `pwd` \
+-	  -avoid-version $(LT_LDFLAGS) $(ALL_LDFLAGS) -o $@ \
++	  -avoid-version -no-undefined $(LT_LDFLAGS) $(ALL_LDFLAGS) -o $@ \
+ 	  $(OBJECTS_libmod_test) $(ALL_LIBS)
+ 
+ OBJECTS_occhild = occhild.lo $(LOCAL_LIBS)
+diff --git a/test/testdso.c b/test/testdso.c
+index 0d9f27b..ec81c16 100644
+--- a/test/testdso.c
++++ b/test/testdso.c
+@@ -35,6 +35,9 @@
+ # define MOD_NAME "mod_test.so"
+ #elif defined(WIN32)
+ # define MOD_NAME TESTBINPATH "mod_test.dll"
++#elif defined(CYGWIN)
++# define MOD_NAME ".libs/mod_test.dll"
++# define LIB_NAME ".libs/cygmod_test.dll"
+ #elif defined(DARWIN)
+ # define MOD_NAME ".libs/mod_test.so" 
+ # define LIB_NAME ".libs/libmod_test.dylib" 
+diff --git a/configure.in b/configure.in
+index 9c20dd7..4c175ac 100644
+--- a/configure.in
++++ b/configure.in
+@@ -283,7 +283,7 @@ AC_ARG_WITH(libtool, [  --without-libtool       avoid using libtool to link the
+ if test "x$use_libtool" = "xyes"; then
+       lt_compile='$(LIBTOOL) $(LTFLAGS) --mode=compile $(COMPILE) -o $@ -c $< && touch $@'
+       LT_VERSION="-version-info `$get_version libtool $version_hdr APR`"
+-      link="\$(LIBTOOL) \$(LTFLAGS) --mode=link \$(LT_LDFLAGS) \$(COMPILE) \$(LT_VERSION) \$(ALL_LDFLAGS) -o \$@"
++      link="\$(LIBTOOL) \$(LTFLAGS) --mode=link \$(LT_LDFLAGS) \$(COMPILE) \$(LT_VERSION) -no-undefined \$(ALL_LDFLAGS) -o \$@"
+       so_ext='lo'
+       lib_target='-rpath $(libdir) $(OBJECTS)'
+       export_lib_target='-rpath \$(libdir) \$(OBJECTS)'
+diff --git a/file_io/unix/copy.c b/file_io/unix/copy.c
+index df3a49c..aa2836f 100644
+--- a/file_io/unix/copy.c
++++ b/file_io/unix/copy.c
+@@ -29,7 +29,7 @@ static apr_status_t apr_file_transfer_contents(const char *from_path,
+     apr_fileperms_t perms;
+ 
+     /* Open source file. */
+-    status = apr_file_open(&s, from_path, APR_FOPEN_READ, APR_OS_DEFAULT, pool);
++    status = apr_file_open(&s, from_path, APR_FOPEN_READ | APR_FOPEN_BINARY, APR_OS_DEFAULT, pool);
+     if (status)
+         return status;
+ 
+@@ -46,7 +46,7 @@ static apr_status_t apr_file_transfer_contents(const char *from_path,
+         perms = to_perms;
+ 
+     /* Open dest file. */
+-    status = apr_file_open(&d, to_path, flags, perms, pool);
++    status = apr_file_open(&d, to_path, flags | APR_FOPEN_BINARY, perms, pool);
+     if (status) {
+         apr_file_close(s);  /* toss any error */
+         return status;
+diff --git a/test/testutil.h b/test/testutil.h
+index ee68dfb..d33c2ff 100644
+--- a/test/testutil.h
++++ b/test/testutil.h
+@@ -25,7 +25,7 @@
+  * and part of apr, itself
+  */
+ 
+-#ifdef WIN32
++#if defined WIN32 && ! defined CYGWIN
+ #ifdef BINPATH
+ #define TESTBINPATH APR_STRINGIFY(BINPATH) "/"
+ #else
+@@ -35,7 +35,7 @@
+ #define TESTBINPATH "./"
+ #endif
+ 
+-#ifdef WIN32
++#if defined WIN32 && ! defined CYGWIN
+ #define EXTENSION ".exe"
+ #elif NETWARE
+ #define EXTENSION ".nlm"

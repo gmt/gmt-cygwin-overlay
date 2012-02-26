@@ -1,0 +1,1387 @@
+diff -urN gcc-4.5.3.ori/boehm-gc/configure gcc-4.5.3/boehm-gc/configure
+--- gcc-4.5.3.ori/boehm-gc/configure	2011-04-28 07:31:38.000000000 -0700
++++ gcc-4.5.3/boehm-gc/configure	2012-02-23 05:38:44.231015400 -0800
+@@ -4882,7 +4882,7 @@
+ 
+ gc_cflags="${gc_cflags} -Iinclude -I"'$(top_builddir)'"/./targ-include -I${gc_flagbasedir}/libc/include"
+ case "${host}" in
+-  *-*-cygwin32*)
++  *-*-cygwin*)
+     gc_cflags="${gc_cflags} -I${gc_flagbasedir}/../winsup/include"
+     ;;
+ esac
+diff -urN gcc-4.5.3.ori/boehm-gc/configure.ac gcc-4.5.3/boehm-gc/configure.ac
+--- gcc-4.5.3.ori/boehm-gc/configure.ac	2010-06-15 06:52:58.000000000 -0700
++++ gcc-4.5.3/boehm-gc/configure.ac	2012-02-23 05:36:17.172015400 -0800
+@@ -80,7 +80,7 @@
+ 
+ gc_cflags="${gc_cflags} -Iinclude -I"'$(top_builddir)'"/./targ-include -I${gc_flagbasedir}/libc/include"
+ case "${host}" in
+-  *-*-cygwin32*)
++  *-*-cygwin*)
+     gc_cflags="${gc_cflags} -I${gc_flagbasedir}/../winsup/include"
+     ;;
+ esac
+diff -urN gcc-4.5.3.ori/configure gcc-4.5.3/configure
+--- gcc-4.5.3.ori/configure	2012-02-23 05:26:37.533515400 -0800
++++ gcc-4.5.3/configure	2012-02-23 05:44:09.308515400 -0800
+@@ -7537,7 +7537,7 @@
+ case "${host}" in
+   *-*-hpux*) RPATH_ENVVAR=SHLIB_PATH ;;
+   *-*-darwin* | *-*-rhapsody* ) RPATH_ENVVAR=DYLD_LIBRARY_PATH ;;
+-  *-*-mingw* | *-*-cygwin ) RPATH_ENVVAR=PATH ;;
++  *-*-mingw* | *-*-cygwin* ) RPATH_ENVVAR=PATH ;;
+   *) RPATH_ENVVAR=LD_LIBRARY_PATH ;;
+ esac
+ 
+diff -urN gcc-4.5.3.ori/configure.ac gcc-4.5.3/configure.ac
+--- gcc-4.5.3.ori/configure.ac	2011-01-25 07:49:54.000000000 -0800
++++ gcc-4.5.3/configure.ac	2012-02-23 05:41:48.765515400 -0800
+@@ -2574,7 +2574,7 @@
+ case "${host}" in
+   *-*-hpux*) RPATH_ENVVAR=SHLIB_PATH ;;
+   *-*-darwin* | *-*-rhapsody* ) RPATH_ENVVAR=DYLD_LIBRARY_PATH ;;
+-  *-*-mingw* | *-*-cygwin ) RPATH_ENVVAR=PATH ;;
++  *-*-mingw* | *-*-cygwin* ) RPATH_ENVVAR=PATH ;;
+   *) RPATH_ENVVAR=LD_LIBRARY_PATH ;;
+ esac
+ 
+diff -urN gcc-4.5.3.ori/gcc/testsuite/g++.dg/abi/rtti3.C gcc-4.5.3/gcc/testsuite/g++.dg/abi/rtti3.C
+--- gcc-4.5.3.ori/gcc/testsuite/g++.dg/abi/rtti3.C	2010-12-03 04:51:59.000000000 -0800
++++ gcc-4.5.3/gcc/testsuite/g++.dg/abi/rtti3.C	2012-02-23 05:45:12.556515400 -0800
+@@ -2,7 +2,7 @@
+ // necessarily the type info object
+ 
+ // { dg-require-weak "" }
+-// { dg-skip-if "Linkonce not weak" { *-*-mingw* *-*-cygwin } { "*" } { "" } }
++// { dg-skip-if "Linkonce not weak" { *-*-mingw* *-*-cygwin* } { "*" } { "" } }
+ // { dg-final { scan-assembler ".weak\[ \t\]_?_ZTSPP1A" { target { ! { *-*-darwin* alpha*-dec-osf* } } } } }
+ // { dg-final { scan-assembler-not ".weak\[ \t\]_?_ZTIPP1A" { target { ! { *-*-darwin* alpha*-dec-osf* } } } } }
+ // { dg-final { scan-assembler ".weak_definition\[ \t\]_?_ZTSPP1A" { target { *-*-darwin* } } } }
+diff -urN gcc-4.5.3.ori/gcc/testsuite/g++.dg/abi/thunk4.C gcc-4.5.3/gcc/testsuite/g++.dg/abi/thunk4.C
+--- gcc-4.5.3.ori/gcc/testsuite/g++.dg/abi/thunk4.C	2010-12-03 04:51:59.000000000 -0800
++++ gcc-4.5.3/gcc/testsuite/g++.dg/abi/thunk4.C	2012-02-23 05:45:33.421515400 -0800
+@@ -1,5 +1,5 @@
+ // { dg-require-weak "" }
+-// { dg-skip-if "Linkonce not weak" { *-*-mingw* *-*-cygwin } { "*" } { "" } }
++// { dg-skip-if "Linkonce not weak" { *-*-mingw* *-*-cygwin* } { "*" } { "" } }
+ // { dg-final { scan-assembler ".weak\[ \t\]_?_ZThn._N7Derived3FooEv" { target { ! { *-*-darwin* alpha*-dec-osf* } } } } }
+ // { dg-final { scan-assembler ".weak_definition\[ \t\]_?_ZThn._N7Derived3FooEv" { target { *-*-darwin* } } } }
+ // { dg-final { scan-assembler ".weakext\[ \t\]_?_ZThn._N7Derived3FooEv" { target { alpha*-dec-osf* } } } }
+diff -urN gcc-4.5.3.ori/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-conv.C gcc-4.5.3/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-conv.C
+--- gcc-4.5.3.ori/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-conv.C	2010-03-23 15:29:53.000000000 -0700
++++ gcc-4.5.3/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-conv.C	2012-02-23 05:46:03.597515400 -0800
+@@ -1,7 +1,7 @@
+ // Test for conversion from stateless lambda to function pointer.
+ 
+ // { dg-options -std=c++0x }
+-// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZ1fvENKUlvE_cvPFvvEEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin } } } } }
++// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZ1fvENKUlvE_cvPFvvEEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin* } } } } }
+ 
+ inline void f()
+ {
+diff -urN gcc-4.5.3.ori/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-mangle.C gcc-4.5.3/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-mangle.C
+--- gcc-4.5.3.ori/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-mangle.C	2010-03-23 15:29:53.000000000 -0700
++++ gcc-4.5.3/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-mangle.C	2012-02-23 05:46:40.477515400 -0800
+@@ -11,7 +11,7 @@
+   // The call operator of that type is _ZZ1giENKUlvE_clEv.
+ 
+ // { dg-final { scan-assembler "_ZZ1giENKUlvE_clEv" } }
+-// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZ1giENKUlvE_clEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin } } } } }
++// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZ1giENKUlvE_clEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin* } } } } }
+ 
+   algo([=]{return n+bef();});
+   // The captured entities do not participate in <lambda-sig>
+@@ -33,7 +33,7 @@
+ 	 // Type: ZN1S1fEiiEd0_UlvE_
+ 	 // Operator: _ZZN1S1fEiiEd0_NKUlvE_clEv
+ // { dg-final { scan-assembler "_ZZN1S1fEiiEd0_NKUlvE_clEv" } }
+-// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZN1S1fEiiEd0_NKUlvE_clEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin } } } } }
++// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZZN1S1fEiiEd0_NKUlvE_clEv" { target { ! { *-*-darwin* *-*-mingw* *-*-cygwin* } } } } }
+ 	 []{return 1;}()
+ 	 // Type: ZN1S1fEiiEd0_UlvE0_
+ 	 // Operator: _ZZN1S1fEiiEd0_NKUlvE0_clEv
+@@ -54,7 +54,7 @@
+ // Type of lambda in intializer of R<int>::x: N1RIiE1xMUlvE_E
+ // Corresponding operator(): _ZNK1RIiE1xMUlvE_clEv
+ // { dg-final { scan-assembler "_ZNK1RIiE1xMUlvE_clEv" } }
+-// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZNK1RIiE1xMUlvE_clEv" { target { ! { *-*-mingw* *-*-cygwin } } } } }
++// { dg-final { scan-assembler "weak\[^\n\r\]*_?_ZNK1RIiE1xMUlvE_clEv" { target { ! { *-*-mingw* *-*-cygwin* } } } } }
+ 
+ void bar()
+ {
+diff -urN gcc-4.5.3.ori/gcc/testsuite/g++.dg/ext/dllexport3.C gcc-4.5.3/gcc/testsuite/g++.dg/ext/dllexport3.C
+--- gcc-4.5.3.ori/gcc/testsuite/g++.dg/ext/dllexport3.C	2010-02-05 14:17:09.000000000 -0800
++++ gcc-4.5.3/gcc/testsuite/g++.dg/ext/dllexport3.C	2012-02-23 05:47:21.725515400 -0800
+@@ -1,5 +1,5 @@
+ // PR c++/42870
+-// { dg-do compile { target i?86-*-cygwin *-*-mingw* } }
++// { dg-do compile { target i?86-*-cygwin* *-*-mingw* } }
+ // { dg-final { scan-assembler "-export:_ZN2SaD1Ev" } }
+ 
+ #define ATTRIBUTE __attribute__ ((dllexport))
+diff -urN gcc-4.5.3.ori/gcc/testsuite/g++.dg/opt/vt1.C gcc-4.5.3/gcc/testsuite/g++.dg/opt/vt1.C
+--- gcc-4.5.3.ori/gcc/testsuite/g++.dg/opt/vt1.C	2009-10-23 10:37:13.000000000 -0700
++++ gcc-4.5.3/gcc/testsuite/g++.dg/opt/vt1.C	2012-02-23 05:47:43.805515400 -0800
+@@ -2,7 +2,7 @@
+ // { dg-do compile { target fpic } }
+ // { dg-options "-O2 -fpic -fno-rtti" }
+ // { dg-skip-if "requires unsupported run-time relocation" { spu-*-* } { "*" } { "" } }
+-// { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin } { "*" } { "" } }
++// { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin* } { "*" } { "" } }
+ // Origin: Jakub Jelinek <jakub@redhat.com>
+ 
+ struct S
+diff -urN gcc-4.5.3.ori/gcc/testsuite/g++.dg/template/spec35.C gcc-4.5.3/gcc/testsuite/g++.dg/template/spec35.C
+--- gcc-4.5.3.ori/gcc/testsuite/g++.dg/template/spec35.C	2009-10-23 10:37:13.000000000 -0700
++++ gcc-4.5.3/gcc/testsuite/g++.dg/template/spec35.C	2012-02-23 05:48:15.580515400 -0800
+@@ -24,6 +24,6 @@
+   // { dg-final { scan-assembler-not ".glob(a|)l\[\t \]*_?_Z2f1IiEvT_" } }
+   f1(0);  // Expected to have static linkage
+ 
+-  // { dg-final { scan-assembler ".weak(_definition)?\[\t \]*_?_Z2f2IiEvT_" { target { ! { *-*-mingw* *-*-cygwin } } } } }
++  // { dg-final { scan-assembler ".weak(_definition)?\[\t \]*_?_Z2f2IiEvT_" { target { ! { *-*-mingw* *-*-cygwin* } } } } }
+   f2(0);  // Expected to have weak global linkage
+ }
+diff -urN gcc-4.5.3.ori/gcc/testsuite/gcc.target/i386/pic-1.c gcc-4.5.3/gcc/testsuite/gcc.target/i386/pic-1.c
+--- gcc-4.5.3.ori/gcc/testsuite/gcc.target/i386/pic-1.c	2009-10-23 10:37:13.000000000 -0700
++++ gcc-4.5.3/gcc/testsuite/gcc.target/i386/pic-1.c	2012-02-23 05:48:49.900015400 -0800
+@@ -2,7 +2,7 @@
+ /* { dg-do compile } */
+ /* { dg-require-effective-target ilp32 } */
+ /* { dg-require-effective-target fpic } */
+-/* { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin } { "*" } { "" } } */
++/* { dg-skip-if "No Windows PIC" { *-*-mingw* *-*-cygwin* } { "*" } { "" } } */
+ /* { dg-options "-fPIC" } */
+ 
+ int foo ()
+diff -urN gcc-4.5.3.ori/gnattools/configure gcc-4.5.3/gnattools/configure
+--- gcc-4.5.3.ori/gnattools/configure	2010-01-09 10:21:52.000000000 -0800
++++ gcc-4.5.3/gnattools/configure	2012-02-23 05:49:55.550015400 -0800
+@@ -2097,7 +2097,7 @@
+ 
+     EXTRA_GNATTOOLS='../../gnatlbr$(exeext) ../../gnatsym$(exeext)'
+     ;;
+-  *-*-cygwin32* | *-*-mingw32* | *-*-pe)
++  *-*-cygwin* | *-*-mingw32* | *-*-pe)
+     TOOLS_TARGET_PAIRS="\
+     mlib-tgt-specific.adb<mlib-tgt-specific-mingw.adb \
+     indepsw.adb<indepsw-mingw.adb"
+diff -urN gcc-4.5.3.ori/gnattools/configure.ac gcc-4.5.3/gnattools/configure.ac
+--- gcc-4.5.3.ori/gnattools/configure.ac	2010-01-09 10:21:52.000000000 -0800
++++ gcc-4.5.3/gnattools/configure.ac	2012-02-23 05:49:33.916515400 -0800
+@@ -137,7 +137,7 @@
+ 
+     EXTRA_GNATTOOLS='../../gnatlbr$(exeext) ../../gnatsym$(exeext)'
+     ;;
+-  *-*-cygwin32* | *-*-mingw32* | *-*-pe)
++  *-*-cygwin* | *-*-mingw32* | *-*-pe)
+     TOOLS_TARGET_PAIRS="\
+     mlib-tgt-specific.adb<mlib-tgt-specific-mingw.adb \
+     indepsw.adb<indepsw-mingw.adb"
+diff -urN gcc-4.5.3.ori/libjava/configure gcc-4.5.3/libjava/configure
+--- gcc-4.5.3.ori/libjava/configure	2012-02-23 05:26:46.925515400 -0800
++++ gcc-4.5.3/libjava/configure	2012-02-23 05:56:47.292515400 -0800
+@@ -20530,7 +20530,7 @@
+     LIBSTDCXXSPEC=-lstdc++
+     LIBGCJTESTSPEC="-L`${PWDCMD-pwd}`/.libs -L`${PWDCMD-pwd}`/../libstdc++-v3/src/.libs -rpath `${PWDCMD-pwd}`/.libs:`${PWDCMD-pwd}`/../libstdc++-v3/src/.libs -lstdc++"
+     ;;
+-*-*-cygwin)
++*-*-cygwin*)
+     extra_ldflags_libjava=-liconv
+     ;;
+ esac
+diff -urN gcc-4.5.3.ori/libjava/configure.ac gcc-4.5.3/libjava/configure.ac
+--- gcc-4.5.3.ori/libjava/configure.ac	2012-02-23 05:26:46.891015400 -0800
++++ gcc-4.5.3/libjava/configure.ac	2012-02-23 05:56:06.614015400 -0800
+@@ -930,7 +930,7 @@
+     LIBSTDCXXSPEC=-lstdc++
+     LIBGCJTESTSPEC="-L`${PWDCMD-pwd}`/.libs -L`${PWDCMD-pwd}`/../libstdc++-v3/src/.libs -rpath `${PWDCMD-pwd}`/.libs:`${PWDCMD-pwd}`/../libstdc++-v3/src/.libs -lstdc++"
+     ;;
+-*-*-cygwin)
++*-*-cygwin*)
+     extra_ldflags_libjava=-liconv
+     ;;
+ esac
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/20_util/shared_ptr/thread/default_weaktoshared.cc gcc-4.5.3/libstdc++-v3/testsuite/20_util/shared_ptr/thread/default_weaktoshared.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/20_util/shared_ptr/thread/default_weaktoshared.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/20_util/shared_ptr/thread/default_weaktoshared.cc	2012-02-23 06:24:28.716515400 -0800
+@@ -17,10 +17,10 @@
+ 
+ // 20.6.6.2 Template class shared_ptr [util.smartptr.shared]
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread -std=gnu++0x" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads -std=gnu++0x" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ 
+ #include <memory>
+ #include <random>
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/21_strings/basic_string/pthread18185.cc gcc-4.5.3/libstdc++-v3/testsuite/21_strings/basic_string/pthread18185.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/21_strings/basic_string/pthread18185.cc	2009-05-15 00:14:45.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/21_strings/basic_string/pthread18185.cc	2012-02-23 06:29:16.780015400 -0800
+@@ -16,7 +16,7 @@
+ // with this library; see the file COPYING3.  If not see
+ // <http://www.gnu.org/licenses/>.
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/22_locale/locale/cons/12658_thread-1.cc gcc-4.5.3/libstdc++-v3/testsuite/22_locale/locale/cons/12658_thread-1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/22_locale/locale/cons/12658_thread-1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/22_locale/locale/cons/12658_thread-1.cc	2012-02-23 06:30:04.956015400 -0800
+@@ -1,4 +1,4 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ // { dg-require-namedlocale "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/22_locale/locale/cons/12658_thread-2.cc gcc-4.5.3/libstdc++-v3/testsuite/22_locale/locale/cons/12658_thread-2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/22_locale/locale/cons/12658_thread-2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/22_locale/locale/cons/12658_thread-2.cc	2012-02-23 06:30:21.116015400 -0800
+@@ -1,4 +1,4 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ // { dg-require-namedlocale "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/23_containers/list/pthread1.cc gcc-4.5.3/libstdc++-v3/testsuite/23_containers/list/pthread1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/23_containers/list/pthread1.cc	2009-05-19 21:05:21.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/23_containers/list/pthread1.cc	2012-02-23 06:30:39.132515400 -0800
+@@ -18,7 +18,7 @@
+ // with this library; see the file COPYING3.  If not see
+ // <http://www.gnu.org/licenses/>.
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/23_containers/list/pthread5.cc gcc-4.5.3/libstdc++-v3/testsuite/23_containers/list/pthread5.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/23_containers/list/pthread5.cc	2009-05-19 21:05:21.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/23_containers/list/pthread5.cc	2012-02-23 06:30:54.204015400 -0800
+@@ -20,7 +20,7 @@
+ // with this library; see the file COPYING3.  If not see
+ // <http://www.gnu.org/licenses/>.
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/23_containers/map/pthread6.cc gcc-4.5.3/libstdc++-v3/testsuite/23_containers/map/pthread6.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/23_containers/map/pthread6.cc	2009-05-15 00:14:45.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/23_containers/map/pthread6.cc	2012-02-23 06:31:12.572015400 -0800
+@@ -19,7 +19,7 @@
+ // with this library; see the file COPYING3.  If not see
+ // <http://www.gnu.org/licenses/>.
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/27_io/basic_ofstream/pthread2.cc gcc-4.5.3/libstdc++-v3/testsuite/27_io/basic_ofstream/pthread2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/27_io/basic_ofstream/pthread2.cc	2009-05-15 00:14:45.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/27_io/basic_ofstream/pthread2.cc	2012-02-23 06:31:26.636015400 -0800
+@@ -19,7 +19,7 @@
+ // with this library; see the file COPYING3.  If not see
+ // <http://www.gnu.org/licenses/>.
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/27_io/basic_ostringstream/pthread3.cc gcc-4.5.3/libstdc++-v3/testsuite/27_io/basic_ostringstream/pthread3.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/27_io/basic_ostringstream/pthread3.cc	2009-05-15 00:14:45.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/27_io/basic_ostringstream/pthread3.cc	2012-02-23 06:31:44.188015400 -0800
+@@ -19,7 +19,7 @@
+ // with this library; see the file COPYING3.  If not see
+ // <http://www.gnu.org/licenses/>.
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/async/42819.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/async/42819.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/async/42819.cc	2010-02-12 14:31:15.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/async/42819.cc	2012-02-23 06:32:01.884015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/async/async.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/async/async.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/async/async.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/async/async.cc	2012-02-23 06:32:35.596015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/async/sync.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/async/sync.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/async/sync.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/async/sync.cc	2012-02-23 06:32:51.836015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/call_once/39909.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/call_once/39909.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/call_once/39909.cc	2009-05-05 14:32:38.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/call_once/39909.cc	2012-02-23 06:33:06.139515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/call_once/call_once1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/call_once/call_once1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/call_once/call_once1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/call_once/call_once1.cc	2012-02-23 06:33:24.268015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable/cons/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable/cons/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable/cons/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable/cons/1.cc	2012-02-23 06:33:40.700015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable/members/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable/members/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable/members/1.cc	2010-01-29 14:46:31.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable/members/1.cc	2012-02-23 06:34:06.700015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable/members/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable/members/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable/members/2.cc	2010-01-29 14:46:31.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable/members/2.cc	2012-02-23 06:34:29.212015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable/native_handle/typesizes.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable/native_handle/typesizes.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable/native_handle/typesizes.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable/native_handle/typesizes.cc	2012-02-23 06:34:46.844015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable_any/cons/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable_any/cons/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/condition_variable_any/cons/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/condition_variable_any/cons/1.cc	2012-02-23 06:35:12.315515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/cons/move.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/cons/move.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/cons/move.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/cons/move.cc	2012-02-23 06:35:31.212015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/get.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/get.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/get.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/get.cc	2012-02-23 06:35:49.612015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/get2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/get2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/get2.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/get2.cc	2012-02-23 06:36:35.005515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/valid.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/valid.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/valid.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/valid.cc	2012-02-23 06:36:50.476015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/wait.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/wait.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/wait.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/wait.cc	2012-02-23 06:37:05.388015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/wait_for.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/wait_for.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/wait_for.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/wait_for.cc	2012-02-23 06:37:21.868015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/wait_until.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/wait_until.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/future/members/wait_until.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/future/members/wait_until.cc	2012-02-23 06:37:35.868015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/lock_guard/cons/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/lock_guard/cons/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/lock_guard/cons/1.cc	2010-03-02 15:00:21.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/lock_guard/cons/1.cc	2012-02-23 06:37:54.027515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/cons/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/cons/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/cons/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/cons/1.cc	2012-02-23 06:38:09.116015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/dest/destructor_locked.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/dest/destructor_locked.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/dest/destructor_locked.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/dest/destructor_locked.cc	2012-02-23 06:38:23.724015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/lock/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/lock/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/lock/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/lock/1.cc	2012-02-23 06:38:59.580015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/native_handle/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/native_handle/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/native_handle/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/native_handle/1.cc	2012-02-23 06:39:23.949015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/native_handle/typesizes.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/native_handle/typesizes.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/native_handle/typesizes.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/native_handle/typesizes.cc	2012-02-23 06:39:50.460015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/try_lock/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/try_lock/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/try_lock/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/try_lock/1.cc	2012-02-23 06:40:15.420015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/try_lock/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/try_lock/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/try_lock/2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/try_lock/2.cc	2012-02-23 06:40:38.667515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/unlock/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/unlock/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/mutex/unlock/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/mutex/unlock/1.cc	2012-02-23 06:40:54.860015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/1.cc	2009-06-21 07:02:09.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/1.cc	2012-02-23 06:41:17.564015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/2.cc	2009-06-21 07:02:09.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/2.cc	2012-02-23 06:41:41.244015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/alloc.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/alloc.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/alloc.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/alloc.cc	2012-02-23 06:42:07.980015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do compile { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do compile { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/move.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/move.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/move.cc	2009-06-21 07:02:09.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/move.cc	2012-02-23 06:42:24.795515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/move_assign.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/move_assign.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/cons/move_assign.cc	2009-06-21 07:02:09.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/cons/move_assign.cc	2012-02-23 06:42:43.388015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/boolconv.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/boolconv.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/boolconv.cc	2009-06-21 07:02:09.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/boolconv.cc	2012-02-23 06:42:54.636015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/get_future.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/get_future.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/get_future.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/get_future.cc	2012-02-23 06:43:10.140015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/get_future2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/get_future2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/get_future2.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/get_future2.cc	2012-02-23 06:43:32.588015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke.cc	2012-02-23 06:43:47.308015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke2.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke2.cc	2012-02-23 06:44:23.836015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke3.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke3.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke3.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke3.cc	2012-02-23 06:44:36.220015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke4.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke4.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke4.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke4.cc	2012-02-23 06:44:47.916015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke5.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke5.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke5.cc	2009-06-21 07:02:09.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/invoke5.cc	2012-02-23 06:44:56.764015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/reset.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/reset.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/reset.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/reset.cc	2012-02-23 06:45:13.691515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/reset2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/reset2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/reset2.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/reset2.cc	2012-02-23 06:27:01.180015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/swap.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/swap.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/packaged_task/members/swap.cc	2009-06-21 07:02:09.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/packaged_task/members/swap.cc	2012-02-23 06:26:30.236015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/promise/cons/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/promise/cons/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/promise/cons/1.cc	2009-06-21 07:02:09.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/promise/cons/1.cc	2012-02-23 06:26:11.164015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/promise/cons/alloc.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/promise/cons/alloc.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/promise/cons/alloc.cc	2010-01-20 16:01:47.000000000 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/promise/cons/alloc.cc	2012-02-23 06:25:52.012015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do compile { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do compile { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ // { dg-require-atomic-builtins "" }
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/1.cc	2012-02-23 06:57:51.212015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/2.cc	2012-02-23 06:57:44.300015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/3.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/3.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/3.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/3.cc	2012-02-23 06:57:35.497015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/4.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/4.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/4.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/4.cc	2012-02-23 06:57:26.844015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/5.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/5.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/5.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/5.cc	2012-02-23 06:57:17.836015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/hardware_concurrency.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/hardware_concurrency.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/members/hardware_concurrency.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/members/hardware_concurrency.cc	2012-02-23 06:56:57.612015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/native_handle/typesizes.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/native_handle/typesizes.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/native_handle/typesizes.cc	2009-09-09 14:59:40.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/native_handle/typesizes.cc	2012-02-23 06:56:45.980015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/swap/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/swap/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/thread/swap/1.cc	2009-05-18 15:15:56.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/thread/swap/1.cc	2012-02-23 06:56:23.404515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/cons/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/cons/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/cons/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/cons/1.cc	2012-02-23 06:56:09.228015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/dest/destructor_locked.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/dest/destructor_locked.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/dest/destructor_locked.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/dest/destructor_locked.cc	2012-02-23 06:55:52.364515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/lock/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/lock/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/lock/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/lock/1.cc	2012-02-23 06:55:30.876515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/native_handle/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/native_handle/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/native_handle/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/native_handle/1.cc	2012-02-23 06:55:08.876015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/native_handle/typesizes.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/native_handle/typesizes.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/native_handle/typesizes.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/native_handle/typesizes.cc	2012-02-23 06:54:52.828515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock/1.cc	2012-02-23 06:54:34.220015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock/2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock/2.cc	2012-02-23 06:54:26.891515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/1.cc	2012-02-23 06:54:10.268015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/2.cc	2012-02-23 06:54:03.372015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/3.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/3.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/3.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_for/3.cc	2012-02-23 06:53:57.612015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_until/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_until/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_until/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_until/1.cc	2012-02-23 06:53:36.108015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_until/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_until/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_until/2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/try_lock_until/2.cc	2012-02-23 06:53:21.004015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/unlock/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/unlock/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/timed_mutex/unlock/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/timed_mutex/unlock/1.cc	2012-02-23 06:53:07.644515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/try_lock/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/try_lock/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/try_lock/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/try_lock/1.cc	2012-02-23 06:52:53.227515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/try_lock/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/try_lock/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/try_lock/2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/try_lock/2.cc	2012-02-23 06:52:46.523015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/try_lock/3.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/try_lock/3.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/try_lock/3.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/try_lock/3.cc	2012-02-23 06:52:38.315515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/1.cc	2012-02-23 06:52:04.828015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/2.cc	2012-02-23 06:51:57.900515400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/3.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/3.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/3.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/3.cc	2012-02-23 06:51:51.100015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/4.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/4.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/4.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/4.cc	2012-02-23 06:51:25.292015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/5.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/5.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/5.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/5.cc	2012-02-23 06:51:18.092015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/6.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/6.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/cons/6.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/cons/6.cc	2012-02-23 06:50:47.228015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/locking/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/locking/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/locking/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/locking/1.cc	2012-02-23 06:50:04.604015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/locking/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/locking/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/locking/2.cc	2009-04-25 12:00:52.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/locking/2.cc	2012-02-23 06:49:55.420015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/locking/3.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/locking/3.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/locking/3.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/locking/3.cc	2012-02-23 06:49:48.716015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/locking/4.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/locking/4.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/locking/4.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/locking/4.cc	2012-02-23 06:49:40.028015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/modifiers/1.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/modifiers/1.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/modifiers/1.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/modifiers/1.cc	2012-02-23 06:48:54.860015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/modifiers/2.cc gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/modifiers/2.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/30_threads/unique_lock/modifiers/2.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/30_threads/unique_lock/modifiers/2.cc	2012-02-23 06:48:39.644015400 -0800
+@@ -1,7 +1,7 @@
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options " -std=gnu++0x -pthreads" { target *-*-solaris* } }
+-// { dg-options " -std=gnu++0x " { target *-*-cygwin *-*-darwin* } }
++// { dg-options " -std=gnu++0x " { target *-*-cygwin* *-*-darwin* } }
+ // { dg-require-cstdint "" }
+ // { dg-require-gthreads "" }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/ext/rope/pthread7-rope.cc gcc-4.5.3/libstdc++-v3/testsuite/ext/rope/pthread7-rope.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/ext/rope/pthread7-rope.cc	2009-05-15 00:14:45.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/ext/rope/pthread7-rope.cc	2012-02-23 06:48:21.516015400 -0800
+@@ -18,7 +18,7 @@
+ // with this library; see the file COPYING3.  If not see
+ // <http://www.gnu.org/licenses/>.
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/tr1/2_general_utilities/shared_ptr/thread/default_weaktoshared.cc gcc-4.5.3/libstdc++-v3/testsuite/tr1/2_general_utilities/shared_ptr/thread/default_weaktoshared.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/tr1/2_general_utilities/shared_ptr/thread/default_weaktoshared.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/tr1/2_general_utilities/shared_ptr/thread/default_weaktoshared.cc	2012-02-23 06:48:06.348015400 -0800
+@@ -17,7 +17,7 @@
+ 
+ // TR1 2.2.2 Template class shared_ptr [tr.util.smartptr.shared]
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 
+diff -urN gcc-4.5.3.ori/libstdc++-v3/testsuite/tr1/2_general_utilities/shared_ptr/thread/mutex_weaktoshared.cc gcc-4.5.3/libstdc++-v3/testsuite/tr1/2_general_utilities/shared_ptr/thread/mutex_weaktoshared.cc
+--- gcc-4.5.3.ori/libstdc++-v3/testsuite/tr1/2_general_utilities/shared_ptr/thread/mutex_weaktoshared.cc	2009-04-09 08:00:19.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/testsuite/tr1/2_general_utilities/shared_ptr/thread/mutex_weaktoshared.cc	2012-02-23 06:47:53.756015400 -0800
+@@ -17,7 +17,7 @@
+ 
+ // TR1 2.2.2 Template class shared_ptr [tr.util.smartptr.shared]
+ 
+-// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
++// { dg-do run { target *-*-freebsd* *-*-netbsd* *-*-linux* *-*-solaris* *-*-cygwin* *-*-darwin* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthread" { target *-*-freebsd* *-*-netbsd* *-*-linux* alpha*-*-osf* mips-sgi-irix6* } }
+ // { dg-options "-pthreads" { target *-*-solaris* } }
+ 

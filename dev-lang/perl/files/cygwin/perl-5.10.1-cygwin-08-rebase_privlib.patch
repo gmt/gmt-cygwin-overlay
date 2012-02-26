@@ -1,0 +1,33 @@
+diff -urN cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm
+--- cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm	2012-02-12 07:45:25.224020900 -0800
++++ cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm	2012-02-12 07:46:50.068486400 -0800
+@@ -126,6 +126,29 @@
+     ExtUtils::MM_Unix::all_target(shift);
+ }
+ 
++=item dynamic_lib
++
++Use the default to produce the *.dll's.
++But for new archdir dll's use the same rebase address if the old exists.
++
++=cut
++
++sub dynamic_lib {
++    my($self, %attribs) = @_;
++    my $s = ExtUtils::MM_Unix::dynamic_lib($self, %attribs);
++    my $ori = "$self->{INSTALLARCHLIB}/auto/$self->{FULLEXT}/$self->{BASEEXT}.$self->{DLEXT}";
++    if (-e $ori) {
++        my $imagebase = `/bin/objdump -p $ori | /bin/grep ImageBase | /bin/cut -c12-`;
++        chomp $imagebase;
++        if ("$imagebase" gt "4000f000") {
++            my $LDDLFLAGS = $self->{LDDLFLAGS};
++            $LDDLFLAGS =~ s/-Wl,--enable-auto-image-base/-Wl,--image-base=0x$imagebase/;
++            $s =~ s/ \$\(LDDLFLAGS\) / $LDDLFLAGS /m;
++        }
++    }
++    $s;
++}
++
+ =back
+ 
+ =cut

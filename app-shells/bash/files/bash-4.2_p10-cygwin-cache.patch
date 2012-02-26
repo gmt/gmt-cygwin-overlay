@@ -1,0 +1,33 @@
+--- cross-build/cygwin32.cache.orig	2012-02-23 19:41:23.816536000 -0800
++++ cross-build/cygwin32.cache	2012-02-23 19:42:41.995668700 -0800
+@@ -11,8 +11,8 @@
+ # loading this file, other *unset* `ac_cv_foo' will be assigned the
+ # following values.
+ 
+-ac_cv_build=${ac_cv_build='i686-pc-cygwin'}
+-ac_cv_build_alias=${ac_cv_build_alias='i686-pc-cygwin'}
++ac_cv_build=${ac_cv_build='i686-pc-cygwin1.7'}
++ac_cv_build_alias=${ac_cv_build_alias='i686-pc-cygwin1.7'}
+ ac_cv_c_bigendian=${ac_cv_c_bigendian='no'}
+ ac_cv_c_char_unsigned=${ac_cv_c_char_unsigned='no'}
+ ac_cv_c_compiler_gnu=${ac_cv_c_compiler_gnu='yes'}
+@@ -144,8 +144,8 @@
+ ac_cv_header_time=${ac_cv_header_time='yes'}
+ ac_cv_header_unistd_h=${ac_cv_header_unistd_h='yes'}
+ ac_cv_header_varargs_h=${ac_cv_header_varargs_h='yes'}
+-ac_cv_host=${ac_cv_host='i686-pc-cygwin'}
+-ac_cv_host_alias=${ac_cv_host_alias='i686-pc-cygwin'}
++ac_cv_host=${ac_cv_host='i686-pc-cygwin1.7'}
++ac_cv_host_alias=${ac_cv_host_alias='i686-pc-cygwin1.7'}
+ ac_cv_lib_dir_opendir=${ac_cv_lib_dir_opendir='no'}
+ ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen='no'}
+ ac_cv_lib_intl_bindtextdomain=${ac_cv_lib_intl_bindtextdomain='yes'}
+@@ -154,7 +154,7 @@
+ ac_cv_member_struct_termio_c_line=${ac_cv_member_struct_termio_c_line='yes'}
+ ac_cv_member_struct_termios_c_line=${ac_cv_member_struct_termios_c_line='yes'}
+ ac_cv_objext=${ac_cv_objext='o'}
+-ac_cv_path_install=${ac_cv_path_install='/usr/bin/install -c'}
++ac_cv_path_install=${ac_cv_path_install='install -c'}
+ ac_cv_prog_AR=${ac_cv_prog_AR='ar'}
+ ac_cv_prog_CPP=${ac_cv_prog_CPP='gcc -E'}
+ ac_cv_prog_YACC=${ac_cv_prog_YACC='bison -y'}

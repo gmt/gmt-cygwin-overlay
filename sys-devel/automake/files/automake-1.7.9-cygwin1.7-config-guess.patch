@@ -1,0 +1,14 @@
+--- lib/config.guess.orig	2012-02-23 16:14:08.275515400 -0800
++++ lib/config.guess	2012-02-23 16:14:41.228015400 -0800
+@@ -768,7 +768,10 @@
+ 	case ${LIBC} in gnu) kernel_only='k' ;; esac
+ 	echo ${UNAME_MACHINE}-unknown-${kernel_only}freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`${LIBC:+-$LIBC}
+ 	exit 0 ;;
+-    i*:CYGWIN*:*)
++    i*:CYGWIN*:1.7*:*)
++	echo ${UNAME_MACHINE}-pc-cygwin1.7
++	exit 0 ;;
++    i*:CYGWIN*:*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+ 	exit 0 ;;
+     i*:MINGW*:*)

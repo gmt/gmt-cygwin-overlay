@@ -1,0 +1,25 @@
+diff -urN baselayout-prefix-1.12.14.1709.vanilla/src/headers.h baselayout-prefix-1.12.14.1709/src/headers.h
+--- baselayout-prefix-1.12.14.1709.vanilla/src/headers.h	2011-06-05 11:41:04.000000000 -0700
++++ baselayout-prefix-1.12.14.1709/src/headers.h	2012-02-11 01:52:25.571528800 -0800
+@@ -11,6 +11,9 @@
+ #ifndef OSInterix
+ # define HAVE_TIOCNOTTY
+ #endif
++#ifdef __CYGWIN__
++# undef HAVE_TIOCNOTTY
++#endif
+ #define HAVE_SETSID
+ 
+ /* OS-specific includes */
+diff -urN baselayout-prefix-1.12.14.1709.vanilla/src/start-stop-daemon.c baselayout-prefix-1.12.14.1709/src/start-stop-daemon.c
+--- baselayout-prefix-1.12.14.1709.vanilla/src/start-stop-daemon.c	2011-06-05 11:57:37.000000000 -0700
++++ baselayout-prefix-1.12.14.1709/src/start-stop-daemon.c	2012-02-11 01:53:08.769028800 -0800
+@@ -42,7 +42,7 @@
+ #define HAVE_TERMIOS_H
+ #undef HAVE_SYS_TERMIOS_H
+ 
+-#if defined(linux) || (defined(__FreeBSD_kernel__) && defined(__GLIBC__))
++#if defined(linux) || defined(__CYGWIN__) || (defined(__FreeBSD_kernel__) && defined(__GLIBC__))
+ #  define OSLinux
+ #elif defined(__GNU__)
+ #  define OSHURD

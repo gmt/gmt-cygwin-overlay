@@ -1,0 +1,58 @@
+difforig ext/Win32CORE/Makefile.PL Makefile.SH
+
+diff -u ext/Win32CORE/Makefile.PL.orig ext/Win32CORE/Makefile.PL
+--- ext/Win32CORE/Makefile.PL.orig	2009-02-12 22:58:12.000000000 +0000
++++ ext/Win32CORE/Makefile.PL	2009-11-25 17:33:25.078125000 +0000
+@@ -2,6 +2,7 @@
+ 
+ WriteMakefile(
+     'NAME'		=> 'Win32CORE',
++    'LINKTYPE'          => 'static',	      
+     'VERSION_FROM'	=> 'Win32CORE.pm',
+ );
+ 
+@@ -12,7 +13,22 @@
+   return '' unless $self->needs_linking();
+   my $base = $self->SUPER::cflags($libperl);
+   if ($self->{LINKTYPE} eq 'static') {
+-    $base =~ s/CCFLAGS =(.*)$/CCFLAGS =\1 -UUSEIMPORTLIB /m;
++    $base =~ s/-DUSEIMPORTLIB/-UUSEIMPORTLIB/mg;
+   }
+   return $base;
+ }
++
++sub MY::static {
++  package MY;         # so that "SUPER" works right
++  my $self = shift;
++  return $self->SUPER::static(@_) unless $^O eq 'cygwin';
++  '
++# cygwin with libtool cannot link this as .a, required for mod_perl e.g.
++# So we add it directly to libperl.
++$(PERL_SRC)/$(OBJECT) : $(FIRST_MAKEFILE) $(OBJECT)
++	$(RM_RF) $(PERL_SRC)/$(OBJECT)
++	$(CP) $(OBJECT) $(PERL_SRC)/$(OBJECT)
++
++static :: $(FIRST_MAKEFILE) $(PERL_SRC)/$(OBJECT) $(INST_STATIC)
++';
++}
+diff -u Makefile.SH.orig Makefile.SH
+--- Makefile.SH.orig	2009-08-03 20:43:30.000000000 +0000
++++ Makefile.SH	2009-11-25 17:37:43.203125000 +0000
+@@ -308,7 +308,7 @@
+ static_ext = $static_list
+ nonxs_ext = $nonxs_list
+ ext = \$(dynamic_ext) \$(static_ext) \$(nonxs_ext)
+-DYNALOADER = DynaLoader\$(OBJ_EXT)
++DYNALOADER = DynaLoader\$(OBJ_EXT) Win32CORE\$(OBJ_EXT)
+ 
+ libs = $perllibs $cryptlib
+ 
+@@ -609,7 +609,7 @@
+ 	$(CCCMD) $(PLDLFLAGS) $*.c
+ 
+ perlmain.c: miniperlmain.c config.sh $(FIRSTMAKEFILE)
+-	sh writemain $(DYNALOADER) $(static_ext) > perlmain.c
++	sh writemain $(DYNALOADER) > perlmain.c
+ 
+ perlmain$(OBJ_EXT): perlmain.c
+ 	$(CCCMD) $(PLDLFLAGS) $*.c

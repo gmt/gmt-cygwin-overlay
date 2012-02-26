@@ -1,0 +1,44 @@
+diff -urN popt-1.16.orig/Makefile.am popt-1.16/Makefile.am
+--- popt-1.16.orig/Makefile.am	2010-05-04 13:55:54.000000000 -0700
++++ popt-1.16/Makefile.am	2012-02-11 17:30:03.533401000 -0800
+@@ -45,7 +45,7 @@
+ usrlib_LTLIBRARIES = libpopt.la
+ 
+ libpopt_la_SOURCES = popt.c poptparse.c poptconfig.c popthelp.c poptint.c
+-libpopt_la_LDFLAGS = -no-undefined @LTLIBINTL@ @LTLIBICONV@
++libpopt_la_LDFLAGS = -no-undefined -version-info 0:0:0 @LTLIBINTL@ @LTLIBICONV@
+ 
+ pkgconfigdir = $(prefix)/lib/pkgconfig
+ pkgconfig_DATA = popt.pc
+diff -urN popt-1.16.orig/popt.c popt-1.16/popt.c
+--- popt-1.16.orig/popt.c	2010-01-18 16:39:10.000000000 -0800
++++ popt-1.16/popt.c	2012-02-11 17:37:31.079392300 -0800
+@@ -266,11 +266,23 @@
+ 
+     for (i = con->numExecs - 1; i >= 0; i--) {
+ 	item = con->execs + i;
+-	if (longName && !(item->option.longName &&
+-			!strcmp(longName, item->option.longName)))
+-	    continue;
+-	else if (shortName != item->option.shortName)
+-	    continue;
++	if (longName) {
++	    if (item->option.longName)
++		if (!strcmp(longName, item->option.longName))
++		    break;
++		else
++		    continue;
++	    else
++		continue; 
++	} else { 
++	    if (item->option.shortName == 0)
++		continue;
++	    else
++		if (shortName == item->option.shortName)
++		    break;
++		else
++		    continue;
++	}
+ 	break;
+     }
+     if (i < 0) return 0;

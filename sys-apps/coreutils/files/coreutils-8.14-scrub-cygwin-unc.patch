@@ -1,0 +1,205 @@
+--- src/install.c.orig	2012-02-16 19:44:48.653321900 -0800
++++ src/install.c	2012-02-16 23:14:20.352398700 -0800
+@@ -26,6 +26,10 @@
+ #include <selinux/selinux.h>
+ #include <sys/wait.h>
+ 
++#ifdef __CYGWIN__
++#include <stdlib.h>
++#endif /* __CYGWIN__ */
++
+ #include "system.h"
+ #include "backupfile.h"
+ #include "error.h"
+@@ -44,11 +48,19 @@
+ #include "utimens.h"
+ #include "xstrtol.h"
+ 
++#if __CYGWIN__
++# include "cygwin.h"
++#endif
++
+ /* The official name of this program (e.g., no `g' prefix).  */
+ #define PROGRAM_NAME "install"
+ 
+ #define AUTHORS proper_name ("David MacKenzie")
+ 
++#ifdef __CYGWIN__
++#define ALLOW_CYGWIN_UNC "ALLOW_CYGWIN_UNC"
++#endif /* __CYGWIN__ */
++
+ static int selinux_enabled = 0;
+ static bool use_default_selinux_context = true;
+ 
+@@ -139,6 +151,87 @@
+   {NULL, 0, NULL, 0}
+ };
+ 
++#ifdef __CYGWIN__
++static bool
++allow_cygwin_unc()
++{
++  char *val = getenv(ALLOW_CYGWIN_UNC);
++  if (val == NULL) return false;
++  if (val[0] == '\0') return false;
++  if (val[1] == '\0') {
++    if ((val[0] == 'y' || val[0] == 'Y' || val[0] == 'T'
++         || val[0] == 't' || val[0] == '1'))
++      return true;
++    else     
++      return false;
++  }
++  if (val[2] == '\0') return false;
++  if (val[3] == '\0') {
++    if ((val[0] == 'y' || val[0] == 'Y') &&
++        (val[1] == 'e' || val[1] == 'E') &&
++	(val[2] == 's' || val[2] == 'S'))
++      return true;
++    else
++      return false;
++  }
++  if (val[4] == '\0') {
++    if ((val[0] == 't' || val[0] == 'T') &&
++        (val[1] == 'r' || val[1] == 'R') &&
++	(val[2] == 'u' || val[2] == 'U') &&
++	(val[3] == 'e' || val[3] == 'E'))
++      return true;
++    else
++      return false;
++  }
++  return false;
++}
++
++/* 
++   in-place cygwin pathname scrubber: naievely deletes any contiguous
++   slash characters, no other processing is done
++*/
++static void
++scrub_cygwin_path(char *pathname)
++{
++  /* 
++     although these point to the input and output of the
++     operation, it's entirely in-place so they are pointers
++     to the same string.  This is OK because the string can
++     only shrink and never grow.  Plus I am too lazy to read
++     man pages
++  */
++  char *c_in, *c_out;
++  bool last_char_was_slash = false;
++
++  c_in = c_out = pathname;
++
++  while (*c_in != '\0') {
++    if (last_char_was_slash) {
++      if (*c_in == '/') {
++        /* skip over duplicate-slash characters */
++        c_in++;
++      } else {
++        last_char_was_slash = false;
++	if (c_in == c_out) {
++	  c_out++; c_in++;
++	} else {
++	  *c_out++ = *c_in++;
++        }
++      }
++    } else {
++      if (*c_in == '/')
++        last_char_was_slash = true;
++      if (c_in == c_out) {
++        c_out++; c_in++;
++      } else {
++        *c_out++ = *c_in++;
++      }
++    }
++  }
++  *c_out = '\0';
++}
++#endif /* __CYGWIN__ */
++
+ /* Compare content of opened files using file descriptors A_FD and B_FD. Return
+    true if files are equal. */
+ static bool
+@@ -371,8 +464,13 @@
+    directory if it referred to anything at all.  */
+ 
+ static bool
+-target_directory_operand (char const *file)
++target_directory_operand (char *file)
+ {
++#ifdef __CYGWIN__
++  if (!allow_cygwin_unc()) {
++    scrub_cygwin_path(file);
++  }
++#endif
+   char const *b = last_component (file);
+   size_t blen = strlen (b);
+   bool looks_like_a_dir = (blen == 0 || ISSLASH (b[blen - 1]));
+@@ -788,6 +896,11 @@
+ #endif
+           break;
+         case STRIP_PROGRAM_OPTION:
++#ifdef __CYGWIN__
++          if (!allow_cygwin_unc()) {
++	    scrub_cygwin_path(optarg);
++	  }
++#endif /* __CYGWIN__ */
+           strip_program = xstrdup (optarg);
+           strip_program_specified = true;
+           break;
+@@ -822,7 +935,12 @@
+                    _("multiple target directories specified"));
+           else
+             {
+               struct stat st;
++#ifdef __CYGWIN__
++	      if (!allow_cygwin_unc()) {
++	      	scrub_cygwin_path(optarg);
++	      }
++#endif /* __CYGWIN__ */
+               if (stat (optarg, &st) != 0)
+                 error (EXIT_FAILURE, errno, _("accessing %s"), quote (optarg));
+               if (! S_ISDIR (st.st_mode))
+@@ -915,9 +1033,10 @@
+     }
+   else if (! (dir_arg || target_directory))
+     {
+-      if (2 <= n_files && target_directory_operand (file[n_files - 1]))
++      if (2 <= n_files && target_directory_operand (file[n_files - 1])) {
+         target_directory = file[--n_files];
+-      else if (2 < n_files)
++	/* cygwin note: target_directory_operand scrubs it for us */
++      } else if (2 < n_files)
+         error (EXIT_FAILURE, 0, _("target %s is not a directory"),
+                quote (file[n_files - 1]));
+     }
+@@ -966,6 +1085,12 @@
+ 
+       if (!target_directory)
+         {
++#ifdef __CYGWIN__
++          if (!allow_cygwin_unc()) {
++            scrub_cygwin_path(file[0]);
++	    scrub_cygwin_path(file[1]);
++          }
++#endif
+           if (! (mkdir_and_install
+                  ? install_file_in_file_parents (file[0], file[1], &x)
+                  : install_file_in_file (file[0], file[1], &x)))
+@@ -975,9 +1100,16 @@
+         {
+           int i;
+           dest_info_init (&x);
+-          for (i = 0; i < n_files; i++)
++          for (i = 0; i < n_files; i++) {
++#ifdef __CYGWIN__
++	    /* target_directory should have already been scrubbed (if not, there's a bug) */
++            if (!allow_cygwin_unc()) {
++              scrub_cygwin_path(file[i]);
++            }
++#endif
+             if (! install_file_in_dir (file[i], target_directory, &x))
+               exit_status = EXIT_FAILURE;
++	  }
+         }
+     }
+ 

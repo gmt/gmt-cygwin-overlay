@@ -1,0 +1,23 @@
+--- ./lib/config.guess.orig	2009-12-08 10:15:40.000000000 -0800
++++ ./lib/config.guess	2012-02-23 15:42:21.115515400 -0800
+@@ -797,6 +797,9 @@
+ 		echo ${UNAME_MACHINE}-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+ 	esac
+ 	exit ;;
++    i*:CYGWIN*:1.7*:*)
++	echo ${UNAME_MACHINE}-pc-cygwin1.7
++	exit ;;
+     i*:CYGWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+ 	exit ;;
+@@ -837,6 +840,10 @@
+     i*:UWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-uwin
+ 	exit ;;
++
++    amd64:CYGWIN*:*:* | x86_64:CYGWIN*:1.7*:*)
++	echo x86_64-unknown-cygwin1.7
++	exit ;;
+     amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
+ 	echo x86_64-unknown-cygwin
+ 	exit ;;

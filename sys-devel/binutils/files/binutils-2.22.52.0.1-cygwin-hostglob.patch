@@ -1,0 +1,79 @@
+diff -urN binutils-2.22.52.0.1.orig/binutils/testsuite/binutils-all/objcopy.exp binutils-2.22.52.0.1/binutils/testsuite/binutils-all/objcopy.exp
+--- binutils-2.22.52.0.1.orig/binutils/testsuite/binutils-all/objcopy.exp	2012-01-31 15:46:04.000000000 -0800
++++ binutils-2.22.52.0.1/binutils/testsuite/binutils-all/objcopy.exp	2012-02-23 12:24:17.900015400 -0800
+@@ -548,7 +548,7 @@
+ 
+ # Build a final executable.
+ 
+-if { [istarget *-*-cygwin] || [istarget *-*-mingw*] } {
++if { [istarget *-*-cygwin*] || [istarget *-*-mingw*] } {
+     set test_prog "testprog.exe"
+ } else {
+     set test_prog "testprog"
+diff -urN binutils-2.22.52.0.1.orig/configure binutils-2.22.52.0.1/configure
+--- binutils-2.22.52.0.1.orig/configure	2012-02-23 12:14:43.321015400 -0800
++++ binutils-2.22.52.0.1/configure	2012-02-23 12:24:41.176015400 -0800
+@@ -6932,7 +6932,7 @@
+ case "${host}" in
+   *-*-hpux*) RPATH_ENVVAR=SHLIB_PATH ;;
+   *-*-darwin*) RPATH_ENVVAR=DYLD_LIBRARY_PATH ;;
+-  *-*-mingw* | *-*-cygwin ) RPATH_ENVVAR=PATH ;;
++  *-*-mingw* | *-*-cygwin* ) RPATH_ENVVAR=PATH ;;
+   *) RPATH_ENVVAR=LD_LIBRARY_PATH ;;
+ esac
+ RPATH_ENVVAR="cant_touch_this_nah_nah_nah"
+diff -urN binutils-2.22.52.0.1.orig/configure.ac binutils-2.22.52.0.1/configure.ac
+--- binutils-2.22.52.0.1.orig/configure.ac	2012-02-23 12:14:43.325515400 -0800
++++ binutils-2.22.52.0.1/configure.ac	2012-02-23 12:25:11.357015400 -0800
+@@ -2390,7 +2390,7 @@
+ case "${host}" in
+   *-*-hpux*) RPATH_ENVVAR=SHLIB_PATH ;;
+   *-*-darwin*) RPATH_ENVVAR=DYLD_LIBRARY_PATH ;;
+-  *-*-mingw* | *-*-cygwin ) RPATH_ENVVAR=PATH ;;
++  *-*-mingw* | *-*-cygwin* ) RPATH_ENVVAR=PATH ;;
+   *) RPATH_ENVVAR=LD_LIBRARY_PATH ;;
+ esac
+ 
+diff -urN binutils-2.22.52.0.1.orig/ld/testsuite/ld-pe/export_dynamic_warning.d binutils-2.22.52.0.1/ld/testsuite/ld-pe/export_dynamic_warning.d
+--- binutils-2.22.52.0.1.orig/ld/testsuite/ld-pe/export_dynamic_warning.d	2012-01-31 15:46:04.000000000 -0800
++++ binutils-2.22.52.0.1/ld/testsuite/ld-pe/export_dynamic_warning.d	2012-02-23 12:25:57.052015400 -0800
+@@ -1,5 +1,5 @@
+ #name: PE-COFF --export-dynamic warning
+-#target: *-*-mingw32 *-*-cygwin *-*-pe
++#target: *-*-mingw32 *-*-cygwin* *-*-pe
+ #ld: --export-dynamic
+ #warning: warning: --export-dynamic is not supported for PE\+? targets, did you mean --export-all-symbols\?
+ 
+diff -urN binutils-2.22.52.0.1.orig/ld/testsuite/lib/ld-lib.exp binutils-2.22.52.0.1/ld/testsuite/lib/ld-lib.exp
+--- binutils-2.22.52.0.1.orig/ld/testsuite/lib/ld-lib.exp	2012-02-23 12:14:46.025515400 -0800
++++ binutils-2.22.52.0.1/ld/testsuite/lib/ld-lib.exp	2012-02-23 12:26:23.660015400 -0800
+@@ -1458,7 +1458,7 @@
+ 	     || [istarget ia64-*-*]
+ 	     || [istarget mep-*-*]
+ 	     || [istarget mn10200-*-*]
+-	     || [istarget *-*-cygwin]
++	     || [istarget *-*-cygwin*]
+ 	     || [istarget *-*-mingw*] } {
+ 	    set gc_sections_available_saved 0
+ 	    return 0
+diff -urN binutils-2.22.52.0.1.orig/ld/testsuite/ld-auto-import/auto-import.exp binutils-2.22.52.0.1/ld/testsuite/ld-auto-import/auto-import.exp
+--- binutils-2.22.52.0.1.orig/ld/testsuite/ld-auto-import/auto-import.exp	2012-02-23 12:37:41.647015400 -0800
++++ binutils-2.22.52.0.1/ld/testsuite/ld-auto-import/auto-import.exp	2012-02-23 13:20:50.124015400 -0800
+@@ -57,7 +57,7 @@
+ 
+ # This test can only be run on a couple of platforms.
+ # Square bracket expressions seem to confuse istarget.
+-if { ![istarget *-pc-cygwin]    
++if { ![istarget *-pc-cygwin*]    
+      && ![istarget *-pc-mingw*] } {
+     return
+ }
+@@ -114,7 +114,7 @@
+ set tmpdir tmpdir
+ set SHCFLAG ""
+ 
+-if [istarget *-pc-cygwin] {
++if [istarget *-pc-cygwin*] {
+     # Set some libs needed for cygwin.
+     set MYLIBS "-L/usr/lib -lcygwin -L/usr/lib/w32api -lkernel32"
+     

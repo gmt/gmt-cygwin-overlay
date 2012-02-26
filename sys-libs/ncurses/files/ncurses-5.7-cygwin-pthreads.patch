@@ -1,0 +1,42 @@
+--- configure.orig	2012-02-17 04:55:48.846140600 -0800
++++ configure	2012-02-17 04:55:53.976166400 -0800
+@@ -10338,7 +10338,17 @@
+ LIBS=`echo "$LIBS" | sed -e 's/-lpthread[ 	]//g' -e 's/-lpthread$//'`
+ 
+ 	else
+-		LIB_SUFFIX="t${LIB_SUFFIX}"
++		# when not using weak symbols but with_reentrant,
++		# add 't' to the library suffix on all platforms
++		# except cygwin, where we only do that if ALSO
++		# compiling with full thread support.
++		case "$host" in
++		*cygwin* )
++			if test "$with_pthread" = "yes" ; then
++				LIB_SUFFIX="t${LIB_SUFFIX}"
++			fi ;;
++		* ) LIB_SUFFIX="t${LIB_SUFFIX}" ;;
++		esac
+ 	fi
+ 	cat >>confdefs.h <<\EOF
+ #define USE_REENTRANT 1
+--- configure.in.orig	2012-02-17 20:56:38.150262200 -0800
++++ configure.in	2012-02-17 20:42:18.737762200 -0800
+@@ -1113,7 +1113,17 @@
+ 	if test $cf_cv_weak_symbols = yes ; then
+ 		CF_REMOVE_LIB(LIBS,$LIBS,pthread)
+ 	else
+-		LIB_SUFFIX="t${LIB_SUFFIX}"
++		# when not using weak symbols but with_reentrant,
++		# add 't' to the library suffix on all platforms
++		# except cygwin, where we only do that if ALSO
++		# compiling with full thread support.
++		case "$host" in
++		*cygwin* )
++			if test "$with_pthread" = "yes" ; then
++				LIB_SUFFIX="t${LIB_SUFFIX}"
++			fi ;;
++		* ) LIB_SUFFIX="t${LIB_SUFFIX}" ;;
++		esac
+ 	fi
+ 	AC_DEFINE(USE_REENTRANT)
+ 	CF_NCURSES_ABI_6

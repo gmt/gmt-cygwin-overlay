@@ -1,0 +1,17 @@
+--- gobject/Makefile.am.orig	2012-02-21 17:34:24.403710700 -0800
++++ gobject/Makefile.am	2012-02-21 17:34:52.214210700 -0800
+@@ -77,12 +77,13 @@
+ libgobjectincludedir = $(includedir)/glib-2.0/gobject
+ libgobject_2_0_la_LDFLAGS = $(GLIB_LINK_FLAGS) \
+   $(gobject_win32_res_ldflag) \
++  $(LIBFFI_LIBS) \
+   -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) \
+   -export-dynamic $(no_undefined) $(export_symbols)
+ 
+ libgobject_2_0_la_CFLAGS = $(LIBFFI_CFLAGS)
+ 
+-libgobject_2_0_la_LIBADD = $(libglib) $(LIBFFI_LIBS)
++libgobject_2_0_la_LIBADD = $(libglib)
+ 
+ libgobject_2_0_la_DEPENDENCIES = $(gobject_win32_res) $(gobject_def)
+ 

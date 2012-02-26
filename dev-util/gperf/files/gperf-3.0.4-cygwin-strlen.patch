@@ -1,0 +1,21 @@
+--- lib/getopt.c.orig	2012-02-21 04:24:03.560942700 -0800
++++ lib/getopt.c	2012-02-21 04:25:45.397806000 -0800
+@@ -216,6 +216,10 @@
+   return 0;
+ }
+ 
++#if __CYGWIN__
++/* strlen is in string.h */
++#include <string.h>
++#else
+ /* If using GCC, we can safely declare strlen this way.
+    If not using GCC, it is ok not to declare it.  */
+ #ifdef __GNUC__
+@@ -227,6 +231,7 @@
+ extern int strlen (const char *);
+ #endif /* not __STDC__ */
+ #endif /* __GNUC__ */
++#endif /* __CYGWIN__ */
+ 
+ #endif /* not __GNU_LIBRARY__ */
+ 

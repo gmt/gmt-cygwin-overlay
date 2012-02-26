@@ -1,0 +1,11 @@
+--- ncurses-5.7/configure.old	2012-02-17 04:38:38.202053000 -0800
++++ ncurses-5.7/configure	2012-02-17 04:42:30.120927500 -0800
+@@ -6535,7 +6535,7 @@
+ irix[56].*) #(vi
+ 	CPPFLAGS="$CPPFLAGS -D_SGI_SOURCE"
+ 	;;
+-linux*|gnu*|mint*|k*bsd*-gnu) #(vi
++linux*|gnu*|mint*|k*bsd*-gnu|mint*) #(vi
+ 
+ echo "$as_me:6540: checking if we must define _GNU_SOURCE" >&5
+ echo $ECHO_N "checking if we must define _GNU_SOURCE... $ECHO_C" >&6

@@ -1,0 +1,162 @@
+From: rwild <rwild@138bc75d-0d04-0410-961f-82ee72b054a4>
+Date: Fri, 4 Feb 2011 05:51:57 +0000 (+0000)
+Subject: Fix PR java/21206: Unrecognized option '-Wl,-rpath' for jv-convert
+X-Git-Url: http://gcc.gnu.org/git/?p=gcc.git;a=commitdiff_plain;h=a8dc4a292b02b0bcb7b9a87f46033729a592d10a;hp=cb6f50ce2caf83ac6c0908700851650590c9498a
+
+Fix PR java/21206: Unrecognized option '-Wl,-rpath' for jv-convert
+
+libjava/:
+	PR java/21206
+	* configure.ac (LDLIBICONV): New substituted variable, with
+	instances of '-Wl,' removed from LIBICONV.
+	* configure: Regenerate.
+	* libgcj.spec.in: Use @LDLIBICONV@ not @LIBICONV@.
+	* Makefile.in: Regenerate.
+	* gcj/Makefile.in: Likewise.
+	* include/Makefile.in: Likewise.
+	* testsuite/Makefile.in: Likewise.
+
+git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/trunk@169822 138bc75d-0d04-0410-961f-82ee72b054a4
+---
+
+diff --git a/libjava/ChangeLog b/libjava/ChangeLog
+index 0b6ba96..fd297fd 100644
+--- a/libjava/ChangeLog
++++ b/libjava/ChangeLog
+@@ -1,3 +1,15 @@
++2011-02-04  Ralf Wildenhues  <Ralf.Wildenhues@gmx.de>
++
++	PR java/21206
++	* configure.ac (LDLIBICONV): New substituted variable, with
++	instances of '-Wl,' removed from LIBICONV.
++	* configure: Regenerate.
++	* libgcj.spec.in: Use @LDLIBICONV@ not @LIBICONV@.
++	* Makefile.in: Regenerate.
++	* gcj/Makefile.in: Likewise.
++	* include/Makefile.in: Likewise.
++	* testsuite/Makefile.in: Likewise.
++
+ 2011-02-02  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+ 
+ 	* configure.ac: Don't use libdl on mips-sgi-irix6*.
+diff --git a/libjava/Makefile.in b/libjava/Makefile.in
+index f60b9e3..bf5ab9d 100644
+--- a/libjava/Makefile.in
++++ b/libjava/Makefile.in
+@@ -592,6 +592,7 @@ JVM_JAR_ROOT_DIR = @JVM_JAR_ROOT_DIR@
+ JVM_ROOT_DIR = @JVM_ROOT_DIR@
+ LD = @LD@
+ LDFLAGS = @LDFLAGS@
++LDLIBICONV = @LDLIBICONV@
+ LD_FINISH_STATIC_SPEC = @LD_FINISH_STATIC_SPEC@
+ LD_START_STATIC_SPEC = @LD_START_STATIC_SPEC@
+ LIBART_CFLAGS = @LIBART_CFLAGS@
+diff --git a/libjava/configure b/libjava/configure
+index 2fd20a4..481210d 100755
+--- a/libjava/configure
++++ b/libjava/configure
+@@ -674,6 +674,7 @@ GLIB_CFLAGS
+ GTK_LIBS
+ GTK_CFLAGS
+ PKG_CONFIG
++LDLIBICONV
+ LTLIBICONV
+ LIBICONV
+ USING_GCC_FALSE
+@@ -13355,7 +13356,7 @@ else
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 13358 "configure"
++#line 13359 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -13461,7 +13462,7 @@ else
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 13464 "configure"
++#line 13465 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -19462,7 +19463,7 @@ if test "${enable_sjlj_exceptions+set}" = set; then :
+   enableval=$enable_sjlj_exceptions; :
+ else
+   cat > conftest.$ac_ext << EOF
+-#line 19465 "configure"
++#line 19466 "configure"
+ struct S { ~S(); };
+ void bar();
+ void foo()
+@@ -21993,6 +21994,8 @@ $as_echo "#define HAVE_TZNAME 1" >>confdefs.h
+   fi
+ fi
+ 
++   LDLIBICONV=`echo " $LIBICONV " | sed "s/${acl_cv_wl--Wl,}/ /g; s/,/ /g"`
++
+ 
+    for ac_func in gethostbyname_r
+ do :
+diff --git a/libjava/configure.ac b/libjava/configure.ac
+index e5310c1..a45cfc9 100644
+--- a/libjava/configure.ac
++++ b/libjava/configure.ac
+@@ -1240,6 +1240,8 @@ else
+    AM_ICONV
+    AM_LC_MESSAGES
+    AC_STRUCT_TIMEZONE
++   LDLIBICONV=`echo " $LIBICONV " | sed "s/${acl_cv_wl--Wl,}/ /g; s/,/ /g"`
++   AC_SUBST([LDLIBICONV])
+ 
+    AC_CHECK_FUNCS(gethostbyname_r, [
+      AC_DEFINE(HAVE_GETHOSTBYNAME_R, 1,
+diff --git a/libjava/gcj/Makefile.in b/libjava/gcj/Makefile.in
+index 3273f4e..626bfb3 100644
+--- a/libjava/gcj/Makefile.in
++++ b/libjava/gcj/Makefile.in
+@@ -175,6 +175,7 @@ JVM_JAR_ROOT_DIR = @JVM_JAR_ROOT_DIR@
+ JVM_ROOT_DIR = @JVM_ROOT_DIR@
+ LD = @LD@
+ LDFLAGS = @LDFLAGS@
++LDLIBICONV = @LDLIBICONV@
+ LD_FINISH_STATIC_SPEC = @LD_FINISH_STATIC_SPEC@
+ LD_START_STATIC_SPEC = @LD_START_STATIC_SPEC@
+ LIBART_CFLAGS = @LIBART_CFLAGS@
+diff --git a/libjava/include/Makefile.in b/libjava/include/Makefile.in
+index edda77a..1796971 100644
+--- a/libjava/include/Makefile.in
++++ b/libjava/include/Makefile.in
+@@ -176,6 +176,7 @@ JVM_JAR_ROOT_DIR = @JVM_JAR_ROOT_DIR@
+ JVM_ROOT_DIR = @JVM_ROOT_DIR@
+ LD = @LD@
+ LDFLAGS = @LDFLAGS@
++LDLIBICONV = @LDLIBICONV@
+ LD_FINISH_STATIC_SPEC = @LD_FINISH_STATIC_SPEC@
+ LD_START_STATIC_SPEC = @LD_START_STATIC_SPEC@
+ LIBART_CFLAGS = @LIBART_CFLAGS@
+diff --git a/libjava/libgcj.spec.in b/libjava/libgcj.spec.in
+index 8d39532..22eec3d 100644
+--- a/libjava/libgcj.spec.in
++++ b/libjava/libgcj.spec.in
+@@ -7,6 +7,6 @@
+ *startfile: @THREADSTARTFILESPEC@ %(startfileorig)
+ 
+ %rename lib liborig
+-*lib: @LD_START_STATIC_SPEC@ @LIBGCJ_SPEC@ @LD_FINISH_STATIC_SPEC@ @LIBMATHSPEC@ @LIBICONV@ @GCSPEC@ @THREADSPEC@ @ZLIBSPEC@ @SYSTEMSPEC@ %(libgcc) @LIBSTDCXXSPEC@ %(liborig)
++*lib: @LD_START_STATIC_SPEC@ @LIBGCJ_SPEC@ @LD_FINISH_STATIC_SPEC@ @LIBMATHSPEC@ @LDLIBICONV@ @GCSPEC@ @THREADSPEC@ @ZLIBSPEC@ @SYSTEMSPEC@ %(libgcc) @LIBSTDCXXSPEC@ %(liborig)
+ 
+ *jc1: @HASH_SYNC_SPEC@ @DIVIDESPEC@ @CHECKREFSPEC@ @JC1GCSPEC@ @EXCEPTIONSPEC@ @BACKTRACESPEC@ @IEEESPEC@ @ATOMICSPEC@ @LIBGCJ_BC_SPEC@ -fkeep-inline-functions
+diff --git a/libjava/testsuite/Makefile.in b/libjava/testsuite/Makefile.in
+index 56e390a..4af8956 100644
+--- a/libjava/testsuite/Makefile.in
++++ b/libjava/testsuite/Makefile.in
+@@ -151,6 +151,7 @@ JVM_JAR_ROOT_DIR = @JVM_JAR_ROOT_DIR@
+ JVM_ROOT_DIR = @JVM_ROOT_DIR@
+ LD = @LD@
+ LDFLAGS = @LDFLAGS@
++LDLIBICONV = @LDLIBICONV@
+ LD_FINISH_STATIC_SPEC = @LD_FINISH_STATIC_SPEC@
+ LD_START_STATIC_SPEC = @LD_START_STATIC_SPEC@
+ LIBART_CFLAGS = @LIBART_CFLAGS@

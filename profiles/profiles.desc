@@ -1,0 +1,5 @@
+# this allows the PORTDIR="${EPREFIX}/overlay" eselect profile hack
+# described at http://klaig.blogspot.com/2012/02/small-gentoo-tip-make-eselect-profile.html
+# to work.
+
+x86-cygwin		prefix/windows/cygwin/1.7/x86/gmtoverlay	dev

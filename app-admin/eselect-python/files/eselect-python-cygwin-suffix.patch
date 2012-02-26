@@ -1,0 +1,75 @@
+--- python.eselect.old	2012-02-11 10:22:59.564674100 -0800
++++ python.eselect	2012-02-11 10:21:16.850174100 -0800
+@@ -7,20 +7,30 @@
+ SVN_DATE='$Date: 2010-03-21 22:36:50 +0100 (nie) $'
+ VERSION=$(svn_date_to_version "${SVN_DATE}" )
+ 
+-ENV_D_PATH="${EROOT%/}/etc/env.d"
+-INTERPRETER_PATH="${EROOT%/}/usr/bin/"
+-MAN_PATH="${EROOT%/}/usr/share/man/man1/"
++shopt -s extglob
++
++ENV_D_PATH="${EROOT%%*(/)}/etc/env.d"
++ENV_D_PATH="/${ENV_D_PATH##*(/)}"
++
++INTERPRETER_PATH="${EROOT%%*(/)}/usr/bin/"
++INTERPRETER_PATH="/${INTERPRETER_PATH##*(/)}"
++
++MAN_PATH="${EROOT%%*(/)}/usr/share/man/man1/"
++MAN_PATH="/${MAN_PATH##*(/)}"
+ 
+ PYTHON_INTERPRETERS_GROUP=""
+ 
++EXE_SUFFIX=""
++[[ $(uname) == CYGWIN* ]] && EXE_SUFFIX=".exe"
++
+ # Find a list of Python versions
+ find_targets() {
+-	local interpreter interpreters="python?.?"
++	local interpreter interpreters="python?.?${EXE_SUFFIX}"
+ 
+ 	if [[ "${PYTHON_INTERPRETERS_GROUP}" == "2" ]]; then
+-		interpreters="python2.?"
++		interpreters="python2.?${EXE_SUFFIX}"
+ 	elif [[ "${PYTHON_INTERPRETERS_GROUP}" == "3" ]]; then
+-		interpreters="python3.?"
++		interpreters="python3.?${EXE_SUFFIX}"
+ 	fi
+ 
+ 	# Think twice before adding jython to this list. /usr/bin/jython
+@@ -112,12 +122,12 @@
+ 		fi
+ 
+ 		if [[ "${SET_MAIN_ACTIVE_PYTHON_INTERPRETER}" == "1" ]]; then
+-			set_man_symlink "${target}"
++			set_man_symlink "${target%${EXE_SUFFIX}}"
+ 		fi
+ 
+ 		pushd "${INTERPRETER_PATH}" 1>/dev/null
+ 
+-		ln -nfs "${target}" "${target%.*}"
++		[[ $(uname) != CYGWIN* ]] && ln -nfs "${target}" "${target%.*}"
+ 		if [[ "${SET_MAIN_ACTIVE_PYTHON_INTERPRETER}" == "1" ]]; then
+ 			set_python "${target}"
+ 			set_python_config "${target/python/python-config-}"
+@@ -348,7 +358,7 @@
+ }
+ 
+ do_update() {
+-	local if_unset="0" ignored_slots=() interpreters="python?.?" python2="0" python3="0" python_version_option= slot= target targets=()
++	local if_unset="0" ignored_slots=() interpreters="python?.?${EXE_SUFFIX}" python2="0" python3="0" python_version_option= slot= target targets=()
+ 	while [[ $# > 0 ]]; do
+ 		case "$1" in
+ 			--if-unset)
+@@ -387,9 +397,9 @@
+ 	fi
+ 
+ 	if [[ "${python2}" == "1" ]]; then
+-		interpreters="python2.?"
++		interpreters="python2.?${EXE_SUFFIX}"
+ 	elif [[ "${python3}" == "1" ]]; then
+-		interpreters="python3.?"
++		interpreters="python3.?${EXE_SUFFIX}"
+ 	fi
+ 
+ 	targets=($(cd "${INTERPRETER_PATH}"; ls ${interpreters} | sort -r))

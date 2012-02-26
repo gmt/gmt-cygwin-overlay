@@ -1,0 +1,437 @@
+diff -urN subversion-1.7.1.vanilla/build.conf subversion-1.7.1/build.conf
+--- subversion-1.7.1.vanilla/build.conf	2011-08-04 13:18:50.000000000 -0700
++++ subversion-1.7.1/build.conf	2012-02-13 06:44:44.581003400 -0800
+@@ -314,7 +314,7 @@
+ type = lib
+ install = fsmod-lib
+ path = subversion/libsvn_subr
+-libs = aprutil apriconv apr xml zlib apr_memcache sqlite magic
++libs = aprutil apriconv apr xml zlib apr_memcache sqlite magic wincrypt
+ msvc-libs = advapi32.lib shfolder.lib ole32.lib crypt32.lib version.lib
+ msvc-export = 
+         svn_auth.h svn_base64.h svn_cache_config.h svn_checksum.h svn_cmdline.h
+@@ -348,6 +348,7 @@
+ path = subversion/mod_dav_svn
+ sources = *.c reports/*.c posts/*.c
+ libs = libsvn_repos libsvn_fs libsvn_delta libsvn_subr
++        mod_dav httpd aprutil apr
+ nonlibs = apr aprutil
+ install = apache-mod
+ msvc-libs = mod_dav.lib libhttpd.lib
+@@ -356,8 +357,10 @@
+ description = Subversion path-based authorization module for Apache
+ type = apache-mod
+ path = subversion/mod_authz_svn
+-nonlibs = mod_dav_svn apr aprutil
++nonlibs = apr aprutil
+ libs = libsvn_repos libsvn_subr
++       mod_dav httpd aprutil apr
++       mod_dav_svn
+ install = apache-mod
+ msvc-libs = libhttpd.lib
+ 
+@@ -478,7 +481,7 @@
+ lang = python
+ path = subversion/bindings/swig/python/libsvn_swig_py
+ libs = libsvn_client libsvn_wc libsvn_ra libsvn_delta libsvn_subr apriconv apr
+-link-cmd = $(LINK)
++link-cmd = $(LINK) $(SWIG_PY_LIBS)
+ install = swig-py-lib
+ # need special build rule to include -DSWIGPYTHON
+ compile-cmd = $(COMPILE_SWIG_PY)
+@@ -489,7 +492,7 @@
+ type = swig_lib
+ lang = perl
+ path = subversion/bindings/swig/perl/libsvn_swig_perl
+-libs = libsvn_delta libsvn_subr apriconv apr
++libs = libsvn_delta libsvn_subr apriconv apr perl
+ install = swig-pl-lib
+ # need special build rule to include
+ compile-cmd = $(COMPILE_SWIG_PL)
+@@ -1091,6 +1094,24 @@
+ external-lib = $(SVN_FS_LIB_LINK)
+ libs = libsvn_fs_base libsvn_fs_fs
+ 
++[wincrypt]
++type = lib
++external-lib = -lcrypt32
++
++[perl]
++type = lib
++external-lib = -L_xxx_PERLCORE_xxx_ -lperl
++
++[mod_dav]
++type = lib
++external-lib = `$(APXS) -q libexecdir`/mod_dav.la
++libs = httpd aprutil apr
++
++[httpd]
++type = lib
++external-lib = `$(APXS) -q libdir`/libhttpd2core.la
++libs = aprutil apr
++
+ [__ALL__]
+ type = project
+ path = build/win32
+diff -urN subversion-1.7.1.vanilla/Makefile.in subversion-1.7.1/Makefile.in
+--- subversion-1.7.1.vanilla/Makefile.in	2011-07-16 04:50:53.000000000 -0700
++++ subversion-1.7.1/Makefile.in	2012-02-13 06:29:54.190460900 -0800
+@@ -736,7 +736,7 @@
+ 	./config.status subversion/bindings/swig/perl/native/Makefile.PL
+ 
+ $(SWIG_PL_DIR)/native/Makefile: $(SWIG_PL_DIR)/native/Makefile.PL
+-	cd $(SWIG_PL_DIR)/native; $(PERL) Makefile.PL
++	cd $(SWIG_PL_DIR)/native; $(PERL) Makefile.PL INSTALLDIRS=vendor
+ 
+ # There is a "readlink -f" command on some systems for the same purpose,
+ # but it's not as portable (e.g. Mac OS X doesn't have it).  These should
+diff -urN subversion-1.7.1.vanilla/subversion/bindings/swig/ruby/svn/util.rb subversion-1.7.1/subversion/bindings/swig/ruby/svn/util.rb
+--- subversion-1.7.1.vanilla/subversion/bindings/swig/ruby/svn/util.rb	2010-01-31 21:02:55.000000000 -0800
++++ subversion-1.7.1/subversion/bindings/swig/ruby/svn/util.rb	2012-02-13 06:28:08.871401300 -0800
+@@ -17,7 +17,7 @@
+ #    under the License.
+ # ====================================================================
+ 
+-if /cygwin|mingw|mswin32|bccwin32/.match(RUBY_PLATFORM)
++if /mingw|mswin32|bccwin32/.match(RUBY_PLATFORM)
+   $LOAD_PATH.each do |load_path|
+     svn_ext_path = File.join(load_path, "svn", "ext")
+     if File.exists?(svn_ext_path)
+@@ -115,7 +115,7 @@
+     end
+ 
+     def reset_message_directory
+-      if /cygwin|mingw|mswin32|bccwin32/.match(RUBY_PLATFORM)
++      if /mingw|mswin32|bccwin32/.match(RUBY_PLATFORM)
+         top_directory = File.join(File.dirname(__FILE__), "..", "..")
+         top_directory = File.expand_path(top_directory)
+         locale_directory = File.join(top_directory, "share", "locale")
+@@ -140,7 +140,7 @@
+     end
+ 
+     def windows?
+-      /cygwin|mingw|mswin32|bccwin32/.match(RUBY_PLATFORM)
++      /mingw|mswin32|bccwin32/.match(RUBY_PLATFORM)
+     end
+   end
+ end
+diff -urN subversion-1.7.1.vanilla/subversion/include/svn_auth.h subversion-1.7.1/subversion/include/svn_auth.h
+--- subversion-1.7.1.vanilla/subversion/include/svn_auth.h	2011-06-09 07:20:24.000000000 -0700
++++ subversion-1.7.1/subversion/include/svn_auth.h	2012-02-13 06:29:00.228670700 -0800
+@@ -830,7 +830,7 @@
+   svn_config_t *config,
+   apr_pool_t *pool);
+ 
+-#if (defined(WIN32) && !defined(__MINGW32__)) || defined(DOXYGEN)
++#if ((defined(WIN32) && !defined(__MINGW32__)) || defined(__CYGWIN__)) || defined(DOXYGEN)
+ /**
+  * Set @a *provider to an authentication provider of type @c
+  * svn_auth_cred_simple_t that gets/sets information from the user's
+diff -urN subversion-1.7.1.vanilla/subversion/libsvn_subr/auth.c subversion-1.7.1/subversion/libsvn_subr/auth.c
+--- subversion-1.7.1.vanilla/subversion/libsvn_subr/auth.c	2011-06-07 07:45:59.000000000 -0700
++++ subversion-1.7.1/subversion/libsvn_subr/auth.c	2012-02-13 06:29:00.232671500 -0800
+@@ -460,7 +460,7 @@
+         }
+ #endif
+ 
+-#if defined(WIN32) && !defined(__MINGW32__)
++#if (defined(WIN32) && !defined(__MINGW32__)) || defined(__CYGWIN__)
+       if (strcmp(provider_name, "windows") == 0 &&
+           strcmp(provider_type, "simple") == 0)
+         {
+diff -urN subversion-1.7.1.vanilla/subversion/libsvn_subr/config_file.c subversion-1.7.1/subversion/libsvn_subr/config_file.c
+--- subversion-1.7.1.vanilla/subversion/libsvn_subr/config_file.c	2011-09-21 02:34:33.000000000 -0700
++++ subversion-1.7.1/subversion/libsvn_subr/config_file.c	2012-02-13 06:29:00.244673900 -0800
+@@ -958,7 +958,7 @@
+         "###   windows-cryptoapi    (Windows)"                               NL
+ #ifdef SVN_HAVE_KEYCHAIN_SERVICES
+         "# password-stores = keychain"                                       NL
+-#elif defined(WIN32) && !defined(__MINGW32__)
++#elif (defined(WIN32) && !defined(__MINGW32__)) || defined(__CYGWIN__)
+         "# password-stores = windows-cryptoapi"                              NL
+ #else
+         "# password-stores = gnome-keyring,kwallet"                          NL
+diff -urN subversion-1.7.1.vanilla/subversion/libsvn_subr/dirent_uri.c subversion-1.7.1/subversion/libsvn_subr/dirent_uri.c
+--- subversion-1.7.1.vanilla/subversion/libsvn_subr/dirent_uri.c	2011-09-22 04:32:20.000000000 -0700
++++ subversion-1.7.1/subversion/libsvn_subr/dirent_uri.c	2012-02-13 06:27:36.562440800 -0800
+@@ -54,7 +54,7 @@
+ 
+ /* This check must match the check on top of dirent_uri-tests.c and
+    path-tests.c */
+-#if defined(WIN32) || defined(__CYGWIN__) || defined(__OS2__)
++#if defined(WIN32) || defined(__OS2__)
+ #define SVN_USE_DOS_PATHS
+ #endif
+ 
+@@ -896,7 +896,8 @@
+ svn_boolean_t
+ svn_dirent_is_root(const char *dirent, apr_size_t len)
+ {
+-#ifdef SVN_USE_DOS_PATHS
++#if defined(SVN_USE_DOS_PATHS) || defined(__CYGWIN__)
++#ifndef __CYGWIN__
+   /* On Windows and Cygwin, 'H:' or 'H:/' (where 'H' is any letter)
+      are also root directories */
+   if ((len == 2 || ((len == 3) && (dirent[2] == '/'))) &&
+@@ -904,6 +905,7 @@
+       ((dirent[0] >= 'A' && dirent[0] <= 'Z') ||
+        (dirent[0] >= 'a' && dirent[0] <= 'z')))
+     return TRUE;
++#endif
+ 
+   /* On Windows and Cygwin //server/share is a root directory,
+      and on Cygwin //drive is a drive alias */
+diff -urN subversion-1.7.1.vanilla/subversion/libsvn_subr/io.c subversion-1.7.1/subversion/libsvn_subr/io.c
+--- subversion-1.7.1.vanilla/subversion/libsvn_subr/io.c	2011-10-10 12:54:49.000000000 -0700
++++ subversion-1.7.1/subversion/libsvn_subr/io.c	2012-02-13 06:26:01.991030300 -0800
+@@ -29,6 +29,10 @@
+ #include <unistd.h>
+ #endif
+ 
++#ifdef __CYGWIN__
++#include <errno.h>
++#endif
++
+ #ifndef APR_STATUS_IS_EPERM
+ #include <errno.h>
+ #ifdef EPERM
+@@ -133,6 +137,11 @@
+                          || os_err == ERROR_SHARING_VIOLATION              \
+                          || os_err == ERROR_DIR_NOT_EMPTY),                \
+              1)
++#elif defined(__CYGWIN__)
++#define WIN32_RETRY_LOOP(err,expr)					   \
++  RETRY_LOOP(err, expr, 						   \
++        (os_err==EBUSY || os_err==EACCES || os_err==ENOTEMPTY),		   \
++    1)
+ #else
+ #define WIN32_RETRY_LOOP(err, expr) ((void)0)
+ #endif
+@@ -2131,11 +2140,15 @@
+       || (ignore_enoent && APR_STATUS_IS_ENOENT(apr_err)))
+     return SVN_NO_ERROR;
+ 
+-#ifdef WIN32
++#if defined(WIN32) || defined(__CYGWIN__)
+     {
+       apr_status_t os_err = APR_TO_OS_ERROR(apr_err);
+       /* Check to make sure we aren't trying to delete a directory */
++#ifdef WIN32
+       if (os_err == ERROR_ACCESS_DENIED || os_err == ERROR_SHARING_VIOLATION)
++#else
++      if (os_err == EACCES)
++#endif
+         {
+           apr_finfo_t finfo;
+ 
+@@ -3352,20 +3365,22 @@
+ 
+   status = apr_file_rename(from_path_apr, to_path_apr, pool);
+ 
+-#if defined(WIN32) || defined(__OS2__)
++#if defined(WIN32) || defined(__OS2__) || defined(__CYGWIN__)
+   /* If the target file is read only NTFS reports EACCESS and
+      FAT/FAT32 reports EEXIST */
+   if (APR_STATUS_IS_EACCES(status) || APR_STATUS_IS_EEXIST(status))
+     {
++#ifndef __CYGWIN__
+       /* Set the destination file writable because Windows will not
+          allow us to rename when to_path is read-only, but will
+          allow renaming when from_path is read only. */
+       SVN_ERR(svn_io_set_file_read_write(to_path, TRUE, pool));
++#endif
+ 
+       status = apr_file_rename(from_path_apr, to_path_apr, pool);
+     }
+   WIN32_RETRY_LOOP(status, apr_file_rename(from_path_apr, to_path_apr, pool));
+-#endif /* WIN32 || __OS2__ */
++#endif /* WIN32 || __OS2__ || __CYGWIN__ */
+ 
+   if (status)
+     return svn_error_wrap_apr(status, _("Can't move '%s' to '%s'"),
+@@ -3480,7 +3495,7 @@
+ /* Windows does not implement sgid. Skip here because retrieving
+    the file permissions via APR_FINFO_PROT | APR_FINFO_OWNER is documented
+    to be 'incredibly expensive'. */
+-#ifndef WIN32
++#if !defined(WIN32) && !defined(__CYGWIN__)
+   if (sgid)
+     {
+       apr_finfo_t finfo;
+diff -urN subversion-1.7.1.vanilla/subversion/libsvn_subr/win32_crypto.c subversion-1.7.1/subversion/libsvn_subr/win32_crypto.c
+--- subversion-1.7.1.vanilla/subversion/libsvn_subr/win32_crypto.c	2011-02-10 12:29:57.000000000 -0800
++++ subversion-1.7.1/subversion/libsvn_subr/win32_crypto.c	2012-02-13 06:29:00.248674700 -0800
+@@ -23,7 +23,7 @@
+ 
+ /* ==================================================================== */
+ 
+-#if defined(WIN32) && !defined(__MINGW32__)
++#if (defined(WIN32) && !defined(__MINGW32__)) || defined(__CYGWIN__)
+ 
+ /*** Includes. ***/
+ 
+@@ -38,8 +38,16 @@
+ 
+ #include "svn_private_config.h"
+ 
++#include <windows.h>
+ #include <wincrypt.h>
+ #include <apr_base64.h>
++
++#ifdef __CYGWIN__
++/* These definitions are missing from wincrypt.h */
++#define CERT_CHAIN_CACHE_END_CERT                      0x00000001
++#define CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT 0x40000000
++#endif
++
+ 
+ /*-----------------------------------------------------------------------*/
+ /* Windows simple provider, encrypts the password on Win2k and later.    */
+diff -urN subversion-1.7.1.vanilla/subversion/svnadmin/main.c subversion-1.7.1/subversion/svnadmin/main.c
+--- subversion-1.7.1.vanilla/subversion/svnadmin/main.c	2011-07-12 11:30:27.000000000 -0700
++++ subversion-1.7.1/subversion/svnadmin/main.c	2012-02-13 06:27:06.777485000 -0800
+@@ -45,6 +45,10 @@
+ 
+ #include "svn_private_config.h"
+ 
++#include <unistd.h>
++#include <io.h>
++#include <fcntl.h>
++
+ 
+ /*** Code. ***/
+ 
+@@ -901,6 +905,7 @@
+     return svn_error_create(SVN_ERR_CL_ARG_PARSING_ERROR, NULL,
+        _("First revision cannot be higher than second"));
+ 
++  setmode(STDOUT_FILENO, O_BINARY);
+   SVN_ERR(svn_stream_for_stdout(&stdout_stream, pool));
+ 
+   /* Progress feedback goes to STDERR, unless they asked to suppress it. */
+@@ -962,6 +967,7 @@
+   SVN_ERR(open_repos(&repos, opt_state->repository_path, pool));
+ 
+   /* Read the stream from STDIN.  Users can redirect a file. */
++  setmode(STDIN_FILENO, O_BINARY);
+   SVN_ERR(svn_stream_for_stdin(&stdin_stream, pool));
+ 
+   /* Progress feedback goes to STDOUT, unless they asked to suppress it. */
+diff -urN subversion-1.7.1.vanilla/subversion/tests/cmdline/copy_tests.py subversion-1.7.1/subversion/tests/cmdline/copy_tests.py
+--- subversion-1.7.1.vanilla/subversion/tests/cmdline/copy_tests.py	2011-08-24 04:35:38.000000000 -0700
++++ subversion-1.7.1/subversion/tests/cmdline/copy_tests.py	2012-02-13 06:30:21.716465000 -0800
+@@ -5183,6 +5183,7 @@
+ @Issue(3702)
+ # APR's apr_filepath_merge() with APR_FILEPATH_TRUENAME is broken on OS X.
+ @XFail(svntest.main.is_os_darwin)
++@XFail(svntest.main.is_os_cygwin)
+ def case_only_rename(sbox):
+   """case-only rename"""
+ 
+diff -urN subversion-1.7.1.vanilla/subversion/tests/cmdline/svnlook_tests.py subversion-1.7.1/subversion/tests/cmdline/svnlook_tests.py
+--- subversion-1.7.1.vanilla/subversion/tests/cmdline/svnlook_tests.py	2011-02-04 18:17:32.000000000 -0800
++++ subversion-1.7.1/subversion/tests/cmdline/svnlook_tests.py	2012-02-13 06:32:39.294475100 -0800
+@@ -637,7 +637,7 @@
+ fp = open(os.path.join(sys.argv[1], 'hooks.log'), 'wb')
+ def output_command(fp, cmd, opt):
+   command = [svnlook_bin, cmd, '-t', sys.argv[2], sys.argv[1]] + opt
+-  process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
++  process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False, env={'PATH': '_xxx_EPREFIX_xxx_/usr/bin'})
+   (output, errors) = process.communicate()
+   status = process.returncode
+   fp.write(output)
+diff -urN subversion-1.7.1.vanilla/subversion/tests/cmdline/svntest/main.py subversion-1.7.1/subversion/tests/cmdline/svntest/main.py
+--- subversion-1.7.1.vanilla/subversion/tests/cmdline/svntest/main.py	2011-08-17 06:01:30.000000000 -0700
++++ subversion-1.7.1/subversion/tests/cmdline/svntest/main.py	2012-02-13 06:30:21.731468000 -0800
+@@ -1113,8 +1113,11 @@
+ def is_os_darwin():
+   return sys.platform == 'darwin'
+ 
++def is_os_cygwin():
++  return sys.platform == 'cygwin'
++
+ def is_fs_case_insensitive():
+-  return (is_os_darwin() or is_os_windows())
++  return (is_os_darwin() or is_os_windows() or is_os_cygwin())
+ 
+ def server_has_mergeinfo():
+   return options.server_minor_version >= 5
+diff -urN subversion-1.7.1.vanilla/subversion/tests/cmdline/switch_tests.py subversion-1.7.1/subversion/tests/cmdline/switch_tests.py
+--- subversion-1.7.1.vanilla/subversion/tests/cmdline/switch_tests.py	2011-07-06 04:41:49.000000000 -0700
++++ subversion-1.7.1/subversion/tests/cmdline/switch_tests.py	2012-02-13 06:17:34.751102600 -0800
+@@ -962,6 +962,13 @@
+     if os.geteuid() == 0:
+       raise svntest.Skip
+ 
++  # same test but for cygwin
++  if os.name == 'posix':
++    try:
++      os.getgroups.index(513)
++    except:
++      raise svntest.Skip
++
+   sbox.build()
+   wc_dir = sbox.wc_dir
+ 
+diff -urN subversion-1.7.1.vanilla/subversion/tests/libsvn_subr/auth-test.c subversion-1.7.1/subversion/tests/libsvn_subr/auth-test.c
+--- subversion-1.7.1.vanilla/subversion/tests/libsvn_subr/auth-test.c	2010-12-10 10:18:42.000000000 -0800
++++ subversion-1.7.1/subversion/tests/libsvn_subr/auth-test.c	2012-02-13 06:29:00.260677100 -0800
+@@ -57,7 +57,7 @@
+ #ifdef SVN_HAVE_KEYCHAIN_SERVICES
+   number_of_providers += 2;
+ #endif
+-#if defined(WIN32) && !defined(__MINGW32__)
++#if (defined(WIN32) && !defined(__MINGW32__)) || defined(__CYGWIN__)
+   number_of_providers += 2;
+ #endif
+   if (providers->nelts != number_of_providers)
+@@ -98,7 +98,7 @@
+ #endif
+ 
+   /* Test Windows auth providers */
+-#if defined(WIN32) && !defined(__MINGW32__)
++#if (defined(WIN32) && !defined(__MINGW32__)) || defined(__CYGWIN__)
+   svn_auth_get_platform_specific_provider(&provider, "windows",
+                                           "simple", pool);
+ 
+diff -urN subversion-1.7.1.vanilla/subversion/tests/libsvn_subr/dirent_uri-test.c subversion-1.7.1/subversion/tests/libsvn_subr/dirent_uri-test.c
+--- subversion-1.7.1.vanilla/subversion/tests/libsvn_subr/dirent_uri-test.c	2011-06-24 12:05:26.000000000 -0700
++++ subversion-1.7.1/subversion/tests/libsvn_subr/dirent_uri-test.c	2012-02-13 06:27:36.567941900 -0800
+@@ -43,7 +43,7 @@
+ #define SVN_EMPTY_PATH ""
+ 
+ /* This check must match the check on top of dirent_uri.c and path-tests.c */
+-#if defined(WIN32) || defined(__CYGWIN__) || defined(__OS2__)
++#if defined(WIN32) || defined(__OS2__)
+ #define SVN_USE_DOS_PATHS
+ #endif
+ 
+diff -urN subversion-1.7.1.vanilla/subversion/tests/libsvn_subr/path-test.c subversion-1.7.1/subversion/tests/libsvn_subr/path-test.c
+--- subversion-1.7.1.vanilla/subversion/tests/libsvn_subr/path-test.c	2011-04-09 16:56:43.000000000 -0700
++++ subversion-1.7.1/subversion/tests/libsvn_subr/path-test.c	2012-02-13 06:27:36.577443800 -0800
+@@ -46,7 +46,7 @@
+ 
+ /* This check must match the check on top of dirent_uri.c and
+    dirent_uri-tests.c */
+-#if defined(WIN32) || defined(__CYGWIN__) || defined(__OS2__)
++#if defined(WIN32) || defined(__OS2__)
+ #define SVN_USE_DOS_PATHS
+ #endif
+ 
+diff -urN subversion-1.7.1.vanilla/subversion/tests/libsvn_wc/op-depth-test.c subversion-1.7.1/subversion/tests/libsvn_wc/op-depth-test.c
+--- subversion-1.7.1.vanilla/subversion/tests/libsvn_wc/op-depth-test.c	2011-10-19 05:24:44.000000000 -0700
++++ subversion-1.7.1/subversion/tests/libsvn_wc/op-depth-test.c	2012-02-13 06:30:21.740469800 -0800
+@@ -3538,11 +3538,11 @@
+                        "test_shadowed_update"),
+     SVN_TEST_OPTS_PASS(test_copy_of_deleted,
+                        "test_copy_of_deleted (issue #3873)"),
+-#ifndef DARWIN
++#if !(defined(DARWIN) || defined(__CYGWIN__))
+     SVN_TEST_OPTS_PASS(test_case_rename,
+                        "test_case_rename on case (in)sensitive system"),
+ #else
+-    /* apr doesn't implement APR_FILEPATH_TRUENAME for MAC OS yet */
++    /* apr doesn't implement APR_FILEPATH_TRUENAME for MAC OS or CYGWIN yet */
+     SVN_TEST_OPTS_XFAIL(test_case_rename,
+                         "test_case_rename on case (in)sensitive system"),
+ #endif

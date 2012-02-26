@@ -1,0 +1,10 @@
+--- tests/init.cfg.orig	2012-02-13 02:44:50.180198900 -0800
++++ tests/init.cfg	2012-02-13 02:46:17.112081800 -0800
+@@ -181,6 +181,7 @@
+ 
+ uid_is_privileged_()
+ {
++  [[ $(uname) == CYGWIN* ]] && return 0
+   # Make sure id -u succeeds.
+   my_uid=$(id -u) \
+     || { echo "$0: cannot run \`id -u'" 1>&2; return 1; }

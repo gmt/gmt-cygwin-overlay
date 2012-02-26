@@ -1,0 +1,40 @@
+--- main.c.orig	2012-02-11 19:03:25.910674100 -0800
++++ main.c	2012-02-11 19:07:13.535674100 -0800
+@@ -334,7 +334,7 @@
+       disable_uninstalled = TRUE;
+     }
+ 
+-  opt_context = poptGetContext (NULL, argc, argv,
++  opt_context = poptGetContext (NULL, argc, (const char **)argv,
+                                 options_table, 0);
+ 
+   result = poptGetNextOpt (opt_context);
+--- parse.c.orig	2012-02-11 19:04:02.088674100 -0800
++++ parse.c	2012-02-11 19:06:17.263674100 -0800
+@@ -756,7 +756,7 @@
+ 
+   if (trimmed && *trimmed)
+     {
+-      result = poptParseArgvString (trimmed, &argc, &argv);
++      result = poptParseArgvString (trimmed, &argc, (const char ***)(&argv));
+ 
+       if (result < 0)
+         {
+@@ -805,7 +805,7 @@
+ 
+   if (trimmed && *trimmed)
+     {
+-      result = poptParseArgvString (trimmed, &argc, &argv);
++      result = poptParseArgvString (trimmed, &argc, (const char ***)(&argv));
+ 
+       if (result < 0)
+         {
+@@ -846,7 +846,7 @@
+ 
+   if (trimmed && *trimmed)
+     {
+-      result = poptParseArgvString (trimmed, &argc, &argv);
++      result = poptParseArgvString (trimmed, &argc, (const char ***)(&argv));
+ 
+       if (result < 0)
+         {

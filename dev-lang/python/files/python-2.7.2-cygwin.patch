@@ -1,0 +1,38 @@
+diff -urN Python-2.7.2.vanilla/Modules/_io/_iomodule.h Python-2.7.2/Modules/_io/_iomodule.h
+--- Python-2.7.2.vanilla/Modules/_io/_iomodule.h	2011-06-11 08:46:26.000000000 -0700
++++ Python-2.7.2/Modules/_io/_iomodule.h	2012-02-11 03:04:19.400441200 -0800
+@@ -72,7 +72,7 @@
+     PyObject *filename; /* Not used, but part of the IOError object */
+     Py_ssize_t written;
+ } PyBlockingIOErrorObject;
+-PyAPI_DATA(PyObject *) PyExc_BlockingIOError;
++extern PyObject * PyExc_BlockingIOError;
+ 
+ /*
+  * Offset type for positioning.
+diff -urN Python-2.7.2.vanilla/setup.py Python-2.7.2/setup.py
+--- Python-2.7.2.vanilla/setup.py	2011-06-11 08:46:28.000000000 -0700
++++ Python-2.7.2/setup.py	2012-02-11 03:03:39.318426400 -0800
+@@ -624,20 +624,8 @@
+         readline_termcap_library = ""
+         curses_library = ""
+         # Determine if readline is already linked against curses or tinfo.
+-        if do_readline and find_executable('ldd'):
+-            fp = os.popen("ldd %s" % do_readline)
+-            ldd_output = fp.readlines()
+-            ret = fp.close()
+-            if ret is None or ret >> 8 == 0:
+-                for ln in ldd_output:
+-                    if 'curses' in ln:
+-                        readline_termcap_library = re.sub(
+-                            r'.*lib(n?cursesw?)\.so.*', r'\1', ln
+-                        ).rstrip()
+-                        break
+-                    if 'tinfo' in ln: # termcap interface split out from ncurses
+-                        readline_termcap_library = 'tinfo'
+-                        break
++        if do_readline:
++           readline_termcap_library = self.compiler.find_library_file(lib_dirs, 'ncursesw')
+         # Issue 7384: If readline is already linked against curses,
+         # use the same library for the readline and curses modules.
+         if 'curses' in readline_termcap_library:

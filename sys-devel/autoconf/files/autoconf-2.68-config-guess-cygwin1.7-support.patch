@@ -1,0 +1,24 @@
+diff -urN autoconf-2.68.orig/build-aux/config.guess autoconf-2.68/build-aux/config.guess
+--- autoconf-2.68.orig/build-aux/config.guess	2010-09-21 14:58:04.000000000 -0700
++++ autoconf-2.68/build-aux/config.guess	2012-02-23 15:28:54.279515400 -0800
+@@ -798,6 +798,9 @@
+ 		echo ${UNAME_MACHINE}-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+ 	esac
+ 	exit ;;
++    i*:CYGWIN*:1.7*:*)
++	echo ${UNAME_MACHINE}-pc-cygwin1.7
++	exit ;;
+     i*:CYGWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+ 	exit ;;
+@@ -838,6 +841,10 @@
+     i*:UWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-uwin
+ 	exit ;;
++
++    amd64:CYGWIN*:*:* | x86_64:CYGWIN*:1.7*:*)
++	echo x86_64-unknown-cygwin1.7
++	exit ;;
+     amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
+ 	echo x86_64-unknown-cygwin
+ 	exit ;;
