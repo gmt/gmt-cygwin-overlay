@@ -73,15 +73,47 @@ CYG_PEFLAGS="${CYG_PEFLAGS:-$( cyg_which peflags )}"
 warn_export BASH="$( cyg_which bash )"
 warn_export CONFIG_SHELL="${BASH}"
 
+# update LDFLAGS
+cyg_update-ldflags() {
+	declare -a force_ldflags
+	declare -a old_ldflags
+
+	if [[ ${LDFLAGS+yes} == yes ]] ; then
+		force_ldflags=(
+
+			# modifying this list will force the listed LDFLAGS into the ebuild environment
+
+			"-Wl,--enable-auto-image-base"
+			"-L${EPREFIX}/usr/lib"	# FIXME: only needed for bootstrap?
+			"-L${EPREFIX}/lib"	#  "       "     "    "      "
+
+		)
+		old_ldflags=( $LDFLAGS )
+
+	else
+		LDFLAGS="-Wl,--enable-auto-image-base -L${EPREFIX}/usr/lib -L${EPREFIX}/lib"
+	fi
+}
+
+cyg_update-ldflags
+
 cyg_rebase-portage-workdir() {
-	
+	einfo "Rebasing dynamic libraries in \"${WORKDIR}\"..."
+}
+
+cyg_rebase-portage-destdir() {
+	einfo "Rebasing dynamic libraries in \"${D}\"..."
+
+	die
 }
 
 # FIXME, comment this out
 einfo "gmt overlay profile.bashrc: EBUILD_PHASE=\"${EBUILD_PHASE}\""
 
-if [[ "${EBUILD_PHASE}" == "preinst" ]] ; then
+if [[ "${EBUILD_PHASE}" == "test" ]] ; then
 	cyg_rebase-portage-workdir
+elif [[ "${EBUILD_PHASE}" == "preinst" ]] ; then
+	cyg_rebase-portage-destdir
 fi
 
 # vim: syntax=sh
