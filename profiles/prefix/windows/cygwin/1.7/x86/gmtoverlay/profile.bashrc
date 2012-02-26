@@ -18,6 +18,40 @@ cyg_which() {
 	}
 }
 
+# the environment variable warnings can get a bit excessive
+# squelch duplicates by checking if we already warned them
+cyg_already-warned() {
+	local already_warned_file="${T}/cyg-already-warned"
+	local sed="$( cyg_which sed )"
+	local warnspec
+	local warnspec_part
+	local warnspec_in
+	local already_warned="no"
+	for warnspec_part in "${@}" ; do
+		warnspec_part="$( echo "${warnspec_part}" | ${sed} 's/"/_/' )"
+		warnspec="${warnspec} \"${warnspec_part}\""
+		warnspec="${warnspec# }"
+	done
+
+	# if "${T}" doesn't exist yet there's no point in continuing
+	[[ ! -d "${T}" ]] && return 1
+
+	[[ -f ${already_warned_file} ]] || touch ${already_warned_file}
+
+	while read warnspec_in ; do
+		if [[ "${warnspec_in}" == "${warnspec}" ]] ; then
+			already_warned=yes
+			break
+		fi
+	done < ${already_warned_file}
+	if [[ $already_warned == yes ]] ; then
+		return 0
+	else
+		echo "${warnspec}" >> ${already_warned_file}
+		return 1
+	fi
+}
+
 # sigh, what a pita -- we just want to warn the user if we changed their environment variables
 # (i.e., if they set them in make.conf)
 warn_export() {
@@ -58,10 +92,13 @@ warn_export() {
 			else
 				exported="exported "
 			fi
-			ewarn "Changed ${exported}environment variable '${lv}' from '${old_val}' to '${rv}'${andalsoexported}"
+			cyg_already-warned "changed" "${lv}" "${old_val}" "${rv}" "${andalsoexported}" || \
+				ewarn "Changed ${exported}environment variable '${lv}' from '${old_val}' to '${rv}'${andalsoexported}"
 		else
-			[[ $lvexported == no ]] && \
-				ewarn "Exported previously un-exported environment variable ${lv}='${rv}'"
+			if [[ $lvexported == no ]] ; then
+				cyg_already-warned "exported" "${lv}" || \
+					ewarn "Exported previously un-exported environment variable ${lv}='${rv}'"
+			fi
 		fi
 	fi
 }
@@ -321,14 +358,15 @@ cyg_rebase-dirs() {
 	local cat="$( cyg_which cat )"
 	local rm="$( cyg_which rm )"
 	local cyg_rebase_suffixes="${CYG_REBASE_SUFFIXES:-dll|so}"
-	local db_file_i386="${CYG_REBASE_DB_I386:-/etc/rebase.db.i386}"
-	local db_file_x86_64="${CYG_REBASE_DB_X86_64:-/etc/rebase.db.x86_64}"
-	local rebase_db_file
-	local rebase_mach
 	local rebase_offset="${CYG_REBASE_OFFSET:-0}"
-	local rebase_verbose="${CYG_REBASE_VERBOSE:--v}"
+	local rebase_verbose="${CYG_REBASE_VERBOSE:-}"
+	[[ $rebase_verbose == 1 || $rebase_verbose == [Yy][Ee][Ss] || $rebase_verbose == [Tt][Rr][Uu][Ee] ]] && \
+		rebase_verbose="-v"
+	local rebase_mach
 	local rslt=0
 
+	[[ $CYG_DONT_REBASE == 1 || $CYG_DONT_REBASE == [Yy][Ee][Ss] || $CYG_DONT_REBASE == [Tt][Rr][Uu][Ee] ]] && \
+		CYG_DONT_REBASE ="1"
 	if [[ ${CYG_DONT_REBASE:-0} == 1 ]] ; then
 		einfo "Skipping rebase due to CYG_DONT_REBASE"
 		return 0
@@ -357,18 +395,9 @@ cyg_rebase-dirs() {
 	rebase_lst="$( ${mktemp} "${T}"/cyg_rebase_XXXX.lst )"
 
 	case `${uname} -m` in
-		i[3456]86)
-			rebase_db_file="${db_file_i386}";
-			rebase_mach="-4"
-			;;
-		x86_64)
-			rebase_db_file="${db_file_x86_64}"
-			rebase_mach="-8"
-			;;
-		*)
-			ewarn "Can't find mach for rebase"
-			return 1
-			;;
+		i[3456]86) rebase_mach="-4" ;;
+		x86_64)    rebase_mach="-8" ;;
+		*)         ewarn "Can't determine 'mach' for rebase" ; return 1 ;;
 	esac
 
 	( for i in "${rebase_dirs[@]}" ; do
@@ -377,23 +406,44 @@ cyg_rebase-dirs() {
 		${grep} -E "\.($cyg_rebase_suffixes)\$" | \
 		${sed} -e '/cygwin1\.dll$/d' -e '/cyglsa.*\.dll$/d' \
 		-e '/sys-root\/mingw/d' -e '/d?ash\.exe$/d' \
+		-e '/ebuild-helpers\/dolib.so$/d' \
+		-e '/ebuild-helpers\/newlib.so$/d' \
+		-e '/\/shlib\/[^/]*\.so$/d' \
 		-e '/rebase\.exe$/d' >"${rebase_lst}"
 
-	einfo "Attempting rebase from file \"${rebase_lst}\""
+	ebegin "Attempting rebase from file \"${rebase_lst}\":"
 
-	# a bit much...
-	# if [[ ${rebase_verbose} == -v ]] ; then
-	# 	${cat} "${rebase_lst}" | while read i ; do
-	# 		einfo "  ${i}"
-	# 	done
-	# fi
+	local rebase_line
+	while read rebase_line ; do
+		if [[ ${rebase_verbose} == -v ]] ; then
+			einfo "RVB: ${rebase_line}"
+		else
+			rebase_line="$( echo $rebase_line )" # whitespace trim
+			case ${rebase_line} in
+			ReBaseImage*failed*error*)
+				local targetfile
+				targetfile="$( echo $rebase_line | ${sed} -e 's/^.*(\(.*\)).*$/\1/' )"
+				targetfile="${targetfile:-[unknown]}"
+				local error
+				error="$( echo $rebase_line | ${sed} -e 's/^.*error[[:space:]]*=[[:space:]]*\([[:digit:]]*\)[[:space:]]*$/\1/' )"
+				error="${error:-[unknown]}"
+				ewarn "  Rebasing failed for file \"${targetfile}\" (error ${error})"
+				;;
 
-	${CYG_REBASE} "${rebase_verbose}" -s "${rebase_mach}" -b "${rebase_base_address}" \
-		-o "${rebase_offset}" -T "${rebase_lst}" || \
-			{ ewarn "Rebase failure" ; rslt=1 ; }
+			*)
+				ewarn "  ${rebase_line}"
+				;;
+			esac
+		fi
+	done < <( ${CYG_REBASE} "${rebase_verbose}" -s "${rebase_mach}" -b "${rebase_base_address}" \
+		-o "${rebase_offset}" -T "${rebase_lst}" 2>&1 )
+	[[ ${CYG_PRESERVE_REBASE_LST:-1} != 1 ]] && \
+		${rm} "${rebase_lst}"
 
-	${rm} "${rebase_lst}"
-	return "${rslt}"
+	# always treat everything as ok for now
+	eend 0
+
+	return 0
 }
 
 # we are using the following assumptions to guide our rebase hacks:
