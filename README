@@ -32,8 +32,13 @@ once those conditions are met, with any luck, you should be able to bootstrap cy
 by following the recipe at http://www.gentoo.org/proj/en/gentoo-alt/prefix/bootstrap-solaris.xml
 however, don't be surprised if shit breaks.
 
-if you are having trouble bootstrapping python due to the chicken-and-egg issue with
-the gcc-config -> python -> gcc -> gcc-config recursive dependency, try emerging python with
+on second thought, the correct recipe is probably to start following the recipe at the above url,
+go until something breaks (it won't take long), install this overlay according to the bullet points
+above, and then proceed with the recipe.  you may also find some usefull stuff on the gentoo-wiki
+(not the official one).
+
+if you are having trouble bootstrapping python due to a chicken-and-egg issue with
+gcc-config -> python -> gcc -> gcc-config recursive dependencies, try emerging python with
 the "cygbootstraphack" USE-flag.
 
 gl!
