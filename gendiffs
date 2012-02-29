@@ -1,0 +1,280 @@
+#!/bin/bash
+
+if [[ "$GENDIFFS_DEBUG" ]] ; then
+	source /usr/share/bashdb/bashdb-trace --
+fi
+
+EPREFIX=/g2pfx
+
+portage_tree=usr/portage
+overlay=overlay
+portage_diffs=portage_diffs
+
+# The idea of this script is to capture the essential differences between the
+# portage tree (presumed to be in ${EPREFIX}/${portage_tree} and this overlay.
+# That way when we emerge --sync or w/e and everything changes, we are hopefully
+# not left scratching our heads wondering what in our overlay is novel and what
+# in our overlay is simply out of date.
+
+# Perhaps there is already a tool or three that does this better?
+
+# what we are trying to capture:
+#
+# o Files that exist in the overlay and in the installed portage tree, which
+#   differ from the portage tree.
+#
+# o Files that don't exist upstream (we just want to name them)
+#
+# o .patch files that conflict with .patch files in portage.  This is not the
+#   way we want to go with our overlay because patches of patches is a retarded
+#   and useless brainpower-sucking waste, like spewing semantic chloroflourocarbons
+#   into the FOSS atmosphere.  So we treat this as a conflict/error.
+#
+# o Files that were removed from analogous directories upstream
+#
+# That's all I can think of.
+#
+# This does not replace the VCS... it's simply there to allow my feeble brain to
+# keep track of who is to blame for the deltas I see between upstream and my
+# overlay: me, hacking away without a care, or Gentoo Devs, presumably doing the
+# same.
+
+_portage="${EPREFIX%/}"/${portage_tree}
+_overlay="${EPREFIX%/}"/${overlay}
+_portage_diffs="${_overlay}"/${portage_diffs}
+datetime="$( date "+%Y%m%d-%H%M" )"
+outdir="${_portage_diffs}"/${datetime}
+declare -a dirs
+outfile=/dev/null
+only_in_overlay_output=
+only_in_portage_output=
+
+usage() {
+	echo "${0}: [-c|--clean] [-h|--help]"
+	echo
+	echo "--clean: remove all but the two latest"
+	echo "         backups before creating a third"
+	echo
+}
+
+if [[ $1 == -h || $1 == --help || $2 == -h || $2 == --help ]] ; then
+	usage
+	exit 0
+fi
+
+if [[ $1 == -c || $1 == --clean ]] ; then
+	cd "${_portage_diffs}" || { echo "Couldn't enter \"${_portage_diffs}\"" >&2 ; exit 1 ; }
+	dirs=( $( ls | sort ) )
+	if [[ "$KEEP2" ]] ; then
+		unset dirs[$(( --nd ))]
+		unset dirs[$(( --nd ))]
+	fi
+	nd=${#dirs[*]}
+	if (( $nd > 0 )) ; then
+		echo '!!! CLEAN: About to remove the following gendiff dirs:'
+		for dir in "${dirs[@]}" ; do echo $dir; done
+		sleep 3
+		for dir in "${dirs[@]}" ; do
+			echo "removing \"${dir}\""
+			rm -rf "${dir}" || { echo "Couldn't remove directory \"${dir}\"" >&2 ; exit 1 ; }
+		done
+	else
+		echo "Nothing to clean!" >&2
+	fi
+fi
+
+echo "Creating (or recreating) in \"${outdir}\""
+
+[[ -d ${outdir} ]] && {
+	echo
+	echo -n '!!! Outdir exists: about to blow it away for good!...'
+	sleep 3
+	echo
+	echo
+	echo -n "kiss it goodbye..."
+	rm -rf "${outdir}" || { echo "Couldn't remove \"${outdir}\"" >&2 ; exit 1 ; }
+	echo gone
+	echo
+}
+
+mkdir -p ${outdir} || { echo "Couldn't create \"${outdir}\"" >&2 ;  exit 1 ; }
+cd ${outdir} || { echo "Couldn't enter \"${outdir}\"" >&2 ; exit 1 ; }
+
+echo '** processing overlay directories **'
+
+dirs=( )
+while read dir ; do
+	dirs[${#dirs[*]}]="${dir}"
+done < <( cd ${_overlay} ; find . -maxdepth 2 \( -name '.git' -prune \) -o \( -type d -regextype posix-extended \
+	  -regex '\./([[:alnum:]_]*-[[:alnum:]_]*/[^/]*|profiles|eclass)' -print \) | \
+	  sed 's/^..//' )
+
+my_file() {
+	local old_pwd="$(pwd)"
+	cd "$EPREFIX" || { echo "Couldn't cd to \"${EPREFIX}\"" >&2 ; exit 1 ; }
+	local the_file="${1}"
+	shift
+	[[ "$the_file" ]] || { echo "my_file called with no file!" >&2 ; return 1 ; }
+	declare -a args
+	[[ -e "${portage_tree}/${the_file}" || -h "${portage_tree}/${the_file}" ]] && \
+		args[${#args[*]}]="${portage_tree}/${the_file}"
+	[[ -e "${overlay}/${the_file}" || -h "${overlay}/${the_file}" ]] && \
+		args[${#args[*]}]="${overlay}/${the_file}"
+	[[ ${#args[*]} == 0 ]] && {
+		echo "my_file called for \"${the_file}\" but no file found: pwd=\"$(pwd)\";" \
+		     "files tested: \"${portage_tree}/${the_file}\", \"${overlay}/${the_file}\"!" >&2
+		return 1
+	}
+	local arg
+	# this insanity is needed to ensure that the output of my_file can be redirected by bash
+	file "${args[@]}" "$@"
+	cd "$old_pwd" || { echo "Couldn't cd to \"${old_pwd}\"" >&2 ; exit 1 ; }
+}
+
+declare -a fl
+
+# adds its argument to the fl array (which is presumed to be sorted)
+# in a sorted manner.  my god, bash is horrible sometimes.
+fl_add() {
+	local doadd=yes
+	local add="${1}"
+	declare -i max
+	max=${#fl[*]}
+	local found=no
+	declare -i i
+	i=0
+	local dummy
+	while (( $i < max )) ; do
+		if [[ "${fl[${i}]}" == "${add}" ]] ; then
+			# its already there so nothing to do
+			return 0
+		elif [[ "${fl[${i}]}" > "${add}" ]] ; then
+			# we found where it goes but first we need to make room for it
+			found="${i}"
+			break
+		fi
+		dummy=$(( i++ ))
+	done
+	# found is poorly named -- it means we found /where/ to put it
+	# but not the thing itself.  so if we got here and found is false,
+	# we need to put it at the end
+	if [[ ${found} == no ]] ; then
+		fl[$max]="${add}"
+		# otherwise we added it when we found it.
+	else
+		# make room for the new item
+		i=${max}
+		while (( $i > $found )) ; do
+			# note: apparently in cases like this bash evaluates the
+			# rvalue /before/ the lvalue... how counter-intuitive!
+			fl[$((i--))]="${fl[$((i - 1))]}"
+		done
+		fl[${found}]="${add}"
+	fi
+}
+
+only_in_overlay() {
+	local the_file="$1"
+	only_in_overlay_output=`if [[ "$only_in_overlay_output" ]] ; then echo "$only_in_overlay_output"; fi; my_file "${the_file}"`
+	if [[ -h "${_overlay}/${file}" && ( ! -e "${_overlay}/${file}" ) ]] ; then
+		echo "WARNING: dangling overlay-only symbolic link: \"${the_file}\" -> \"$(readlink "${_overlay}/${file}")\"" | \
+			tee -a "${outfile}"
+	fi
+	return 0
+}
+
+only_in_portage() {
+	local the_file="$1"
+	only_in_portage_output=`if [[ "$only_in_portage_output" ]] ; then echo "$only_in_portage_output"; fi; my_file "${the_file}"`
+	return 0
+}
+
+raw_files_equal() {
+	local file1="${1}"
+	local file2="${2}"
+	if [[ "$( cat "${file1}" )" == "$( cat "${file2}" )" ]] ; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+compare_regular_file() {
+	local file="${1}"
+	# if the files have the exact same contents then we just do nothing
+	raw_files_equal "${_overlay}/${file}" "${_portage}/${file}" && return 0
+	echo "FIXME: NE: \"${file}\""
+	return 0
+}
+
+compare_file() {
+	local file="${1}"
+	# fl is global so we cannot recurse while using it.
+	fl=( )
+	if [[ ( ! -h "${_portage}/${file}" ) && ( ! -e "${_portage}/${file}" ) ]] ; then
+		only_in_overlay "${file}"
+	elif [[ ( ! -h "${_overlay}/${file}" ) && ( ! -e "${_overlay}/${file}" ) ]] ; then
+		only_in_portage "${file}"
+	elif [[ \
+		( -h "${_portage}/${file}" && ! -h "${_overlay}/${file}" ) || \
+	        ( -h "${_overlay}/${file}" && ! -h "${_portage}/${file}" ) || \
+		( -d "${_portage}/${file}" && ! -d "${_overlay}/${file}" ) || \
+	        ( -d "${_overlay}/${file}" && ! -d "${_portage}/${file}" ) || \
+		( -f "${_portage}/${file}" && ! -f "${_overlay}/${file}" ) || \
+	        ( -f "${_overlay}/${file}" && ! -f "${_portage}/${file}" ) \
+	]] ; then
+		echo "WARNING: file type mismatch:" | tee -a "${outfile}"
+		my_file "${file}" | tee -a "${outfile}"
+	elif [[ -h "${_overlay}/${file}" ]] ; then
+		local ovllink="$(readlink "${_overlay}/${file}" )"
+		local prtlink="$(readlink "${_portage}/${file}" )"
+		if [[ "${ovllink}" != "${prtlink}" ]] ; then
+			echo "mutual symbolic links differ at \"${file}\":" >> "${outfile}"
+			echo "portage links to: \"${prtlink}\"." >> "${outfile}"
+			echo "overlay links to: \"${ovllink}\"." >> "${outfile}"
+		fi
+	elif [[ -d "${_overlay}/${file}" ]] ; then
+		echo "===== mutual sub-directory: \"${file}\" =====" >> "${outfile}"
+		declare -a check_subs
+		local sub
+		while read sub; do
+			fl_add "${sub}"
+		done < <( cd "${_overlay}/${file}" && ls -a | grep -v '^\.*$' && \
+		          cd "${_portage}/${file}" && ls -a | grep -v '^\.*$' )
+		check_subs=( "${fl[@]}" )
+		for sub in "${check_subs[@]}"; do
+			compare_file "${file}/${sub}"
+		done
+	elif [[ -f "${_overlay}/${file}" ]] ; then
+		# Here we have two regular files that we need to compare.
+		# This is the real meat of the whole gendiffs program so
+		# lets break this out into a subfunction.
+		compare_regular_file "${file}"
+	else
+		echo "WARNING: I have no idea what to do with these (\"${file}\"):" | tee -a "${outfile}"
+		my_file "${file}" | tee -a "${outfile}"
+	fi
+}
+
+for dir in "${dirs[@]}"; do
+	outfile="${outdir}/${dir//\//_}"
+	only_in_overlay_output=""
+	only_in_portage_output=""
+	echo "${dir}"
+	compare_file "${dir}"
+	if [[ "$only_in_overlay_output" ]] ; then
+		echo >> "${outfile}"
+		echo "*** The following files appear only in the overlay ***" >> "${outfile}"
+		echo "${only_in_overlay_output}" >> "${outfile}"
+		[[ "$only_in_portage_output" ]] || echo >> "${outfile}"
+	fi
+	if [[ "$only_in_portage_output" ]] ; then
+		echo >> "${outfile}"
+		echo "*** The following files appear only in portage ***" >> "${outfile}"
+		echo "${only_in_portage_output}" >> "${outfile}"
+		echo >> "${outfile}"
+	fi
+done
+
+echo "Done."
+exit 0
