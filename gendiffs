@@ -1,17 +1,21 @@
 #!/bin/bash
 
+# running under bashdb has become impossible (due to
+# extreme slowness) so we have to use the
+# _Dbg_debugger hack if we want it.
 if [[ "$GENDIFFS_DEBUG" ]] ; then
 	source /usr/share/bashdb/bashdb-trace --
 fi
 
-EPREFIX=/g2pfx
+gendiffs_eprefix=${EPREFIX:-/g2pfx}
 
-portage_tree=usr/portage
-overlay=overlay
-portage_diffs=portage_diffs
+# FIXME: big ugly assumption: overlay is a subdirectory of EPREFIX
+gendiffs_portage_tree=usr/portage
+gendiffs_overlay=overlay
+gendiffs_portage_diffs=portage_diffs
 
 # The idea of this script is to capture the essential differences between the
-# portage tree (presumed to be in ${EPREFIX}/${portage_tree} and this overlay.
+# portage tree (presumed to be in ${gendiffs_eprefix}/${gendiffs_portage_tree} and this overlay.
 # That way when we emerge --sync or w/e and everything changes, we are hopefully
 # not left scratching our heads wondering what in our overlay is novel and what
 # in our overlay is simply out of date.
@@ -39,13 +43,13 @@ portage_diffs=portage_diffs
 # overlay: me, hacking away without a care, or Gentoo Devs, presumably doing the
 # same.
 
-_portage="${EPREFIX%/}"/${portage_tree}
-_overlay="${EPREFIX%/}"/${overlay}
-_portage_diffs="${_overlay}"/${portage_diffs}
-datetime="$( date "+%Y%m%d-%H%M" )"
-outdir="${_portage_diffs}"/${datetime}
+_portage="${gendiffs_eprefix%/}"/${gendiffs_portage_tree}
+_overlay="${gendiffs_eprefix%/}"/${gendiffs_overlay}
+_portage_diffs="${_overlay}"/${gendiffs_portage_diffs}
+gendiffs_datetime="$( date "+%Y%m%d-%H%M" )"
+gendiffs_outdir="${_portage_diffs}"/${gendiffs_datetime}
 declare -a dirs
-outfile=/dev/null
+gendiffs_outfile=/dev/null
 only_in_overlay_output=
 only_in_portage_output=
 
@@ -83,22 +87,21 @@ if [[ $1 == -c || $1 == --clean ]] ; then
 	fi
 fi
 
-echo "Creating (or recreating) in \"${outdir}\""
+echo "Creating (or recreating) in \"${gendiffs_outdir}\""
 
-[[ -d ${outdir} ]] && {
+[[ -d ${gendiffs_outdir} ]] && {
 	echo
 	echo -n '!!! Outdir exists: about to blow it away for good!...'
 	sleep 3
 	echo
 	echo
 	echo -n "kiss it goodbye..."
-	rm -rf "${outdir}" || { echo "Couldn't remove \"${outdir}\"" >&2 ; exit 1 ; }
+	rm -rf "${gendiffs_outdir}" || { echo "Couldn't remove \"${gendiffs_outdir}\"" >&2 ; exit 1 ; }
 	echo gone
 	echo
 }
 
-mkdir -p ${outdir} || { echo "Couldn't create \"${outdir}\"" >&2 ;  exit 1 ; }
-cd ${outdir} || { echo "Couldn't enter \"${outdir}\"" >&2 ; exit 1 ; }
+mkdir -p ${gendiffs_outdir} || { echo "Couldn't create \"${gendiffs_outdir}\"" >&2 ;  exit 1 ; }
 
 echo '** processing overlay directories **'
 
@@ -111,18 +114,18 @@ done < <( cd ${_overlay} ; find . -maxdepth 2 \( -name '.git' -prune \) -o \( -t
 
 my_file() {
 	local old_pwd="$(pwd)"
-	cd "$EPREFIX" || { echo "Couldn't cd to \"${EPREFIX}\"" >&2 ; exit 1 ; }
+	cd "$gendiffs_eprefix" || { echo "Couldn't cd to \"${gendiffs_eprefix}\"" >&2 ; exit 1 ; }
 	local the_file="${1}"
 	shift
 	[[ "$the_file" ]] || { echo "my_file called with no file!" >&2 ; return 1 ; }
 	declare -a args
-	[[ -e "${portage_tree}/${the_file}" || -h "${portage_tree}/${the_file}" ]] && \
-		args[${#args[*]}]="${portage_tree}/${the_file}"
-	[[ -e "${overlay}/${the_file}" || -h "${overlay}/${the_file}" ]] && \
-		args[${#args[*]}]="${overlay}/${the_file}"
+	[[ -e "${gendiffs_portage_tree}/${the_file}" || -h "${gendiffs_portage_tree}/${the_file}" ]] && \
+		args[${#args[*]}]="${gendiffs_portage_tree}/${the_file}"
+	[[ -e "${gendiffs_overlay}/${the_file}" || -h "${gendiffs_overlay}/${the_file}" ]] && \
+		args[${#args[*]}]="${gendiffs_overlay}/${the_file}"
 	[[ ${#args[*]} == 0 ]] && {
 		echo "my_file called for \"${the_file}\" but no file found: pwd=\"$(pwd)\";" \
-		     "files tested: \"${portage_tree}/${the_file}\", \"${overlay}/${the_file}\"!" >&2
+		     "files tested: \"${gendiffs_portage_tree}/${the_file}\", \"${gendiffs_overlay}/${the_file}\"!" >&2
 		return 1
 	}
 	local arg
@@ -178,7 +181,7 @@ only_in_overlay() {
 	only_in_overlay_output=`if [[ "$only_in_overlay_output" ]] ; then echo "$only_in_overlay_output"; fi; my_file "${the_file}"`
 	if [[ -h "${_overlay}/${file}" && ( ! -e "${_overlay}/${file}" ) ]] ; then
 		echo "WARNING: dangling overlay-only symbolic link: \"${the_file}\" -> \"$(readlink "${_overlay}/${file}")\"" | \
-			tee -a "${outfile}"
+			tee -a "${gendiffs_outfile}"
 	fi
 	return 0
 }
@@ -203,7 +206,8 @@ compare_regular_file() {
 	local file="${1}"
 	# if the files have the exact same contents then we just do nothing
 	raw_files_equal "${_overlay}/${file}" "${_portage}/${file}" && return 0
-	echo "FIXME: NE: \"${file}\""
+	# the files differ.  do we care?
+	filebasename="$( basename "${file}" )"
 	return 0
 }
 
@@ -223,18 +227,18 @@ compare_file() {
 		( -f "${_portage}/${file}" && ! -f "${_overlay}/${file}" ) || \
 	        ( -f "${_overlay}/${file}" && ! -f "${_portage}/${file}" ) \
 	]] ; then
-		echo "WARNING: file type mismatch:" | tee -a "${outfile}"
-		my_file "${file}" | tee -a "${outfile}"
+		echo "WARNING: file type mismatch:" | tee -a "${gendiffs_outfile}"
+		my_file "${file}" | tee -a "${gendiffs_outfile}"
 	elif [[ -h "${_overlay}/${file}" ]] ; then
 		local ovllink="$(readlink "${_overlay}/${file}" )"
 		local prtlink="$(readlink "${_portage}/${file}" )"
 		if [[ "${ovllink}" != "${prtlink}" ]] ; then
-			echo "mutual symbolic links differ at \"${file}\":" >> "${outfile}"
-			echo "portage links to: \"${prtlink}\"." >> "${outfile}"
-			echo "overlay links to: \"${ovllink}\"." >> "${outfile}"
+			echo "mutual symbolic links differ at \"${file}\":" >> "${gendiffs_outfile}"
+			echo "portage links to: \"${prtlink}\"." >> "${gendiffs_outfile}"
+			echo "overlay links to: \"${ovllink}\"." >> "${gendiffs_outfile}"
 		fi
 	elif [[ -d "${_overlay}/${file}" ]] ; then
-		echo "===== mutual sub-directory: \"${file}\" =====" >> "${outfile}"
+		echo "===== mutual sub-directory: \"${file}\" =====" >> "${gendiffs_outfile}"
 		declare -a check_subs
 		local sub
 		while read sub; do
@@ -251,28 +255,28 @@ compare_file() {
 		# lets break this out into a subfunction.
 		compare_regular_file "${file}"
 	else
-		echo "WARNING: I have no idea what to do with these (\"${file}\"):" | tee -a "${outfile}"
-		my_file "${file}" | tee -a "${outfile}"
+		echo "WARNING: I have no idea what to do with these (\"${file}\"):" | tee -a "${gendiffs_outfile}"
+		my_file "${file}" | tee -a "${gendiffs_outfile}"
 	fi
 }
 
 for dir in "${dirs[@]}"; do
-	outfile="${outdir}/${dir//\//_}"
+	gendiffs_outfile="${gendiffs_outdir}/${dir//\//_}"
 	only_in_overlay_output=""
 	only_in_portage_output=""
 	echo "${dir}"
 	compare_file "${dir}"
 	if [[ "$only_in_overlay_output" ]] ; then
-		echo >> "${outfile}"
-		echo "*** The following files appear only in the overlay ***" >> "${outfile}"
-		echo "${only_in_overlay_output}" >> "${outfile}"
-		[[ "$only_in_portage_output" ]] || echo >> "${outfile}"
+		echo >> "${gendiffs_outfile}"
+		echo "*** The following files appear only in the overlay ***" >> "${gendiffs_outfile}"
+		echo "${only_in_overlay_output}" >> "${gendiffs_outfile}"
+		[[ "$only_in_portage_output" ]] || echo >> "${gendiffs_outfile}"
 	fi
 	if [[ "$only_in_portage_output" ]] ; then
-		echo >> "${outfile}"
-		echo "*** The following files appear only in portage ***" >> "${outfile}"
-		echo "${only_in_portage_output}" >> "${outfile}"
-		echo >> "${outfile}"
+		echo >> "${gendiffs_outfile}"
+		echo "*** The following files appear only in portage ***" >> "${gendiffs_outfile}"
+		echo "${only_in_portage_output}" >> "${gendiffs_outfile}"
+		echo >> "${gendiffs_outfile}"
 	fi
 done
 
