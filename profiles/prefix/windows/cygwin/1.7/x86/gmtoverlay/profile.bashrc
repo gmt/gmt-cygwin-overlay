@@ -405,15 +405,15 @@ cyg_rebase-dirs() {
 	done ) | \
 		${grep} -E "\.($cyg_rebase_suffixes)\$" | \
 		${sed} -e '/cygwin1\.dll$/d' -e '/cyglsa.*\.dll$/d' \
-		-e '/sys-root\/mingw/d' -e '/d?ash\.exe$/d' \
 		-e '/ebuild-helpers\/dolib.so$/d' \
 		-e '/ebuild-helpers\/newlib.so$/d' \
 		-e '/\/shlib\/[^/]*\.so$/d' \
 		-e '/rebase\.exe$/d' >"${rebase_lst}"
 
-	ebegin "Attempting rebase from file \"${rebase_lst}\":"
+	ebegin "Attempting rebase files from list: \"${rebase_lst}\":"
 
 	local rebase_line
+	local rebase_failage=no
 	while read rebase_line ; do
 		if [[ ${rebase_verbose} == -v ]] ; then
 			einfo "RVB: ${rebase_line}"
@@ -421,6 +421,7 @@ cyg_rebase-dirs() {
 			rebase_line="$( echo $rebase_line )" # whitespace trim
 			case ${rebase_line} in
 			ReBaseImage*failed*error*)
+				rebase_failage=yes
 				local targetfile
 				targetfile="$( echo $rebase_line | ${sed} -e 's/^.*(\(.*\)).*$/\1/' )"
 				targetfile="${targetfile:-[unknown]}"
@@ -437,7 +438,7 @@ cyg_rebase-dirs() {
 		fi
 	done < <( ${CYG_REBASE} "${rebase_verbose}" -s "${rebase_mach}" -b "${rebase_base_address}" \
 		-o "${rebase_offset}" -T "${rebase_lst}" 2>&1 )
-	[[ ${CYG_PRESERVE_REBASE_LST:-1} != 1 ]] && \
+	[[ ${CYG_PRESERVE_REBASE_LST:-0} == 0 && ${rebase_failage} == no ]] \
 		${rm} "${rebase_lst}"
 
 	# always treat everything as ok for now
