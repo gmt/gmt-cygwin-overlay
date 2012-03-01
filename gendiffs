@@ -202,12 +202,32 @@ raw_files_equal() {
 	fi
 }
 
+is_probably_binary() {
+	local file="${1}"
+	file -bi "$file" | egrep "charset=binary$" && {
+		echo "yes"
+		return 0
+	}
+	echo "no"
+	return 1
+}
+
 compare_regular_file() {
 	local file="${1}"
+	# ignore Manifest files
+	echo "$file" | egrep "^[^-/]*-[^-/]*\/[^/]*\/Manifest$" > /dev/null && return 0
 	# if the files have the exact same contents then we just do nothing
 	raw_files_equal "${_overlay}/${file}" "${_portage}/${file}" && return 0
-	# the files differ.  do we care?
-	filebasename="$( basename "${file}" )"
+	# the files differ.
+	local ovl_is_binary="$( is_probably_binary "${_overlay}/${file}" )"
+	local prt_is_binary="$( is_probably_binary "${_portage}/${file}" )"
+	if [[ "${ovl_is_binary}" != "${prt_is_binary}" ]] ; then
+		echo "WARNING: ${file}: file type mismatch (binary/non-binary):" | tee -a "${gendiffs_outfile}"
+		my_file "${file}" | tee -a "${gendiffs_outfile}"
+		return 0
+	elif [[ "${ovl_is_binary}" == "yes" ]] ; then
+		echo "Binary files differ: \"${file}\"" >> "${gendiffs_outfile}"
+	fi
 	return 0
 }
 
@@ -227,7 +247,7 @@ compare_file() {
 		( -f "${_portage}/${file}" && ! -f "${_overlay}/${file}" ) || \
 	        ( -f "${_overlay}/${file}" && ! -f "${_portage}/${file}" ) \
 	]] ; then
-		echo "WARNING: file type mismatch:" | tee -a "${gendiffs_outfile}"
+		echo "WARNING: ${file}: file type mismatch:" | tee -a "${gendiffs_outfile}"
 		my_file "${file}" | tee -a "${gendiffs_outfile}"
 	elif [[ -h "${_overlay}/${file}" ]] ; then
 		local ovllink="$(readlink "${_overlay}/${file}" )"
