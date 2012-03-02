@@ -1,4 +1,89 @@
-For this to work you need to
+This is the gmt cygwin gentoo-prefix overlay.  It will be, I hope, a /temporary/ resting
+place for various patches that are on their way to various upstream projects, but which,
+in the meanwhile, are useful or necessary for getting a working Cygwin Gentoo Prefix install
+up and running.
+
+Until then, this overlay will (try, at least, to) allow you to get up and running with
+a Gentoo Prefix installation which works under the cygwin POSIX compatibility layer
+(see http://cygwin.com/ for more info).
+
+LICENSE(S)
+==========
+
+Most of the code here was stolen from various other projects.  I have tried to make it
+clear where those sources are, but, to be honest, I have probably not been as clear as
+I could have been.  Where I have written my own code I'd like to license it in as practical
+a manner as possible, first, and secondly, as permissive a manner as possible.
+
+So, please treat the portage additions such as the code in the ebuilds and profile.bashrc
+as GPL-2, but please treat any other code I have written and published here (especially,
+the gendiffs script), as MIT/X11.
+
+By the above, however, I mean /original/ code (obviously), not stuff that is cloned from
+other repositories -- and please bear in mind that I'm placing the burden of determining
+which code is original on YOU -- because I have NOT labelled it all clearly.  In fact,
+a lot of this is implicit -- ebuilds are silently copied from portage, and patches are
+silently imported from the cygwin ports project (usually with some kind of attribution-via-
+filename).
+
+Enough about that.
+
+
+Expertise Required
+==================
+
+Uh, see below.  But first please understand that, for the time being, this code is very rough,
+full of bugs, not to mention random hacks that represent failed experiments and probably have
+negative value.  For this reason, to get anywhere with this overlay, you will need at least
+an "intermediate" skill level with PORTAGE.  If you are a first-time Gentoo user, I would not
+expect to get very far, even if, for example, you are an old-time pro with BSD Ports.
+
+
+INSTALLATION (Getting started)
+==============================
+
+That being stated, to get started with gentoo-prefix under cygwin, a good place to start is:
+
+  http://en.gentoo-wiki.com/wiki/Prefix/Cygwin
+
+Note that this is a different iteration on the gentoo-cygwin concept than the one you will
+find at:
+
+  http://gentoocygwin.sourceforge.net/
+
+If I'm not mistaken, the former is referring to a (modified) vanilla Gentoo Prefix bootstrap
+process, whereas the latter is a Gentoo (non-prefix) fork which died on the vine sometime in
+2008.
+
+Cygwin has come a long way since either project has received any Cygwin-specific love and that
+is why this overlay exists as a Gentoo Prefix overly, instead of as a fork of the sourceforge
+project.  "Generalizing" this overlay to be compatible with both Gentoo Prefix and regular Gentoo
+would, in my opinion, be a very worthy endeavor with little downside.
+
+
+BOOTSTRAPPING
+=============
+
+To bootstrap, you will, roughly, follow the recipe at:
+
+  http://www.gentoo.org/proj/en/gentoo-alt/prefix/bootstrap-solaris.xml
+
+But please also do skim over:
+
+  http://en.gentoo-wiki.com/wiki/Prefix/Cygwin
+
+Which contains the more-nearly correct instructions for initial setup of your prefix.
+
+A word of warning: I've been hacking on this for a while.   My initial bootstrap efforts involved
+some very aggressive hacks; I have no idea, as of right now, what would be a working,
+straightforward bootstrap recipe.  Going forward, I plan to fix this somehow, either with explicit
+instructions or a script or both.
+
+
+USING (INSTALLATION revisited)
+==============================
+
+To "install" this overlay into your cygwin-based Gentoo Prefix:
 
 o Put this profile in a directory directly under ${EPREFIX} (below I assume you used "overlay")
 
@@ -6,12 +91,12 @@ o put this into your PORTDIR_OVERLAY variable in make.conf i.e.:
 
 	PORTDIR_OVERLAY="${EPREFIX}/overlay"
 
-o create ${EPREFIX}/repos.conf as follows:
+o create ${EPREFIX}/etc/portage/repos.conf as follows:
 
 	[DEFAULT]
 	eclass-overrides = gmt_cygwin_overlay
 
-o add the following to make.conf:
+o add the following to ${EPREFIX}/etc/make.conf (or equivalent):
 
 	PORTAGE_RSYNC_EXTRA_OPTS="--exclude=/metadata/cache"
 
@@ -28,19 +113,19 @@ o invoke eselect as follows:
 
 o you will need a working 'rebase' and 'peflags' in your $PATH
 
-once those conditions are met, with any luck, you should be able to bootstrap cygwin prefix
-by following the recipe at http://www.gentoo.org/proj/en/gentoo-alt/prefix/bootstrap-solaris.xml
-however, don't be surprised if shit breaks.
+Once those conditions are met, with any luck (OK, with a shit-ton of luck, and some hacking),
+you may or may not be able to bootstrap cygwin prefix by following the recipe at:
 
-on second thought, the correct recipe is probably to start following the recipe at the above url,
-go until something breaks (it won't take long), install this overlay according to the bullet points
-above, and then proceed with the recipe.  you may also find some usefull stuff on the gentoo-wiki
-(not the official one).
+  http://www.gentoo.org/proj/en/gentoo-alt/prefix/bootstrap-solaris.xml
 
-if you are having trouble bootstrapping python due to a chicken-and-egg issue with
-gcc-config -> python -> gcc -> gcc-config recursive dependencies, try emerging python with
+Please don't be surprised if stuff breaks -- I haven't ever tested this -- not even once.
+
+If you are having trouble bootstrapping python due to a chicken-and-egg issue with the
+gcc-config -> python -> gcc -> gcc-config recursive dependency, try emerging python with
 the "cygbootstraphack" USE-flag.
 
 gl!
 
 -gmt
+
+gmt@malth.RMIFNOTSPAMKTHX.us
