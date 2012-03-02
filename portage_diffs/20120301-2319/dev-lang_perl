@@ -1,0 +1,54 @@
+===== mutual sub-directory: "dev-lang/perl" =====
+===== mutual sub-directory: "dev-lang/perl/files" =====
+--("dev-lang/perl/perl-5.12.3-r1.ebuild")-->8-->
+--- usr/portage/dev-lang/perl/perl-5.12.3-r1.ebuild	2011-07-12 10:01:31.000000000 -0700
++++ overlay/dev-lang/perl/perl-5.12.3-r1.ebuild	2012-02-15 19:01:03.311510700 -0800
+@@ -66,6 +66,7 @@
+ 		*-openbsd*)   osname="openbsd" ;;
+ 		*-darwin*)    osname="darwin" ;;
+ 		*-interix*)   osname="interix" ;;
++		*-cygwin*)    osname="cygwin" ;;
+ 		*)            osname="linux" ;;
+ 	esac
+ 
+@@ -123,9 +124,16 @@
+ src_prepare_update_patchlevel_h() {
+ 	[[ -f ${WORKDIR}/perl-patch/series ]] || return 0
+ 
++	[[ ${CHOST} == *-cygwin* ]] && { while read patch level ; do
++		einfo "Installing patch \"${patch}\" into patchlevel.h"
++		sed -i -e "s/^\t,NULL$/	,\"${patch//__/_}\"\n&/" "${S}"/patchlevel.h || die
++	done < "${FILESDIR}"/cygwin/series ; }
++
+ 	while read patch level ; do
++		einfo "Installing patch \"${patch}\" into patchlevel.h"
+ 		sed -i -e "s/^\t,NULL$/	,\"${patch//__/_}\"\n&/" "${S}"/patchlevel.h || die
+ 	done < "${WORKDIR}"/perl-patch/series
++	
+ }
+ 
+ src_prepare() {
+@@ -129,6 +137,13 @@
+ }
+ 
+ src_prepare() {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		EPATCH_SOURCE="${FILESDIR}"/cygwin \
++		EPATCH_SUFFIX="patch" \
++		EPATCH_FORCE="yes" \
++		epatch
++	fi
++
+ 	EPATCH_SOURCE="${WORKDIR}/perl-patch" \
+ 	EPATCH_SUFFIX="diff" \
+ 	EPATCH_FORCE="yes" \
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/dev-lang/perl/files/cygwin: directory
+overlay/dev-lang/perl/files/perl-5.10.1-cygwin-09-Module-Build-0.36_13-disabled.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/dev-lang/perl/perl-5.12.3.ebuild: ASCII English text
+usr/portage/dev-lang/perl/perl-5.14.1.ebuild: ASCII English text
+

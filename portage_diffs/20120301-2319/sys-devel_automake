@@ -1,0 +1,106 @@
+===== mutual sub-directory: "sys-devel/automake" =====
+--("sys-devel/automake/automake-1.10.3.ebuild")-->8-->
+--- usr/portage/sys-devel/automake/automake-1.10.3.ebuild	2010-06-21 10:01:41.000000000 -0700
++++ overlay/sys-devel/automake/automake-1.10.3.ebuild	2012-02-23 15:47:18.012515400 -0800
+@@ -39,6 +39,7 @@
+ 	# the symptom was a "shift: nothing to shift" with ksh and a silent
+ 	# configure failure with bash. the patch has been reported upstream.
+ 	epatch "${FILESDIR}"/${PN}-1.10.2-depout.patch
++	epatch "${FILESDIR}"/${PN}-cygwin1.7-config-guess.patch
+ }
+ 
+ src_compile() {
+<--8<--
+--("sys-devel/automake/automake-1.11.1.ebuild")-->8-->
+--- usr/portage/sys-devel/automake/automake-1.11.1.ebuild	2011-05-02 02:01:25.000000000 -0700
++++ overlay/sys-devel/automake/automake-1.11.1.ebuild	2012-02-23 15:48:53.708515400 -0800
+@@ -38,6 +38,7 @@
+ src_unpack() {
+ 	unpack ${A}
+ 	cd "${S}"
++	epatch "${FILESDIR}"/${PN}-cygwin1.7-config-guess.patch
+ 	chmod a+rx tests/*.test
+ 	sed -i \
+ 		-e "s|: (automake)| v${SLOT}: (automake${SLOT})|" \
+<--8<--
+--("sys-devel/automake/automake-1.4_p6-r1.ebuild")-->8-->
+--- usr/portage/sys-devel/automake/automake-1.4_p6-r1.ebuild	2010-05-16 05:31:50.000000000 -0700
++++ overlay/sys-devel/automake/automake-1.4_p6-r1.ebuild	2012-02-23 15:55:42.892515400 -0800
+@@ -29,6 +29,7 @@
+ 	epatch "${FILESDIR}"/${PN}-1.4-subdirs-89656.patch
+ 	epatch "${FILESDIR}"/${PN}-1.4-ansi2knr-stdlib.patch
+ 	epatch "${FILESDIR}"/${PN}-1.4-CVE-2009-4029.patch #295357
++	epatch "${FILESDIR}"/${PN}-1.4-cygwin1.7-config-guess.patch
+ 	sed -i 's:error\.test::' tests/Makefile.in #79529
+ 	sed -i \
+ 		-e "/^@setfilename/s|automake|automake${SLOT}|" \
+<--8<--
+--("sys-devel/automake/automake-1.5-r1.ebuild")-->8-->
+--- usr/portage/sys-devel/automake/automake-1.5-r1.ebuild	2010-05-16 05:31:50.000000000 -0700
++++ overlay/sys-devel/automake/automake-1.5-r1.ebuild	2012-02-23 15:57:56.172515400 -0800
+@@ -32,6 +32,7 @@
+ 	epatch "${FILESDIR}"/${P}-test-fixes.patch #79505
+ 	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
+ 	epatch "${FILESDIR}"/${P}-CVE-2009-4029.patch #295357
++	epatch "${FILESDIR}"/${PN}-1.5-cygwin1.7-config-guess.patch
+ 	sed -i \
+ 		-e "/^@setfilename/s|automake|automake${SLOT}|" \
+ 		-e "s|automake: (automake)|automake v${SLOT}: (automake${SLOT})|" \
+<--8<--
+--("sys-devel/automake/automake-1.6.3-r1.ebuild")-->8-->
+--- usr/portage/sys-devel/automake/automake-1.6.3-r1.ebuild	2010-05-16 05:31:50.000000000 -0700
++++ overlay/sys-devel/automake/automake-1.6.3-r1.ebuild	2012-02-23 16:00:53.340015400 -0800
+@@ -29,6 +29,7 @@
+ 	epatch "${FILESDIR}"/${P}-test-fixes.patch #159557
+ 	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
+ 	epatch "${FILESDIR}"/${PN}-1.5-CVE-2009-4029.patch #295357
++	epatch "${FILESDIR}"/${PN}-1.5-cygwin1.7-config-guess.patch
+ 	export WANT_AUTOCONF=2.5
+ }
+ 
+<--8<--
+--("sys-devel/automake/automake-1.7.9-r2.ebuild")-->8-->
+--- usr/portage/sys-devel/automake/automake-1.7.9-r2.ebuild	2010-05-16 05:31:50.000000000 -0700
++++ overlay/sys-devel/automake/automake-1.7.9-r2.ebuild	2012-02-23 16:07:08.044515400 -0800
+@@ -32,6 +32,7 @@
+ 	epatch "${FILESDIR}"/${P}-libtool-2.patch #257544
+ 	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
+ 	epatch "${FILESDIR}"/${PN}-1.5-CVE-2009-4029.patch #295357
++	epatch "${FILESDIR}"/${PN}-1.7.9-cygwin1.7-config-guess.patch
+ 	export WANT_AUTOCONF=2.5
+ }
+ 
+<--8<--
+--("sys-devel/automake/automake-1.8.5-r4.ebuild")-->8-->
+--- usr/portage/sys-devel/automake/automake-1.8.5-r4.ebuild	2010-05-16 05:31:50.000000000 -0700
++++ overlay/sys-devel/automake/automake-1.8.5-r4.ebuild	2012-02-23 16:02:57.804515400 -0800
+@@ -32,6 +32,7 @@
+ 	epatch "${FILESDIR}"/${PN}-1.9.6-subst-test.patch #222225
+ 	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
+ 	epatch "${FILESDIR}"/${P}-CVE-2009-4029.patch #295357
++	epatch "${FILESDIR}"/${PN}-1.5-cygwin1.7-config-guess.patch
+ 	export WANT_AUTOCONF=2.5
+ }
+ 
+<--8<--
+--("sys-devel/automake/automake-1.9.6-r3.ebuild")-->8-->
+--- usr/portage/sys-devel/automake/automake-1.9.6-r3.ebuild	2010-05-16 05:31:50.000000000 -0700
++++ overlay/sys-devel/automake/automake-1.9.6-r3.ebuild	2012-02-23 16:10:04.220515400 -0800
+@@ -36,6 +36,7 @@
+ 	epatch "${FILESDIR}"/${PN}-1.9.6-subst-test.patch #222225
+ 	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
+ 	epatch "${FILESDIR}"/${PN}-1.8.5-CVE-2009-4029.patch #295357
++	epatch "${FILESDIR}"/${PN}-1.9.6-cygwin1.7-config-guess.patch
+ 	export WANT_AUTOCONF=2.5
+ }
+ 
+<--8<--
+===== mutual sub-directory: "sys-devel/automake/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/sys-devel/automake/files/automake-1.4-cygwin1.7-config-guess.patch: unified diff output, ASCII text
+overlay/sys-devel/automake/files/automake-1.5-cygwin1.7-config-guess.patch: unified diff output, ASCII text
+overlay/sys-devel/automake/files/automake-1.7.9-cygwin1.7-config-guess.patch: unified diff output, ASCII text
+overlay/sys-devel/automake/files/automake-1.9.6-cygwin1.7-config-guess.patch: unified diff output, ASCII text
+overlay/sys-devel/automake/files/automake-cygwin1.7-config-guess.patch: unified diff output, ASCII text
+

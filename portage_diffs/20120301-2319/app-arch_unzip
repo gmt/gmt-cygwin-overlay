@@ -1,0 +1,34 @@
+===== mutual sub-directory: "app-arch/unzip" =====
+===== mutual sub-directory: "app-arch/unzip/files" =====
+--("app-arch/unzip/unzip-6.0-r2.ebuild")-->8-->
+--- usr/portage/app-arch/unzip/unzip-6.0-r2.ebuild	2011-01-16 07:31:32.000000000 -0800
++++ overlay/app-arch/unzip/unzip-6.0-r2.ebuild	2012-02-11 15:50:45.584174100 -0800
+@@ -23,6 +23,10 @@
+ S="${WORKDIR}/${MY_P}"
+ 
+ src_prepare() {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-misc.patch
++	fi
+ 	epatch "${FILESDIR}"/${P}-no-exec-stack.patch
+ 	use natspec && epatch "${FILESDIR}/${PN}-6.0-natspec.patch" #275244
+ 	epatch "${FILESDIR}"/${P}-irix.patch
+@@ -60,6 +64,7 @@
+ 		*-aix*)              TARGET=gcc; append-cppflags "-DNO_LCHMOD"; append-ldflags "-Wl,-blibpath:${EPREFIX}/usr/$(get_libdir)" ;;
+ 		*-hpux*)             TARGET=gcc; append-ldflags "-Wl,+b,${EPREFIX}/usr/$(get_libdir)" ;;
+ 		*-mint*)             TARGET=generic ;;
++		*-cygwin*)	     TARGET=cygwin ;;
+ 		*) die "Unknown target, you suck" ;;
+ 	esac
+ 
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/app-arch/unzip/files/unzip-6.0-cygport-misc.patch: unified diff output, ASCII text
+overlay/app-arch/unzip/files/unzip-6.0-cygport.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/app-arch/unzip/unzip-5.52-r2.ebuild: ASCII English text
+usr/portage/app-arch/unzip/unzip-6.0-r1.ebuild: ASCII English text
+

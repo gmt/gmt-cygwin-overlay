@@ -1,0 +1,25 @@
+===== mutual sub-directory: "sys-devel/gnuconfig" =====
+===== mutual sub-directory: "sys-devel/gnuconfig/files" =====
+--("sys-devel/gnuconfig/gnuconfig-20110814.ebuild")-->8-->
+--- usr/portage/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2011-08-14 20:27:27.000000000 -0700
++++ overlay/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2012-02-23 15:25:30.540515400 -0800
+@@ -46,7 +46,7 @@
+ }
+ 
+ src_prepare() {
+-	epatch "${WORKDIR}"/*.patch
++	epatch "${FILESDIR}"/${PV}/*.patch
+ 	use elibc_uclibc && sed -i 's:linux-gnu:linux-uclibc:' testsuite/config-guess.data #180637
+ }
+ 
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/sys-devel/gnuconfig/files/20110814: directory
+
+*** The following files appear only in portage ***
+usr/portage/sys-devel/gnuconfig/files/99999999: directory
+usr/portage/sys-devel/gnuconfig/gnuconfig-20100924.ebuild: ASCII English text
+usr/portage/sys-devel/gnuconfig/gnuconfig-20110202.ebuild: ASCII English text
+usr/portage/sys-devel/gnuconfig/gnuconfig-99999999.ebuild: ASCII English text
+

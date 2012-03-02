@@ -1,0 +1,555 @@
+===== mutual sub-directory: "eclass" =====
+===== mutual sub-directory: "eclass/ELT-patches" =====
+--("eclass/libtool.eclass")-->8-->
+--- usr/portage/eclass/libtool.eclass	2011-12-03 08:11:31.000000000 -0800
++++ overlay/eclass/libtool.eclass	2012-02-23 21:41:53.532515500 -0800
+@@ -24,6 +24,9 @@
+ 	if [[ ! -d ${d} ]] ; then
+ 		d="${ECLASSDIR_LOCAL}/ELT-patches"
+ 	fi
++	if [[ $1 == --local ]] ; then
++		d="${ECLASSDIR_LOCAL}/ELT-patches"
++	fi
+ 	echo "${d}"
+ }
+ 
+@@ -82,10 +85,22 @@
+ 	local file=$1
+ 	local patch_set=$2
+ 	local patch_dir="$(elt_patch_dir)/${patch_set}"
++	local patch_dir_local="$(elt_patch_dir --local)/${patch_set}"
++	local dualmode=1
+ 	local rem_int_dep=$3
+ 
++	[[ "${patch_dir}" == "${patch_dir_local}" ]] && dualmode=0
++	[[ ! -d "${patch_dir}" ]] && dualmode=0
++
+ 	[[ -z ${patch_set} ]] && return 1
++
++	if [[ ${dualmode} == 0 ]] ; then
++		[[ ! -d ${patch_dir_local} ]] && return 1
++	else
++		if [[ ! -d ${patch_dir_local} ]] ; then
+ 	[[ ! -d ${patch_dir} ]] && return 1
++		fi
++	fi
+ 
+ 	# Allow patches to use @GENTOO_LIBDIR@ replacements
+ 	local sed_args=( -e "s:@GENTOO_LIBDIR@:$(get_libdir):g" )
+@@ -95,7 +110,36 @@
+ 		sed_args+=( -e "s|@REM_INT_DEP@|${rem_int_dep}|g" )
+ 	fi
+ 
+-	pushd "$(elt_patch_dir)" >/dev/null || die
++	local eltpatchdir='!none'
++	local localeltpatchdir="$( elt_patch_dir --local )"
++
++	[[ ${dualmode} == 1 ]] && \
++		eltpatchdir="$( elt_patch_dir )"
++
++	if [[ ! -d "${localeltpatchdir}" ]] ; then
++		localeltpatchdir='!none'
++	elif [[ ! -d "${localeltpatchdir}/${patch_set}" ]] ; then
++		localeltpatchdir='!none'
++	fi
++
++	if [[ ${eltpatchdir} != \!none ]] ; then
++		if [[ ! -d "${eltpatchdir}" ]] ; then
++			eltpatchdir='!none'
++		elif [[ ! -d "${eltpatchdir}/${patch_set}" ]] ; then
++			eltpatchdir='!none'
++		fi
++	fi
++
++	[[ ${eltpatchdir} == \!none && ${localeltpatchdir} == \!none ]] && return 1
++
++	# einfo "::${patch_set}:: localeltpatchdir=\"${localeltpatchdir}\" eltpatchdir=\"${eltpatchdir}\""
++
++	for i_eltpatchdir in "${localeltpatchdir}" "${eltpatchdir}" ; do
++	# >>>>>>>>>>>>>>>>>
++
++	[[ ${i_eltpatchdir} == \!none ]] && continue
++
++	pushd "${i_eltpatchdir}" >/dev/null || die
+ 
+ 	# Go through the patches in reverse order (newer version to older)
+ 	for patch in $(find "${patch_set}" -maxdepth 1 -type f | LC_ALL=C sort -r) ; do
+@@ -109,6 +153,11 @@
+ 	done
+ 
+ 	popd >/dev/null
++	[[ ${ret} == 0 ]] && break;
++
++	# <<<<<<<<<<<<<<<<<<<
++	done
++
+ 	return ${ret}
+ }
+ 
+@@ -183,6 +232,7 @@
+ 		*-hpux*)    elt_patches+=" hpux-conf deplibs hc-flag-ld hardcode hardcode-relink relink-prog no-lc" ;;
+ 		*-irix*)    elt_patches+=" irix-ltmain" ;;
+ 		*-mint*)    elt_patches+=" mint-conf" ;;
++		*-cygwin*)  elt_patches+=" cygwin-ltmain cygwin-install-sh" ;;
+ 	esac
+ 
+ 	if $(tc-getLD) --version 2>&1 | grep -qs 'GNU gold'; then
+@@ -356,6 +406,10 @@
+ 						ret=$?
+ 					fi
+ 					;;
++				cygwin-install-sh)
++					ELT_walk_patches "${d}/install-sh" "${p}"
++					ret=$?
++					;;
+ 				*)
+ 					ELT_walk_patches "${d}/ltmain.sh" "${p}"
+ 					ret=$?
+<--8<--
+--("eclass/multilib.eclass")-->8-->
+--- usr/portage/eclass/multilib.eclass	2011-10-26 23:02:00.000000000 -0700
++++ overlay/eclass/multilib.eclass	2012-02-24 13:06:29.975677300 -0800
+@@ -229,7 +229,7 @@
+ 	local libname
+ 	local ver=$1
+ 	case ${CHOST} in
+-		*-cygwin|mingw*|*-mingw*) libname="dll";;
++		*-cygwin*|mingw*|*-mingw*) libname="dll";;
+ 		*-darwin*)                libname="dylib";;
+ 		*-mint*)                  libname="irrelevant";;
+ 		hppa*-hpux*)              libname="sl";;
+<--8<--
+--("eclass/python.eclass")-->8-->
+--- usr/portage/eclass/python.eclass	2012-02-11 05:05:17.824835800 -0800
++++ overlay/eclass/python.eclass	2012-02-12 01:35:04.209174100 -0800
+@@ -93,8 +93,10 @@
+ 	echo "_python_package_supporting_installation_for_multiple_python_abis() " >&2
+ 	if has "${EAPI:-0}" 0 1 2 3 4; then
+ 		if [[ -n "${SUPPORT_PYTHON_ABIS}" ]]; then
++			echo "_python_package_supporting_installation_for_multiple_python_abis() -> 0" >&2
+ 			return 0
+ 		else
++			echo "_python_package_supporting_installation_for_multiple_python_abis() -> 1" >&2
+ 			return 1
+ 		fi
+ 	else
+@@ -331,17 +333,20 @@
+ _python_initial_sanity_checks() {
+ 	echo "_python_initial_sanity_checks() " >&2
+ 	if [[ "$(declare -p PYTHON_SANITY_CHECKS_EXECUTED 2> /dev/null)" != "declare -- PYTHON_SANITY_CHECKS_EXECUTED="* || " ${FUNCNAME[@]:1} " =~ " "(python_set_active_version|python_pkg_setup)" " && -z "${PYTHON_SKIP_SANITY_CHECKS}" ]]; then
++		echo "_python_initial_sanity_checks() (1): running readlink ${EPREFIX}/usr/bin/python -> $(readlink ${EPREFIX}/usr/bin/python)" >&2
+ 		# Ensure that /usr/bin/python and /usr/bin/python-config are valid.
+ 		if [[ "$(readlink "${EPREFIX}/usr/bin/python")" != "python-wrapper" ]]; then
+ 			eerror "'${EPREFIX}/usr/bin/python' is not valid symlink."
+ 			eerror "Use \`eselect python set \${python_interpreter}\` to fix this problem."
+ 			die "'${EPREFIX}/usr/bin/python' is not valid symlink"
+ 		fi
++		echo "_python_initial_sanity_checks() (2)" >&2
+ 		if [[ "$(<"${EPREFIX}/usr/bin/python-config")" != *"Gentoo python-config wrapper script"* ]]; then
+ 			eerror "'${EPREFIX}/usr/bin/python-config' is not valid script"
+ 			eerror "Use \`eselect python set \${python_interpreter}\` to fix this problem."
+ 			die "'${EPREFIX}/usr/bin/python-config' is not valid script"
+ 		fi
++		echo "_python_initial_sanity_checks() (3)" >&2
+ 	fi
+ }
+ 
+@@ -395,7 +400,7 @@
+ }
+ 
+ _python_check_python_pkg_setup_execution() {
+-	echo "_python_check_python_pkg_setup_execution() " >&2
++	echo "_python_check_python_pkg_setup_execution($@)" >&2
+ 	[[ " ${FUNCNAME[@]:1} " =~ " "(python_set_active_version|python_pkg_setup)" " ]] && return
+ 
+ 	if ! has "${EAPI:-0}" 0 1 2 3 && [[ -z "${PYTHON_PKG_SETUP_EXECUTED}" ]]; then
+@@ -891,7 +896,7 @@
+ # Execute specified function for each value of PYTHON_ABIS, optionally passing additional
+ # arguments. The specified function can use PYTHON_ABI and BUILDDIR variables.
+ python_execute_function() {
+-	echo "python_execute_function() " >&2
++	echo "python_execute_function($@) " >&2
+ 	if ! _python_package_supporting_installation_for_multiple_python_abis; then
+ 		die "${FUNCNAME}() cannot be used in ebuilds of packages not supporting installation for multiple Python ABIs"
+ 	fi
+@@ -901,6 +906,7 @@
+ 
+ 	local action action_message action_message_template default_function="0" failure_message failure_message_template final_ABI="0" function iterated_PYTHON_ABIS nonfatal="0" previous_directory previous_directory_stack previous_directory_stack_length PYTHON_ABI quiet="0" return_code separate_build_dirs="0" source_dir
+ 
++	echo "python_execute_function() (1)" >&2
+ 	while (($#)); do
+ 		case "$1" in
+ 			--action-message)
+@@ -948,7 +954,10 @@
+ 		die "${FUNCNAME}(): '--source-dir' option can be specified only with '--separate-build-dirs' option"
+ 	fi
+ 
++	echo "python_execute_function() (2)" >&2
++
+ 	if [[ "${default_function}" == "0" ]]; then
++		echo "python_execute_function() (2a)" >&2
+ 		if [[ "$#" -eq 0 ]]; then
+ 			die "${FUNCNAME}(): Missing function name"
+ 		fi
+@@ -959,6 +968,7 @@
+ 			die "${FUNCNAME}(): '${function}' function is not defined"
+ 		fi
+ 	else
++		echo "python_execute_function() (2b)" >&2
+ 		if has "${EAPI:-0}" 0 1; then
+ 			die "${FUNCNAME}(): '--default-function' option cannot be used in this EAPI"
+ 		fi
+@@ -995,6 +1005,8 @@
+ 		function="python_default_function"
+ 	fi
+ 
++	echo "python_execute_function() (3)" >&2
++
+ 	# Ensure that python_execute_function() cannot be directly or indirectly called by python_execute_function().
+ 	if _python_abi-specific_local_scope; then
+ 		die "${FUNCNAME}(): Invalid call stack"
+@@ -1014,13 +1026,22 @@
+ 		[[ "${EBUILD_PHASE}" == "postrm" ]] && action="Postuninstallation"
+ 	fi
+ 
++	echo "python_execute_function() (4)" >&2
++
+ 	_python_calculate_PYTHON_ABIS
++
++	echo "python_execute_function() (5)" >&2
++
+ 	if [[ "${final_ABI}" == "1" ]]; then
++		echo "python_execute_function() (5a)" >&2
+ 		iterated_PYTHON_ABIS="$(PYTHON -f --ABI)"
+ 	else
++		echo "python_execute_function() (5b)" >&2
+ 		iterated_PYTHON_ABIS="${PYTHON_ABIS}"
+ 	fi
++	echo "python_execute_function() (6)" >&2
+ 	for PYTHON_ABI in ${iterated_PYTHON_ABIS}; do
++		echo "python_execute_function() (6-for-abi (${PYTHON_ABI})" >&2
+ 		if [[ "${EBUILD_PHASE}" == "test" ]] && _python_check_python_abi_matching --patterns-list "${PYTHON_ABI}" "${PYTHON_TESTS_RESTRICTED_ABIS}"; then
+ 			if [[ "${quiet}" == "0" ]]; then
+ 				echo " ${_GREEN}*${_NORMAL} ${_BLUE}Testing of ${CATEGORY}/${PF} with $(python_get_implementation_and_version) skipped${_NORMAL}"
+@@ -1028,8 +1049,11 @@
+ 			continue
+ 		fi
+ 
++		echo "python_execute_function() (6-for-abi (${PYTHON_ABI}) (1)" >&2
+ 		_python_prepare_flags
+ 
++		echo "python_execute_function() (6-for-abi (${PYTHON_ABI}) (2)" >&2
++
+ 		if [[ "${quiet}" == "0" ]]; then
+ 			if [[ -n "${action_message_template}" ]]; then
+ 				eval "action_message=\"${action_message_template}\""
+@@ -1039,6 +1063,8 @@
+ 			echo " ${_GREEN}*${_NORMAL} ${_BLUE}${action_message}${_NORMAL}"
+ 		fi
+ 
++		echo "python_execute_function() (6-for-abi (${PYTHON_ABI}) (3)" >&2
++
+ 		if [[ "${separate_build_dirs}" == "1" ]]; then
+ 			if [[ -n "${source_dir}" ]]; then
+ 				export BUILDDIR="${S}/${source_dir}-${PYTHON_ABI}"
+@@ -1054,6 +1080,8 @@
+ 		previous_directory_stack="$(dirs -p)"
+ 		previous_directory_stack_length="$(dirs -p | wc -l)"
+ 
++		echo "python_execute_function() (6-for-abi (${PYTHON_ABI}) (4)" >&2
++
+ 		if ! has "${EAPI}" 0 1 2 3 && has "${PYTHON_ABI}" ${FAILURE_TOLERANT_PYTHON_ABIS}; then
+ 			EPYTHON="$(PYTHON)" nonfatal "${function}" "$@"
+ 		else
+@@ -1064,6 +1092,8 @@
+ 
+ 		_python_restore_flags
+ 
++		echo "python_execute_function() (6-for-abi (${PYTHON_ABI}) (5)" >&2
++
+ 		if [[ "${return_code}" -ne 0 ]]; then
+ 			if [[ -n "${failure_message_template}" ]]; then
+ 				eval "failure_message=\"${failure_message_template}\""
+@@ -1094,6 +1124,8 @@
+ 			fi
+ 		fi
+ 
++		echo "python_execute_function() (6-for-abi (${PYTHON_ABI}) (6)" >&2
++
+ 		# Ensure that directory stack has not been decreased.
+ 		if [[ "$(dirs -p | wc -l)" -lt "${previous_directory_stack_length}" ]]; then
+ 			die "Directory stack decreased illegally"
+@@ -1104,6 +1136,7 @@
+ 			popd > /dev/null || die "popd failed"
+ 		done
+ 
++		echo "python_execute_function() (6-for-abi (${PYTHON_ABI}) (7)" >&2
+ 		# Ensure that the bottom part of directory stack has not been changed. Restore
+ 		# previous directory (from before running of the specified function) before
+ 		# comparison of directory stacks to avoid mismatch of directory stacks after
+@@ -1121,6 +1154,7 @@
+ 		unset BUILDDIR
+ 	done
+ 
++	echo "python_execute_function() (7)" >&2
+ 	if [[ "${default_function}" == "1" ]]; then
+ 		unset -f python_default_function
+ 	fi
+<--8<--
+--("eclass/toolchain.eclass")-->8-->
+--- usr/portage/eclass/toolchain.eclass	2012-02-20 06:32:25.945458200 -0800
++++ overlay/eclass/toolchain.eclass	2012-02-24 15:16:51.853015500 -0800
+@@ -1397,6 +1397,7 @@
+ 			confgcc+=" --enable-shared"
+ 		fi
+ 		case ${CHOST} in
++			# DONT FIXME *-cygwin is correct!!! on *-cygwin1.7 we want posix threads.
+ 			mingw*|*-mingw*|*-cygwin)
+ 				confgcc+=" --enable-threads=win32" ;;
+ 			*)
+@@ -2365,7 +2366,7 @@
+ fix_libtool_libdir_paths() {
+ 	pushd "${ED}" >/dev/null
+ 
+-	pushd "./${1}" >/dev/null
++	pushd "./${1#/}" >/dev/null
+ 	local dir="${PWD#${D%/}}"
+ 	local allarchives=$(echo *.la)
+ 	allarchives="\(${allarchives// /\\|}\)"
+@@ -2376,8 +2377,8 @@
+ 		./${dir}/*.la
+ 	sed -i \
+ 		-e "/^dependency_libs=/s:/[^ ]*/${allarchives}:${EPREFIX}/${LIBPATH##/}/\1:g" \
+-		$(find ./${PREFIX}/lib* -maxdepth 3 -name '*.la') \
+-		./${dir}/*.la
++		$(find ./${PREFIX#/}/lib* -maxdepth 3 -name '*.la') \
++		./${dir#/}/*.la
+ 
+ 	popd >/dev/null
+ }
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/eclass/ELT-patches/cygwin-install-sh: directory
+overlay/eclass/ELT-patches/cygwin-ltmain: directory
+overlay/eclass/shebangfix.eclass: ASCII English text
+
+*** The following files appear only in portage ***
+usr/portage/eclass/ChangeLog: ASCII English text
+usr/portage/eclass/ELT-patches/aix-noundef: directory
+usr/portage/eclass/ELT-patches/aixrtl: directory
+usr/portage/eclass/ELT-patches/as-needed: directory
+usr/portage/eclass/ELT-patches/cross: directory
+usr/portage/eclass/ELT-patches/darwin-conf: directory
+usr/portage/eclass/ELT-patches/darwin-ltconf: directory
+usr/portage/eclass/ELT-patches/darwin-ltmain: directory
+usr/portage/eclass/ELT-patches/deplibs: directory
+usr/portage/eclass/ELT-patches/fbsd-conf: directory
+usr/portage/eclass/ELT-patches/fbsd-ltconf: directory
+usr/portage/eclass/ELT-patches/fix-relink: directory
+usr/portage/eclass/ELT-patches/gold-conf: directory
+usr/portage/eclass/ELT-patches/hardcode: directory
+usr/portage/eclass/ELT-patches/hardcode-relink: directory
+usr/portage/eclass/ELT-patches/hc-flag-ld: directory
+usr/portage/eclass/ELT-patches/hpux-conf: directory
+usr/portage/eclass/ELT-patches/install-sh: directory
+usr/portage/eclass/ELT-patches/irix-ltmain: directory
+usr/portage/eclass/ELT-patches/ltmain: directory
+usr/portage/eclass/ELT-patches/max_cmd_len: directory
+usr/portage/eclass/ELT-patches/mint-conf: directory
+usr/portage/eclass/ELT-patches/no-lc: directory
+usr/portage/eclass/ELT-patches/nocxx: directory
+usr/portage/eclass/ELT-patches/portage: directory
+usr/portage/eclass/ELT-patches/relink: directory
+usr/portage/eclass/ELT-patches/relink-prog: directory
+usr/portage/eclass/ELT-patches/rem-int-dep: directory
+usr/portage/eclass/ELT-patches/sed: directory
+usr/portage/eclass/ELT-patches/sys-lib-dlsearch: directory
+usr/portage/eclass/ELT-patches/test: directory
+usr/portage/eclass/ELT-patches/tmp: directory
+usr/portage/eclass/ELT-patches/uclibc-conf: directory
+usr/portage/eclass/ELT-patches/uclibc-ltconf: directory
+usr/portage/eclass/alternatives.eclass: ASCII English text
+usr/portage/eclass/ant-tasks.eclass: ASCII English text
+usr/portage/eclass/apache-2.eclass: ASCII English text
+usr/portage/eclass/apache-module.eclass: ASCII English text
+usr/portage/eclass/aspell-dict.eclass: ASCII English text
+usr/portage/eclass/autotools-utils.eclass: UTF-8 Unicode English text
+usr/portage/eclass/autotools.eclass: UTF-8 Unicode English text
+usr/portage/eclass/base.eclass: ASCII English text
+usr/portage/eclass/bash-completion-r1.eclass: ASCII English text
+usr/portage/eclass/bash-completion.eclass: HTML document, ASCII text
+usr/portage/eclass/bsdmk.eclass: UTF-8 Unicode English text
+usr/portage/eclass/bzr.eclass: UTF-8 Unicode English text
+usr/portage/eclass/cannadic.eclass: ASCII English text
+usr/portage/eclass/check-reqs.eclass: UTF-8 Unicode English text
+usr/portage/eclass/clutter.eclass: ASCII English text
+usr/portage/eclass/cmake-utils.eclass: UTF-8 Unicode English text
+usr/portage/eclass/common-lisp-common-2.eclass: ASCII English text
+usr/portage/eclass/common-lisp-common-3.eclass: ASCII English text
+usr/portage/eclass/common-lisp-common.eclass: ASCII English text
+usr/portage/eclass/common-lisp.eclass: ASCII English text
+usr/portage/eclass/confutils.eclass: UTF-8 Unicode English text
+usr/portage/eclass/cron.eclass: ASCII English text
+usr/portage/eclass/cvs.eclass: ASCII English text
+usr/portage/eclass/darcs.eclass: ASCII English text
+usr/portage/eclass/db-use.eclass: ASCII English text
+usr/portage/eclass/db.eclass: ASCII English text
+usr/portage/eclass/depend.apache.eclass: ASCII English text
+usr/portage/eclass/depend.php.eclass: ASCII English text
+usr/portage/eclass/distutils.eclass: ASCII English text
+usr/portage/eclass/elisp-common.eclass: Lisp/Scheme program, UTF-8 Unicode text
+usr/portage/eclass/elisp.eclass: UTF-8 Unicode English text
+usr/portage/eclass/embassy.eclass: ASCII English text
+usr/portage/eclass/emboss.eclass: ASCII English text
+usr/portage/eclass/emul-linux-x86.eclass: ASCII English text
+usr/portage/eclass/enlightenment.eclass: ASCII English text
+usr/portage/eclass/eutils.eclass: ASCII English text
+usr/portage/eclass/fdo-mime.eclass: ASCII English text
+usr/portage/eclass/findlib.eclass: ASCII English text
+usr/portage/eclass/fixheadtails.eclass: ASCII English text
+usr/portage/eclass/flag-o-matic.eclass: ASCII English text
+usr/portage/eclass/font-ebdftopcf.eclass: ASCII English text
+usr/portage/eclass/font.eclass: ASCII English text
+usr/portage/eclass/fortran-2.eclass: ASCII English text
+usr/portage/eclass/fox.eclass: ASCII English text
+usr/portage/eclass/freebsd.eclass: UTF-8 Unicode English text
+usr/portage/eclass/freedict.eclass: ASCII English text
+usr/portage/eclass/games-ggz.eclass: ASCII English text
+usr/portage/eclass/games-mods.eclass: ASCII English text
+usr/portage/eclass/games.eclass: ASCII English text
+usr/portage/eclass/gdesklets.eclass: ASCII English text
+usr/portage/eclass/gems.eclass: ASCII English text
+usr/portage/eclass/ghc-package.eclass: ASCII English text
+usr/portage/eclass/git-2.eclass: UTF-8 Unicode English text
+usr/portage/eclass/git.eclass: ASCII English text
+usr/portage/eclass/gkrellm-plugin.eclass: ASCII English text
+usr/portage/eclass/gnat.eclass: ASCII English text
+usr/portage/eclass/gnatbuild.eclass: ASCII English text
+usr/portage/eclass/gnome-python-common.eclass: ASCII English text
+usr/portage/eclass/gnome.org.eclass: ASCII English text
+usr/portage/eclass/gnome2-utils.eclass: ASCII English text
+usr/portage/eclass/gnome2.eclass: ASCII English text
+usr/portage/eclass/gnuconfig.eclass: ASCII English text
+usr/portage/eclass/gnustep-2.eclass: ASCII English text
+usr/portage/eclass/gnustep-base.eclass: ASCII English text
+usr/portage/eclass/go-mono.eclass: ASCII English text
+usr/portage/eclass/gpe.eclass: ASCII English text
+usr/portage/eclass/gst-plugins-bad.eclass: ASCII English text
+usr/portage/eclass/gst-plugins-base.eclass: ASCII English text
+usr/portage/eclass/gst-plugins-good.eclass: ASCII English text
+usr/portage/eclass/gst-plugins-ugly.eclass: ASCII English text
+usr/portage/eclass/gst-plugins10.eclass: ASCII English text
+usr/portage/eclass/gtk-sharp-module.eclass: ASCII English text
+usr/portage/eclass/haskell-cabal.eclass: ASCII English text
+usr/portage/eclass/horde.eclass: ASCII English text
+usr/portage/eclass/java-ant-2.eclass: UTF-8 Unicode English text
+usr/portage/eclass/java-mvn-src.eclass: ASCII C++ program text
+usr/portage/eclass/java-osgi.eclass: UTF-8 Unicode English text
+usr/portage/eclass/java-pkg-2.eclass: ASCII English text
+usr/portage/eclass/java-pkg-opt-2.eclass: ASCII text
+usr/portage/eclass/java-pkg-simple.eclass: ASCII C++ program text
+usr/portage/eclass/java-utils-2.eclass: ASCII English text
+usr/portage/eclass/java-virtuals-2.eclass: ASCII English text
+usr/portage/eclass/java-vm-2.eclass: ASCII English text
+usr/portage/eclass/kde4-base.eclass: ASCII English text
+usr/portage/eclass/kde4-functions.eclass: ASCII English text
+usr/portage/eclass/kde4-meta-pkg.eclass: ASCII English text
+usr/portage/eclass/kde4-meta.eclass: ASCII English text
+usr/portage/eclass/kernel-2.eclass: ASCII English text
+usr/portage/eclass/latex-package.eclass: ASCII English text
+usr/portage/eclass/leechcraft.eclass: ASCII English text
+usr/portage/eclass/linux-info.eclass: ASCII English text
+usr/portage/eclass/linux-mod.eclass: ASCII English text
+usr/portage/eclass/makeedit.eclass: ASCII English text
+usr/portage/eclass/mercurial.eclass: ASCII English text
+usr/portage/eclass/mono.eclass: ASCII English text
+usr/portage/eclass/mount-boot.eclass: ASCII English text
+usr/portage/eclass/mozconfig-3.eclass: ASCII English text
+usr/portage/eclass/mozcoreconf-2.eclass: ASCII English text
+usr/portage/eclass/mozextension.eclass: ASCII English text
+usr/portage/eclass/mozilla-launcher.eclass: ASCII English text
+usr/portage/eclass/myspell.eclass: ASCII English text
+usr/portage/eclass/mysql-autotools.eclass: ASCII English text
+usr/portage/eclass/mysql-cmake.eclass: ASCII English text
+usr/portage/eclass/mysql-v2.eclass: ASCII English text
+usr/portage/eclass/mysql.eclass: ASCII English text
+usr/portage/eclass/mysql_fx.eclass: ASCII English text
+usr/portage/eclass/mythtv-plugins.eclass: ASCII English text
+usr/portage/eclass/mythtv.eclass: ASCII English text
+usr/portage/eclass/nsplugins.eclass: ASCII English text
+usr/portage/eclass/nvidia-driver.eclass: ASCII English text
+usr/portage/eclass/obs-download.eclass: ASCII English text
+usr/portage/eclass/obs-service.eclass: ASCII English text
+usr/portage/eclass/office-ext.eclass: UTF-8 Unicode English text
+usr/portage/eclass/openib.eclass: ASCII English text
+usr/portage/eclass/pam.eclass: UTF-8 Unicode English text
+usr/portage/eclass/pax-utils.eclass: ASCII English text
+usr/portage/eclass/perl-app.eclass: ASCII English text
+usr/portage/eclass/perl-module.eclass: ASCII English text
+usr/portage/eclass/php-common-r1.eclass: ASCII English text
+usr/portage/eclass/php-ext-base-r1.eclass: ASCII English text
+usr/portage/eclass/php-ext-pecl-r1.eclass: ASCII English text
+usr/portage/eclass/php-ext-pecl-r2.eclass: ASCII English text
+usr/portage/eclass/php-ext-source-r1.eclass: ASCII English text
+usr/portage/eclass/php-ext-source-r2.eclass: ASCII English text
+usr/portage/eclass/php-ezc.eclass: ASCII English text
+usr/portage/eclass/php-lib-r1.eclass: ASCII English text
+usr/portage/eclass/php-pear-lib-r1.eclass: ASCII English text
+usr/portage/eclass/php-pear-r1.eclass: ASCII English text
+usr/portage/eclass/phpconfutils.eclass: ASCII English text
+usr/portage/eclass/portability.eclass: UTF-8 Unicode English text
+usr/portage/eclass/prefix.eclass: ASCII English text
+usr/portage/eclass/qmail.eclass: ASCII English text
+usr/portage/eclass/qt4-build.eclass: ASCII English text
+usr/portage/eclass/qt4-r2.eclass: ASCII English text
+usr/portage/eclass/qt4.eclass: ASCII English text
+usr/portage/eclass/rox-0install.eclass: ASCII English text
+usr/portage/eclass/rox.eclass: ASCII English text
+usr/portage/eclass/rpm.eclass: ASCII English text
+usr/portage/eclass/ruby-fakegem.eclass: Ruby script, UTF-8 Unicode text
+usr/portage/eclass/ruby-ng-gnome2.eclass: ASCII English text
+usr/portage/eclass/ruby-ng.eclass: UTF-8 Unicode English text
+usr/portage/eclass/ruby.eclass: ASCII English text
+usr/portage/eclass/savedconfig.eclass: ASCII English text
+usr/portage/eclass/scons-utils.eclass: ASCII English text
+usr/portage/eclass/scsh.eclass: ASCII English text
+usr/portage/eclass/selinux-policy-2.eclass: ASCII English text
+usr/portage/eclass/sgml-catalog.eclass: ASCII English text
+usr/portage/eclass/ssl-cert.eclass: ASCII English text
+usr/portage/eclass/stardict.eclass: ASCII English text
+usr/portage/eclass/subversion.eclass: UTF-8 Unicode English text
+usr/portage/eclass/sword-module.eclass: ASCII English text
+usr/portage/eclass/systemd.eclass: ASCII English text
+usr/portage/eclass/tests: directory
+usr/portage/eclass/tetex-3.eclass: ASCII English text
+usr/portage/eclass/tetex.eclass: ASCII English text
+usr/portage/eclass/texlive-common.eclass: ASCII English text
+usr/portage/eclass/texlive-module.eclass: ASCII English text
+usr/portage/eclass/tla.eclass: ASCII English text
+usr/portage/eclass/toolchain-binutils.eclass: ASCII English text
+usr/portage/eclass/toolchain-funcs.eclass: ASCII English text
+usr/portage/eclass/twisted.eclass: Python script, ASCII text executable
+usr/portage/eclass/user.eclass: ASCII English text
+usr/portage/eclass/vdr-plugin.eclass: ASCII English text
+usr/portage/eclass/versionator.eclass: ASCII English text
+usr/portage/eclass/vim-doc.eclass: ASCII English text
+usr/portage/eclass/vim-plugin.eclass: ASCII English text
+usr/portage/eclass/vim-spell.eclass: exported SGML document, ASCII text
+usr/portage/eclass/vim.eclass: ASCII English text
+usr/portage/eclass/virtualx.eclass: ASCII English text
+usr/portage/eclass/virtuoso.eclass: ASCII English text
+usr/portage/eclass/vmware-bundle.eclass: ASCII English text
+usr/portage/eclass/vmware-mod.eclass: ASCII English text
+usr/portage/eclass/vmware.eclass: ASCII English text
+usr/portage/eclass/waf-utils.eclass: UTF-8 Unicode English text
+usr/portage/eclass/webapp.eclass: ASCII English text
+usr/portage/eclass/wxwidgets.eclass: ASCII English text
+usr/portage/eclass/x-modular.eclass: ASCII English text
+usr/portage/eclass/xemacs-elisp-common.eclass: Lisp/Scheme program, UTF-8 Unicode text
+usr/portage/eclass/xemacs-elisp.eclass: ASCII English text
+usr/portage/eclass/xemacs-packages.eclass: ASCII English text
+usr/portage/eclass/xfconf.eclass: ASCII English text
+usr/portage/eclass/xorg-2.eclass: UTF-8 Unicode English text
+usr/portage/eclass/zproduct.eclass: ASCII English text
+

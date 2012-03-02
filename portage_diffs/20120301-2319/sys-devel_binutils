@@ -1,0 +1,16 @@
+===== mutual sub-directory: "sys-devel/binutils" =====
+===== mutual sub-directory: "sys-devel/binutils/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/sys-devel/binutils/binutils-2.22.52.0.1.ebuild: ASCII English text
+overlay/sys-devel/binutils/files/binutils-2.22.52.0.1-cygwin-hostglob.patch: unified diff output, ASCII text
+overlay/sys-devel/binutils/files/binutils-2.22.52.0.1-cygwin-libiberty.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/sys-devel/binutils/binutils-2.18-r04.1.ebuild: ASCII English text
+usr/portage/sys-devel/binutils/binutils-2.19.1-r01.1.ebuild: ASCII English text
+usr/portage/sys-devel/binutils/binutils-2.20.1-r1.ebuild: ASCII English text
+usr/portage/sys-devel/binutils/binutils-2.21.1-r1.ebuild: ASCII English text
+usr/portage/sys-devel/binutils/binutils-2.21.53.0.2.ebuild: ASCII English text
+usr/portage/sys-devel/binutils/binutils-2.22.ebuild: ASCII English text
+

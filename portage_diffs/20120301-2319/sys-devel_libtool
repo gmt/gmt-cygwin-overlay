@@ -1,0 +1,58 @@
+===== mutual sub-directory: "sys-devel/libtool" =====
+===== mutual sub-directory: "sys-devel/libtool/files" =====
+===== mutual sub-directory: "sys-devel/libtool/files/1.5.10" =====
+===== mutual sub-directory: "sys-devel/libtool/files/1.5.20" =====
+===== mutual sub-directory: "sys-devel/libtool/files/1.5.26" =====
+===== mutual sub-directory: "sys-devel/libtool/files/1.5.6" =====
+===== mutual sub-directory: "sys-devel/libtool/files/2.2.10" =====
+===== mutual sub-directory: "sys-devel/libtool/files/2.2.6a" =====
+===== mutual sub-directory: "sys-devel/libtool/files/2.2.6b" =====
+===== mutual sub-directory: "sys-devel/libtool/files/2.4" =====
+--("sys-devel/libtool/libtool-2.4-r4.ebuild")-->8-->
+--- usr/portage/sys-devel/libtool/libtool-2.4-r4.ebuild	2011-11-07 10:01:35.000000000 -0800
++++ overlay/sys-devel/libtool/libtool-2.4-r4.ebuild	2012-02-23 13:57:36.845015400 -0800
+@@ -55,6 +56,14 @@
+ 	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-mint.patch
+ 	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-irix.patch
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-01-cmdline-len.patch
++		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-02-manifest-gen.patch
++		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-03-gcc-flags.patch
++		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-04-fstack-protector.patch
++		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-install-sh-unc-suppression.patch
++	fi
++
+ 	# seems that libtool has to know about EPREFIX a little bit better,
+ 	# since it fails to find prefix paths to search libs from, resulting in
+ 	# some packages building static only, since libtool is fooled into
+@@ -112,9 +122,13 @@
+ }
+ 
+ pkg_preinst() {
++	# Some wierd problem here bootstrapping cygwin
++	[[ ${CHOST} != *-cygwin* ]] && \
+ 	preserve_old_lib /usr/$(get_libdir)/libltdl$(get_libname 3)
+ }
+ 
+ pkg_postinst() {
++	# Some wierd problem here bootstrapping cygwin
++	[[ ${CHOST} != *-cygwin* ]] && \
+ 	preserve_old_lib_notify /usr/$(get_libdir)/libltdl$(get_libname 3)
+ }
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-01-cmdline-len.patch: unified diff output, ASCII text
+overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-02-manifest-gen.patch: unified diff output, ASCII text
+overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-03-gcc-flags.patch: unified diff output, ASCII text
+overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-04-fstack-protector.patch: unified diff output, ASCII text
+overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-install-sh-unc-suppression.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/sys-devel/libtool/libtool-1.5.26-r1.ebuild: ASCII English text
+usr/portage/sys-devel/libtool/libtool-1.5.26.ebuild: ASCII English text
+usr/portage/sys-devel/libtool/libtool-2.4-r01.1.ebuild: ASCII English text
+usr/portage/sys-devel/libtool/libtool-2.4-r1.ebuild: ASCII English text
+usr/portage/sys-devel/libtool/libtool-2.4.2.ebuild: ASCII English text
+

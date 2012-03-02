@@ -1,0 +1,77 @@
+===== mutual sub-directory: "sys-libs/zlib" =====
+===== mutual sub-directory: "sys-libs/zlib/files" =====
+--("sys-libs/zlib/zlib-1.2.5-r2.ebuild")-->8-->
+--- usr/portage/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2012-02-04 20:17:27.386371100 -0800
++++ overlay/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2012-02-23 21:54:51.197015500 -0800
+@@ -29,8 +29,6 @@
+ 	epatch "${FILESDIR}"/${P}-fbsd_chosts.patch #316841
+ 	epatch "${FILESDIR}"/${P}-aix-soname.patch #213277
+ 
+-	[[ ${CHOST} == *-cygwin* ]] && epatch "${FILESDIR}"/${P}-cygwin.patch
+-
+ 	# also set soname and stuff on Solaris (with CHOST compensation fix as below)
+ 	sed -i -e 's:Linux\* | linux\*:Linux\* | linux\* | SunOS\* | solaris\*:' configure || die
+ 	# and compensate for our ebuild env having CHOST set
+@@ -44,6 +42,8 @@
+ #	epatch "${FILESDIR}"/${PN}-1.2.3-shlib-aix.patch
+ 	# patch breaks shared libs installation
+ 	[[ ${CHOST} == *-mint* ]] && epatch "${FILESDIR}"/${P}-static.patch
++        [[ ${CHOST} == *-cygwin* ]] && epatch "${FILESDIR}"/${P}-cygport.patch
++
+ }
+ 
+ src_compile() {
+@@ -63,6 +63,15 @@
+ 		./configure --static --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
+ 		emake || die
+ 		;;
++	*-cygwin*)
++                # AC_HAVE_MMAP fails despite a working mmap, so we force this to yes
++		# (see http://www.cygwin.com/ml/cygwin/2004-09/msg00741.html
++		# and following thread for details)
++		export ac_cv_func_mmap_fixed_mapped=yes
++		./configure --shared --prefix="${EPREFIX%/}"/usr --eprefix="${EPREFIX%/}"/usr \
++			--libdir="${EPREFIX%/}"/usr/$(get_libdir) --includedir="${EPREFIX%/}"/usr/include || die
++		emake EXTRA_CFLAGS="${EXTRA_CFLAGS}" EXTRA_LDFLAGS="${EXTRA_LDFLAGS}" || die
++		;;
+ 	*)	# not an autoconf script, so can't use econf
+ 		CC=$(tc-getCC) ./configure --shared --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
+ 		emake || die
+@@ -74,9 +83,9 @@
+ 	case ${CHOST} in
+ 	*-mingw*|mingw*)
+ 		emake -f win32/Makefile.gcc install \
+-			BINARY_PATH="${ED}/usr/bin" \
+-			LIBRARY_PATH="${ED}/usr/$(get_libdir)" \
+-			INCLUDE_PATH="${ED}/usr/include" \
++			BINARY_PATH="${ED}usr/bin" \
++			LIBRARY_PATH="${ED}usr/$(get_libdir)" \
++			INCLUDE_PATH="${ED}usr/include" \
+ 			SHARED_MODE=1 \
+ 			|| die
+ 		insinto /usr/share/pkgconfig
+@@ -95,5 +104,15 @@
+ 	if [[ ${CHOST} == *-winnt* ]]; then
+ 		into /
+ 		dolib libz$(get_libname ${PV}).dll
++
++	# cygwin: /usr/lib/cygz.dll -> /usr/bin/cygz.dll
++	elif [[ ${CHOST} == *-cygwin* ]] ; then
++		if [[ -f "${ED}"usr/lib/cygz.dll ]] ; then
++			einfo "moving \"${ED}usr/lib/cygz.dll\" to \"${ED}usr/bin/cygz.dll\""
++			mkdir -p "${ED}"usr/bin
++			mv "${ED}"usr/lib/cygz.dll  "${ED}"usr/bin/cygz.dll
++		else
++			ewarn "didn't find \"${ED}usr/lib/cygz.dll\""
++		fi
+ 	fi
+ }
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/sys-libs/zlib/files/zlib-1.2.5-cygport.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/sys-libs/zlib/files/zlib-1.2.5-cygwin.patch: unified diff output, ASCII text
+usr/portage/sys-libs/zlib/zlib-1.2.3-r01.1.ebuild: ASCII English text
+

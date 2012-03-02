@@ -1,0 +1,152 @@
+===== mutual sub-directory: "app-arch/bzip2" =====
+--("app-arch/bzip2/bzip2-1.0.6-r1.ebuild")-->8-->
+--- usr/portage/app-arch/bzip2/bzip2-1.0.6-r1.ebuild	2011-05-23 07:01:24.000000000 -0700
++++ overlay/app-arch/bzip2/bzip2-1.0.6-r1.ebuild	2012-02-21 04:01:52.583800500 -0800
+@@ -2,7 +2,9 @@
+ # Distributed under the terms of the GNU General Public License v2
+ # $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r1.ebuild,v 1.1 2010/09/23 09:19:49 vapier Exp $
+ 
+-inherit eutils multilib toolchain-funcs flag-o-matic prefix
++EAPI=2
++
++inherit eutils multilib toolchain-funcs flag-o-matic prefix autotools
+ 
+ DESCRIPTION="A high-quality data compressor used extensively by Gentoo Linux"
+ HOMEPAGE="http://www.bzip.org/"
+@@ -24,19 +26,14 @@
+ 	epatch "${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
+ 	epatch "${FILESDIR}"/${PN}-1.0.5-checkenv.patch # for AIX, Darwin?
+ 	epatch "${FILESDIR}"/${PN}-1.0.4-prefix.patch
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-1.0.6-cygport.patch
++		epatch "${FILESDIR}"/${PN}-1.0.6-cygport-autotools.patch
++	fi
+ 	eprefixify bz{diff,grep,more}
+ 	# this a makefile for Darwin, which already "includes" saneso
+ 	cp "${FILESDIR}"/${P}-Makefile-libbz2_dylib Makefile-libbz2_dylib || die
+ 
+-	# - Use right man path
+-	# - Generate symlinks instead of hardlinks
+-	# - pass custom variables to control libdir
+-	sed -i \
+-		-e 's:\$(PREFIX)/man:\$(PREFIX)/share/man:g' \
+-		-e 's:ln -s -f $(PREFIX)/bin/:ln -s :' \
+-		-e 's:$(PREFIX)/lib:$(PREFIX)/$(LIBDIR):g' \
+-		Makefile || die
+-
+ 	if [[ ${CHOST} == *-hpux* ]] ; then
+ 		sed -i -e 's,-soname,+h,' Makefile-libbz2_so || die "cannot replace -soname with +h"
+ 		if [[ ${CHOST} == hppa*-hpux* && ${CHOST} != hppa64*-hpux* ]] ; then
+@@ -46,6 +43,9 @@
+ 	elif [[ ${CHOST} == *-interix* ]] ; then
+ 		sed -i -e 's,-soname,-h,' Makefile-libbz2_so || die "cannot replace -soname with -h"
+ 		sed -i -e 's,-fpic,,' -e 's,-fPIC,,' Makefile-libbz2_so || die "cannot replace pic options"
++	elif [[ ${CHOST} == *-cygwin* ]] ; then
++		rm Makefile
++		eautoreconf
+ 	fi
+ }
+ 
+@@ -56,8 +56,27 @@
+ 		RANLIB="$(tc-getRANLIB)" \
+ 		"$@" || die
+ }
++
++src_configure() {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		econf --enable-shared
++	else
++		einfo "No configure script required, hurray!"
++	fi
++
++        # - Use right man path
++        # - Generate symlinks instead of hardlinks
++        # - pass custom variables to control libdir
++        sed -i \
++                -e 's:\$(PREFIX)/man:\$(PREFIX)/share/man:g' \
++                -e 's:ln -s -f $(PREFIX)/bin/:ln -s :' \
++                -e 's:$(PREFIX)/lib:$(PREFIX)/$(LIBDIR):g' \
++                Makefile || die
++}
++
+ src_compile() {
+ 	local checkopts=
++
+ 	case "${CHOST}" in
+ 		*-darwin*)
+ 			bemake PREFIX="${EPREFIX}"/usr -f Makefile-libbz2_dylib || die
+@@ -61,24 +80,31 @@
+ 	case "${CHOST}" in
+ 		*-darwin*)
+ 			bemake PREFIX="${EPREFIX}"/usr -f Makefile-libbz2_dylib || die
++			use static && append-flags -static
++			bemake all || die
+ 		;;
+ 		*-mint*)
+ 			# do nothing, no shared libraries
+ 			:
++			use static && append-flags -static
++			bemake all || die
++		;;
++		*-cygwin*)
++			emake || die
+ 		;;
+ 		*)
+ 			bemake -f Makefile-libbz2_so all || die
+-		;;
+-	esac
+ 	use static && append-flags -static
+ 	bemake all || die
++		;;
++	esac
+ }
+ 
+ src_install() {
+ 	make PREFIX="${D}${EPREFIX}"/usr LIBDIR="$(get_libdir)" install || die
+ 	dodoc README* CHANGES bzip2.txt manual.*
+ 
+-	if [[ $(get_libname) != ".irrelevant" ]] ; then
++	if [[ ${CHOST} != *-cygwin* && $(get_libname) != ".irrelevant" ]] ; then
+ 
+ 	# Install the shared lib manually.  We install:
+ 	#  .x.x.x - standard shared lib behavior
+@@ -99,9 +125,29 @@
+ 
+ 	# move "important" bzip2 binaries to /bin and use the shared libbz2.so
+ 	dodir /bin
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		for exe in bzip2 ; do
++			einfo "Moving \"/usr/bin/${exe}.exe\" to \"/bin/\""
++			mv "${ED}"usr/bin/${exe}.exe "${ED}"bin/
++		done
++		for exe in bunzip2 bzcat ; do
++			einfo "Replacing \"/usr/bin/${exe}.exe\" with symlink in \"/bin/\""
++			rm -v "${ED}"usr/bin/${exe}.exe
++			dosym bzip2.exe /bin/${exe}.exe
++		done
++		# replace foo symlinks with foo.exe symlinks
++		for f in /bin/{bunzip2,bzcat} ; do
++			if [[ -L "${ED}"usr${f} ]] ; then
++				einfo "fixing up symlink for \"${f}.exe\""
++				rm -v "${ED}"usr${f}
++				dosym bzip2.exe ${f}.exe
++			fi
++		done
++	else
+ 	mv "${ED}"/usr/bin/b{zip2,zcat,unzip2} "${ED}"/bin/ || die
+ 	dosym bzip2 /bin/bzcat || die
+ 	dosym bzip2 /bin/bunzip2 || die
++	fi
+ 
+ 	if [[ ${CHOST} == *-winnt* ]]; then
+ 		dolib.so libbz2$(get_libname ${PV}).dll || die "dolib shared"
+<--8<--
+===== mutual sub-directory: "app-arch/bzip2/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/app-arch/bzip2/files/bzip2-1.0.6-cygport-autotools.patch: unified diff output, ASCII text, with CRLF, LF line terminators
+overlay/app-arch/bzip2/files/bzip2-1.0.6-cygport.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/app-arch/bzip2/bzip2-1.0.5-r1.ebuild: ASCII English text
+

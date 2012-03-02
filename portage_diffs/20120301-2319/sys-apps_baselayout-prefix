@@ -1,0 +1,24 @@
+===== mutual sub-directory: "sys-apps/baselayout-prefix" =====
+--("sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild")-->8-->
+--- usr/portage/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild	2011-12-04 06:02:53.000000000 -0800
++++ overlay/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild	2012-02-11 01:56:25.396028800 -0800
+@@ -40,6 +40,8 @@
+ 	# The consoletype application in this form will only work on Linux
+ 	[[ ${CHOST} == *-linux-* ]] || epatch "${FILESDIR}"/baselayout-1.12.5-prefix-no-consoletype.patch
+ 
++	epatch "${FILESDIR}"/baselayout-1.12.14-cygwin.patch
++
+ 	cd "${S}"
+ 	eprefixify \
+ 		etc/env.d/00basic \
+<--8<--
+===== mutual sub-directory: "sys-apps/baselayout-prefix/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/sys-apps/baselayout-prefix/files/baselayout-1.12.14-cygwin.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/sys-apps/baselayout-prefix/baselayout-prefix-1.12.5-r10.ebuild: ASCII English text
+usr/portage/sys-apps/baselayout-prefix/baselayout-prefix-1.12.5-r11.ebuild: ASCII English text
+usr/portage/sys-apps/baselayout-prefix/baselayout-prefix-1.12.5-r9.ebuild: ASCII English text
+

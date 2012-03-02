@@ -1,0 +1,116 @@
+===== mutual sub-directory: "dev-lang/python" =====
+===== mutual sub-directory: "dev-lang/python/files" =====
+--("dev-lang/python/python-2.7.2-r3.ebuild")-->8-->
+--- usr/portage/dev-lang/python/python-2.7.2-r3.ebuild	2011-12-01 11:01:32.000000000 -0800
++++ overlay/dev-lang/python/python-2.7.2-r3.ebuild	2012-02-25 04:38:54.029015500 -0800
+@@ -34,7 +34,7 @@
+ SLOT="2.7"
+ PYTHON_ABI="${SLOT}"
+ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+-IUSE="aqua -berkdb build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
++IUSE="aqua -berkdb build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml -cygbootstraphack"
+ 
+ RDEPEND=">=app-admin/eselect-python-20091230
+ 		app-arch/bzip2
+@@ -53,7 +53,7 @@
+ 			) )
+ 			gdbm? ( sys-libs/gdbm )
+ 			ncurses? (
+-				>=sys-libs/ncurses-5.2
++				>=sys-libs/ncurses-5.2[unicode]
+ 				readline? ( >=sys-libs/readline-4.1 )
+ 			)
+ 			sqlite? ( >=dev-db/sqlite-3.3.8:3[extensions] )
+@@ -96,6 +96,12 @@
+ }
+ 
+ src_prepare() {
++
++	if [[ $CHOST == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-${PV}-cygwin.patch
++	fi
++	epatch "${FILESDIR}"/${PN}-2.7.2-cygwin-ctypes-error.patch
++
+ 	local excluded_patches
+ 
+ 	# Ensure that internal copies of expat, libffi and zlib are not used.
+@@ -180,6 +186,49 @@
+ 	# Linux-3 compat. Bug #374579 (upstream issue12571)
+ 	cp -r "${S}/Lib/plat-linux2" "${S}/Lib/plat-linux3" || die
+ 
++	# hacks for bootstrap
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		if use threads ; then
++			ewarn
++			ewarn "YO!  Building with threads on cygwin is all fucked up."
++			ewarn "Don't do it, or at least read ${S}/README."
++			ewarn "Ctrl-C and disable the threads USE flag."
++			ewarn
++			ebeep
++		fi
++		if use cygbootstraphack ; then
++			cd "${S}"
++			einfo "cygbootstraphack: in $(pwd)"
++			local ldpath
++			if [[ -e ${EPREFIX}/etc/env.d/05gcc-i686-pc-cygwin1.7 ]] ; then
++				ldpath="$( cat ${EPREFIX}/etc/env.d/05gcc-i686-pc-cygwin1.7 | grep ^LDPATH | sed 's/^LDPATH="//;s/"$//' )"
++				einfo "cygbootstraphack got ldpath=\"${ldpath}\""
++			else
++				die "cygbootstraphack: FIXME: ldpath needs to be set for bootstrap compiler"
++			fi
++			local ldpaths
++			ldpaths="$(echo ${ldpath} | sed 's/:/ /g')"
++			einfo "cygbootstraphack: ldpaths=\"${ldpaths}\""
++			local ldflags=" "
++			local crtpath=""
++			for ldpathelt in ${ldpaths} ; do
++				ldflags="${ldflags} -L${ldpathelt}"
++				if [[ -e ${ldpathelt}/crtbegin.o && -e ${ldpathelt}/crtend.o ]] ; then
++					crtpath="${ldpathelt}"			
++				fi
++			done
++			ewarn "Shoving LDFLAGS+=\"${ldflags}\" down throat."
++			sed -i -e 's!^\(LDFLAGS=.*\)$!\1 '"${ldflags}"'!' Makefile.pre.in
++			ewarn "result: $(grep '^LDFLAGS=' Makefile.pre.in)"
++			if [[ -n "${crtpath}" ]] ; then
++				ewarn "stealing crtbegin.o and crtend.o from ${crtpath}"
++				cp -v "${crtpath}/crtbegin.o" "${crtpath}/crtend.o" .
++			else
++				ewarn "couldn't figure out a suitable crtpath!"
++			fi
++		fi
++	fi
++
+ 	eautoreconf
+ }
+ 
+@@ -301,11 +350,17 @@
+ 		&& myconf="${myconf} --enable-framework=${EPREFIX}/usr/lib" \
+ 		|| myconf="${myconf} --enable-shared"
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		fpeconfig="--without-fpectl"
++	else
++		fpeconfig="--with-fpectl"
++	fi
++
+ 	# note: for a framework build we need to use ucs2 because OSX
+ 	# uses that internally too:
+ 	# http://bugs.python.org/issue763708
+ 	OPT="" econf \
+-		--with-fpectl \
++		${fpeconfig} \
+ 		$(use_enable ipv6) \
+ 		$(use_with threads) \
+ 		$( (use wide-unicode && use !aqua) && echo "--enable-unicode=ucs4" || echo "--enable-unicode=ucs2") \
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/dev-lang/python/files/python-2.7.2-cygwin-ctypes-error.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygwin.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/dev-lang/python/python-2.7.1-r1.ebuild: ASCII English text
+usr/portage/dev-lang/python/python-2.7.1-r2.ebuild: ASCII English text
+usr/portage/dev-lang/python/python-2.7.2.ebuild: ASCII English text
+

@@ -1,0 +1,72 @@
+===== mutual sub-directory: "sys-libs/readline" =====
+===== mutual sub-directory: "sys-libs/readline/files" =====
+--("sys-libs/readline/readline-6.2_p1.ebuild")-->8-->
+--- usr/portage/sys-libs/readline/readline-6.2_p1.ebuild	2011-07-12 09:31:32.000000000 -0700
++++ overlay/sys-libs/readline/readline-6.2_p1.ebuild	2012-02-10 15:58:19.621028800 -0800
+@@ -63,6 +63,10 @@
+ 	epatch "${FILESDIR}"/${PN}-6.1-aix-expfull.patch
+ 	epatch "${FILESDIR}"/${PN}-6.1-aix-soname.patch
+ 
++	if [[ $CHOST == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-6.2-cygport.patch
++	fi
++
+ 	# force ncurses linking #71420
+ 	sed -i -e 's:^SHLIB_LIBS=:SHLIB_LIBS=-lncurses:' support/shobj-conf || die "sed"
+ 
+@@ -85,7 +89,8 @@
+ 	econf --with-curses || die
+ 	emake || die
+ 
+-	if ! tc-is-cross-compiler ; then
++#	if ! tc-is-cross-compiler ; then
++	if /bin/false ; then
+ 		# code is full of AC_TRY_RUN()
+ 		cd examples/rlfe
+ 		append-ldflags -L.
+@@ -103,9 +108,9 @@
+ 	emake DESTDIR="${D}" install || die
+ 	gen_usr_ldscript -a readline history #4411
+ 
+-	if ! tc-is-cross-compiler; then
+-		dobin examples/rlfe/rlfe || die
+-	fi
++#	if ! tc-is-cross-compiler; then
++#		dobin examples/rlfe/rlfe || die
++#	fi
+ 
+ 	dodoc CHANGELOG CHANGES README USAGE NEWS
+ 	docinto ps
+@@ -113,12 +118,12 @@
+ 	dohtml -r doc
+ }
+ 
+-pkg_preinst() {
+-	preserve_old_lib /$(get_libdir)/lib{history,readline}$(get_libname 4) #29865
+-	preserve_old_lib /$(get_libdir)/lib{history,readline}$(get_libname 5) #29865
+-}
+-
+-pkg_postinst() {
+-	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 4)
+-	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 5)
+-}
++# pkg_preinst() {
++#	preserve_old_lib /$(get_libdir)/lib{history,readline}$(get_libname 4) #29865
++#	preserve_old_lib /$(get_libdir)/lib{history,readline}$(get_libname 5) #29865
++#}
++
++#pkg_postinst() {
++#	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 4)
++#	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 5)
++#}
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/sys-libs/readline/files/readline-6.2-cygport.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/sys-libs/readline/ChangeLog: UTF-8 Unicode English text
+usr/portage/sys-libs/readline/metadata.xml: XML document text
+usr/portage/sys-libs/readline/readline-5.2_p14.ebuild: ASCII English text
+usr/portage/sys-libs/readline/readline-6.1_p2.ebuild: ASCII English text
+

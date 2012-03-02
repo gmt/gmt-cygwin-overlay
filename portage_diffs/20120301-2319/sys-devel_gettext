@@ -1,0 +1,105 @@
+===== mutual sub-directory: "sys-devel/gettext" =====
+===== mutual sub-directory: "sys-devel/gettext/files" =====
+--("sys-devel/gettext/gettext-0.18.1.1-r2.ebuild")-->8-->
+--- usr/portage/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild	2011-07-28 11:01:31.000000000 -0700
++++ overlay/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild	2012-02-23 16:45:18.637015400 -0800
+@@ -48,7 +48,63 @@
+ 	fi
+ 
+ 	epunt_cxx
++
++
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-00-reloc.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-01-reloc.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-02-locale.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-03-locale-tests.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-woe-is-us.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygwin1.7-hostglob.patch
++
++		einfo running elibtoolize --force in .
++		elibtoolize --force || die
++
++		einfo doing autogen stuff for ./gettext-runtime/libasprintf
++		cd "${S}"/gettext-runtime/libasprintf || die
++		einfo Running fixaclocal
++		../../build-aux/fixaclocal aclocal -I ../../m4 -I ../m4 -I gnulib-m4 || die
++		eautoconf || die
++		eautoheader || die
++		eautomake || die
++
++		einfo doing autogen stuff for ./gettext-runtime
++		cd "${S}"/gettext-runtime || die
++		einfo Running fixaclocal
++		../build-aux/fixaclocal aclocal -I m4 -I ../m4 -I gnulib-m4 || die
++		eautoconf || die
++		eautoheader || die
++		touch config.h.in
++		eautomake || die
++
++		einfo doing autogen stuff for ./gettext-tools/examples
++		cd "${S}"/gettext-tools/examples || die
++		eautoconf || die
++		eautomake || die
++		
++		einfo doing autogen stuff for ./gettext-tools
++		cd "${S}"/gettext-tools || die
++		einfo Running fixaclocal
++		../build-aux/fixaclocal aclocal -I m4 -I ../gettext-runtime/m4 -I ../m4 \
++                	-I gnulib-m4 -I libgrep/gnulib-m4 -I libgettextpo/gnulib-m4 || die
++		eautoconf || die
++		eautoheader || die
++		touch config.h.in
++		test -d intl || mkdir intl
++		eautomake || die
++
++		einfo doing autogenstuff for .
++		cd "${S}" || die
++		cp -pv gettext-runtime/ABOUT-NLS gettext-tools/ABOUT-NLS
++		einfo Running fixaclocal
++		build-aux/fixaclocal aclocal -I m4 || die
++		eautoconf || die
++		eautomake || die
++	else
+ 	elibtoolize
++	fi
+ }
+ 
+ src_configure() {
+@@ -61,6 +117,14 @@
+ 	fi
+ 	use nocxx && export CXX=$(tc-getCC)
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++#		append-cppflags -I/usr/include/ncursesw
++#		append-ldflags -L/usr/lib/ncursesw
++		filter-ldflags -Wl,--disable-auto-import
++		econf="${econf} --enable-shared --enable-static --enable-silent-rules"
++		econf="${econf} --with-included-gettext --with-included-libxml --disable-native-java"
++	fi
++
+ 	# --without-emacs: Emacs support is now in a separate package
+ 	# --with-included-glib: glib depends on us so avoid circular deps
+ 	# --with-included-libcroco: libcroco depends on glib which ... ^^^
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/sys-devel/gettext/.swp: Vim swap file, version 7.3
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-00-reloc.patch: unified diff output, ASCII text
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-01-reloc.patch: unified diff output, ASCII text
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-02-locale.patch: unified diff output, ASCII text
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-03-locale-tests.patch: unified diff output, ASCII text
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport.patch: unified diff output, ASCII text
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygwin1.7-hostglob.patch: unified diff output, ASCII text
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-woe-is-us.patch: unified diff output, ASCII text
+overlay/sys-devel/gettext/files/old: unified diff output, ASCII text
+overlay/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild.old: ASCII English text
+overlay/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild.orig: ASCII English text
+
+*** The following files appear only in portage ***
+usr/portage/sys-devel/gettext/gettext-0.16.1-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gettext/gettext-0.17-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gettext/gettext-0.18.1.1-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gettext/gettext-0.18.1.1.ebuild: ASCII English text
+

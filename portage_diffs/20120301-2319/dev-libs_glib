@@ -1,0 +1,59 @@
+===== mutual sub-directory: "dev-libs/glib" =====
+===== mutual sub-directory: "dev-libs/glib/files" =====
+--("dev-libs/glib/glib-2.30.2.ebuild")-->8-->
+--- usr/portage/dev-libs/glib/glib-2.30.2.ebuild	2011-11-27 12:01:32.000000000 -0800
++++ overlay/dev-libs/glib/glib-2.30.2.ebuild	2012-02-24 02:27:52.545516900 -0800
+@@ -78,6 +78,13 @@
+ 	# Fix test failure when upgrading from 2.22 to 2.24, upstream bug 621368
+ 	epatch "${FILESDIR}/${PN}-2.24-assert-test-failure.patch"
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
++		# Fixes link failure against libffi under cygwin -- a candidate for
++		# all-chost application imo ... but why wasn't it done this way to begin with?
++		# epatch "${FILESDIR}"/${PN}-${PV}-libffi-ldflags.patch
++	fi
++
+ 	# Do not try to remove files on live filesystem, upstream bug #619274
+ 	sed 's:^\(.*"/desktop-app-info/delete".*\):/*\1*/:' \
+ 		-i "${S}"/gio/tests/desktop-app-info.c || die "sed failed"
+@@ -167,9 +174,15 @@
+ 			export DBUS1_CFLAGS="-I${EPREFIX}/usr/include/dbus-1.0 -I${EPREFIX}/usr/$(get_libdir)/dbus-1.0/include"
+ 			export DBUS1_LIBS="-ldbus-1"
+ 		fi
++		die fixme
++		local libffi_libdir="${EPREFIX}/usr/$(get_libdir)"
+ 		export LIBFFI_CFLAGS="-I$(echo "${EPREFIX}"/usr/$(get_libdir)/libffi-*/include)"
++		if [[ -f "${libffi_libdir}"/libffi.la ]] ; then
++			export LIBFFI_LIBADD="${libffi_libdir}/libffi.la"
++		else
+ 		export LIBFFI_LIBS="-lffi"
+ 	fi
++	fi
+ 
+ 	local myconf
+ 
+@@ -196,6 +209,13 @@
+ 	local mythreads=posix
+ 	[[ ${CHOST} == *-winnt* ]] && mythreads=win32
+ 
++	[[ ${CHOST} == *-cygwin* ]] && {
++		export ac_cv_header_winsock2_h=no
++		export ac_cv_header_mswsock_h=no
++		mythreads=posix
++		myconf="${myconf} --enable-static --disable-visibility"
++	}
++
+ 	# without this, AIX defines EEXIST and ENOTEMPTY to the same value
+ 	[[ ${CHOST} == *-aix* ]] && append-cppflags -D_LINUX_SOURCE_COMPAT
+ 
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/dev-libs/glib/files/glib-2.30.2-cygport.patch: unified diff output, ASCII text
+overlay/dev-libs/glib/files/glib-2.30.2-libffi-ldflags.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/dev-libs/glib/glib-1.2.10-r5.ebuild: ASCII English text
+usr/portage/dev-libs/glib/glib-2.30.1-r2.ebuild: ASCII English text
+

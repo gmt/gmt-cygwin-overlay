@@ -1,0 +1,72 @@
+===== mutual sub-directory: "app-shells/bash" =====
+--("app-shells/bash/bash-4.2_p10.ebuild")-->8-->
+--- usr/portage/app-shells/bash/bash-4.2_p10.ebuild	2011-06-20 10:01:30.000000000 -0700
++++ overlay/app-shells/bash/bash-4.2_p10.ebuild	2012-02-23 19:44:55.542872800 -0800
+@@ -39,7 +39,7 @@
+ SLOT="0"
+ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+ 
+-IUSE="afs bashlogger examples mem-scramble +net nls plugins vanilla"
++IUSE="afs bashlogger examples mem-scramble +net nls plugins vanilla +readline"
+ 
+ DEPEND=">=sys-libs/ncurses-5.2-r2
+ 	nls? ( virtual/libintl )"
+@@ -82,6 +82,11 @@
+ 		epatch "${FILESDIR}"/${PN}-4.0-interix-x64.patch
+ 	fi
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-4.1-cygport-src.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-cache.patch
++	fi
++
+ 	# Nasty trick to set bashbug's shebang to bash instead of sh. We don't have
+ 	# sh while bootstrapping for the first time, This works around bug 309825
+ 	sed -i -e '1s:sh:bash:' support/bashbug.sh || die
+@@ -97,6 +102,10 @@
+ 	# INSTEAD!!!
+ }
+ 
++src_configure() {
++	return 0
++}
++
+ src_compile() {
+ 	local myconf=
+ 
+@@ -142,11 +151,20 @@
+ 		#export ac_cv_lib_ncurses_tgetent=no
+ 	fi
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		myconf="${myconf} --without-libintl-prefix --without-libiconv-prefix"
++		myconf="${myconf} bash_cv_dev_stdin=present bash_cv_dev_fd=standard"
++		export DEBUGGER_START_FILE=/usr/share/bashdb/bashdb-main.inc
++	fi
++
+ 	# Always use the buildin readline, else if we update readline
+ 	# bash gets borked as readline is usually not binary compadible
+ 	# between minor versions.
+-	#myconf="${myconf} $(use_with !readline installed-readline)"
+-	myconf="${myconf} --without-installed-readline"
++
++	# just kidding, go ahead and use it (otherwise we get libiconv problems)
++
++	myconf="${myconf} $(use_with readline installed-readline)"
++	# myconf="${myconf} --without-installed-readline"
+ 
+ 	# Don't even think about building this statically without
+ 	# reading Bug 7714 first.  If you still build it statically,
+<--8<--
+===== mutual sub-directory: "app-shells/bash/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/app-shells/bash/files/bash-4.1-cygport-src.patch: unified diff output, ASCII text
+overlay/app-shells/bash/files/bash-4.2_p10-cygwin-cache.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/app-shells/bash/bash-4.0_p38.ebuild: ASCII English text
+usr/portage/app-shells/bash/bash-4.1_p10.ebuild: ASCII English text
+usr/portage/app-shells/bash/bash-4.1_p11.ebuild: ASCII English text
+usr/portage/app-shells/bash/bash-4.1_p7.ebuild: ASCII English text
+

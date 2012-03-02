@@ -1,0 +1,34 @@
+===== mutual sub-directory: "dev-libs/apr" =====
+--("dev-libs/apr/apr-1.4.5.ebuild")-->8-->
+--- usr/portage/dev-libs/apr/apr-1.4.5.ebuild	2011-09-03 07:31:31.000000000 -0700
++++ overlay/dev-libs/apr/apr-1.4.5.ebuild	2012-02-11 15:07:12.928674100 -0800
+@@ -27,6 +27,11 @@
+ src_prepare() {
+ 	epatch "${FILESDIR}"/${PN}-1.2.11-mint.patch
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-misc.patch
++	fi
++
+ 	# Ensure that system libtool is used.
+ 	local g=
+ 	[[ ${CHOST} == *-darwin* ]] && g=g
+@@ -80,6 +85,10 @@
+ 		esac
+ 	fi
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		myconf="${myconf} ac_cv_header_windows_h=no ac_cv_header_winsock2=no ac_cv_define_TCP_NOPUSH=no"
++	fi
++
+ 	if ! use uuid; then
+ 		local apr_cv_osuuid
+ 		export apr_cv_osuuid="no"
+<--8<--
+===== mutual sub-directory: "dev-libs/apr/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/dev-libs/apr/files/apr-1.4.5-cygport-misc.patch: unified diff output, ASCII text
+overlay/dev-libs/apr/files/apr-1.4.5-cygport.patch: unified diff output, ASCII text, with very long lines
+

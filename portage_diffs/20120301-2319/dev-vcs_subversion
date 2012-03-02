@@ -1,0 +1,75 @@
+===== mutual sub-directory: "dev-vcs/subversion" =====
+===== mutual sub-directory: "dev-vcs/subversion/files" =====
+--("dev-vcs/subversion/subversion-1.7.1.ebuild")-->8-->
+--- usr/portage/dev-vcs/subversion/subversion-1.7.1.ebuild	2011-11-30 06:33:09.000000000 -0800
++++ overlay/dev-vcs/subversion/subversion-1.7.1.ebuild	2012-02-13 07:28:02.236930700 -0800
+@@ -124,6 +124,15 @@
+ 	sed -i -e '1c\#!/usr/bin/env sh' build/transform_libtool_scripts.sh || \
+ 		die "/bin/sh is not POSIX shell!"
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-${PV}-cygwin.patch
++		sed -i -e 's<_xxx_EPREFIX_xxx_<'"${EPREFIX}"'<' subversion/tests/cmdline/svnlook_tests.py
++		use perl && {
++			perl_set_version
++			sed -i -e 's<_xxx_PERLCORE_xxx_<'"${ARCH_LIB}/CORE"'<' build.conf
++		}
++	fi
++
+ 	eautoconf
+ 	elibtoolize
+ 
+@@ -149,6 +158,8 @@
+ 		myconf+=" --disable-nls"
+ 	fi
+ 
++	local preloadingconf="--enable-local-library-preloading"
++
+ 	case ${CHOST} in
+ 		*-solaris*)
+ 			# -lintl isn't added for some reason (makes Neon check fail)
+@@ -158,9 +169,9 @@
+ 			# avoid recording immediate path to sharedlibs into executables
+ 			append-ldflags -Wl,-bnoipath
+ 		;;
+-		*-interix*)
++		*-interix*|*-cygwin*)
+ 			# loader crashes on the LD_PRELOADs...
+-			myconf="${myconf} --disable-local-library-preloading"
++			preloadingconf="--disable-local-library-preloading"
+ 		;;
+ 	esac
+ 
+@@ -181,7 +192,7 @@
+ 		--with-apr-util="${EPREFIX}/usr/bin/apu-1-config" \
+ 		--disable-experimental-libtool \
+ 		--without-jikes \
+-		--enable-local-library-preloading \
++		${preloadingconf} \
+ 		--disable-mod-activation \
+ 		--disable-neon-version-check \
+ 		--disable-static \
+@@ -189,6 +200,11 @@
+ }
+ 
+ src_compile() {
++	[[ ${CHOST} == *-cygwin* ]] && ( use python | use perl | use ruby ) && {
++		emake -j1 extraclean-swig
++		emake -j1 autogen-swig
++	}
++
+ 	emake local-all || die "Building of core of Subversion failed"
+ 
+ 	if use ctypes-python; then
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/dev-vcs/subversion/files/subversion-1.7.1-cygwin-testing123.patch: unified diff output, ASCII text
+overlay/dev-vcs/subversion/files/subversion-1.7.1-cygwin.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/dev-vcs/subversion/subversion-1.6.17-r6.ebuild: ASCII English text
+usr/portage/dev-vcs/subversion/subversion-1.6.17-r7.ebuild: ASCII English text
+usr/portage/dev-vcs/subversion/subversion-1.6.17.ebuild: ASCII English text
+usr/portage/dev-vcs/subversion/subversion-1.7.0.ebuild: ASCII English text
+

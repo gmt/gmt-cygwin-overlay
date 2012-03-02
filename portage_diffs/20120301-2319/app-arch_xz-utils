@@ -1,0 +1,20 @@
+===== mutual sub-directory: "app-arch/xz-utils" =====
+===== mutual sub-directory: "app-arch/xz-utils/files" =====
+--("app-arch/xz-utils/xz-utils-5.0.0.ebuild")-->8-->
+--- usr/portage/app-arch/xz-utils/xz-utils-5.0.0.ebuild	2011-01-26 02:31:31.000000000 -0800
++++ overlay/app-arch/xz-utils/xz-utils-5.0.0.ebuild	2012-02-18 19:12:46.571762200 -0800
+@@ -61,6 +61,9 @@
+ 		export gl_cv_cc_visibility=no
+ 	fi
+ 
++	[[ ${CHOST} == *-cygwin* ]] &&  \
++		myconf="${myconf} --disable-rpath"
++
+ 	econf \
+ 		${myconf} \
+ 		$(use_enable nls) \
+<--8<--
+
+*** The following files appear only in portage ***
+usr/portage/app-arch/xz-utils/xz-utils-4.999.9_beta-r00.1.ebuild: ASCII English text
+

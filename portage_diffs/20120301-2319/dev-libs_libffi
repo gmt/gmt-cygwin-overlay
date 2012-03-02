@@ -1,0 +1,42 @@
+===== mutual sub-directory: "dev-libs/libffi" =====
+===== mutual sub-directory: "dev-libs/libffi/files" =====
+--("dev-libs/libffi/libffi-3.0.10.ebuild")-->8-->
+--- usr/portage/dev-libs/libffi/libffi-3.0.10.ebuild	2011-11-09 08:33:02.000000000 -0800
++++ overlay/dev-libs/libffi/libffi-3.0.10.ebuild	2012-02-21 17:13:22.150710700 -0800
+@@ -6,7 +6,7 @@
+ 
+ MY_P=${P/_}
+ 
+-inherit libtool toolchain-funcs eutils
++inherit libtool toolchain-funcs eutils autotools
+ 
+ DESCRIPTION="a portable, high level programming interface to various calling conventions."
+ HOMEPAGE="http://sourceware.org/libffi/"
+@@ -32,7 +32,17 @@
+ 	fi
+ }
+ 
++# work around bug(?) in eautoreconf which causes i.e.:
++# eval x="$(ACLOCAL_AMFLAGS) y"
++ACLOCAL_AMFLAGS() {
++	return 0
++}
++
+ src_prepare() {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-3.0.8-cygport-no-undefined.patch
++		eautoreconf
++	fi
+ 	elibtoolize
+ }
+ 
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/dev-libs/libffi/files/libffi-3.0.8-cygport-no-undefined.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/dev-libs/libffi/libffi-3.0.11_rc1.ebuild: ASCII English text
+usr/portage/dev-libs/libffi/libffi-3.0.11_rc2.ebuild: ASCII English text
+usr/portage/dev-libs/libffi/libffi-3.0.9-r2.ebuild: ASCII English text
+

@@ -1,0 +1,32 @@
+===== mutual sub-directory: "dev-libs/mpc" =====
+--("dev-libs/mpc/mpc-0.9-r1.ebuild")-->8-->
+--- usr/portage/dev-libs/mpc/mpc-0.9-r1.ebuild	2011-12-01 09:02:57.000000000 -0800
++++ overlay/dev-libs/mpc/mpc-0.9-r1.ebuild	2012-02-16 13:51:07.400669400 -0800
+@@ -5,7 +5,7 @@
+ # Unconditional dependency of gcc.  Keep this set to 0.
+ EAPI="0"
+ 
+-inherit eutils libtool
++inherit eutils libtool flag-o-matic
+ 
+ DESCRIPTION="A library for multiprecision complex arithmetic with exact rounding."
+ HOMEPAGE="http://mpc.multiprecision.org/"
+@@ -30,7 +30,12 @@
+ }
+ 
+ src_compile() {
++	if [[ ${CFLAGS} == *-cygwin* ]] ; then
++		use static-libs && die static-libs not supported on cygwin
++		econf --disable-static --enable-shared
++	else
+ 	econf $(use_enable static-libs static) || die
++	fi
+ 	emake || die
+ }
+ 
+<--8<--
+
+*** The following files appear only in portage ***
+usr/portage/dev-libs/mpc/mpc-0.8.2.ebuild: ASCII English text
+usr/portage/dev-libs/mpc/mpc-0.9.ebuild: ASCII English text
+

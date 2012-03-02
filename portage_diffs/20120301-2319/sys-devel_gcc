@@ -1,0 +1,183 @@
+===== mutual sub-directory: "sys-devel/gcc" =====
+===== mutual sub-directory: "sys-devel/gcc/files" =====
+===== mutual sub-directory: "sys-devel/gcc/files/3.3.4" =====
+===== mutual sub-directory: "sys-devel/gcc/files/3.3.6" =====
+===== mutual sub-directory: "sys-devel/gcc/files/3.4.3" =====
+===== mutual sub-directory: "sys-devel/gcc/files/3.4.4" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.0.2" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.1.0" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.2.2" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.3.0" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.3.2" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.3.3" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.4.0" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.4.1" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.4.4" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.5.1" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.5.2" =====
+===== mutual sub-directory: "sys-devel/gcc/files/awk" =====
+===== mutual sub-directory: "sys-devel/gcc/files/stubs" =====
+--("sys-devel/gcc/gcc-4.5.3-r1.ebuild")-->8-->
+--- usr/portage/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2011-11-30 11:01:33.000000000 -0800
++++ overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2012-02-24 16:23:17.608515500 -0800
+@@ -71,6 +71,37 @@
+ 	PDEPEND="${PDEPEND} !prefix? ( elibc_glibc? ( >=sys-libs/glibc-2.8 ) )"
+ fi
+ 
++# hack: we hook into exclude_gcc_patches because it gives us the opportunity
++# to get our patches in before toolchain.eclass does its own patching.
++# The reason we want to do that is so that toolchain's configure patches
++# go in after our patches to configure (manually rebuilt with cygwin's
++# autotools)
++exclude_gcc_patches() {
++	# <cygwin hacks>
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		pushd "${S}" || die
++                epatch "${FILESDIR}"/gcc-4.5-cygwin-ada.patch
++                epatch "${FILESDIR}"/gcc-4.5-cygwin-ehdebug.patch
++                epatch "${FILESDIR}"/gcc-4.5.3-cygport.patch
++		epatch "${FILESDIR}"/gcc-4.5.3-cygwin-libffi-config.patch
++		epatch "${FILESDIR}"/gcc-4.5.3-should-be-cygwin-star-ldo.patch
++		popd
++	fi
++	# </cygwin hacks>
++
++	# <"inherited" implementation>
++	local i
++	for i in ${GENTOO_PATCH_EXCLUDE} ; do
++		if [[ -f ${WORKDIR}/patch/${i} ]] ; then
++			einfo "Excluding patch ${i}"
++			rm -f "${WORKDIR}"/patch/${i} || die "failed to delete ${i}"
++		fi
++	done
++
++	use vanilla && return 0
++	# </ "inherited" implementation>
++}
++
+ src_unpack() {
+ 	toolchain_src_unpack
+ 	use vanilla && return 0
+@@ -107,7 +138,10 @@
+ 	epatch "${FILESDIR}"/4.5.1/aix-force-pthread.patch
+ 	epatch "${FILESDIR}"/4.5.1/ia64-hpux-always-pthread.patch
+ 
+-	epatch "${FILESDIR}"/gcj-4.3.1-iconvlink.patch
++	# http://gcc.gnu.org/ml/gcc-patches/2011-01/msg02172.html
++	# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21206
++	epatch "${FILESDIR}"/gcj-4.6.0-iconvlink.patch
++
+ 	epatch "${FILESDIR}"/4.5.2/solaris-pthread.patch
+ 
+ 	# libgcc's Makefiles reuses $T, work around that :(
+@@ -115,6 +149,11 @@
+ 	[[ ${CHOST} == *86-*-solaris* ]] && \
+ 		epatch "${FILESDIR}"/4.4.4/${PN}-4.4.4-T-namespace.patch
+ 
++	# libgcj fails to link during bootstrap on win32 platfoms due to unresolved
++	# import symbols GC_{un,}register_my_thread -- they are #ifdef'd to oblivion
++	# in boehm-gc/pthread_support.c.  Hopefully this is the right fix.
++	epatch "${FILESDIR}"/${PN}-4.5.3-fix-GC_WIN32_THREADS-boehm_gc-bootstrap.patch
++
+ 	sed -i 's/use_fixproto=yes/:/' gcc/config.gcc #PR33200
+ 
+ 	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
+@@ -131,6 +170,26 @@
+ 	fi
+ }
+ 
++# Remove occurrences of strings from variable given in $1
++# Strings removed are matched as globs, so for example
++# '-O*' would remove -O1, -O2 etc.
++my_filter_var() {
++        local f x VAR VAL
++        declare -a new
++
++        VAR=$1
++        shift
++        eval VAL=\${${VAR}}
++        for f in ${VAL}; do
++                for x in "$@"; do
++                        # Note this should work with globs like -O*
++                        [[ ${f} == ${x} ]] && continue 2
++                done
++                eval new\[\${\#new\[@]}]=\${f}
++        done
++        eval export ${VAR}=\${new\[*]}
++}
++
+ src_compile() {
+ 	case ${CTARGET}:" ${USE} " in
+ 		powerpc*-darwin*)
+@@ -166,6 +225,23 @@
+ 				export gcc_cv_as_lcomm_with_alignment=no
+ 			fi
+ 		;;
++		*-cygwin*)
++			EXTRA_ECONF="${EXTRA_ECONF} --disable-sjlj-exceptions"
++			EXTRA_ECONF="${EXTRA_ECONF} --enable-version-specific-runtime-libs"
++			EXTRA_ECONF="${EXTRA_ECONF} --enable-shared-libgcc"
++			EXTRA_ECONF="${EXTRA_ECONF} --disable-__cxa_atexit"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-gnu-ld"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-gnu-as"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-dwarf2"
++			EXTRA_ECONF="${EXTRA_ECONF} --disable-symvers"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-gmp=${EPREFIX}/usr"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-mpfr=${EPREFIX}/usr"
++			EXTRA_ECONF="${EXTRA_ECONF} --enable-static"
++			use gcj && EXTRA_ECONF="${EXTRA_ECONF} --enable-libgcj-sublibs"
++			# reportedly problematic (cant reproduce however)
++			# my_filter_var MAKEOPTS '-j*'
++			# MAKEOPTS="${MAKEOPTS} -j1"
++			;;
+ 		i[34567]86-*-linux*:*" prefix "*)
+ 			# to allow the linux-x86-on-amd64.patch become useful, we need
+ 			# to enable multilib, even if there is just one multilib option.
+@@ -219,7 +295,7 @@
+ 	# Maybe there is a better location for doing this ...? Feel free to move
+ 	# it there if you want to.
+ 
+-	cat > "${T}"/00-gcc-paths.sh <<- _EOF
++	cat > "${T%/}"/00-gcc-paths.sh <<- _EOF
+ 		#!/bin/env bash
+ 		# GCC specific variables
+ 		unset GCC_SPECS GCC_EXEC_PREFIX
+@@ -230,7 +306,7 @@
+ 	_EOF
+ 
+ 	insinto /etc/profile.d
+-	doins "${T}"/00-gcc-paths.sh
++	doins "${T%/}"/00-gcc-paths.sh
+ 
+ }
+ 
+<--8<--
+
+*** The following files appear only in the overlay ***
+overlay/sys-devel/gcc/delme.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcc-4.5-cygwin-ada.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcc-4.5-cygwin-ehdebug.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcc-4.5.3-cygport.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcc-4.5.3-cygwin-libffi-config.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcc-4.5.3-fix-GC_WIN32_THREADS-boehm_gc-bootstrap.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcc-4.5.3-hardpaths.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcc-4.5.3-should-be-cygwin-star-ldo.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcc-4.6.0-iconvlink.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/files/gcj-4.6.0-iconvlink.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak000: ASCII English text
+overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak001: ASCII English text
+overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak002: ASCII English text
+
+*** The following files appear only in portage ***
+usr/portage/sys-devel/gcc/files/gcj-4.2.4-iconvlink.patch: unified diff output, ASCII text
+usr/portage/sys-devel/gcc/files/gcj-4.3.1-iconvlink.patch: unified diff output, ASCII text
+usr/portage/sys-devel/gcc/gcc-3.3.6-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-3.4.6-r2.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-4.1.2.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-4.2.4-r01.4.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-4.3.6-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-4.4.6-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-4.5.1-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-4.5.2-r00.1.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-4.6.1-r1.ebuild: ASCII English text
+
