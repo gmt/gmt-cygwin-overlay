@@ -227,6 +227,18 @@ compare_regular_file() {
 		return 0
 	elif [[ "${ovl_is_binary}" == "yes" ]] ; then
 		echo "Binary files differ: \"${file}\"" >> "${gendiffs_outfile}"
+	else
+		# we have two non-binary files that differ -- time to diff them
+		# but first ... are they patch files?
+		if echo "$file" | egrep "\.(patch|diff)$" > /dev/null ; then
+			echo "WARNING: ${file}: differing patch files considered harmful!" | tee -a "${gendiffs_outfile}"
+		fi
+		echo "--(\"${file}\")-->8-->" >> "${gendiffs_outfile}"
+		(
+			cd "$gendiffs_eprefix" || { echo "Couldn't cd to \"${gendiffs_eprefix}\"" >&2 ; exit 1 ; }
+			diff -U 3 -w -B "${gendiffs_portage_tree}/${file}" "${gendiffs_overlay}/${file}"
+		) >> "${gendiffs_outfile}"
+		echo "<--8<--" >> "${gendiffs_outfile}"
 	fi
 	return 0
 }
