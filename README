@@ -1,30 +1,33 @@
-This is the gmt cygwin gentoo-prefix overlay.  It will be, I hope, a /temporary/ resting
-place for various patches that are on their way to various upstream projects, but which,
-in the meanwhile, are useful or necessary for getting a working Cygwin Gentoo Prefix install
-up and running.
+This is the gmt cygwin gentoo-prefix overlay.  It will be, I hope, a /temporary/
+resting place for various patches that are on their way to various upstream
+projects, but which, in the meanwhile, are useful or necessary for getting a
+working Cygwin Gentoo Prefix install up and running.
 
-Until then, this overlay will (try, at least, to) allow you to get up and running with
-a Gentoo Prefix installation which works under the cygwin POSIX compatibility layer
-(see http://cygwin.com/ for more info).
+Until then, this overlay will (try, at least, to) allow you to get up and running
+with a Gentoo Prefix installation which works under the cygwin POSIX
+compatibility library (see http://cygwin.com/ for more info).
 
 LICENSE(S)
 ==========
 
-Most of the code here was stolen from various other projects.  I have tried to make it
-clear where those sources are, but, to be honest, I have probably not been as clear as
-I could have been.  Where I have written my own code I'd like to license it in as practical
-a manner as possible, first, and secondly, as permissive a manner as possible.
+Most of the code here was stolen from various other projects.  I have tried to
+make it clear where those sources are, but, to be honest, I have probably not been
+as clear as I could have been.  Where I have written my own code I'd like to
+license it in as practical a manner as possible, first, and secondly, as permissive
+a manner as possible.
 
-So, please treat the portage additions such as the code in the ebuilds and profile.bashrc
-as GPL-2, but please treat any other code I have written and published here (especially,
-the gendiffs script), as MIT/X11.
+Please treat the original portage additions such as the code in the ebuilds and
+(the novel bits of) profile.bashrc as GPL-2, but please treat any other code I have
+written and published here (especially, the gendiffs script), as MIT/X11.
 
-By the above, however, I mean /original/ code (obviously), not stuff that is cloned from
-other repositories -- and please bear in mind that I'm placing the burden of determining
-which code is original on YOU -- because I have NOT labelled it all clearly.  In fact,
-a lot of this is implicit -- ebuilds are silently copied from portage, and patches are
-silently imported from the cygwin ports project (usually with some kind of attribution-via-
-filename).
+By the above, however, I mean /original/ code (obviously), not stuff that is cloned
+from other repositories -- and please bear in mind that I'm placing the burden of
+determining which code is original on YOU -- because I have NOT clearly labelled it
+all.  A lot of this is implicit, and if you are familiar with the various upstream
+projects I'm borrowing from, you should have no trouble figuring out what comes
+from where.  Ebuilds, of course, are copied from portage.  Patches labelled as
+"cygport" are imported from the Cygwin Ports project; in all cases, purloined code
+inherits the upstream license policy.
 
 Enough about that.
 
@@ -32,33 +35,41 @@ Enough about that.
 Expertise Required
 ==================
 
-Uh, see below.  But first please understand that, for the time being, this code is very rough,
-full of bugs, not to mention random hacks that represent failed experiments and probably have
-negative value.  For this reason, to get anywhere with this overlay, you will need at least
-an "intermediate" skill level with PORTAGE.  If you are a first-time Gentoo user, I would not
-expect to get very far, even if, for example, you are an old-time pro with BSD Ports.
+For the time being, this code is very rough, and chock-full of bugs, not to mention
+random hacks that represent failed experiments and the occasional flight of fancy
+which may very well have zero or even negative value.
+
+For this reason, to get anywhere with this overlay, you will need at least an
+"intermediate" skill level with portage.  If you are a first-time Gentoo user, I
+would not expect to get very far, even if, for example, you are an old-time pro
+with BSD Ports but with no Gentoo experience.
+
+This will hopefully improve, going forward, but that is the situation as of this
+writing (3/3/12).
 
 
 INSTALLATION (Getting started)
 ==============================
 
-That being stated, to get started with gentoo-prefix under cygwin, a good place to start is:
+That being stated, to get started with gentoo-prefix under cygwin, a good place
+to start is:
 
   http://en.gentoo-wiki.com/wiki/Prefix/Cygwin
 
-Note that this is a different iteration on the gentoo-cygwin concept than the one you will
-find at:
+Note that this is a different iteration on the gentoo-cygwin concept than the
+one you will find at:
 
   http://gentoocygwin.sourceforge.net/
 
-If I'm not mistaken, the former is referring to a (modified) vanilla Gentoo Prefix bootstrap
-process, whereas the latter is a Gentoo (non-prefix) fork which died on the vine sometime in
-2008.
+If I'm not mistaken, the former is referring to a (modified) vanilla Gentoo
+Prefix bootstrap process, whereas the latter is a Gentoo (non-prefix) fork which
+died on the vine sometime in 2008.
 
-Cygwin has come a long way since either project has received any Cygwin-specific love and that
-is why this overlay exists as a Gentoo Prefix overly, instead of as a fork of the sourceforge
-project.  "Generalizing" this overlay to be compatible with both Gentoo Prefix and regular Gentoo
-would, in my opinion, be a very worthy endeavor with little downside.
+Cygwin has come a long way since either project has received any Cygwin-specific
+love and that is why this overlay exists as a Gentoo Prefix overly, instead of as
+a fork of the sourceforge project.  "Generalizing" this overlay to be compatible
+with both Gentoo Prefix and regular Gentoo would, in my opinion, be a very worthy
+endeavor with little downside.
 
 
 BOOTSTRAPPING
