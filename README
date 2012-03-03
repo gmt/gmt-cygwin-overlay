@@ -83,12 +83,13 @@ But please also do skim over:
 
   http://en.gentoo-wiki.com/wiki/Prefix/Cygwin
 
-Which contains the more-nearly correct instructions for initial setup of your prefix.
+Which contains the more-nearly correct instructions for initial setup of your
+prefix.
 
-A word of warning: I've been hacking on this for a while.   My initial bootstrap efforts involved
-some very aggressive hacks; I have no idea, as of right now, what would be a working,
-straightforward bootstrap recipe.  Going forward, I plan to fix this somehow, either with explicit
-instructions or a script or both.
+A word of warning: I've been hacking on this for a while.   My initial bootstrap
+efforts involved some very aggressive hacks; I have no idea, as of right now, what
+would be a working, straightforward bootstrap recipe.  Going forward, I plan to
+fix this somehow, either with explicit instructions or a script or both.
 
 
 USING (INSTALLATION revisited)
@@ -96,7 +97,8 @@ USING (INSTALLATION revisited)
 
 To "install" this overlay into your cygwin-based Gentoo Prefix:
 
-o Put this profile in a directory directly under ${EPREFIX} (below I assume you used "overlay")
+o Put this profile in a directory directly under ${EPREFIX} (below I assume you
+  used "overlay")
 
 o put this into your PORTDIR_OVERLAY variable in make.conf i.e.:
 
@@ -119,21 +121,24 @@ o invoke eselect as follows:
 
 	cd ${EPREFIX}
   	rm make.profile
-	ln -s ../overlay/profiles/prefix/windows/cygwin/1.7/x86/gmtoverlay make.profile
+	ln -s ../overlay/profiles/prefix/windows/cygwin/1.7/x86/gmtoverlay \
+	      make.profile
 
 
 o you will need a working 'rebase' and 'peflags' in your $PATH
 
-Once those conditions are met, with any luck (OK, with a shit-ton of luck, and some hacking),
-you may or may not be able to bootstrap cygwin prefix by following the recipe at:
+Once those conditions are met, with any luck (OK, with a shit-ton of luck, and
+some hacking), you may or may not be able to bootstrap cygwin prefix by
+following the recipe at:
 
   http://www.gentoo.org/proj/en/gentoo-alt/prefix/bootstrap-solaris.xml
 
-Please don't be surprised if stuff breaks -- I haven't ever tested this -- not even once.
+Please don't be surprised if stuff breaks -- I haven't ever tested this -- not
+even once.
 
-If you are having trouble bootstrapping python due to a chicken-and-egg issue with the
-gcc-config -> python -> gcc -> gcc-config recursive dependency, try emerging python with
-the "cygbootstraphack" USE-flag.
+If you are having trouble bootstrapping python due to a chicken-and-egg issue
+with the gcc-config -> python -> gcc -> gcc-config recursive dependency, try
+emerging python with the "cygbootstraphack" USE-flag.
 
 gl!
 
