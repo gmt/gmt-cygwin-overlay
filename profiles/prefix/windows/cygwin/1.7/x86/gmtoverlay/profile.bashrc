@@ -438,7 +438,7 @@ cyg_rebase-dirs() {
 		fi
 	done < <( ${CYG_REBASE} "${rebase_verbose}" -s "${rebase_mach}" -b "${rebase_base_address}" \
 		-o "${rebase_offset}" -T "${rebase_lst}" 2>&1 )
-	[[ ${CYG_PRESERVE_REBASE_LST:-0} == 0 && ${rebase_failage} == no ]] \
+	[[ ${CYG_PRESERVE_REBASE_LST:-0} == 0 && ${rebase_failage} == no ]] && \
 		${rm} "${rebase_lst}"
 
 	# always treat everything as ok for now
