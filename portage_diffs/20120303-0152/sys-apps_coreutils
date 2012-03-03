@@ -57,12 +57,12 @@
 ===== mutual sub-directory: "sys-apps/coreutils/files" =====
 
 *** The following files appear only in the overlay ***
+overlay/sys-apps/coreutils/setup.log: ASCII text, with CRLF line terminators
+overlay/sys-apps/coreutils/setup.log.full: ASCII text, with CRLF line terminators
 overlay/sys-apps/coreutils/files/coreutils-8.14-1-cygport-src.patch: unified diff output, ASCII text
 overlay/sys-apps/coreutils/files/coreutils-8.14-cygwin-hostglob.patch: unified diff output, ASCII text
 overlay/sys-apps/coreutils/files/coreutils-8.14-cygwin-tests.patch: unified diff output, ASCII text
 overlay/sys-apps/coreutils/files/coreutils-8.14-scrub-cygwin-unc.patch: unified diff output, ASCII text
-overlay/sys-apps/coreutils/setup.log: ASCII text, with CRLF line terminators
-overlay/sys-apps/coreutils/setup.log.full: ASCII text, with CRLF line terminators
 
 *** The following files appear only in portage ***
 usr/portage/sys-apps/coreutils/coreutils-8.12.ebuild: ASCII English text

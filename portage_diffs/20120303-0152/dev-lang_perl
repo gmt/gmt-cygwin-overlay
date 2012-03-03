@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "dev-lang/perl" =====
-===== mutual sub-directory: "dev-lang/perl/files" =====
 --("dev-lang/perl/perl-5.12.3-r1.ebuild")-->8-->
 --- usr/portage/dev-lang/perl/perl-5.12.3-r1.ebuild	2011-07-12 10:01:31.000000000 -0700
 +++ overlay/dev-lang/perl/perl-5.12.3-r1.ebuild	2012-02-15 19:01:03.311510700 -0800
@@ -43,6 +42,7 @@
  	EPATCH_SUFFIX="diff" \
  	EPATCH_FORCE="yes" \
 <--8<--
+===== mutual sub-directory: "dev-lang/perl/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-lang/perl/files/cygwin: directory

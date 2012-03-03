@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "dev-libs/glib" =====
-===== mutual sub-directory: "dev-libs/glib/files" =====
 --("dev-libs/glib/glib-2.30.2.ebuild")-->8-->
 --- usr/portage/dev-libs/glib/glib-2.30.2.ebuild	2011-11-27 12:01:32.000000000 -0800
 +++ overlay/dev-libs/glib/glib-2.30.2.ebuild	2012-02-24 02:27:52.545516900 -0800
@@ -48,6 +47,7 @@
  	[[ ${CHOST} == *-aix* ]] && append-cppflags -D_LINUX_SOURCE_COMPAT
  
 <--8<--
+===== mutual sub-directory: "dev-libs/glib/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-libs/glib/files/glib-2.30.2-cygport.patch: unified diff output, ASCII text

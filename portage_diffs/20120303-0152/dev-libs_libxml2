@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "dev-libs/libxml2" =====
-===== mutual sub-directory: "dev-libs/libxml2/files" =====
 --("dev-libs/libxml2/libxml2-2.7.8-r3.ebuild")-->8-->
 --- usr/portage/dev-libs/libxml2/libxml2-2.7.8-r3.ebuild	2011-10-30 08:33:17.000000000 -0700
 +++ overlay/dev-libs/libxml2/libxml2-2.7.8-r3.ebuild	2012-02-05 19:11:22.451662300 -0800
@@ -22,6 +21,7 @@
  		python_copy_sources python
  		building() {
 <--8<--
+===== mutual sub-directory: "dev-libs/libxml2/files" =====
 
 *** The following files appear only in portage ***
 usr/portage/dev-libs/libxml2/libxml2-2.7.8-r1.ebuild: ASCII English text, with very long lines

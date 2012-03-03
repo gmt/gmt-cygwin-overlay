@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "eclass" =====
-===== mutual sub-directory: "eclass/ELT-patches" =====
 --("eclass/libtool.eclass")-->8-->
 --- usr/portage/eclass/libtool.eclass	2011-12-03 08:11:31.000000000 -0800
 +++ overlay/eclass/libtool.eclass	2012-02-23 21:41:53.532515500 -0800
@@ -328,47 +327,15 @@
  	popd >/dev/null
  }
 <--8<--
+===== mutual sub-directory: "eclass/ELT-patches" =====
 
 *** The following files appear only in the overlay ***
+overlay/eclass/shebangfix.eclass: ASCII English text
 overlay/eclass/ELT-patches/cygwin-install-sh: directory
 overlay/eclass/ELT-patches/cygwin-ltmain: directory
-overlay/eclass/shebangfix.eclass: ASCII English text
 
 *** The following files appear only in portage ***
 usr/portage/eclass/ChangeLog: ASCII English text
-usr/portage/eclass/ELT-patches/aix-noundef: directory
-usr/portage/eclass/ELT-patches/aixrtl: directory
-usr/portage/eclass/ELT-patches/as-needed: directory
-usr/portage/eclass/ELT-patches/cross: directory
-usr/portage/eclass/ELT-patches/darwin-conf: directory
-usr/portage/eclass/ELT-patches/darwin-ltconf: directory
-usr/portage/eclass/ELT-patches/darwin-ltmain: directory
-usr/portage/eclass/ELT-patches/deplibs: directory
-usr/portage/eclass/ELT-patches/fbsd-conf: directory
-usr/portage/eclass/ELT-patches/fbsd-ltconf: directory
-usr/portage/eclass/ELT-patches/fix-relink: directory
-usr/portage/eclass/ELT-patches/gold-conf: directory
-usr/portage/eclass/ELT-patches/hardcode: directory
-usr/portage/eclass/ELT-patches/hardcode-relink: directory
-usr/portage/eclass/ELT-patches/hc-flag-ld: directory
-usr/portage/eclass/ELT-patches/hpux-conf: directory
-usr/portage/eclass/ELT-patches/install-sh: directory
-usr/portage/eclass/ELT-patches/irix-ltmain: directory
-usr/portage/eclass/ELT-patches/ltmain: directory
-usr/portage/eclass/ELT-patches/max_cmd_len: directory
-usr/portage/eclass/ELT-patches/mint-conf: directory
-usr/portage/eclass/ELT-patches/no-lc: directory
-usr/portage/eclass/ELT-patches/nocxx: directory
-usr/portage/eclass/ELT-patches/portage: directory
-usr/portage/eclass/ELT-patches/relink: directory
-usr/portage/eclass/ELT-patches/relink-prog: directory
-usr/portage/eclass/ELT-patches/rem-int-dep: directory
-usr/portage/eclass/ELT-patches/sed: directory
-usr/portage/eclass/ELT-patches/sys-lib-dlsearch: directory
-usr/portage/eclass/ELT-patches/test: directory
-usr/portage/eclass/ELT-patches/tmp: directory
-usr/portage/eclass/ELT-patches/uclibc-conf: directory
-usr/portage/eclass/ELT-patches/uclibc-ltconf: directory
 usr/portage/eclass/alternatives.eclass: ASCII English text
 usr/portage/eclass/ant-tasks.eclass: ASCII English text
 usr/portage/eclass/apache-2.eclass: ASCII English text
@@ -552,4 +519,37 @@ usr/portage/eclass/xemacs-packages.eclass: ASCII English text
 usr/portage/eclass/xfconf.eclass: ASCII English text
 usr/portage/eclass/xorg-2.eclass: UTF-8 Unicode English text
 usr/portage/eclass/zproduct.eclass: ASCII English text
+usr/portage/eclass/ELT-patches/aix-noundef: directory
+usr/portage/eclass/ELT-patches/aixrtl: directory
+usr/portage/eclass/ELT-patches/as-needed: directory
+usr/portage/eclass/ELT-patches/cross: directory
+usr/portage/eclass/ELT-patches/darwin-conf: directory
+usr/portage/eclass/ELT-patches/darwin-ltconf: directory
+usr/portage/eclass/ELT-patches/darwin-ltmain: directory
+usr/portage/eclass/ELT-patches/deplibs: directory
+usr/portage/eclass/ELT-patches/fbsd-conf: directory
+usr/portage/eclass/ELT-patches/fbsd-ltconf: directory
+usr/portage/eclass/ELT-patches/fix-relink: directory
+usr/portage/eclass/ELT-patches/gold-conf: directory
+usr/portage/eclass/ELT-patches/hardcode: directory
+usr/portage/eclass/ELT-patches/hardcode-relink: directory
+usr/portage/eclass/ELT-patches/hc-flag-ld: directory
+usr/portage/eclass/ELT-patches/hpux-conf: directory
+usr/portage/eclass/ELT-patches/install-sh: directory
+usr/portage/eclass/ELT-patches/irix-ltmain: directory
+usr/portage/eclass/ELT-patches/ltmain: directory
+usr/portage/eclass/ELT-patches/max_cmd_len: directory
+usr/portage/eclass/ELT-patches/mint-conf: directory
+usr/portage/eclass/ELT-patches/no-lc: directory
+usr/portage/eclass/ELT-patches/nocxx: directory
+usr/portage/eclass/ELT-patches/portage: directory
+usr/portage/eclass/ELT-patches/relink: directory
+usr/portage/eclass/ELT-patches/relink-prog: directory
+usr/portage/eclass/ELT-patches/rem-int-dep: directory
+usr/portage/eclass/ELT-patches/sed: directory
+usr/portage/eclass/ELT-patches/sys-lib-dlsearch: directory
+usr/portage/eclass/ELT-patches/test: directory
+usr/portage/eclass/ELT-patches/tmp: directory
+usr/portage/eclass/ELT-patches/uclibc-conf: directory
+usr/portage/eclass/ELT-patches/uclibc-ltconf: directory
 

@@ -1,22 +1,4 @@
 ===== mutual sub-directory: "sys-devel/gcc" =====
-===== mutual sub-directory: "sys-devel/gcc/files" =====
-===== mutual sub-directory: "sys-devel/gcc/files/3.3.4" =====
-===== mutual sub-directory: "sys-devel/gcc/files/3.3.6" =====
-===== mutual sub-directory: "sys-devel/gcc/files/3.4.3" =====
-===== mutual sub-directory: "sys-devel/gcc/files/3.4.4" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.0.2" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.1.0" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.2.2" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.3.0" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.3.2" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.3.3" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.4.0" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.4.1" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.4.4" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.5.1" =====
-===== mutual sub-directory: "sys-devel/gcc/files/4.5.2" =====
-===== mutual sub-directory: "sys-devel/gcc/files/awk" =====
-===== mutual sub-directory: "sys-devel/gcc/files/stubs" =====
 --("sys-devel/gcc/gcc-4.5.3-r1.ebuild")-->8-->
 --- usr/portage/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2011-11-30 11:01:33.000000000 -0800
 +++ overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2012-02-24 16:23:17.608515500 -0800
@@ -152,9 +134,30 @@
  }
  
 <--8<--
+===== mutual sub-directory: "sys-devel/gcc/files" =====
+===== mutual sub-directory: "sys-devel/gcc/files/3.3.4" =====
+===== mutual sub-directory: "sys-devel/gcc/files/3.3.6" =====
+===== mutual sub-directory: "sys-devel/gcc/files/3.4.3" =====
+===== mutual sub-directory: "sys-devel/gcc/files/3.4.4" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.0.2" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.1.0" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.2.2" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.3.0" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.3.2" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.3.3" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.4.0" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.4.1" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.4.4" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.5.1" =====
+===== mutual sub-directory: "sys-devel/gcc/files/4.5.2" =====
+===== mutual sub-directory: "sys-devel/gcc/files/awk" =====
+===== mutual sub-directory: "sys-devel/gcc/files/stubs" =====
 
 *** The following files appear only in the overlay ***
 overlay/sys-devel/gcc/delme.patch: unified diff output, ASCII text
+overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak000: ASCII English text
+overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak001: ASCII English text
+overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak002: ASCII English text
 overlay/sys-devel/gcc/files/gcc-4.5-cygwin-ada.patch: unified diff output, ASCII text
 overlay/sys-devel/gcc/files/gcc-4.5-cygwin-ehdebug.patch: unified diff output, ASCII text
 overlay/sys-devel/gcc/files/gcc-4.5.3-cygport.patch: unified diff output, ASCII text
@@ -164,13 +167,8 @@ overlay/sys-devel/gcc/files/gcc-4.5.3-hardpaths.patch: unified diff output, ASCI
 overlay/sys-devel/gcc/files/gcc-4.5.3-should-be-cygwin-star-ldo.patch: unified diff output, ASCII text
 overlay/sys-devel/gcc/files/gcc-4.6.0-iconvlink.patch: unified diff output, ASCII text
 overlay/sys-devel/gcc/files/gcj-4.6.0-iconvlink.patch: unified diff output, ASCII text
-overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak000: ASCII English text
-overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak001: ASCII English text
-overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak002: ASCII English text
 
 *** The following files appear only in portage ***
-usr/portage/sys-devel/gcc/files/gcj-4.2.4-iconvlink.patch: unified diff output, ASCII text
-usr/portage/sys-devel/gcc/files/gcj-4.3.1-iconvlink.patch: unified diff output, ASCII text
 usr/portage/sys-devel/gcc/gcc-3.3.6-r1.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-3.4.6-r2.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.1.2.ebuild: ASCII English text
@@ -180,4 +178,6 @@ usr/portage/sys-devel/gcc/gcc-4.4.6-r1.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.5.1-r1.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.5.2-r00.1.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.6.1-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/files/gcj-4.2.4-iconvlink.patch: unified diff output, ASCII text
+usr/portage/sys-devel/gcc/files/gcj-4.3.1-iconvlink.patch: unified diff output, ASCII text
 

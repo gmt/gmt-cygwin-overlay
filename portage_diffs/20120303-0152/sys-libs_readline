@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "sys-libs/readline" =====
-===== mutual sub-directory: "sys-libs/readline/files" =====
 --("sys-libs/readline/readline-6.2_p1.ebuild")-->8-->
 --- usr/portage/sys-libs/readline/readline-6.2_p1.ebuild	2011-07-12 09:31:32.000000000 -0700
 +++ overlay/sys-libs/readline/readline-6.2_p1.ebuild	2012-02-10 15:58:19.621028800 -0800
@@ -60,6 +59,7 @@
 +#	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 5)
 +#}
 <--8<--
+===== mutual sub-directory: "sys-libs/readline/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/sys-libs/readline/files/readline-6.2-cygport.patch: unified diff output, ASCII text

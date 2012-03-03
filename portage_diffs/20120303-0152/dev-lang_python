@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "dev-lang/python" =====
-===== mutual sub-directory: "dev-lang/python/files" =====
 --("dev-lang/python/python-2.7.2-r3.ebuild")-->8-->
 --- usr/portage/dev-lang/python/python-2.7.2-r3.ebuild	2011-12-01 11:01:32.000000000 -0800
 +++ overlay/dev-lang/python/python-2.7.2-r3.ebuild	2012-02-25 04:38:54.029015500 -0800
@@ -104,6 +103,7 @@
  		$(use_with threads) \
  		$( (use wide-unicode && use !aqua) && echo "--enable-unicode=ucs4" || echo "--enable-unicode=ucs2") \
 <--8<--
+===== mutual sub-directory: "dev-lang/python/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-lang/python/files/python-2.7.2-cygwin-ctypes-error.patch: unified diff output, ASCII text

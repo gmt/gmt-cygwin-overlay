@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "dev-libs/libffi" =====
-===== mutual sub-directory: "dev-libs/libffi/files" =====
 --("dev-libs/libffi/libffi-3.0.10.ebuild")-->8-->
 --- usr/portage/dev-libs/libffi/libffi-3.0.10.ebuild	2011-11-09 08:33:02.000000000 -0800
 +++ overlay/dev-libs/libffi/libffi-3.0.10.ebuild	2012-02-21 17:13:22.150710700 -0800
@@ -31,6 +30,7 @@
  }
  
 <--8<--
+===== mutual sub-directory: "dev-libs/libffi/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-libs/libffi/files/libffi-3.0.8-cygport-no-undefined.patch: unified diff output, ASCII text

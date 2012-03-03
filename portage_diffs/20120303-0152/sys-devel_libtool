@@ -1,13 +1,4 @@
 ===== mutual sub-directory: "sys-devel/libtool" =====
-===== mutual sub-directory: "sys-devel/libtool/files" =====
-===== mutual sub-directory: "sys-devel/libtool/files/1.5.10" =====
-===== mutual sub-directory: "sys-devel/libtool/files/1.5.20" =====
-===== mutual sub-directory: "sys-devel/libtool/files/1.5.26" =====
-===== mutual sub-directory: "sys-devel/libtool/files/1.5.6" =====
-===== mutual sub-directory: "sys-devel/libtool/files/2.2.10" =====
-===== mutual sub-directory: "sys-devel/libtool/files/2.2.6a" =====
-===== mutual sub-directory: "sys-devel/libtool/files/2.2.6b" =====
-===== mutual sub-directory: "sys-devel/libtool/files/2.4" =====
 --("sys-devel/libtool/libtool-2.4-r4.ebuild")-->8-->
 --- usr/portage/sys-devel/libtool/libtool-2.4-r4.ebuild	2011-11-07 10:01:35.000000000 -0800
 +++ overlay/sys-devel/libtool/libtool-2.4-r4.ebuild	2012-02-23 13:57:36.845015400 -0800
@@ -41,6 +32,15 @@
  	preserve_old_lib_notify /usr/$(get_libdir)/libltdl$(get_libname 3)
  }
 <--8<--
+===== mutual sub-directory: "sys-devel/libtool/files" =====
+===== mutual sub-directory: "sys-devel/libtool/files/1.5.10" =====
+===== mutual sub-directory: "sys-devel/libtool/files/1.5.20" =====
+===== mutual sub-directory: "sys-devel/libtool/files/1.5.26" =====
+===== mutual sub-directory: "sys-devel/libtool/files/1.5.6" =====
+===== mutual sub-directory: "sys-devel/libtool/files/2.2.10" =====
+===== mutual sub-directory: "sys-devel/libtool/files/2.2.6a" =====
+===== mutual sub-directory: "sys-devel/libtool/files/2.2.6b" =====
+===== mutual sub-directory: "sys-devel/libtool/files/2.4" =====
 
 *** The following files appear only in the overlay ***
 overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-01-cmdline-len.patch: unified diff output, ASCII text

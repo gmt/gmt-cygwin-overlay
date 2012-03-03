@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "app-arch/unzip" =====
-===== mutual sub-directory: "app-arch/unzip/files" =====
 --("app-arch/unzip/unzip-6.0-r2.ebuild")-->8-->
 --- usr/portage/app-arch/unzip/unzip-6.0-r2.ebuild	2011-01-16 07:31:32.000000000 -0800
 +++ overlay/app-arch/unzip/unzip-6.0-r2.ebuild	2012-02-11 15:50:45.584174100 -0800
@@ -23,6 +22,7 @@
  	esac
  
 <--8<--
+===== mutual sub-directory: "app-arch/unzip/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/app-arch/unzip/files/unzip-6.0-cygport-misc.patch: unified diff output, ASCII text

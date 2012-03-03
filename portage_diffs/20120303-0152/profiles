@@ -1,9 +1,4 @@
 ===== mutual sub-directory: "profiles" =====
-===== mutual sub-directory: "profiles/prefix" =====
-===== mutual sub-directory: "profiles/prefix/windows" =====
-===== mutual sub-directory: "profiles/prefix/windows/cygwin" =====
-===== mutual sub-directory: "profiles/prefix/windows/cygwin/1.7" =====
-===== mutual sub-directory: "profiles/prefix/windows/cygwin/1.7/x86" =====
 --("profiles/profiles.desc")-->8-->
 --- usr/portage/profiles/profiles.desc	2011-12-05 14:39:01.000000000 -0800
 +++ overlay/profiles/profiles.desc	2012-02-25 14:16:34.588515500 -0800
@@ -294,6 +289,11 @@
 -gentoo_prefix
 +gmt_cygwin_overlay
 <--8<--
+===== mutual sub-directory: "profiles/prefix" =====
+===== mutual sub-directory: "profiles/prefix/windows" =====
+===== mutual sub-directory: "profiles/prefix/windows/cygwin" =====
+===== mutual sub-directory: "profiles/prefix/windows/cygwin/1.7" =====
+===== mutual sub-directory: "profiles/prefix/windows/cygwin/1.7/x86" =====
 
 *** The following files appear only in the overlay ***
 overlay/profiles/prefix/windows/cygwin/1.7/x86/gmtoverlay: directory
@@ -314,6 +314,14 @@ usr/portage/profiles/info_pkgs: ASCII text
 usr/portage/profiles/info_vars: ASCII make commands text
 usr/portage/profiles/license_groups: ASCII English text, with very long lines
 usr/portage/profiles/package.mask: UTF-8 Unicode English text
+usr/portage/profiles/releases: directory
+usr/portage/profiles/selinux: directory
+usr/portage/profiles/targets: directory
+usr/portage/profiles/thirdpartymirrors: ASCII text, with very long lines
+usr/portage/profiles/uclibc: directory
+usr/portage/profiles/updates: directory
+usr/portage/profiles/use.desc: ASCII English text
+usr/portage/profiles/use.local.desc: ASCII English text, with very long lines
 usr/portage/profiles/prefix/ChangeLog: ASCII English text
 usr/portage/profiles/prefix/aix: directory
 usr/portage/profiles/prefix/bsd: directory
@@ -332,21 +340,13 @@ usr/portage/profiles/prefix/profile.bashrc: ASCII English text
 usr/portage/profiles/prefix/sunos: directory
 usr/portage/profiles/prefix/use.force: ASCII English text
 usr/portage/profiles/prefix/use.mask: ASCII English text
+usr/portage/profiles/prefix/windows/interix: directory
+usr/portage/profiles/prefix/windows/parent: ASCII text
+usr/portage/profiles/prefix/windows/winnt: directory
+usr/portage/profiles/prefix/windows/cygwin/make.defaults: ASCII English text
+usr/portage/profiles/prefix/windows/cygwin/parent: ASCII text
 usr/portage/profiles/prefix/windows/cygwin/1.7/package.provided: ASCII English text
 usr/portage/profiles/prefix/windows/cygwin/1.7/parent: ASCII text
 usr/portage/profiles/prefix/windows/cygwin/1.7/x86/make.defaults: ASCII English text
 usr/portage/profiles/prefix/windows/cygwin/1.7/x86/parent: ASCII text
-usr/portage/profiles/prefix/windows/cygwin/make.defaults: ASCII English text
-usr/portage/profiles/prefix/windows/cygwin/parent: ASCII text
-usr/portage/profiles/prefix/windows/interix: directory
-usr/portage/profiles/prefix/windows/parent: ASCII text
-usr/portage/profiles/prefix/windows/winnt: directory
-usr/portage/profiles/releases: directory
-usr/portage/profiles/selinux: directory
-usr/portage/profiles/targets: directory
-usr/portage/profiles/thirdpartymirrors: ASCII text, with very long lines
-usr/portage/profiles/uclibc: directory
-usr/portage/profiles/updates: directory
-usr/portage/profiles/use.desc: ASCII English text
-usr/portage/profiles/use.local.desc: ASCII English text, with very long lines
 

@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "sys-libs/zlib" =====
-===== mutual sub-directory: "sys-libs/zlib/files" =====
 --("sys-libs/zlib/zlib-1.2.5-r2.ebuild")-->8-->
 --- usr/portage/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2012-02-04 20:17:27.386371100 -0800
 +++ overlay/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2012-02-23 21:54:51.197015500 -0800
@@ -67,11 +66,12 @@
  	fi
  }
 <--8<--
+===== mutual sub-directory: "sys-libs/zlib/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/sys-libs/zlib/files/zlib-1.2.5-cygport.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-libs/zlib/files/zlib-1.2.5-cygwin.patch: unified diff output, ASCII text
 usr/portage/sys-libs/zlib/zlib-1.2.3-r01.1.ebuild: ASCII English text
+usr/portage/sys-libs/zlib/files/zlib-1.2.5-cygwin.patch: unified diff output, ASCII text
 

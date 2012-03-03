@@ -2,6 +2,7 @@
 ===== mutual sub-directory: "sys-libs/ncurses/files" =====
 
 *** The following files appear only in the overlay ***
+overlay/sys-libs/ncurses/ncurses-5.7.20091227.ebuild: ASCII English text
 overlay/sys-libs/ncurses/files/ncurses-5.7-20091227.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-cygwin-misc.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-cygwin-pthreads-delme.patch: unified diff output, ASCII text
@@ -10,17 +11,16 @@ overlay/sys-libs/ncurses/files/ncurses-5.7-ldflags-with-libtool-refresh.patch: u
 overlay/sys-libs/ncurses/files/ncurses-5.7-mint-refresh.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-pc-files-dep.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-widec-wchar_h.patch: unified diff output, ASCII text
-overlay/sys-libs/ncurses/ncurses-5.7.20091227.ebuild: ASCII English text
 
 *** The following files appear only in portage ***
+usr/portage/sys-libs/ncurses/ncurses-5.6-r2.ebuild: ASCII English text
+usr/portage/sys-libs/ncurses/ncurses-5.7-r3.ebuild: ASCII English text
+usr/portage/sys-libs/ncurses/ncurses-5.7-r5.ebuild: ASCII English text
+usr/portage/sys-libs/ncurses/ncurses-5.7-r6.ebuild: ASCII English text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-emacs.patch: unified diff output, ASCII text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-hashdb-open.patch: unified diff output, ASCII text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-ldflags-with-libtool.patch: unified diff output, ASCII text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-mint.patch: unified diff output, ASCII text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-rxvt-unicode-9.09.patch: unified diff output, UTF-8 Unicode text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-tic-cross-detection.patch: unified diff output, ASCII text
-usr/portage/sys-libs/ncurses/ncurses-5.6-r2.ebuild: ASCII English text
-usr/portage/sys-libs/ncurses/ncurses-5.7-r3.ebuild: ASCII English text
-usr/portage/sys-libs/ncurses/ncurses-5.7-r5.ebuild: ASCII English text
-usr/portage/sys-libs/ncurses/ncurses-5.7-r6.ebuild: ASCII English text
 

@@ -135,23 +135,27 @@ my_file() {
 }
 
 declare -a fl
+declare -a fl_dir
 
-# adds its argument to the fl array (which is presumed to be sorted)
-# in a sorted manner.  my god, bash is horrible sometimes.
-fl_add() {
+# adds its argument to the given array (which is presumed to be sorted)
+# in a sorted manner.  my god, is there some way to speed this up!?
+sort_add() {
 	local doadd=yes
-	local add="${1}"
+	local the_array="${1}"
+	local add="${2}"
 	declare -i max
-	max=${#fl[*]}
+	eval "max=\${#${the_array}[*]}"
 	local found=no
 	declare -i i
 	i=0
 	local dummy
 	while (( $i < max )) ; do
-		if [[ "${fl[${i}]}" == "${add}" ]] ; then
+		local compareme
+		eval "compareme=\${${the_array}[${i}]}"
+		if [[ "${compareme}" == "${add}" ]] ; then
 			# its already there so nothing to do
 			return 0
-		elif [[ "${fl[${i}]}" > "${add}" ]] ; then
+		elif [[ "${compareme}" > "${add}" ]] ; then
 			# we found where it goes but first we need to make room for it
 			found="${i}"
 			break
@@ -162,7 +166,7 @@ fl_add() {
 	# but not the thing itself.  so if we got here and found is false,
 	# we need to put it at the end
 	if [[ ${found} == no ]] ; then
-		fl[$max]="${add}"
+		eval "${the_array}[${max}]=\"${add}\""
 		# otherwise we added it when we found it.
 	else
 		# make room for the new item
@@ -170,9 +174,9 @@ fl_add() {
 		while (( $i > $found )) ; do
 			# note: apparently in cases like this bash evaluates the
 			# rvalue /before/ the lvalue... how counter-intuitive!
-			fl[$((i--))]="${fl[$((i - 1))]}"
+			eval "${the_array}[\$((i--))]=\"\${${the_array}[\$((i - 1))]}\""
 		done
-		fl[${found}]="${add}"
+		eval "${the_array}[${found}]=\"${add}\""
 	fi
 }
 
@@ -245,8 +249,9 @@ compare_regular_file() {
 
 compare_file() {
 	local file="${1}"
-	# fl is global so we cannot recurse while using it.
+	# fl and fl_dir are global so we cannot recurse while using them.
 	fl=( )
+	fl_dir=( )
 	if [[ ( ! -h "${_portage}/${file}" ) && ( ! -e "${_portage}/${file}" ) ]] ; then
 		only_in_overlay "${file}"
 	elif [[ ( ! -h "${_overlay}/${file}" ) && ( ! -e "${_overlay}/${file}" ) ]] ; then
@@ -274,10 +279,22 @@ compare_file() {
 		declare -a check_subs
 		local sub
 		while read sub; do
-			fl_add "${sub}"
+			# if the file we are adding is a directory in both portage and in
+			# the overlay, then we add it to the fl_dir array instead of fl, and
+			# we consider these last when we recurse.  The reason for this is so
+			# that in the output file, all diffs and informational messages will
+			# appear under the heading ("===== blah =====") to which they directly
+			# pertain (a cosmetic concern but one which adds considerably to clarity,
+			# as once we recurse, additional recursion will cause additional headings
+			# to be displayed, misleading the user as to where they "are" in the tree
+			if [[ -d "${_portage}/${file}/${sub}" && -d "${_overlay}/${file}/${sub}" ]] ; then
+				sort_add "fl_dir" "${sub}"
+			else
+				sort_add "fl" "${sub}"
+			fi
 		done < <( cd "${_overlay}/${file}" && ls -a | grep -v '^\.*$' && \
 		          cd "${_portage}/${file}" && ls -a | grep -v '^\.*$' )
-		check_subs=( "${fl[@]}" )
+		check_subs=( "${fl[@]}" "${fl_dir[@]}" )
 		for sub in "${check_subs[@]}"; do
 			compare_file "${file}/${sub}"
 		done

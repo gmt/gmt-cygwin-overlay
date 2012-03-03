@@ -1,5 +1,4 @@
 ===== mutual sub-directory: "dev-vcs/subversion" =====
-===== mutual sub-directory: "dev-vcs/subversion/files" =====
 --("dev-vcs/subversion/subversion-1.7.1.ebuild")-->8-->
 --- usr/portage/dev-vcs/subversion/subversion-1.7.1.ebuild	2011-11-30 06:33:09.000000000 -0800
 +++ overlay/dev-vcs/subversion/subversion-1.7.1.ebuild	2012-02-13 07:28:02.236930700 -0800
@@ -62,6 +61,7 @@
  
  	if use ctypes-python; then
 <--8<--
+===== mutual sub-directory: "dev-vcs/subversion/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-vcs/subversion/files/subversion-1.7.1-cygwin-testing123.patch: unified diff output, ASCII text

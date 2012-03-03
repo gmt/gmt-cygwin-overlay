@@ -1,4 +1,66 @@
 ===== mutual sub-directory: "sys-devel/gcc-config" =====
+--("sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild")-->8-->
+--- usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild	2009-12-27 08:39:39.000000000 -0800
++++ overlay/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild	2012-02-16 16:14:16.499784700 -0800
+@@ -19,10 +19,11 @@
+ RDEPEND="!app-admin/eselect-compiler
+ 	>=sys-devel/binutils-config-1.9-r04.3"
+ 
+-S=${WORKDIR}
++S=${WORKDIR%/}
+ 
+ src_unpack() {
+ 	cp "${FILESDIR}"/wrapper-${W_VER}.c "${S}"/wrapper.c || die
++	echo doing: cp "${FILESDIR}"/wrapper-${W_VER}.c "${S}"/wrapper.c
+ 	cp "${FILESDIR}"/${PN}-${PV}  "${S}/"${PN}-${PV} || die
+ 	eprefixify "${S}"/wrapper.c "${S}"/${PN}-${PV}
+ }
+@@ -35,29 +36,35 @@
+ 
+ src_install() {
+ 	newbin ${PN}-${PV} ${PN} || die "install gcc-config"
++
++	local libdir
++	libdir="$(get_libdir)"
++	libdir="${libdir%/}"
++	libdir="${libdir#/}"
++
+ 	sed -i \
+-		-e "s:@GENTOO_LIBDIR@:$(get_libdir):g" \
+-		"${ED}"/usr/bin/${PN}
++		-e "s:@GENTOO_LIBDIR@:/${libdir}:g" \
++		"${ED%/}"/usr/bin/${PN}
+ 
+-	exeinto /usr/$(get_libdir)/misc
++	exeinto /usr/${libdir}/misc
+ 	newexe wrapper gcc-config || die "install wrapper"
+ }
+ 
+ pkg_postinst() {
+ 	# Scrub eselect-compiler remains
+-	if [[ -e ${EROOT}/etc/env.d/05compiler ]] ; then
+-		rm -f "${EROOT}"/etc/env.d/05compiler
++	if [[ -e ${EROOT}etc/env.d/05compiler ]] ; then
++		rm -f "${EROOT}"etc/env.d/05compiler
+ 	fi
+ 
+ 	# Make sure old versions dont exist #79062
+-	rm -f "${EROOT}"/usr/sbin/gcc-config
++	rm -f "${EROOT}"usr/sbin/gcc-config
+ 
+ 	# Do we have a valid multi ver setup ?
+ 	if gcc-config --get-current-profile &>/dev/null ; then
+ 		# We not longer use the /usr/include/g++-v3 hacks, as
+ 		# it is not needed ...
+-		[[ -L ${EROOT}/usr/include/g++ ]] && rm -f "${EROOT}"/usr/include/g++
+-		[[ -L ${EROOT}/usr/include/g++-v3 ]] && rm -f "${EROOT}"/usr/include/g++-v3
+-		gcc-config $(${EPREFIX}/usr/bin/gcc-config --get-current-profile)
++		[[ -L ${EROOT}usr/include/g++ ]] && rm -f "${EROOT}"usr/include/g++
++		[[ -L ${EROOT}usr/include/g++-v3 ]] && rm -f "${EROOT}"usr/include/g++-v3
++		gcc-config $(${EPREFIX%/}/usr/bin/gcc-config --get-current-profile)
+ 	fi
+ }
+<--8<--
 ===== mutual sub-directory: "sys-devel/gcc-config/files" =====
 --("sys-devel/gcc-config/files/gcc-config-1.4.1")-->8-->
 --- usr/portage/sys-devel/gcc-config/files/gcc-config-1.4.1	2011-06-17 05:31:40.000000000 -0700
@@ -609,71 +671,9 @@
  	fi
  fi
 <--8<--
---("sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild")-->8-->
---- usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild	2009-12-27 08:39:39.000000000 -0800
-+++ overlay/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild	2012-02-16 16:14:16.499784700 -0800
-@@ -19,10 +19,11 @@
- RDEPEND="!app-admin/eselect-compiler
- 	>=sys-devel/binutils-config-1.9-r04.3"
- 
--S=${WORKDIR}
-+S=${WORKDIR%/}
- 
- src_unpack() {
- 	cp "${FILESDIR}"/wrapper-${W_VER}.c "${S}"/wrapper.c || die
-+	echo doing: cp "${FILESDIR}"/wrapper-${W_VER}.c "${S}"/wrapper.c
- 	cp "${FILESDIR}"/${PN}-${PV}  "${S}/"${PN}-${PV} || die
- 	eprefixify "${S}"/wrapper.c "${S}"/${PN}-${PV}
- }
-@@ -35,29 +36,35 @@
- 
- src_install() {
- 	newbin ${PN}-${PV} ${PN} || die "install gcc-config"
-+
-+	local libdir
-+	libdir="$(get_libdir)"
-+	libdir="${libdir%/}"
-+	libdir="${libdir#/}"
-+
- 	sed -i \
--		-e "s:@GENTOO_LIBDIR@:$(get_libdir):g" \
--		"${ED}"/usr/bin/${PN}
-+		-e "s:@GENTOO_LIBDIR@:/${libdir}:g" \
-+		"${ED%/}"/usr/bin/${PN}
- 
--	exeinto /usr/$(get_libdir)/misc
-+	exeinto /usr/${libdir}/misc
- 	newexe wrapper gcc-config || die "install wrapper"
- }
- 
- pkg_postinst() {
- 	# Scrub eselect-compiler remains
--	if [[ -e ${EROOT}/etc/env.d/05compiler ]] ; then
--		rm -f "${EROOT}"/etc/env.d/05compiler
-+	if [[ -e ${EROOT}etc/env.d/05compiler ]] ; then
-+		rm -f "${EROOT}"etc/env.d/05compiler
- 	fi
- 
- 	# Make sure old versions dont exist #79062
--	rm -f "${EROOT}"/usr/sbin/gcc-config
-+	rm -f "${EROOT}"usr/sbin/gcc-config
- 
- 	# Do we have a valid multi ver setup ?
- 	if gcc-config --get-current-profile &>/dev/null ; then
- 		# We not longer use the /usr/include/g++-v3 hacks, as
- 		# it is not needed ...
--		[[ -L ${EROOT}/usr/include/g++ ]] && rm -f "${EROOT}"/usr/include/g++
--		[[ -L ${EROOT}/usr/include/g++-v3 ]] && rm -f "${EROOT}"/usr/include/g++-v3
--		gcc-config $(${EPREFIX}/usr/bin/gcc-config --get-current-profile)
-+		[[ -L ${EROOT}usr/include/g++ ]] && rm -f "${EROOT}"usr/include/g++
-+		[[ -L ${EROOT}usr/include/g++-v3 ]] && rm -f "${EROOT}"usr/include/g++-v3
-+		gcc-config $(${EPREFIX%/}/usr/bin/gcc-config --get-current-profile)
- 	fi
- }
-<--8<--
 
 *** The following files appear only in portage ***
+usr/portage/sys-devel/gcc-config/gcc-config-1.5-r01.1.ebuild: ASCII English text
 usr/portage/sys-devel/gcc-config/files/gcc-config-1.5: Bourne-Again shell script, ASCII text executable
 usr/portage/sys-devel/gcc-config/files/wrapper-1.5.2.c: ASCII English text
-usr/portage/sys-devel/gcc-config/gcc-config-1.5-r01.1.ebuild: ASCII English text
 
