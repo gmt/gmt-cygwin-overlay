@@ -1,7 +1,0 @@
-===== mutual sub-directory: "sys-apps/portage" =====
-===== mutual sub-directory: "sys-apps/portage/files" =====
-
-*** The following files appear only in portage ***
-usr/portage/sys-apps/portage/portage-2.2.01.19295.ebuild: ASCII English text
-usr/portage/sys-apps/portage/portage-2.2.01.19478.ebuild: ASCII English text
-
