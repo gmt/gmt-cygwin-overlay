@@ -286,8 +286,8 @@ compare_file() {
 			# that in the output file, all diffs and informational messages will
 			# appear under the heading ("===== blah =====") to which they directly
 			# pertain (a cosmetic concern but one which adds considerably to clarity,
-			# as once we recurse, additional recursion will cause additional headings
-			# to be displayed, misleading the user as to where they "are" in the tree
+			# as once we recurse, additional headings will be displayed, misleading
+			# the user as to where they "are" in the tree
 			if [[ -d "${_portage}/${file}/${sub}" && -d "${_overlay}/${file}/${sub}" ]] ; then
 				sort_add "fl_dir" "${sub}"
 			else
