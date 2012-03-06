@@ -1,2 +1,22 @@
 o The profile should be reparented at some point so that the
   paths are compatible with a default layman installation
+
+o It turns out that the CHOST setting I have used is an historical
+  relic that makes no sense.  I don't know why I didn't figure this
+  out sooner; anyhow, instead of 
+
+    CHOST="i686-pc-cygwin1.7"
+
+  we can just have
+
+    CHOST="i686-pc-cygwin"
+
+  and all the various work-arounds in this overlay pertaining to "1.7"
+  -- mostly various patches changing bash case statements from, i.e.:
+
+    - *-foo*|*-bar*|*-cygwin|*-baz*)
+    + *-foo*|*-bar*|*-cygwin*|*-baz*)
+
+  -- can be abandoned.  yay!  Unfortunately, doing so is going to pretty
+  much fsck up my half-completed bootstrap process and I'm too lazy/entrenched
+  to comfortably do so just yet.  So for now I guess I am stuck with it.  boo!
