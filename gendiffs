@@ -129,7 +129,6 @@ my_file() {
 		return 1
 	}
 	local arg
-	# this insanity is needed to ensure that the output of my_file can be redirected by bash
 	file "${args[@]}" "$@"
 	cd "$old_pwd" || { echo "Couldn't cd to \"${old_pwd}\"" >&2 ; exit 1 ; }
 }
