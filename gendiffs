@@ -47,7 +47,7 @@ _portage="${gendiffs_eprefix%/}"/${gendiffs_portage_tree}
 _overlay="${gendiffs_eprefix%/}"/${gendiffs_overlay}
 _portage_diffs="${_overlay}"/${gendiffs_portage_diffs}
 gendiffs_datetime="$( date "+%Y%m%d-%H%M" )"
-gendiffs_outdir="${_portage_diffs}"/${gendiffs_datetime}
+gendiffs_outdir="${_portage_diffs}"/latest
 declare -a dirs
 gendiffs_outfile=/dev/null
 only_in_overlay_output=
@@ -56,8 +56,10 @@ only_in_portage_output=
 usage() {
 	echo "${0}: [-c|--clean] [-h|--help]"
 	echo
-	echo "--clean: remove all but the two latest"
-	echo "         backups before creating a third"
+	echo "--clean: remove all backups before creating the new one"
+	echo "         unless the environment variable \"KEEP2\" is"
+	echo "         exported and nonempty in which case all but the"
+	echo "         two most recent backups are wiped."
 	echo
 }
 
@@ -66,14 +68,25 @@ if [[ $1 == -h || $1 == --help || $2 == -h || $2 == --help ]] ; then
 	exit 0
 fi
 
+mkdir -p "${_portage_diffs}" || { echo "Couldn't create \"${_portage_diffs}\" directory" >&2 ; exit 1 ; }
+cd "${_portage_diffs}" || { echo "Couldn't enter \"${_portage_diffs}\"" >&2 ; exit 1 ; }
 if [[ $1 == -c || $1 == --clean ]] ; then
-	cd "${_portage_diffs}" || { echo "Couldn't enter \"${_portage_diffs}\"" >&2 ; exit 1 ; }
+	if [[ "$KEEP2" && -d latest ]] ; then
+		[[ -f latest/datetimestamp ]] || { echo "Can't find datetimestamp file in latest backup." >&2 ; exit 1 ; }
+		[[ -d "$(< latest/datetimestamp)" ]] && { echo "Can't rename 'latest' to '$(< latest/datetimestamp)' because already exists." >&2 ; exit 1 ; }
+		echo "NOTE: renaming 'latest' directory to '$(< latest/datetimestamp)'"
+		mv latest "$(< latest/datetimestamp)"
+	fi
 	dirs=( $( ls | sort ) )
-	if [[ "$KEEP2" ]] ; then
+	declare -i nd
+	nd=${#dirs[*]}
+	if [[ "$KEEP2" && (( nd < 3 )) ]] ; then
+		dirs=( )
+		nd=0
+	elif [[ "$KEEP2" ]] ; then
 		unset dirs[$(( --nd ))]
 		unset dirs[$(( --nd ))]
 	fi
-	nd=${#dirs[*]}
 	if (( $nd > 0 )) ; then
 		echo '!!! CLEAN: About to remove the following gendiff dirs:'
 		for dir in "${dirs[@]}" ; do echo $dir; done
@@ -85,23 +98,19 @@ if [[ $1 == -c || $1 == --clean ]] ; then
 	else
 		echo "Nothing to clean!" >&2
 	fi
+else
+	if [[ -d ${gendiffs_outdir} ]] ; then
+		[[ -f latest/datetimestamp ]] || { echo "Can't find datetimestamp file in latest backup." >&2 ; exit 1 ; }
+		[[ -d "$(< latest/datetimestamp)" ]] && { echo "Can't rename 'latest' to '$(< latest/datetimestamp)' because already exists." >&2 ; exit 1 ; }
+		echo "NOTE: renaming 'latest' directory to '$(< latest/datetimestamp)'"
+		mv latest "$(< latest/datetimestamp)"
+	fi
 fi
 
-echo "Creating (or recreating) in \"${gendiffs_outdir}\""
-
-[[ -d ${gendiffs_outdir} ]] && {
-	echo
-	echo -n '!!! Outdir exists: about to blow it away for good!...'
-	sleep 3
-	echo
-	echo
-	echo -n "kiss it goodbye..."
-	rm -rf "${gendiffs_outdir}" || { echo "Couldn't remove \"${gendiffs_outdir}\"" >&2 ; exit 1 ; }
-	echo gone
-	echo
-}
+echo "Creating \"${gendiffs_outdir}\""
 
 mkdir -p ${gendiffs_outdir} || { echo "Couldn't create \"${gendiffs_outdir}\"" >&2 ;  exit 1 ; }
+echo "${gendiffs_datetime}" > "${gendiffs_outdir}/datetimestamp" || { echo "WTF???" >&2 ; exit 1 ; }
 
 echo '** processing overlay directories **'
 
@@ -200,7 +209,7 @@ only_in_portage() {
 raw_files_equal() {
 	local file1="${1}"
 	local file2="${2}"
-	if [[ "$( cat "${file1}" )" == "$( cat "${file2}" )" ]] ; then
+	if [[ "$(< "${file1}" )" == "$(< "${file2}" )" ]] ; then
 		return 0
 	else
 		return 1

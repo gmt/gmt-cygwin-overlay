@@ -1,1 +1,4 @@
+# gendiffs likes to create, i.e.: "portage_diffs/20120306-0328", but
+# we don't want to VC those (just "portage_diffs/latest")
+portage_diffs/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]
 *.swp
