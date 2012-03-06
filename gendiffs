@@ -9,7 +9,7 @@ fi
 
 gendiffs_eprefix=${EPREFIX:-/g2pfx}
 
-# FIXME: big ugly assumption: overlay is a subdirectory of EPREFIX
+# FIXME: big ugly assumption: overlay is a subdirectory of EPREFIX and so is portage
 gendiffs_portage_tree=usr/portage
 gendiffs_overlay=overlay
 gendiffs_portage_diffs=portage_diffs
