@@ -186,6 +186,8 @@ only_in_overlay() {
 	if [[ -h "${_overlay}/${file}" && ( ! -e "${_overlay}/${file}" ) ]] ; then
 		echo "WARNING: dangling overlay-only symbolic link: \"${the_file}\" -> \"$(readlink "${_overlay}/${file}")\"" | \
 			tee -a "${gendiffs_outfile}"
+	elif echo "${the_file}" | grep '\.exe\.stackdump$|\/core$' > /dev/null ; then
+		echo "WARNING: probable core-dump: \"${the_file}\"" | tee -a "${gendiffs_outfile}"
 	fi
 	return 0
 }
