@@ -1,0 +1,17 @@
+--- a/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-06 20:49:26.465531100 -0800
++++ b/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-06 20:57:12.420531100 -0800
+@@ -110,6 +110,14 @@
+ 	"UNIXMODE",
+ ]
+ 
++# cygwin hacks that we want to reach profile.bashrc
++environ_whitelist += [
++	"CYG_REBASE", "CYG_PEFLAGS", "CYG_REBASE_SUFFIXES",
++	"CYG_REBASE_OFFSET", "CYG_REBASE_VERBOSE",
++	"CYG_DONT_REBASE", "CYG_PRESERVE_REBASE_LST",
++	"CYG_DONT_REBASE_WORKDIR", "CYG_DONT_REBASE_DESTDIR",
++]
++
+ environ_whitelist = frozenset(environ_whitelist)
+ 
+ environ_whitelist_re = re.compile(r'^(CCACHE_|DISTCC_).*')
