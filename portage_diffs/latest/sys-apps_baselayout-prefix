@@ -1,7 +1,34 @@
 ===== mutual sub-directory: "sys-apps/baselayout-prefix" =====
+--("sys-apps/baselayout-prefix/ChangeLog")-->8-->
+--- usr/portage/sys-apps/baselayout-prefix/ChangeLog	2012-02-19 11:33:08.000000000 -0800
++++ overlay/sys-apps/baselayout-prefix/ChangeLog	2011-12-04 06:02:53.000000000 -0800
+@@ -1,11 +1,6 @@
+ # ChangeLog for sys-apps/baselayout-prefix
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout-prefix/ChangeLog,v 1.15 2012/02/19 19:32:40 grobian Exp $
+-
+-  19 Feb 2012; Fabian Groffen <grobian@gentoo.org>
+-  baselayout-prefix-1.12.14.ebuild:
+-  Use append-cflags instead of too generic append-flags to avoid F77 and FC
+-  rejected warnings
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout-prefix/ChangeLog,v 1.14 2011/12/04 13:55:27 grobian Exp $
+ 
+   04 Dec 2011; Fabian Groffen <grobian@gentoo.org>
+   baselayout-prefix-1.12.14.ebuild:
+<--8<--
 --("sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild")-->8-->
---- usr/portage/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild	2011-12-04 06:02:53.000000000 -0800
+--- usr/portage/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild	2012-02-19 11:33:08.000000000 -0800
 +++ overlay/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild	2012-02-11 01:56:25.396028800 -0800
+@@ -1,6 +1,6 @@
+-# Copyright 1999-2012 Gentoo Foundation
++# Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild,v 1.7 2012/02/19 19:32:40 grobian Exp $
++# $Header: /var/cvsroot/gentoo-x86/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild,v 1.6 2011/12/04 13:55:27 grobian Exp $
+ 
+ EAPI=3
+ 
 @@ -40,6 +40,8 @@
  	# The consoletype application in this form will only work on Linux
  	[[ ${CHOST} == *-linux-* ]] || epatch "${FILESDIR}"/baselayout-1.12.5-prefix-no-consoletype.patch
@@ -11,6 +38,17 @@
  	cd "${S}"
  	eprefixify \
  		etc/env.d/00basic \
+@@ -68,8 +70,8 @@
+ 	emake || die "Cannot build gnulib"
+ 	popd > /dev/null
+ 
+-	# use gnulib (buildsystem doesn't respect cppflags)
+-	append-cflags -I../gnulib -I../gnulib/gllib
++	# use gnulib
++	append-flags -I../gnulib -I../gnulib/gllib
+ 	append-ldflags -L../gnulib/gllib
+ 	append-libs gnu
+ 
 <--8<--
 ===== mutual sub-directory: "sys-apps/baselayout-prefix/files" =====
 

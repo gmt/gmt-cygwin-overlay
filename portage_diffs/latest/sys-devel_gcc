@@ -1,8 +1,147 @@
 ===== mutual sub-directory: "sys-devel/gcc" =====
+--("sys-devel/gcc/ChangeLog")-->8-->
+--- usr/portage/sys-devel/gcc/ChangeLog	2012-02-17 12:31:31.000000000 -0800
++++ overlay/sys-devel/gcc/ChangeLog	2011-11-30 11:01:33.000000000 -0800
+@@ -1,77 +1,6 @@
+ # ChangeLog for sys-devel/gcc
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.841 2011/12/06 04:16:08 vapier Exp $
+-
+-  17 Feb 2012; Fabian Groffen <grobian@gentoo.org>
+-  +files/solaris-i386-ld-emulation.patch, -gcc-4.5.1-r1.ebuild,
+-  gcc-4.4.6-r1.ebuild, gcc-4.5.2-r00.1.ebuild, gcc-4.5.3-r1.ebuild,
+-  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild:
+-  Add fix for recent breakage on Solaris using GNU ld 2.22
+-
+-  06 Dec 2011; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+-  Add description for new USE=libssp flag.
+-
+-  06 Dec 2011; Mike Frysinger <vapier@gentoo.org> -files/3.4.3/libssp.patch,
+-  gcc-3.3.6-r1.ebuild, gcc-3.4.6-r2.ebuild, gcc-4.0.4.ebuild:
+-  Drop obsolete/unsupported SSP/PIE code in older gcc versions.
+-
+-  06 Dec 2011; Ryan Hill <dirtyepic@gentoo.org> gcc-4.6.2.ebuild:
+-  Bump to patchset 1.1. Fixes compile issues on arm (bug #366253), and enable
+-  fortification by default using builtin defines instead of spec rules as the
+-  latter may become unsupportable in the future.
+-
+-  04 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-3.3.6-r1.ebuild,
+-  gcc-3.4.6-r2.ebuild:
+-  Drop dead MAN_VER code.
+-
+-  03 Dec 2011; Mike Frysinger <vapier@gentoo.org>
+-  -files/stubs/gcc-3.3-htb-stub.patch, -files/stubs/gcc-3.3-ssp-stub.patch,
+-  -files/stubs/gcc-3.4-htb-stub.patch, -files/stubs/gcc-3.4-ssp-stub.patch,
+-  -files/stubs/gcc-4.0-htb-stub.patch, -files/stubs/gcc-4.0-ssp-stub.patch:
+-  Drop now unused stub patches.
+-
+-  03 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-4.6.0.ebuild,
+-  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild:
+-  Disable fortify patches with older glibcs #362315 by Leonid Volnitsky.
+-
+-  03 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-4.0.4.ebuild,
+-  gcc-4.3.3-r2.ebuild, gcc-4.3.4.ebuild:
+-  Drop obsolete GENTOO_PATCH_EXCLUDE lines.
+-
+-  02 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-2.95.3-r10.ebuild,
+-  gcc-3.2.2.ebuild, gcc-3.3.6-r1.ebuild, gcc-3.4.6-r2.ebuild, gcc-4.0.4.ebuild,
+-  gcc-4.1.2.ebuild, gcc-4.2.4-r1.ebuild, gcc-4.3.3-r2.ebuild, gcc-4.3.4.ebuild,
+-  gcc-4.3.5.ebuild, gcc-4.3.6-r1.ebuild, gcc-4.4.2.ebuild:
+-  Delete old hardened logic as we no longer support it (split specs/etc...).
+-
+-  02 Dec 2011; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+-  Add USE=gtk description by Ralph Sennhauser #362799 by Peter Volkov.
+-
+-  09 Nov 2011; Mike Frysinger <vapier@gentoo.org> gcc-2.95.3-r10.ebuild,
+-  gcc-3.3.6-r1.ebuild, gcc-3.4.6-r2.ebuild, gcc-4.0.4.ebuild, gcc-4.1.2.ebuild,
+-  gcc-4.2.4-r1.ebuild, gcc-4.3.3-r2.ebuild, gcc-4.3.4.ebuild, gcc-4.3.5.ebuild,
+-  gcc-4.3.6-r1.ebuild, gcc-4.4.2.ebuild, gcc-4.4.3-r3.ebuild,
+-  gcc-4.4.4-r2.ebuild, gcc-4.4.5.ebuild, gcc-4.4.6-r1.ebuild,
+-  gcc-4.5.1-r1.ebuild, gcc-4.5.2.ebuild, gcc-4.5.3-r1.ebuild, gcc-4.6.0.ebuild,
+-  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild:
+-  Drop most dependencies now that toolchain.eclass takes care of them. Also
+-  drop the ncurses dep as that seems to be purely a workaround for an ancient
+-  issue #4411 which we have addressed in different ways.
+-
+-*gcc-4.6.2 (30 Oct 2011)
+-
+-  30 Oct 2011; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.6.2.ebuild:
+-  Version bump. Also fixes bug #364319 (preprocessor flag canonicalization
+-  patch broke gcj), and bug #387483 (broken clang++).
+-
+-  24 Oct 2011; Raúl Porcel <armin76@gentoo.org> gcc-4.5.3-r1.ebuild:
+-  alpha/ia64/s390/sh/sparc stable wrt #357478
+-
+-  09 Oct 2011; Markus Meier <maekke@gentoo.org> gcc-4.5.3-r1.ebuild:
+-  arm stable, bug #357479
+-
+-  04 Oct 2011; Jeroen Roovers <jer@gentoo.org> gcc-4.5.3-r1.ebuild:
+-  Stable for HPPA (bug #357479).
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.827 2011/09/26 17:38:49 vapier Exp $
+ 
+   30 Nov 2011; Fabian Groffen <grobian@gentoo.org> gcc-4.6.1-r1.ebuild,
+   gcc-4.5.3-r1.ebuild:
+<--8<--
 --("sys-devel/gcc/gcc-4.5.3-r1.ebuild")-->8-->
---- usr/portage/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2011-11-30 11:01:33.000000000 -0800
+--- usr/portage/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2012-02-17 12:31:31.000000000 -0800
 +++ overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2012-02-24 16:23:17.608515500 -0800
-@@ -71,6 +71,37 @@
+@@ -1,6 +1,6 @@
+-# Copyright 1999-2012 Gentoo Foundation
++# Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.5.3-r1.ebuild,v 1.9 2011/11/09 19:22:57 vapier Exp $
++# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.5.3-r1.ebuild,v 1.5 2011/09/26 17:38:49 vapier Exp $
+ 
+ PATCH_VER="1.0"
+ UCLIBC_VER="1.0"
+@@ -24,8 +24,39 @@
+ LICENSE="GPL-3 LGPL-3 || ( GPL-3 libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.2"
+ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+ 
+-RDEPEND=""
++RDEPEND=">=sys-libs/zlib-1.1.4
++	>=sys-devel/gcc-config-1.4
++	virtual/libiconv
++	>=dev-libs/gmp-4.3.2
++	>=dev-libs/mpfr-2.4.2
++	>=dev-libs/mpc-0.8.1
++	graphite? (
++		>=dev-libs/ppl-0.10
++		>=dev-libs/cloog-ppl-0.15.8
++	)
++	lto? ( || ( >=dev-libs/elfutils-0.143 dev-libs/libelf ) )
++	!build? (
++		gcj? (
++			gtk? (
++				x11-libs/libXt
++				x11-libs/libX11
++				x11-libs/libXtst
++				x11-proto/xproto
++				x11-proto/xextproto
++				=x11-libs/gtk+-2*
++				x11-libs/pango
++			)
++			>=media-libs/libart_lgpl-2.1
++			app-arch/zip
++			app-arch/unzip
++		)
++		>=sys-libs/ncurses-5.2-r2
++		nls? ( sys-devel/gettext )
++	)"
+ DEPEND="${RDEPEND}
++	test? ( >=dev-util/dejagnu-1.4.4 >=sys-devel/autogen-5.5.4 )
++	>=sys-apps/texinfo-4.8
++	>=sys-devel/bison-1.875
+ 	!prefix? ( elibc_glibc? ( >=sys-libs/glibc-2.8 ) )
+ 	kernel_Darwin? ( ${CATEGORY}/binutils-apple )
+ 	kernel_AIX? ( ${CATEGORY}/native-cctools )
+@@ -35,10 +66,42 @@
+ 		ppc64? ( >=${CATEGORY}/binutils-2.17 )
+ 		>=${CATEGORY}/binutils-2.15.94
+ 	)"
++PDEPEND=">=sys-devel/gcc-config-1.4"
+ if [[ ${CATEGORY} != cross-* ]] ; then
  	PDEPEND="${PDEPEND} !prefix? ( elibc_glibc? ( >=sys-libs/glibc-2.8 ) )"
  fi
  
@@ -40,7 +179,17 @@
  src_unpack() {
  	toolchain_src_unpack
  	use vanilla && return 0
-@@ -107,7 +138,10 @@
+@@ -46,9 +109,6 @@
+ 	# work around http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33637
+ 	epatch "${FILESDIR}"/4.3.0/targettools-checks.patch
+ 
+-	# call the linker without explicit target like on sparc
+-	epatch "${FILESDIR}"/solaris-i386-ld-emulation.patch
+-
+ 	# add support for 64-bits native target on Solaris
+ 	epatch "${FILESDIR}"/4.5.1/solaris-x86_64.patch
+ 
+@@ -78,7 +138,10 @@
  	epatch "${FILESDIR}"/4.5.1/aix-force-pthread.patch
  	epatch "${FILESDIR}"/4.5.1/ia64-hpux-always-pthread.patch
  
@@ -52,7 +201,7 @@
  	epatch "${FILESDIR}"/4.5.2/solaris-pthread.patch
  
  	# libgcc's Makefiles reuses $T, work around that :(
-@@ -115,6 +149,11 @@
+@@ -86,6 +149,11 @@
  	[[ ${CHOST} == *86-*-solaris* ]] && \
  		epatch "${FILESDIR}"/4.4.4/${PN}-4.4.4-T-namespace.patch
  
@@ -64,7 +213,7 @@
  	sed -i 's/use_fixproto=yes/:/' gcc/config.gcc #PR33200
  
  	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
-@@ -131,6 +170,26 @@
+@@ -102,6 +170,26 @@
  	fi
  }
  
@@ -91,7 +240,7 @@
  src_compile() {
  	case ${CTARGET}:" ${USE} " in
  		powerpc*-darwin*)
-@@ -166,6 +225,23 @@
+@@ -137,6 +225,23 @@
  				export gcc_cv_as_lcomm_with_alignment=no
  			fi
  		;;
@@ -115,7 +264,7 @@
  		i[34567]86-*-linux*:*" prefix "*)
  			# to allow the linux-x86-on-amd64.patch become useful, we need
  			# to enable multilib, even if there is just one multilib option.
-@@ -219,7 +295,7 @@
+@@ -190,7 +295,7 @@
  	# Maybe there is a better location for doing this ...? Feel free to move
  	# it there if you want to.
  
@@ -124,7 +273,7 @@
  		#!/bin/env bash
  		# GCC specific variables
  		unset GCC_SPECS GCC_EXEC_PREFIX
-@@ -230,7 +306,7 @@
+@@ -201,7 +306,7 @@
  	_EOF
  
  	insinto /etc/profile.d
@@ -133,6 +282,26 @@
  
  }
  
+<--8<--
+--("sys-devel/gcc/metadata.xml")-->8-->
+--- usr/portage/sys-devel/gcc/metadata.xml	2011-12-06 12:01:32.000000000 -0800
++++ overlay/sys-devel/gcc/metadata.xml	2011-08-01 14:01:32.000000000 -0700
+@@ -9,15 +9,11 @@
+     <flag name="go">Build the GCC Go language frontend.</flag>
+     <flag name="graphite">Add support for the framework for loop
+       optimizations based on a polyhedral intermediate representation</flag>
+-    <flag name="gtk">Useful only when building GCJ, this enables Abstract Window Toolkit
+-      (AWT) peer support on top of GTK+</flag>
+     <flag name="ip28">Enable building a compiler capable of building a kernel
+       for SGI Indigo2 Impact R10000 (IP28)</flag>
+     <flag name="ip32r10k">Enable building a compiler capable of building an
+       experimental kernel for SGI O2 w/ R1x000 CPUs (IP32)</flag>
+     <flag name="libffi">Build the portable foreign function interface library</flag>
+-    <flag name="libssp">Build SSP support into a dedicated library rather than use the
+-      code in the C library (DO NOT ENABLE THIS IF YOU DON'T KNOW WHAT IT DOES)</flag>
+     <flag name="lto">Add support for link-time optimizations (unsupported, use
+       at your own risk).</flag>
+     <flag name="mudflap">Add support for mudflap, a pointer use checking library</flag>
 <--8<--
 ===== mutual sub-directory: "sys-devel/gcc/files" =====
 ===== mutual sub-directory: "sys-devel/gcc/files/3.3.4" =====
@@ -175,9 +344,10 @@ usr/portage/sys-devel/gcc/gcc-4.1.2.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.2.4-r01.4.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.3.6-r1.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.4.6-r1.ebuild: ASCII English text
-usr/portage/sys-devel/gcc/gcc-4.5.1-r1.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.5.2-r00.1.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/gcc-4.6.1-r1.ebuild: ASCII English text
+usr/portage/sys-devel/gcc/gcc-4.6.2.ebuild: ASCII English text
 usr/portage/sys-devel/gcc/files/gcj-4.2.4-iconvlink.patch: unified diff output, ASCII text
 usr/portage/sys-devel/gcc/files/gcj-4.3.1-iconvlink.patch: unified diff output, ASCII text
+usr/portage/sys-devel/gcc/files/solaris-i386-ld-emulation.patch: unified diff output, ASCII text
 

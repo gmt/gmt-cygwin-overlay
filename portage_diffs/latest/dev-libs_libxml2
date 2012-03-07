@@ -1,29 +1,81 @@
 ===== mutual sub-directory: "dev-libs/libxml2" =====
---("dev-libs/libxml2/libxml2-2.7.8-r3.ebuild")-->8-->
---- usr/portage/dev-libs/libxml2/libxml2-2.7.8-r3.ebuild	2011-10-30 08:33:17.000000000 -0700
-+++ overlay/dev-libs/libxml2/libxml2-2.7.8-r3.ebuild	2012-02-05 19:11:22.451662300 -0800
-@@ -108,6 +108,8 @@
+--("dev-libs/libxml2/ChangeLog")-->8-->
+--- usr/portage/dev-libs/libxml2/ChangeLog	2012-03-03 12:03:05.000000000 -0800
++++ overlay/dev-libs/libxml2/ChangeLog	2011-10-30 08:33:17.000000000 -0700
+@@ -1,62 +1,6 @@
+ # ChangeLog for dev-libs/libxml2
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxml2/ChangeLog,v 1.336 2012/03/03 19:45:46 armin76 Exp $
+-
+-  03 Mar 2012; Raúl Porcel <armin76@gentoo.org> libxml2-2.7.8-r5.ebuild:
+-  arm/ia64/m68k/s390/sh/sparc stable wrt #405261
+-
+-  03 Mar 2012; Brent Baude <ranger@gentoo.org> libxml2-2.7.8-r5.ebuild:
+-  Marking libxml2-2.7.8-r5 ppc64 for bug 405261
+-
+-  02 Mar 2012; Tobias Klausmann <klausman@gentoo.org> libxml2-2.7.8-r5.ebuild:
+-  Stable on alpha, bug #405261
+-
+-  29 Feb 2012; Jeff Horelick <jdhore@gentoo.org> libxml2-2.7.8-r5.ebuild:
+-  marked x86 per security bug 405261
+-
+-  28 Feb 2012; Brent Baude <ranger@gentoo.org> libxml2-2.7.8-r5.ebuild:
+-  Marking libxml2-2.7.8-r5 ppc for bug 405261
+-
+-  23 Feb 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.7.8-r5.ebuild:
+-  Stable for AMD64, wrt security bug #405261
+-
+-  23 Feb 2012; Jeroen Roovers <jer@gentoo.org> libxml2-2.7.8-r5.ebuild:
+-  Stable for HPPA (bug #405261).
+-
+-*libxml2-2.7.8-r5 (23 Feb 2012)
+-
+-  23 Feb 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+-  -libxml2-2.7.8-r1.ebuild, -libxml2-2.7.8-r2.ebuild, -libxml2-2.7.8-r3.ebuild,
+-  +libxml2-2.7.8-r5.ebuild, +files/libxml2-2.7.8-hash-randomization.patch:
+-  Add hashing randomization to prevent DoS vulnerability (CVE-2012-0841, bug
+-  #405261, thanks to Michael Harrison for reporting). Drop old.
+-
+-  20 Feb 2012; Patrick Lauer <patrick@gentoo.org> libxml2-2.7.8-r1.ebuild,
+-  libxml2-2.7.8-r2.ebuild, libxml2-2.7.8-r3.ebuild, libxml2-2.7.8-r4.ebuild:
+-  Restricting pypy #403751
+-
+-  16 Jan 2012; Jeroen Roovers <jer@gentoo.org> libxml2-2.7.8-r4.ebuild:
+-  Stable for HPPA (bug #398361).
+-
+-  14 Jan 2012; Raúl Porcel <armin76@gentoo.org> libxml2-2.7.8-r4.ebuild:
+-  alpha/arm/ia64/m68k/s390/sh/sparc stable wrt #398361
+-
+-  12 Jan 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> libxml2-2.7.8-r4.ebuild:
+-  x86 stable wrt bug #398361
+-
+-  11 Jan 2012; Mark Loeser <halcy0n@gentoo.org> libxml2-2.7.8-r4.ebuild:
+-  Stable for ppc/ppc64; bug #398361
+-
+-  10 Jan 2012; Agostino Sarubbo <ago@gentoo.org> libxml2-2.7.8-r4.ebuild:
+-  Stable for AMD64, wrt security bug #398361
+-
+-*libxml2-2.7.8-r4 (10 Jan 2012)
+-
+-  10 Jan 2012; Alexandre Rostovtsev <tetromino@gentoo.org>
+-  +libxml2-2.7.8-r4.ebuild,
+-  +files/libxml2-2.7.8-allocation-error-copying-entities.patch:
+-  Fix heap-based overflow in parsing long entity references (CVE-2011-3919, bug
+-  #398361, thanks to Agostino Sarubbo for reporting).
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/dev-libs/libxml2/ChangeLog,v 1.321 2011/10/30 15:13:37 armin76 Exp $
  
- 	# --with-mem-debug causes unusual segmentation faults (bug #105120).
- 
-+	append-ldflags -Wl,--no-as-needed
-+
- 	local myconf="--with-html-subdir=${PF}/html
- 		--docdir=${EPREFIX}/usr/share/doc/${PF}
- 		$(use_with debug run-debug)
-@@ -127,6 +129,8 @@
- src_compile() {
- 	default
- 
-+	append-ldflags -Wl,--no-as-needed
-+
- 	if use python; then
- 		python_copy_sources python
- 		building() {
+   30 Oct 2011; Raúl Porcel <armin76@gentoo.org> libxml2-2.7.8-r3.ebuild:
+   alpha/ia64/m68k/s390/sh/sparc stable wrt #385699
 <--8<--
 ===== mutual sub-directory: "dev-libs/libxml2/files" =====
 
+*** The following files appear only in the overlay ***
+overlay/dev-libs/libxml2/libxml2-2.7.8-r3.ebuild: ASCII English text, with very long lines
+
 *** The following files appear only in portage ***
-usr/portage/dev-libs/libxml2/libxml2-2.7.8-r1.ebuild: ASCII English text, with very long lines
-usr/portage/dev-libs/libxml2/libxml2-2.7.8-r2.ebuild: ASCII English text, with very long lines
+usr/portage/dev-libs/libxml2/libxml2-2.7.8-r4.ebuild: ASCII English text, with very long lines
+usr/portage/dev-libs/libxml2/libxml2-2.7.8-r5.ebuild: ASCII English text, with very long lines
+usr/portage/dev-libs/libxml2/files/libxml2-2.7.8-allocation-error-copying-entities.patch: unified diff output, ASCII text
+usr/portage/dev-libs/libxml2/files/libxml2-2.7.8-hash-randomization.patch: unified diff output, ASCII text
 

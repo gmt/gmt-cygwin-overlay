@@ -1,7 +1,64 @@
 ===== mutual sub-directory: "app-admin/eselect" =====
+--("app-admin/eselect/ChangeLog")-->8-->
+--- usr/portage/app-admin/eselect/ChangeLog	2012-02-12 09:32:57.000000000 -0800
++++ overlay/app-admin/eselect/ChangeLog	2011-09-25 09:32:45.000000000 -0700
+@@ -1,32 +1,6 @@
+ # ChangeLog for app-admin/eselect
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/app-admin/eselect/ChangeLog,v 1.197 2012/02/12 17:12:50 ulm Exp $
+-
+-*eselect-1.3.1 (12 Feb 2012)
+-
+-  12 Feb 2012; Ulrich Müller <ulm@gentoo.org> +eselect-1.3.1.ebuild:
+-  Version bump, fixes bugs 401843 and 403215.
+-
+-  07 Feb 2012; Ulrich Müller <ulm@gentoo.org> -eselect-1.2.17.ebuild:
+-  Remove intermediate version.
+-
+-  07 Feb 2012; Jeroen Roovers <jer@gentoo.org> eselect-1.2.18.ebuild:
+-  Stable for HPPA (bug #399639).
+-
+-  31 Jan 2012; Samuli Suominen <ssuominen@gentoo.org> eselect-1.2.18.ebuild:
+-  ppc/ppc64 stable wrt #399639
+-
+-  22 Jan 2012; Raúl Porcel <armin76@gentoo.org> eselect-1.2.18.ebuild:
+-  alpha/arm/ia64/m68k/s390/sh/sparc/x86 stable wrt #399639
+-
+-  22 Jan 2012; Agostino Sarubbo <ago@gentoo.org> eselect-1.2.18.ebuild:
+-  Stable for amd64, wrt bug #399639
+-
+-*eselect-1.3 (21 Jan 2012)
+-
+-  21 Jan 2012; Ulrich Müller <ulm@gentoo.org> eselect-1.2.18.ebuild,
+-  +eselect-1.3.ebuild:
+-  Version bump, new features from bug 265264 and bug 388233.
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/app-admin/eselect/ChangeLog,v 1.190 2011/09/25 16:24:18 ulm Exp $
+ 
+ *eselect-1.2.18 (25 Sep 2011)
+ 
+<--8<--
 --("app-admin/eselect/eselect-1.2.18.ebuild")-->8-->
---- usr/portage/app-admin/eselect/eselect-1.2.18.ebuild	2011-09-25 09:24:18.000000000 -0700
+--- usr/portage/app-admin/eselect/eselect-1.2.18.ebuild	2012-02-07 14:33:13.000000000 -0800
 +++ overlay/app-admin/eselect/eselect-1.2.18.ebuild	2012-02-19 02:48:21.683766300 -0800
+@@ -1,6 +1,6 @@
+-# Copyright 1999-2012 Gentoo Foundation
++# Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/app-admin/eselect/eselect-1.2.18.ebuild,v 1.6 2012/02/07 16:05:16 jer Exp $
++# $Header: /var/cvsroot/gentoo-x86/app-admin/eselect/eselect-1.2.18.ebuild,v 1.1 2011/09/25 16:24:18 ulm Exp $
+ 
+ EAPI=2
+ 
+@@ -12,7 +12,7 @@
+ 
+ LICENSE="GPL-2"
+ SLOT="0"
+-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
++KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+ IUSE="doc"
+ 
+ RDEPEND="sys-apps/sed
 @@ -42,6 +42,10 @@
  
  src_install() {
@@ -13,10 +70,20 @@
  	newbashcomp misc/${PN}.bashcomp ${PN} || die
  	dodoc AUTHORS ChangeLog NEWS README TODO doc/*.txt || die
  
+@@ -51,8 +55,6 @@
+ 
+ 	# needed by news module
+ 	keepdir /var/lib/gentoo/news
+-	fowners root:portage /var/lib/gentoo/news || die
+-	fperms g+w /var/lib/gentoo/news || die
+ }
+ 
+ pkg_postinst() {
 <--8<--
 
 *** The following files appear only in portage ***
 usr/portage/app-admin/eselect/eselect-1.2.15.ebuild: ASCII English text, with very long lines
-usr/portage/app-admin/eselect/eselect-1.2.17.ebuild: ASCII English text, with very long lines
+usr/portage/app-admin/eselect/eselect-1.3.1.ebuild: ASCII English text, with very long lines
+usr/portage/app-admin/eselect/eselect-1.3.ebuild: ASCII English text, with very long lines
 usr/portage/app-admin/eselect/eselect-9999.ebuild: ASCII English text
 

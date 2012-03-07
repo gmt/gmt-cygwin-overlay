@@ -1,8 +1,42 @@
 ===== mutual sub-directory: "dev-libs/libffi" =====
+--("dev-libs/libffi/ChangeLog")-->8-->
+--- usr/portage/dev-libs/libffi/ChangeLog	2012-02-19 08:02:52.000000000 -0800
++++ overlay/dev-libs/libffi/ChangeLog	2011-11-18 04:02:57.000000000 -0800
+@@ -1,20 +1,6 @@
+ # ChangeLog for dev-libs/libffi
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.137 2012/02/19 15:42:11 armin76 Exp $
+-
+-  19 Feb 2012; Raúl Porcel <armin76@gentoo.org> libffi-3.0.10.ebuild:
+-  arm/ia64/m68k/s390/sh/sparc stable wrt #387063
+-
+-  16 Feb 2012; Mike Frysinger <vapier@gentoo.org> libffi-3.0.9-r2.ebuild,
+-  +files/libffi-3.0.9-x32.patch, libffi-3.0.10.ebuild,
+-  libffi-3.0.11_rc1.ebuild, libffi-3.0.11_rc2.ebuild:
+-  Add patch from upstream for x32 targets.
+-
+-  31 Jan 2012; Samuli Suominen <ssuominen@gentoo.org> libffi-3.0.10.ebuild:
+-  ppc/ppc64 stable wrt #387063
+-
+-  21 Jan 2012; Tobias Klausmann <klausman@gentoo.org> libffi-3.0.10.ebuild:
+-  Stable on alpha, bug #387063
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.132 2011/11/18 11:53:22 ssuominen Exp $
+ 
+ *libffi-3.0.11_rc2 (18 Nov 2011)
+ 
+<--8<--
 --("dev-libs/libffi/libffi-3.0.10.ebuild")-->8-->
---- usr/portage/dev-libs/libffi/libffi-3.0.10.ebuild	2011-11-09 08:33:02.000000000 -0800
+--- usr/portage/dev-libs/libffi/libffi-3.0.10.ebuild	2012-02-19 08:02:52.000000000 -0800
 +++ overlay/dev-libs/libffi/libffi-3.0.10.ebuild	2012-02-21 17:13:22.150710700 -0800
-@@ -6,7 +6,7 @@
+@@ -1,12 +1,12 @@
+-# Copyright 1999-2012 Gentoo Foundation
++# Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/libffi-3.0.10.ebuild,v 1.8 2012/02/19 15:39:17 armin76 Exp $
++# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/libffi-3.0.10.ebuild,v 1.4 2011/11/09 16:14:39 jer Exp $
+ 
+ EAPI=2
  
  MY_P=${P/_}
  
@@ -11,7 +45,16 @@
  
  DESCRIPTION="a portable, high level programming interface to various calling conventions."
  HOMEPAGE="http://sourceware.org/libffi/"
-@@ -32,7 +32,17 @@
+@@ -14,7 +14,7 @@
+ 
+ LICENSE="MIT"
+ SLOT="0"
+-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
++KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+ IUSE="debug static-libs test"
+ 
+ RDEPEND=""
+@@ -32,8 +32,17 @@
  	fi
  }
  
@@ -22,6 +65,7 @@
 +}
 +
  src_prepare() {
+-	epatch "${FILESDIR}"/${PN}-3.0.9-x32.patch
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-3.0.8-cygport-no-undefined.patch
 +		eautoreconf
@@ -39,4 +83,5 @@ overlay/dev-libs/libffi/files/libffi-3.0.8-cygport-no-undefined.patch: unified d
 usr/portage/dev-libs/libffi/libffi-3.0.11_rc1.ebuild: ASCII English text
 usr/portage/dev-libs/libffi/libffi-3.0.11_rc2.ebuild: ASCII English text
 usr/portage/dev-libs/libffi/libffi-3.0.9-r2.ebuild: ASCII English text
+usr/portage/dev-libs/libffi/files/libffi-3.0.9-x32.patch: unified diff output, ASCII text
 

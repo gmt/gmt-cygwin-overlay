@@ -1,8 +1,8 @@
 ===== mutual sub-directory: "profiles" =====
 --("profiles/profiles.desc")-->8-->
---- usr/portage/profiles/profiles.desc	2011-12-05 14:39:01.000000000 -0800
+--- usr/portage/profiles/profiles.desc	2012-03-06 11:40:24.000000000 -0800
 +++ overlay/profiles/profiles.desc	2012-02-25 14:16:34.588515500 -0800
-@@ -1,274 +1,5 @@
+@@ -1,278 +1,5 @@
 -#############################################
 -# This is a list of valid profiles for each architecture.  This file is used by
 -# repoman when doing a repoman scan or repoman full.
@@ -24,6 +24,7 @@
 -
 -# AMD64 Profiles
 -amd64           default/linux/amd64/10.0                        stable
+-amd64           default/linux/amd64/10.0/selinux                dev
 -amd64           default/linux/amd64/10.0/desktop                stable
 -amd64           default/linux/amd64/10.0/desktop/gnome          stable
 -amd64           default/linux/amd64/10.0/desktop/kde            stable
@@ -151,6 +152,7 @@
 -
 -# x86 Profiles
 -x86             default/linux/x86/10.0                          stable
+-x86             default/linux/x86/10.0/selinux                  dev
 -x86             default/linux/x86/10.0/desktop                  stable
 -x86             default/linux/x86/10.0/desktop/gnome            stable
 -x86             default/linux/x86/10.0/desktop/kde              stable
@@ -216,6 +218,8 @@
 -x64-macos		prefix/darwin/macos/10.5/x64			dev
 -x86-macos		prefix/darwin/macos/10.6/x86			dev
 -x64-macos		prefix/darwin/macos/10.6/x64			dev
+-x86-macos		prefix/darwin/macos/10.7/x86			dev
+-x64-macos		prefix/darwin/macos/10.7/x64			dev
 -
 -# Solaris Profiles
 -sparc-solaris		prefix/sunos/solaris/5.9/sparc			dev
@@ -232,9 +236,6 @@
 -ppc-aix			prefix/aix/5.2.0.0/ppc				dev
 -ppc-aix			prefix/aix/5.3.0.0/ppc				dev
 -ppc-aix			prefix/aix/6.1.0.0/ppc				dev
--
--# IRIX Profiles
--mips-irix		prefix/irix/6.5/mips				dev
 -
 -# Interix Profiles
 -x86-interix		prefix/windows/interix/3.5/x86			dev
@@ -266,7 +267,10 @@
 -x86-freebsd		prefix/bsd/freebsd/8.1/x86			dev
 -x64-freebsd		prefix/bsd/freebsd/8.1/x64			dev
 -sparc64-freebsd		prefix/bsd/freebsd/8.1/sparc64			dev
+-x64-freebsd		prefix/bsd/freebsd/8.2/x86			dev
 -x64-freebsd		prefix/bsd/freebsd/8.2/x64			dev
+-x64-freebsd		prefix/bsd/freebsd/9.0/x86			dev
+-x64-freebsd		prefix/bsd/freebsd/9.0/x64			dev
 -
 -# OpenBSD Profiles
 -ppc-openbsd		prefix/bsd/openbsd/4.2/ppc			dev
@@ -283,7 +287,7 @@
 +x86-cygwin		prefix/windows/cygwin/1.7/x86/gmtoverlay	dev
 <--8<--
 --("profiles/repo_name")-->8-->
---- usr/portage/profiles/repo_name	2011-12-05 14:39:01.000000000 -0800
+--- usr/portage/profiles/repo_name	2012-03-06 11:40:24.000000000 -0800
 +++ overlay/profiles/repo_name	2012-02-12 00:32:56.272174100 -0800
 @@ -1 +1 @@
 -gentoo_prefix
@@ -300,6 +304,11 @@ overlay/profiles/prefix/windows/cygwin/1.7/x86/gmtoverlay: directory
 
 *** The following files appear only in portage ***
 usr/portage/profiles/ChangeLog: UTF-8 Unicode English text
+usr/portage/profiles/ChangeLog-2007: UTF-8 Unicode English text
+usr/portage/profiles/ChangeLog-2008: UTF-8 Unicode English text
+usr/portage/profiles/ChangeLog-2009: UTF-8 Unicode English text
+usr/portage/profiles/ChangeLog-2010: UTF-8 Unicode English text
+usr/portage/profiles/ChangeLog-2011: UTF-8 Unicode English text
 usr/portage/profiles/arch: directory
 usr/portage/profiles/arch.list: ASCII text
 usr/portage/profiles/base: directory
@@ -321,14 +330,13 @@ usr/portage/profiles/thirdpartymirrors: ASCII text, with very long lines
 usr/portage/profiles/uclibc: directory
 usr/portage/profiles/updates: directory
 usr/portage/profiles/use.desc: ASCII English text
-usr/portage/profiles/use.local.desc: ASCII English text, with very long lines
+usr/portage/profiles/use.local.desc: UTF-8 Unicode English text, with very long lines
 usr/portage/profiles/prefix/ChangeLog: ASCII English text
 usr/portage/profiles/prefix/aix: directory
 usr/portage/profiles/prefix/bsd: directory
 usr/portage/profiles/prefix/darwin: directory
 usr/portage/profiles/prefix/eapi: ASCII text
 usr/portage/profiles/prefix/hpux: directory
-usr/portage/profiles/prefix/irix: directory
 usr/portage/profiles/prefix/linux: directory
 usr/portage/profiles/prefix/make.defaults: ASCII English text
 usr/portage/profiles/prefix/mint: directory

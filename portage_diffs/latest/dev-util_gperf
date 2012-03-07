@@ -1,4 +1,20 @@
 ===== mutual sub-directory: "dev-util/gperf" =====
+--("dev-util/gperf/ChangeLog")-->8-->
+--- usr/portage/dev-util/gperf/ChangeLog	2012-02-03 17:33:40.000000000 -0800
++++ overlay/dev-util/gperf/ChangeLog	2011-05-03 00:02:27.000000000 -0700
+@@ -1,9 +1,6 @@
+ # ChangeLog for dev-util/gperf
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-util/gperf/ChangeLog,v 1.54 2012/02/04 01:18:58 blueness Exp $
+-
+-  04 Feb 2012; Anthony G. Basile <blueness@gentoo.org> metadata.xml:
+-  Added myself as maintainer
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/dev-util/gperf/ChangeLog,v 1.53 2011/05/03 06:58:29 grobian Exp $
+ 
+   03 May 2011; Fabian Groffen <grobian@gentoo.org> gperf-3.0.4.ebuild:
+   Marked ~x64-freebsd
+<--8<--
 --("dev-util/gperf/gperf-3.0.4.ebuild")-->8-->
 --- usr/portage/dev-util/gperf/gperf-3.0.4.ebuild	2011-05-03 00:02:27.000000000 -0700
 +++ overlay/dev-util/gperf/gperf-3.0.4.ebuild	2012-02-21 04:29:54.200056500 -0800
@@ -22,6 +38,18 @@
  src_install() {
  	emake DESTDIR="${D}" htmldir="${EPREFIX}"/usr/share/doc/${PF}/html install || die
  	dodoc AUTHORS ChangeLog NEWS README
+<--8<--
+--("dev-util/gperf/metadata.xml")-->8-->
+--- usr/portage/dev-util/gperf/metadata.xml	2012-02-03 17:33:40.000000000 -0800
++++ overlay/dev-util/gperf/metadata.xml	2011-09-24 02:02:46.000000000 -0700
+@@ -2,6 +2,6 @@
+ <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+ <pkgmetadata>
+ 	<maintainer>
+-		<email>blueness@gentoo.org</email>
++		<email>maintainer-needed@gentoo.org</email>
+ 	</maintainer>
+ </pkgmetadata>
 <--8<--
 
 *** The following files appear only in the overlay ***

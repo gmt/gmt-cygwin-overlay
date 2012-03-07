@@ -1,0 +1,57 @@
+===== mutual sub-directory: "sys-apps/portage" =====
+--("sys-apps/portage/ChangeLog")-->8-->
+--- usr/portage/sys-apps/portage/ChangeLog	2012-03-01 13:01:30.000000000 -0800
++++ overlay/sys-apps/portage/ChangeLog	2012-03-06 21:10:01.141031100 -0800
+@@ -1,8 +1,15 @@
+ # ChangeLog for sys-apps/portage
+ # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Id: ChangeLog 60390 2012-03-01 20:46:45Z grobian $
++# $Id: ChangeLog $
+ 
+-*portage-2.2.01.20271 (01 Mar 2012)
++*portage-2.2.01.20271 (06 Mar 2012)
++
++  06 Mar 2012; Greg Turner <gmturner007@ameritech.net>
++  +files/portage-2.2.01.20271-cygwin-locking-nightmare.patch,
++  +files/portage-2.2.01.20271-cyg_whitelist.patch,
++  portage-2.2.01.20271.ebuild:
++  some hacks to work around a nasty showstopping cygwin portage bug
++  and whitelist some environment variables we want to reach profile.bashrc
+ 
+   01 Mar 2012; Fabian Groffen <grobian@gentoo.org> +portage-2.2.01.20271.ebuild,
+   -portage-2.2.01.20062.ebuild, files/portage-2.2.01.20239-ebuildshell.patch:
+<--8<--
+--("sys-apps/portage/portage-2.2.01.20271.ebuild")-->8-->
+--- usr/portage/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-01 13:01:30.000000000 -0800
++++ overlay/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-06 21:10:46.611031100 -0800
+@@ -1,6 +1,6 @@
+ # Copyright 1999-2012 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Id: portage-2.2.01.16270.ebuild 58665 2010-09-05 19:54:38Z grobian $
++# $Id: portage-2.2.01.16270.ebuild $
+ 
+ RESTRICT="test"
+ 
+@@ -92,6 +92,11 @@
+ 	fi
+ 
+ 	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
++
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
++		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
++	fi
+ }
+ 
+ src_configure() {
+<--8<--
+===== mutual sub-directory: "sys-apps/portage/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/sys-apps/portage/files/portage-2.2.01.20271-cyg_whitelist.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-locking-nightmare.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/sys-apps/portage/portage-2.2.01.20153.ebuild: ASCII English text
+usr/portage/sys-apps/portage/portage-2.2.01.20239.ebuild: ASCII English text
+

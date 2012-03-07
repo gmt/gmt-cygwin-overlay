@@ -1,4 +1,51 @@
 ===== mutual sub-directory: "dev-vcs/subversion" =====
+--("dev-vcs/subversion/ChangeLog")-->8-->
+--- usr/portage/dev-vcs/subversion/ChangeLog	2012-03-02 13:33:25.000000000 -0800
++++ overlay/dev-vcs/subversion/ChangeLog	2011-11-30 06:33:09.000000000 -0800
+@@ -1,25 +1,6 @@
+ # ChangeLog for dev-vcs/subversion
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/ChangeLog,v 1.71 2012/03/02 21:24:59 grobian Exp $
+-
+-  02 Mar 2012; Fabian Groffen <grobian@gentoo.org> subversion-1.7.2.ebuild:
+-  Drop Solaris flag trickery for neon, neon itself is fixed now
+-
+-  11 Feb 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+-  -subversion-1.6.17.ebuild, -subversion-1.6.17-r6.ebuild:
+-  Drop old versions
+-
+-  11 Feb 2012; Kacper Kowalik <xarthisius@gentoo.org>
+-  subversion-1.6.17-r7.ebuild:
+-  ppc64 stable wrt #386899
+-
+-*subversion-1.7.2 (14 Jan 2012)
+-
+-  14 Jan 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+-  +subversion-1.7.2.ebuild, files/svnserve.initd2, metadata.xml:
+-  Version bump, fixes bug 393641 and bug 389961, move from deprecated bashcomp
+-  eclass to -r1, adjust svnserve default user and group based on USE flags,
+-  fixes bug 381385, adjusting metadata.xml, taking over maintainership for now
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/ChangeLog,v 1.67 2011/11/30 14:28:49 grobian Exp $
+ 
+   30 Nov 2011; Fabian Groffen <grobian@gentoo.org> subversion-1.7.1.ebuild:
+   Use get_libname instead of hardcoding .so for shared libraries for Darwin, by
+<--8<--
+--("dev-vcs/subversion/metadata.xml")-->8-->
+--- usr/portage/dev-vcs/subversion/metadata.xml	2012-01-14 12:03:13.000000000 -0800
++++ overlay/dev-vcs/subversion/metadata.xml	2011-09-24 02:02:56.000000000 -0700
+@@ -2,8 +2,8 @@
+ <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+ <pkgmetadata>
+ 	<maintainer>
+-		<email>tommy@gentoo.org</email>
+-		<name>Thomas Sachau</name>
++		<email>chainsaw@gentoo.org</email>
++		<name>Tony Vroon</name>
+ 	</maintainer>
+ 	<use>
+ 		<flag name="ctypes-python">Build and install Ctypes Python bindings</flag>
+<--8<--
 --("dev-vcs/subversion/subversion-1.7.1.ebuild")-->8-->
 --- usr/portage/dev-vcs/subversion/subversion-1.7.1.ebuild	2011-11-30 06:33:09.000000000 -0800
 +++ overlay/dev-vcs/subversion/subversion-1.7.1.ebuild	2012-02-13 07:28:02.236930700 -0800
@@ -62,14 +109,36 @@
  	if use ctypes-python; then
 <--8<--
 ===== mutual sub-directory: "dev-vcs/subversion/files" =====
+--("dev-vcs/subversion/files/svnserve.initd2")-->8-->
+--- usr/portage/dev-vcs/subversion/files/svnserve.initd2	2012-01-14 12:03:13.000000000 -0800
++++ overlay/dev-vcs/subversion/files/svnserve.initd2	2011-08-18 02:51:23.000000000 -0700
+@@ -1,7 +1,7 @@
+ #!/sbin/runscript
+-# Copyright 1999-2012 Gentoo Foundation
++# Copyright 2004-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License, v2 or later
+-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/files/svnserve.initd2,v 1.2 2012/01/14 19:46:34 tommy Exp $
++# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/files/svnserve.initd2,v 1.1 2011/08/18 09:51:23 chainsaw Exp $
+ 
+ depend() {
+ 	need net
+@@ -14,7 +14,7 @@
+ 	cd /
+ 	start-stop-daemon --start --quiet --background --make-pidfile \
+ 		--pidfile /var/run/svnserve.pid --exec /usr/bin/svnserve \
+-		--user ${SVNSERVE_USER:-apache} --group ${SVNSERVE_GROUP:-apache} -- \
++		--user ${SVNSERVE_USER:-apache}:${SVNSERVE_GROUP:-apache} -- \
+ 		--foreground --daemon ${SVNSERVE_OPTS:---root=/var/svn}
+ 	eend $?
+ }
+<--8<--
 
 *** The following files appear only in the overlay ***
 overlay/dev-vcs/subversion/files/subversion-1.7.1-cygwin-testing123.patch: unified diff output, ASCII text
 overlay/dev-vcs/subversion/files/subversion-1.7.1-cygwin.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/dev-vcs/subversion/subversion-1.6.17-r6.ebuild: ASCII English text
 usr/portage/dev-vcs/subversion/subversion-1.6.17-r7.ebuild: ASCII English text
-usr/portage/dev-vcs/subversion/subversion-1.6.17.ebuild: ASCII English text
 usr/portage/dev-vcs/subversion/subversion-1.7.0.ebuild: ASCII English text
+usr/portage/dev-vcs/subversion/subversion-1.7.2.ebuild: ASCII English text
 

@@ -1,7 +1,33 @@
 ===== mutual sub-directory: "dev-lang/python" =====
+--("dev-lang/python/ChangeLog")-->8-->
+--- usr/portage/dev-lang/python/ChangeLog	2012-02-21 11:31:31.000000000 -0800
++++ overlay/dev-lang/python/ChangeLog	2011-12-01 11:01:32.000000000 -0800
+@@ -1,10 +1,6 @@
+ # ChangeLog for dev-lang/python
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/ChangeLog,v 1.570 2012/02/18 16:09:29 jer Exp $
+-
+-  01 Jan 2012; Fabian Groffen <grobian@gentoo.org> python-2.7.2-r3.ebuild:
+-  Drop -u PyMac_Error from LINKFORSHARED since it assumes a framework build,
+-  which we don't reference in UNIX mode
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/ChangeLog,v 1.557 2011/10/31 04:02:01 vapier Exp $
+ 
+   01 Dec 2011; Fabian Groffen <grobian@gentoo.org> python-2.7.2.ebuild,
+   python-2.7.2-r3.ebuild:
+<--8<--
 --("dev-lang/python/python-2.7.2-r3.ebuild")-->8-->
---- usr/portage/dev-lang/python/python-2.7.2-r3.ebuild	2011-12-01 11:01:32.000000000 -0800
+--- usr/portage/dev-lang/python/python-2.7.2-r3.ebuild	2012-02-21 11:31:31.000000000 -0800
 +++ overlay/dev-lang/python/python-2.7.2-r3.ebuild	2012-02-25 04:38:54.029015500 -0800
+@@ -1,6 +1,6 @@
+-# Copyright 1999-2012 Gentoo Foundation
++# Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/python-2.7.2-r3.ebuild,v 1.11 2012/02/13 18:29:32 xarthisius Exp $
++# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/python-2.7.2-r3.ebuild,v 1.7 2011/10/31 04:02:01 vapier Exp $
+ 
+ EAPI="2"
+ WANT_AUTOMAKE="none"
 @@ -34,7 +34,7 @@
  SLOT="2.7"
  PYTHON_ABI="${SLOT}"
@@ -33,10 +59,12 @@
  	local excluded_patches
  
  	# Ensure that internal copies of expat, libffi and zlib are not used.
-@@ -180,6 +186,49 @@
+@@ -180,8 +186,50 @@
  	# Linux-3 compat. Bug #374579 (upstream issue12571)
  	cp -r "${S}/Lib/plat-linux2" "${S}/Lib/plat-linux3" || die
  
+-	eautoconf
+-	eautoheader
 +	# hacks for bootstrap
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		if use threads ; then
@@ -80,10 +108,11 @@
 +		fi
 +	fi
 +
- 	eautoreconf
++	eautoreconf
  }
  
-@@ -301,11 +350,17 @@
+ src_configure() {
+@@ -302,11 +350,17 @@
  		&& myconf="${myconf} --enable-framework=${EPREFIX}/usr/lib" \
  		|| myconf="${myconf} --enable-shared"
  
@@ -102,15 +131,33 @@
  		$(use_enable ipv6) \
  		$(use_with threads) \
  		$( (use wide-unicode && use !aqua) && echo "--enable-unicode=ucs4" || echo "--enable-unicode=ucs2") \
+@@ -456,7 +510,7 @@
+ 
+ 		# fix up Makefile
+ 		sed -i \
+-			-e '/^LINKFORSHARED=/s/-u _PyMac_Error.*$//' \
++			-e '/^LINKFORSHARED=/s/_PyMac_Error.*$/PyMac_Error/' \
+ 			-e '/^LDFLAGS=/s/=.*$/=/' \
+ 			-e '/^prefix=/s:=.*$:= '"${EPREFIX}"'/usr:' \
+ 			-e '/^PYTHONFRAMEWORK=/s/=.*$/=/' \
+@@ -589,6 +643,13 @@
+ 			sleep 1
+ 		done
+ 	fi
++
++	if [[ "${PV}" != *_pre* ]]; then
++		elog
++		elog "If you want to help in testing of recent changes in Python, then you can use"
++		elog "snapshots of Python from python overlay."
++		elog
++	fi
+ }
+ 
+ pkg_postrm() {
 <--8<--
 ===== mutual sub-directory: "dev-lang/python/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-lang/python/files/python-2.7.2-cygwin-ctypes-error.patch: unified diff output, ASCII text
 overlay/dev-lang/python/files/python-2.7.2-cygwin.patch: unified diff output, ASCII text
-
-*** The following files appear only in portage ***
-usr/portage/dev-lang/python/python-2.7.1-r1.ebuild: ASCII English text
-usr/portage/dev-lang/python/python-2.7.1-r2.ebuild: ASCII English text
-usr/portage/dev-lang/python/python-2.7.2.ebuild: ASCII English text
 

@@ -1,8 +1,51 @@
 ===== mutual sub-directory: "app-shells/bash" =====
+--("app-shells/bash/ChangeLog")-->8-->
+--- usr/portage/app-shells/bash/ChangeLog	2012-01-24 00:31:31.000000000 -0800
++++ overlay/app-shells/bash/ChangeLog	2011-05-29 10:01:25.000000000 -0700
+@@ -1,28 +1,6 @@
+ # ChangeLog for app-shells/bash
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/ChangeLog,v 1.294 2011/11/24 00:06:53 vapier Exp $
+-
+-*bash-4.2_p20 (24 Nov 2011)
+-
+-  24 Nov 2011; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p20.ebuild:
+-  Version bump.
+-
+-  01 Nov 2011; Mike Frysinger <vapier@gentoo.org>
+-  files/bash-4.2-parallel-build.patch:
+-  Fix parallel build failures with mkbuiltin.
+-
+-  07 Oct 2011; Mike Frysinger <vapier@gentoo.org> bash-4.2_p10.ebuild,
+-  +files/bash-4.2-parallel-build.patch:
+-  Fix parallel build issues with parse.y and version.h/syntax.c.
+-
+-  16 Sep 2011; Mike Frysinger <vapier@gentoo.org> bash-4.2_p10.ebuild,
+-  +files/bash-4.2-execute-job-control.patch:
+-  Fix building when job controls are disabled (like when cross-compiling)
+-  #383237 by Maciej Grela.
+-
+-  11 Aug 2011; Mike Frysinger <vapier@gentoo.org> bash-4.2_p8-r1.ebuild,
+-  bash-4.2_p10.ebuild:
+-  Pull in yacc due to .y changes #376591 by Bertrand Jacquin.
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/ChangeLog,v 1.289 2011/05/16 10:36:26 nyhm Exp $
+ 
+   16 May 2011; Tristan Heaven <nyhm@gentoo.org> bash-3.2_p51.ebuild,
+   bash-4.0_p38.ebuild, bash-4.1_p7.ebuild, bash-4.1_p9.ebuild,
+<--8<--
 --("app-shells/bash/bash-4.2_p10.ebuild")-->8-->
---- usr/portage/app-shells/bash/bash-4.2_p10.ebuild	2011-06-20 10:01:30.000000000 -0700
+--- usr/portage/app-shells/bash/bash-4.2_p10.ebuild	2012-01-24 00:31:31.000000000 -0800
 +++ overlay/app-shells/bash/bash-4.2_p10.ebuild	2012-02-23 19:44:55.542872800 -0800
-@@ -39,7 +39,7 @@
+@@ -1,6 +1,6 @@
+ # Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p10.ebuild,v 1.5 2011/10/07 20:01:04 vapier Exp $
++# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p10.ebuild,v 1.2 2011/05/16 10:36:26 nyhm Exp $
+ 
+ EAPI="1"
+ 
+@@ -39,15 +39,13 @@
  SLOT="0"
  KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
  
@@ -11,7 +54,25 @@
  
  DEPEND=">=sys-libs/ncurses-5.2-r2
  	nls? ( virtual/libintl )"
-@@ -82,6 +82,11 @@
+ RDEPEND="${DEPEND}
+ 	!<sys-apps/portage-2.1.7.16
+ 	!<sys-apps/paludis-0.26.0_alpha5"
+-# we only need yacc when the .y files get patched (bash42-005)
+-DEPEND+=" virtual/yacc"
+ 
+ S=${WORKDIR}/${MY_P}
+ 
+@@ -73,9 +71,6 @@
+ 	[[ ${READLINE_PLEVEL} -gt 0 ]] && epatch $(patches -s ${READLINE_PLEVEL} readline ${READLINE_VER})
+ 	cd ../..
+ 
+-	epatch "${FILESDIR}"/${PN}-4.2-execute-job-control.patch #383237
+-	epatch "${FILESDIR}"/${PN}-4.2-parallel-build.patch
+-
+ 	# this adds additional prefixes
+ 	epatch "${FILESDIR}"/${PN}-4.0-configs-prefix.patch
+ 	eprefixify pathnames.h.in
+@@ -87,6 +82,11 @@
  		epatch "${FILESDIR}"/${PN}-4.0-interix-x64.patch
  	fi
  
@@ -23,7 +84,7 @@
  	# Nasty trick to set bashbug's shebang to bash instead of sh. We don't have
  	# sh while bootstrapping for the first time, This works around bug 309825
  	sed -i -e '1s:sh:bash:' support/bashbug.sh || die
-@@ -97,6 +102,10 @@
+@@ -102,6 +102,10 @@
  	# INSTEAD!!!
  }
  
@@ -34,7 +95,7 @@
  src_compile() {
  	local myconf=
  
-@@ -142,11 +151,20 @@
+@@ -147,11 +151,20 @@
  		#export ac_cv_lib_ncurses_tgetent=no
  	fi
  
@@ -69,4 +130,7 @@ usr/portage/app-shells/bash/bash-4.0_p38.ebuild: ASCII English text
 usr/portage/app-shells/bash/bash-4.1_p10.ebuild: ASCII English text
 usr/portage/app-shells/bash/bash-4.1_p11.ebuild: ASCII English text
 usr/portage/app-shells/bash/bash-4.1_p7.ebuild: ASCII English text
+usr/portage/app-shells/bash/bash-4.2_p20.ebuild: ASCII English text
+usr/portage/app-shells/bash/files/bash-4.2-execute-job-control.patch: unified diff output, ASCII text
+usr/portage/app-shells/bash/files/bash-4.2-parallel-build.patch: unified diff output, ASCII text
 

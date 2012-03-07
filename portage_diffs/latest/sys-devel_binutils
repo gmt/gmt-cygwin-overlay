@@ -1,4 +1,52 @@
 ===== mutual sub-directory: "sys-devel/binutils" =====
+--("sys-devel/binutils/ChangeLog")-->8-->
+--- usr/portage/sys-devel/binutils/ChangeLog	2012-02-14 11:31:29.000000000 -0800
++++ overlay/sys-devel/binutils/ChangeLog	2011-11-30 06:31:33.000000000 -0800
+@@ -1,41 +1,6 @@
+ # ChangeLog for sys-devel/binutils
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils/ChangeLog,v 1.437 2012/02/06 04:29:29 vapier Exp $
+-
+-  06 Feb 2012; Mike Frysinger <vapier@gentoo.org> binutils-2.22.52.0.1.ebuild:
+-  Drop KEYWORDS -- didn't mean to add those.
+-
+-*binutils-2.22.52.0.1 (05 Feb 2012)
+-
+-  05 Feb 2012; Mike Frysinger <vapier@gentoo.org> +binutils-2.22.52.0.1.ebuild:
+-  Version bump.
+-
+-*binutils-9999 (05 Feb 2012)
+-
+-  05 Feb 2012; Mike Frysinger <vapier@gentoo.org> +binutils-9999.ebuild:
+-  Add live git version.
+-
+-  28 Dec 2011; Mark Loeser <halcy0n@gentoo.org> binutils-2.21.1-r1.ebuild:
+-  Stable for ppc/ppc64; bug #378485
+-
+-*binutils-2.22-r1 (11 Dec 2011)
+-
+-  11 Dec 2011; Mike Frysinger <vapier@gentoo.org> +binutils-2.22-r1.ebuild:
+-  Add fixes from upstream for ppc/hppa/s390x, and a hardened fix for static
+-  linking.
+-
+-  11 Dec 2011; Raúl Porcel <armin76@gentoo.org> binutils-2.21.1-r1.ebuild:
+-  sparc stable wrt #378485
+-
+-  09 Dec 2011; Fabian Groffen <grobian@gentoo.org>
+-  +files/binutils-2.22-mint.patch, binutils-2.22.ebuild:
+-  Add updated patch for FreeMiNT by Alan Hourihane, bug #394151
+-
+-  05 Dec 2011; Mike Frysinger <vapier@gentoo.org> Manifest:
+-  Update patch tarball digests to match published one #393233 by Jerome Kurtz.
+-
+-  05 Dec 2011; Mike Frysinger <vapier@gentoo.org> binutils-2.21.1-r1.ebuild:
+-  Fix building on s390x systems #391431 by Raúl Porcel.
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils/ChangeLog,v 1.429 2011/11/23 11:12:27 flameeyes Exp $
+ 
+   23 Nov 2011; Diego E. Pettenò <flameeyes@gentoo.org> binutils-2.22.ebuild:
+   QA: make sure to depend on a patch(1) version that actually applies all the
+<--8<--
 ===== mutual sub-directory: "sys-devel/binutils/files" =====
 
 *** The following files appear only in the overlay ***
@@ -12,5 +60,7 @@ usr/portage/sys-devel/binutils/binutils-2.19.1-r01.1.ebuild: ASCII English text
 usr/portage/sys-devel/binutils/binutils-2.20.1-r1.ebuild: ASCII English text
 usr/portage/sys-devel/binutils/binutils-2.21.1-r1.ebuild: ASCII English text
 usr/portage/sys-devel/binutils/binutils-2.21.53.0.2.ebuild: ASCII English text
+usr/portage/sys-devel/binutils/binutils-2.22-r1.ebuild: ASCII English text
 usr/portage/sys-devel/binutils/binutils-2.22.ebuild: ASCII English text
+usr/portage/sys-devel/binutils/files/binutils-2.22-mint.patch: unified diff output, ASCII text
 

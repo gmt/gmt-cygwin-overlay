@@ -1,7 +1,49 @@
 ===== mutual sub-directory: "sys-devel/gnuconfig" =====
+--("sys-devel/gnuconfig/ChangeLog")-->8-->
+--- usr/portage/sys-devel/gnuconfig/ChangeLog	2012-03-03 14:33:08.000000000 -0800
++++ overlay/sys-devel/gnuconfig/ChangeLog	2011-09-21 02:02:46.000000000 -0700
+@@ -1,17 +1,6 @@
+ # ChangeLog for sys-devel/gnuconfig
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/ChangeLog,v 1.61 2012/03/03 22:24:58 vapier Exp $
+-
+-*gnuconfig-20120116 (03 Mar 2012)
+-
+-  03 Mar 2012; Mike Frysinger <vapier@gentoo.org>
+-  files/99999999/0001-add-uClibc-guess-support.patch,
+-  files/99999999/0002-add-ps2-targets-to-config.sub.patch,
+-  +gnuconfig-20120116.ebuild:
+-  Version bump.
+-
+-  03 Mar 2012; Mike Frysinger <vapier@gentoo.org> gnuconfig-20110814.ebuild:
+-  Stabilize for all.
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/ChangeLog,v 1.59 2011/09/21 08:39:50 mgorny Exp $
+ 
+   21 Sep 2011; Michał Górny <mgorny@gentoo.org> gnuconfig-99999999.ebuild:
+   Migrate to git-2.
+<--8<--
 --("sys-devel/gnuconfig/gnuconfig-20110814.ebuild")-->8-->
---- usr/portage/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2011-08-14 20:27:27.000000000 -0700
+--- usr/portage/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2012-03-03 14:33:08.000000000 -0800
 +++ overlay/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2012-02-23 15:25:30.540515400 -0800
+@@ -1,6 +1,6 @@
+-# Copyright 1999-2012 Gentoo Foundation
++# Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/gnuconfig-20110814.ebuild,v 1.2 2012/03/03 22:23:19 vapier Exp $
++# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/gnuconfig-20110814.ebuild,v 1.1 2011/08/15 03:27:27 vapier Exp $
+ 
+ EAPI="2"
+ 
+@@ -10,7 +10,7 @@
+ 	inherit git
+ else
+ 	SRC_URI="mirror://gentoo/${P}.tar.bz2"
+-	KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
++	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+ fi
+ 
+ DESCRIPTION="Updated config.sub and config.guess file from GNU"
 @@ -46,7 +46,7 @@
  }
  
@@ -20,6 +62,7 @@ overlay/sys-devel/gnuconfig/files/20110814: directory
 *** The following files appear only in portage ***
 usr/portage/sys-devel/gnuconfig/gnuconfig-20100924.ebuild: ASCII English text
 usr/portage/sys-devel/gnuconfig/gnuconfig-20110202.ebuild: ASCII English text
+usr/portage/sys-devel/gnuconfig/gnuconfig-20120116.ebuild: ASCII English text
 usr/portage/sys-devel/gnuconfig/gnuconfig-99999999.ebuild: ASCII English text
 usr/portage/sys-devel/gnuconfig/files/99999999: directory
 

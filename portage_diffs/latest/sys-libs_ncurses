@@ -1,4 +1,90 @@
 ===== mutual sub-directory: "sys-libs/ncurses" =====
+--("sys-libs/ncurses/ChangeLog")-->8-->
+--- usr/portage/sys-libs/ncurses/ChangeLog	2011-12-31 01:31:32.000000000 -0800
++++ overlay/sys-libs/ncurses/ChangeLog	2010-12-30 12:39:24.000000000 -0800
+@@ -1,79 +1,6 @@
+ # ChangeLog for sys-libs/ncurses
+-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-libs/ncurses/ChangeLog,v 1.197 2011/12/28 19:26:42 halcy0n Exp $
+-
+-  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> ncurses-5.9-r1.ebuild:
+-  Don't link non-existing shared libraries on static-only platforms, bug #394877
+-
+-  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> ncurses-5.9-r1.ebuild:
+-  Cleanup some legacy
+-
+-  28 Dec 2011; Mark Loeser <halcy0n@gentoo.org> ncurses-5.9.ebuild:
+-  Stable for ppc/ppc64; bug #377631
+-
+-  18 Dec 2011; Raúl Porcel <armin76@gentoo.org> ncurses-5.9.ebuild:
+-  alpha/ia64/m68k/s390/sh/sparc stable wrt #377631
+-
+-  03 Dec 2011; Markus Meier <maekke@gentoo.org> ncurses-5.9.ebuild:
+-  arm stable, bug #377631
+-
+-  02 Dec 2011; Steve Dibb <beandog@gentoo.org> ncurses-5.9.ebuild:
+-  amd64 stable, bug 377631
+-
+-  30 Nov 2011; Jeroen Roovers <jer@gentoo.org> ncurses-5.9.ebuild:
+-  Stable for HPPA (bug #377631).
+-
+-  28 Nov 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> ncurses-5.9.ebuild:
+-  x86 stable wrt bug #377631
+-
+-*ncurses-5.9-r1 (21 Nov 2011)
+-
+-  21 Nov 2011; Mike Frysinger <vapier@gentoo.org> +ncurses-5.9-r1.ebuild:
+-  Install pkg-config files.
+-
+-  13 Nov 2011; Mike Frysinger <vapier@gentoo.org> -ncurses-5.6-r2.ebuild,
+-  -ncurses-5.7-r3.ebuild, -ncurses-5.7-r5.ebuild, -ncurses-5.7-r6.ebuild:
+-  Drop old ebuilds (to lose USE=nocxx).
+-
+-  22 May 2011; Kacper Kowalik <xarthisius@gentoo.org> ncurses-5.7-r7.ebuild:
+-  ppc64 stable wrt #353437
+-
+-  23 Apr 2011; Raúl Porcel <armin76@gentoo.org> ncurses-5.7-r7.ebuild:
+-  alpha/ia64/s390/sh stable wrt #353437
+-
+-  19 Apr 2011; Michael Weber <xmw@gentoo.org> ncurses-5.7-r7.ebuild:
+-  sparc stable (bug 353437)
+-
+-  15 Apr 2011; Michael Weber <xmw@gentoo.org> ncurses-5.7-r7.ebuild:
+-  arm stable (bug 353437)
+-
+-  15 Apr 2011; Christoph Mende <angelos@gentoo.org> ncurses-5.7-r7.ebuild:
+-  Stable on amd64 wrt bug #353437
+-
+-  13 Apr 2011; Brent Baude <ranger@gentoo.org> ncurses-5.7-r7.ebuild:
+-  Marking ncurses-5.7-r7 ppc for bug 353437
+-
+-  12 Apr 2011; Jeroen Roovers <jer@gentoo.org> ncurses-5.7-r7.ebuild:
+-  Stable for HPPA (bug #353437).
+-
+-  12 Apr 2011; Thomas Kahle <tomka@gentoo.org> ncurses-5.7-r7.ebuild:
+-  x86 stable per bug 353437
+-
+-*ncurses-5.9 (12 Apr 2011)
+-
+-  12 Apr 2011; Mike Frysinger <vapier@gentoo.org> +ncurses-5.9.ebuild:
+-  Version bump #363177 by Panagiotis Christopoulos.
+-
+-*ncurses-5.8 (01 Mar 2011)
+-
+-  01 Mar 2011; Mike Frysinger <vapier@gentoo.org> +ncurses-5.8.ebuild,
+-  +files/ncurses-5.8-gfbsd.patch, +files/ncurses-5.8-rxvt-unicode.patch:
+-  Version bump.
+-
+-*ncurses-5.7-r7 (01 Mar 2011)
+-
+-  01 Mar 2011; Mike Frysinger <vapier@gentoo.org> +ncurses-5.7-r7.ebuild:
+-  Fix new static-libs logic #351316 by Rafał Mużyło.
++# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/sys-libs/ncurses/ChangeLog,v 1.178 2010/11/15 11:55:07 wired Exp $
+ 
+ *ncurses-5.7-r6 (15 Nov 2010)
+ 
+<--8<--
 ===== mutual sub-directory: "sys-libs/ncurses/files" =====
 
 *** The following files appear only in the overlay ***
@@ -13,14 +99,15 @@ overlay/sys-libs/ncurses/files/ncurses-5.7-pc-files-dep.patch: unified diff outp
 overlay/sys-libs/ncurses/files/ncurses-5.7-widec-wchar_h.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-libs/ncurses/ncurses-5.6-r2.ebuild: ASCII English text
-usr/portage/sys-libs/ncurses/ncurses-5.7-r3.ebuild: ASCII English text
-usr/portage/sys-libs/ncurses/ncurses-5.7-r5.ebuild: ASCII English text
 usr/portage/sys-libs/ncurses/ncurses-5.7-r6.ebuild: ASCII English text
+usr/portage/sys-libs/ncurses/ncurses-5.7-r7.ebuild: ASCII English text
+usr/portage/sys-libs/ncurses/ncurses-5.9-r1.ebuild: ASCII English text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-emacs.patch: unified diff output, ASCII text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-hashdb-open.patch: unified diff output, ASCII text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-ldflags-with-libtool.patch: unified diff output, ASCII text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-mint.patch: unified diff output, ASCII text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-rxvt-unicode-9.09.patch: unified diff output, UTF-8 Unicode text
 usr/portage/sys-libs/ncurses/files/ncurses-5.7-tic-cross-detection.patch: unified diff output, ASCII text
+usr/portage/sys-libs/ncurses/files/ncurses-5.8-gfbsd.patch: unified diff output, ASCII text
+usr/portage/sys-libs/ncurses/files/ncurses-5.8-rxvt-unicode.patch: unified diff output, UTF-8 Unicode text
 
