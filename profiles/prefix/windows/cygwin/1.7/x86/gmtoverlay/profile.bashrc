@@ -460,11 +460,13 @@ cyg_rebase-dirs() {
 # 0xC0000000: DESTDIR rebase address (cyg_rebase-portage-destdir)
 
 cyg_rebase-portage-workdir() {
+	[[ ${CYG_DONT_REBASE_WORKDIR:-0} == 0 ]] || return 0
 	einfo "Rebasing built dynamic libraries in \"${WORKDIR}\"..."
 	cyg_rebase-dirs 0xA0000000 "${WORKDIR}"
 }
 
 cyg_rebase-portage-destdir() {
+	[[ ${CYG_DONT_REBASE_DESTDIR:-0} == 0 ]] || return 0
 	einfo "Rebasing installed dynamic libraries in \"${D}\"..."
 	cyg_rebase-dirs 0xC0000000 "${D}"
 }
