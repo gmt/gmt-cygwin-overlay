@@ -1,59 +1,15 @@
---- a/pym/portage/dbapi/vartree.py	2012-03-01 12:35:26.000000000 -0800
-+++ b/pym/portage/dbapi/vartree.py	2012-03-06 20:15:34.020531100 -0800
-@@ -3844,12 +3844,53 @@
- 					cfgfiledict["IGNORE"] = 1
- 					break
+--- a/pym/portage/dbapi/vartree.py	2012-03-08 01:07:01.234904000 -0800
++++ b/pym/portage/dbapi/vartree.py	2012-03-08 01:08:16.801404000 -0800
+@@ -252,10 +252,10 @@
+ 			if self._fs_lock_obj is not None:
+ 				raise AssertionError("already locked")
+ 			try:
+-				self._fs_lock_obj = lockfile(self._conf_mem_file)
++				self._fs_lock_obj = lockfile(self._conf_mem_file, 1)
+ 			except InvalidLocation:
+ 				self.settings._init_dirs()
+-				self._fs_lock_obj = lockfile(self._conf_mem_file)
++				self._fs_lock_obj = lockfile(self._conf_mem_file, 1)
+ 		self._fs_lock_count += 1
  
--			rval = self._merge_contents(srcroot, destroot, cfgfiledict)
--			if rval != os.EX_OK:
--				return rval
-+		# Cygwin hack: This finally statement is supposed to occur /after/ the
-+		# return rval below.  However, something very spooky is happening.
-+		# The end result is that portage decides permission was denied to modify
-+		# ${EPREFIX}/var/lib/portage/config.  The culprit here is _fs_lock.
-+		# something in there -- if I'm not mistaken -- is triggering a subtle
-+		# deficit in the way cygwin deals with replace-via-rename which portage
-+		# wants to use to ensure interprocess atomicity when our additions are
-+		# comitted to that file.  So long as the lock is held, (under Vista and later
-+		# only?) _close() will fail, ultimately, owing to the underlying non-POSIX
-+		# APIs complaining about a filesystem transaction
-+		# problem (0xC0190001: STATUS_TRANSACTIONAL_CONFLICT).  My uneducated
-+		# guess is that once we make this change we are opening ourselves up
-+		# to some mostly-harmless race conditions.  As far as I can tell, the
-+		# worst-case scenarios would be:
-+		#
-+		# o the user is forced to repeat the same etc-update multiple times
-+		#
-+		# o something like the old bug occurs where permission is denied to
-+		#   write to ${EPREFIX}/var/lib/portage/config, causing emerge failure.
-+		#
-+		# However, these problems will only ever arise in cases where multiple
-+		# simultaneous emerges are underway, and even then they should be rare.
-+		# if they do crop up with any regularity we could consider removing the
-+		# calls to _fs_lock and _fs_unlock entirely (only for Cygwin of course),
-+		# which probably wouldn't cause too much real damage.
-+		#
-+		# How to /really/ fix this?  Well, to fix portage we could think about
-+		# changing atomic_ofstream._close() (in
-+		# lib/portage/pym/portage/util/__init__.py) to do something other than
-+		# renaming to ensure atomicity, at least in the case of Cygwin.  Better
-+		# yet, a serious investigation resulting in a concise testcase
-+		# demonstrating what UNIX semantics Cygwin is failing to emulate fully
-+		# could lead to a fix to Cygwin itself.  So far, I can't exactly say
-+		# what that would consist of.  For now, this solves the problem for
-+		# 99% of real-world cases or so I presume.  The hack would be more robust if
-+		# we could detect that a failure in atomic_ofstream._close() is owing
-+		# to a third-party lock caused by a another portage instance and spinning
-+		# until that lock is released, something we could do, for example, by 
-+		# creating and looking for a config._lock_ file or something like that.
-+		#
- 		finally:
- 			self.vartree.dbapi._fs_unlock()
- 
-+		rval = self._merge_contents(srcroot, destroot, cfgfiledict)
-+		if rval != os.EX_OK:
-+			return rval
-+
- 		# These caches are populated during collision-protect and the data
- 		# they contain is now invalid. It's very important to invalidate
- 		# the contents_inodes cache so that FEATURES=unmerge-orphans
+ 	def _fs_unlock(self):
