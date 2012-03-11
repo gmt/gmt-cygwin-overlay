@@ -1,74 +1,17 @@
 ===== mutual sub-directory: "sys-libs/zlib" =====
 --("sys-libs/zlib/ChangeLog")-->8-->
 --- usr/portage/sys-libs/zlib/ChangeLog	2011-12-14 07:31:32.000000000 -0800
-+++ overlay/sys-libs/zlib/ChangeLog	2010-08-07 09:31:46.000000000 -0700
-@@ -1,64 +1,6 @@
- # ChangeLog for sys-libs/zlib
--# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/ChangeLog,v 1.97 2011/09/23 17:52:32 jlec Exp $
--
--  14 Dec 2011; Fabian Groffen <grobian@gentoo.org> zlib-1.2.5.1-r2.ebuild:
--  Make sure we restore the working directory after minizip patching not to break
--  further patching, bug #394629
--
--  23 Sep 2011; Justin Lecher <jlec@gentoo.org> zlib-1.2.5.1-r2.ebuild,
--  metadata.xml:
--  econf dies alone
--
--  21 Sep 2011; Mike Frysinger <vapier@gentoo.org> zlib-1.2.5.1-r2.ebuild:
--  Also rename macros in new minizip headers.
--
--*zlib-1.2.5.1-r2 (21 Sep 2011)
--
--  21 Sep 2011; Mike Frysinger <vapier@gentoo.org>
--  +files/zlib-1.2.4-minizip-autotools.patch, +zlib-1.2.5.1-r2.ebuild,
--  metadata.xml:
--  Add USE=static-libs support, and USE=minizip to control building of the
--  minizip code as a library for other apps to link against (like vlc) #383351.
--
--*zlib-1.2.5.1-r1 (16 Sep 2011)
--
--  16 Sep 2011; Mike Frysinger <vapier@gentoo.org> +zlib-1.2.5.1-r1.ebuild:
--  Rename OF/ON defines in exported header to avoid collisions with other
--  packages #383179 by Ben Longbons.
--
--*zlib-1.2.5.1 (11 Sep 2011)
--
--  11 Sep 2011; Mike Frysinger <vapier@gentoo.org> +zlib-1.2.5.1.ebuild,
--  +files/zlib-1.2.5.1-symlinks.patch, +files/zlib-1.2.5.1-version.patch:
--  Version bump.
--
--  01 May 2011; Kacper Kowalik <xarthisius@gentoo.org> zlib-1.2.5-r2.ebuild:
--  ppc64 stable wrt #359953
--
--  10 Apr 2011; Raúl Porcel <armin76@gentoo.org> zlib-1.2.5-r2.ebuild:
--  ia64/m68k/s390/sh/sparc stable wrt #359953
--
--  08 Apr 2011; Markus Meier <maekke@gentoo.org> zlib-1.2.5-r2.ebuild:
--  arm stable, bug #359953
--
--  29 Mar 2011; Jeroen Roovers <jer@gentoo.org> zlib-1.2.5-r2.ebuild:
--  Stable for HPPA (bug #359953).
--
--  27 Mar 2011; Brent Baude <ranger@gentoo.org> zlib-1.2.5-r2.ebuild:
--  stable ppc, bug 359953
--
--  27 Mar 2011; Tobias Klausmann <klausman@gentoo.org> zlib-1.2.5-r2.ebuild:
--  Stable on alpha, bug #359953
--
--  26 Mar 2011; Christian Faulhammer <fauli@gentoo.org> zlib-1.2.5-r2.ebuild:
--  stable x86, bug 359953
--
--  22 Mar 2011; Christoph Mende <angelos@gentoo.org> zlib-1.2.5-r2.ebuild:
--  Stable on amd64 wrt bug #359953
--
--  06 Feb 2011; Mart Raudsepp <leio@gentoo.org> zlib-1.2.3-r1.ebuild:
--  Drop to ~mips
-+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/ChangeLog,v 1.83 2010/07/08 04:28:06 vapier Exp $
++++ overlay/sys-libs/zlib/ChangeLog	2012-03-08 10:57:24.722607500 -0800
+@@ -2,6 +2,9 @@
+ # Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+ # $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/ChangeLog,v 1.97 2011/09/23 17:52:32 jlec Exp $
  
-   08 Jul 2010; Mike Frysinger <vapier@gentoo.org> zlib-1.2.5-r2.ebuild:
-   Update by Alon Bar-Lev for mingw support #310307 by Nathan Phillip Brink.
++  08 Mar 2012; Greg Turner <gmt@malth.us> zlib-1.2.5.1-r2.ebuild:
++  apply cygport patches on cygwin.
++
+   14 Dec 2011; Fabian Groffen <grobian@gentoo.org> zlib-1.2.5.1-r2.ebuild:
+   Make sure we restore the working directory after minizip patching not to break
+   further patching, bug #394629
 <--8<--
 --("sys-libs/zlib/metadata.xml")-->8-->
 --- usr/portage/sys-libs/zlib/metadata.xml	2011-12-06 12:31:32.000000000 -0800
@@ -84,16 +27,16 @@
 <--8<--
 --("sys-libs/zlib/zlib-1.2.5-r2.ebuild")-->8-->
 --- usr/portage/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2011-12-06 12:31:32.000000000 -0800
-+++ overlay/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2012-02-23 21:54:51.197015500 -0800
-@@ -1,6 +1,6 @@
--# Copyright 1999-2011 Gentoo Foundation
-+# Copyright 1999-2010 Gentoo Foundation
++++ overlay/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2012-03-09 19:52:31.080848300 -0800
+@@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.5-r2.ebuild,v 1.12 2011/05/01 09:52:06 xarthisius Exp $
-+# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.5-r2.ebuild,v 1.4 2010/07/08 04:28:06 vapier Exp $
+ # $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.5-r2.ebuild,v 1.12 2011/05/01 09:52:06 xarthisius Exp $
  
- inherit eutils toolchain-funcs
+-inherit eutils toolchain-funcs
++inherit eutils toolchain-funcs autotools
  
+ DESCRIPTION="Standard (de)compression library"
+ HOMEPAGE="http://www.zlib.net/"
 @@ -42,6 +42,8 @@
  #	epatch "${FILESDIR}"/${PN}-1.2.3-shlib-aix.patch
  	# patch breaks shared libs installation
@@ -103,62 +46,94 @@
  }
  
  src_compile() {
-@@ -61,6 +63,15 @@
+@@ -61,6 +63,16 @@
  		./configure --static --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
  		emake || die
  		;;
 +	*-cygwin*)
-+                # AC_HAVE_MMAP fails despite a working mmap, so we force this to yes
++		# AC_HAVE_MMAP fails despite a working mmap, so we force this to yes
 +		# (see http://www.cygwin.com/ml/cygwin/2004-09/msg00741.html
 +		# and following thread for details)
 +		export ac_cv_func_mmap_fixed_mapped=yes
 +		./configure --shared --prefix="${EPREFIX%/}"/usr --eprefix="${EPREFIX%/}"/usr \
-+			--libdir="${EPREFIX%/}"/usr/$(get_libdir) --includedir="${EPREFIX%/}"/usr/include || die
-+		emake EXTRA_CFLAGS="${EXTRA_CFLAGS}" EXTRA_LDFLAGS="${EXTRA_LDFLAGS}" || die
++			--libdir="${EPREFIX%/}"/usr/$(get_libdir) --sharedlibdir="${EPREFIX}"/usr/$(get_libdir) \
++			--includedir="${EPREFIX%/}"/usr/include || die
++		emake || die
 +		;;
  	*)	# not an autoconf script, so can't use econf
  		CC=$(tc-getCC) ./configure --shared --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
  		emake || die
-@@ -72,9 +83,9 @@
- 	case ${CHOST} in
- 	*-mingw*|mingw*)
- 		emake -f win32/Makefile.gcc install \
--			BINARY_PATH="${ED}/usr/bin" \
--			LIBRARY_PATH="${ED}/usr/$(get_libdir)" \
--			INCLUDE_PATH="${ED}/usr/include" \
-+			BINARY_PATH="${ED}usr/bin" \
-+			LIBRARY_PATH="${ED}usr/$(get_libdir)" \
-+			INCLUDE_PATH="${ED}usr/include" \
- 			SHARED_MODE=1 \
- 			|| die
- 		insinto /usr/share/pkgconfig
-@@ -93,5 +104,15 @@
- 	if [[ ${CHOST} == *-winnt* ]]; then
- 		into /
- 		dolib libz$(get_libname ${PV}).dll
+<--8<--
+--("sys-libs/zlib/zlib-1.2.5.1-r2.ebuild")-->8-->
+--- usr/portage/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild	2012-01-09 19:01:30.000000000 -0800
++++ overlay/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild	2012-03-09 19:07:47.227348300 -0800
+@@ -1,6 +1,6 @@
+ # Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild,v 1.3 2011/09/23 17:52:32 jlec Exp $
++# $Header: $
+ 
+ inherit autotools eutils toolchain-funcs
+ 
+@@ -37,6 +37,9 @@
+ 
+ 	epatch "${FILESDIR}"/${P}-aix-soname.patch #213277
+ 
++	[[ ${CHOST} == *-cygwin* ]] && \
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-ish.patch
 +
-+	# cygwin: /usr/lib/cygz.dll -> /usr/bin/cygz.dll
-+	elif [[ ${CHOST} == *-cygwin* ]] ; then
-+		if [[ -f "${ED}"usr/lib/cygz.dll ]] ; then
-+			einfo "moving \"${ED}usr/lib/cygz.dll\" to \"${ED}usr/bin/cygz.dll\""
-+			mkdir -p "${ED}"usr/bin
-+			mv "${ED}"usr/lib/cygz.dll  "${ED}"usr/bin/cygz.dll
-+		else
-+			ewarn "didn't find \"${ED}usr/lib/cygz.dll\""
-+		fi
+ 	# also set soname and stuff on Solaris (with CHOST compensation fix as below)
+ 	sed -i -e 's:Linux\* | linux\*:Linux\* | linux\* | SunOS\* | solaris\*:' configure || die
+ 	# and compensate for our ebuild env having CHOST set
+@@ -70,6 +73,16 @@
+ 		echoit ./configure --static --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
+ 		emake || die
+ 		;;
++	*-cygwin*)
++		# AC_HAVE_MMAP fails despite a working mmap, so we force this to yes
++		# (see http://www.cygwin.com/ml/cygwin/2004-09/msg00741.html
++		# and following thread for details)
++		export ac_cv_func_mmap_fixed_mapped=yes
++		echoit ./configure --shared --prefix="${EPREFIX%/}"/usr --eprefix="${EPREFIX%/}"/usr \
++			--libdir="${EPREFIX%/}"/usr/$(get_libdir) --sharedlibdir="${EPREFIX}"/usr/$(get_libdir) \
++			--includedir="${EPREFIX%/}"/usr/include || die
++		emake || die
++		;;
+ 	*)	# not an autoconf script, so can't use econf
+ 		echoit ./configure --shared --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
+ 		emake || die
+@@ -99,9 +112,8 @@
+ 		insinto /usr/share/pkgconfig
+ 		doins zlib.pc || die
+ 		;;
+-
+ 	*)
+-		emake install DESTDIR="${D}" LDCONFIG=: || die
++		emake install DESTDIR="${D}" LDCONFIG=: || die "make install failed"
+ 		gen_usr_ldscript -a z
+ 		sed_macros "${ED}"/usr/include/*.h
+ 		;;
+@@ -122,5 +134,12 @@
+ 		dodoc *.txt
  	fi
+ 
+-	use static-libs || rm -f "${ED}"/usr/$(get_libdir)/*.{a,la}
++	use static-libs || {
++		if [[ ${CHOST} == *-cygwin* ]] ; then
++			rm -v -f "${ED}"/usr/$(get_libdir)/$( \
++				cd "${ED}"/usr/$(get_libdir) ; ls *.{a,la} 2>/dev/null | grep -v '\.dll\.a$' )
++		else
++			rm -f "${ED}"/usr/$(get_libdir)/*.{a,la}
++		fi
++	}
  }
 <--8<--
 ===== mutual sub-directory: "sys-libs/zlib/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/sys-libs/zlib/files/zlib-1.2.5-cygport.patch: unified diff output, ASCII text
+overlay/sys-libs/zlib/files/zlib-1.2.5.1-cygport-ish.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
 usr/portage/sys-libs/zlib/zlib-1.2.3-r01.1.ebuild: ASCII English text
-usr/portage/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild: ASCII English text
-usr/portage/sys-libs/zlib/files/zlib-1.2.4-minizip-autotools.patch: unified diff output, ASCII text
-usr/portage/sys-libs/zlib/files/zlib-1.2.5.1-aix-soname.patch: unified diff output, ASCII text
-usr/portage/sys-libs/zlib/files/zlib-1.2.5.1-symlinks.patch: unified diff output, ASCII text
-usr/portage/sys-libs/zlib/files/zlib-1.2.5.1-version.patch: unified diff output, ASCII text
 
