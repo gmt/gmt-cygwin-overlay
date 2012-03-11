@@ -270,7 +270,17 @@ cyg_update-ldflags() {
 		local force_ldflag
 		local handled_ldflag
 		local force_ldflag_needed
+		local ldflag_whitespace_pre
+		local ldflag_whitespace_post
 		local i
+
+		local sed="$( cyg_which sed )"
+
+		# in order to avoid pointless warnings, remember leading/trailing whitespace
+		# this still doesn't help if the whitespace in question happens to be
+		# interspersed -- but w/e
+		ldflag_whitespace_pre="$( echo "${LDFLAGS}" | ${sed} -e 's/^\([[:space:]]*\).*$/\1/' )"
+		ldflag_whitespace_post="$( echo "${LDFLAGS}" | ${sed} -e 's/^[[:space:]]*//;s/^.*[^[:space:]]\([[:space:]]*\)$/\1/' )"
 
 		# modifying this list will force the listed LDFLAGS into the ebuild environment
 		force_ldflags=( \
@@ -332,7 +342,7 @@ cyg_update-ldflags() {
 		# FIXME: was that unneccesarily complicated enough?  couldn't we somehow add more
 		# useless bells and whistles to further slow down portage?  anyhow...
 		# new_ldflags now has everything and just needs to be composed and exported.
-		warn_export LDFLAGS="$( echo "${new_ldflags[@]}" )"
+		warn_export LDFLAGS="${ldflag_whitespace_pre}$( echo "${new_ldflags[@]}" )${ldflag_whitespace_post}"
 	else
 		LDFLAGS="-Wl,--enable-auto-image-base -L${EPREFIX}/usr/lib -L${EPREFIX}/lib"
 		einfo "added LDFLAGS: \"${LDFLAGS}\""
@@ -366,9 +376,8 @@ cyg_rebase-dirs() {
 	local rslt=0
 
 	[[ $CYG_DONT_REBASE == 1 || $CYG_DONT_REBASE == [Yy][Ee][Ss] || $CYG_DONT_REBASE == [Tt][Rr][Uu][Ee] ]] && \
-		CYG_DONT_REBASE ="1"
+		CYG_DONT_REBASE="1"
 	if [[ ${CYG_DONT_REBASE:-0} == 1 ]] ; then
-		einfo "Skipping rebase due to CYG_DONT_REBASE"
 		return 0
 	fi
 
@@ -410,7 +419,18 @@ cyg_rebase-dirs() {
 		-e '/\/shlib\/[^/]*\.so$/d' \
 		-e '/rebase\.exe$/d' >"${rebase_lst}"
 
-	ebegin "Attempting rebase files from list: \"${rebase_lst}\":"
+	ebegin "Rebasing files from $( declare -i countdirs
+			countdirs=0
+			dirstr=
+			for d in "${rebase_dirs[@]}" ; do
+				countdirs=$(( countdirs + 1 ))
+				dirstr="${dirstr:+${dirstr}, }"
+				(( countdirs > 1 )) && \
+					[[ "${d}" == "${rebase_dirs[${#rebase_dirs[*]}]}" ]] && \
+						dirstr="${dirstr} and "
+				dirstr="${dirstr}\"${d}\""
+			done
+			echo -n "${dirstr}" ) from listfile \"${rebase_lst}\""
 
 	local rebase_line
 	local rebase_failage=no
@@ -461,15 +481,42 @@ cyg_rebase-dirs() {
 
 cyg_rebase-portage-workdir() {
 	[[ ${CYG_DONT_REBASE_WORKDIR:-0} == 0 ]] || return 0
-	einfo "Rebasing built dynamic libraries in \"${WORKDIR}\"..."
 	cyg_rebase-dirs 0xA0000000 "${WORKDIR}"
 }
 
 cyg_rebase-portage-destdir() {
 	[[ ${CYG_DONT_REBASE_DESTDIR:-0} == 0 ]] || return 0
-	einfo "Rebasing installed dynamic libraries in \"${D}\"..."
 	cyg_rebase-dirs 0xC0000000 "${D}"
 }
+
+# move any '{/usr,}/bin' to the end of PATH
+cyg_path-fix() {
+	[[ ${CYG_DONT_FIX_PATH:-0} == 0 ]] || return 0
+	local IFS_set=${IFS+yes}
+	local old_IFS="${IFS}"
+	local got_bin=
+	local got_usr_bin=
+	local new_PATH=
+	IFS=:
+	local p
+	for p in $PATH ; do
+		case $p in
+			/usr/bin) got_usr_bin=yes ;;
+			/bin) got_bin=yes ;;
+			*) new_PATH="${new_PATH}${new_PATH:+:}${p}"
+		esac
+	done
+
+	if [[ ${IFS_set} == yes ]] ; then
+		IFS="${old_IFS}"
+	else
+		unset IFS
+	fi
+	new_PATH="${new_PATH}${got_bin:+${new_PATH:+:}/bin}"
+	warn_export PATH="${new_PATH}${got_usr_bin:+${new_PATH:+:}/usr/bin}"
+}
+
+cyg_path-fix
 
 # FIXME, comment this out
 # einfo "gmt overlay profile.bashrc: EBUILD_PHASE=\"${EBUILD_PHASE}\""
