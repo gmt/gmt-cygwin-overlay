@@ -14,7 +14,7 @@ HOMEPAGE="http://www.gentoo.org/proj/en/gentoo-alt/prefix/"
 LICENSE="GPL-2"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
-IUSE="build doc epydoc ipc linguas_pl selinux prefix-chaining"
+IUSE="build doc epydoc ipc linguas_pl selinux prefix-chaining cygdll-protect"
 
 python_dep=">=dev-lang/python-2.7 <dev-lang/python-3.0"
 
@@ -96,7 +96,18 @@ src_prepare() {
 	if [[ ${CHOST} == *-cygwin* ]] ; then
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
+	else
+		use cygdll-protect && {
+			ewarn "cygdll-protect outside of cygwin?  Hope you"
+			ewarn "know what you're doing -- seems pretty wierd."
+		}
 	fi
+
+	# WIP, not working yet
+	use cygdll-protect && \
+		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygdll_protect.patch
+
+	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
 }
 
 src_configure() {

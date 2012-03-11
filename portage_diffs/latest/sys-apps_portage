@@ -23,7 +23,7 @@
 <--8<--
 --("sys-apps/portage/portage-2.2.01.20271.ebuild")-->8-->
 --- usr/portage/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-01 13:01:30.000000000 -0800
-+++ overlay/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-06 21:10:46.611031100 -0800
++++ overlay/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-09 13:04:33.900440800 -0800
 @@ -1,6 +1,6 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -32,7 +32,16 @@
  
  RESTRICT="test"
  
-@@ -92,6 +92,11 @@
+@@ -14,7 +14,7 @@
+ LICENSE="GPL-2"
+ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+ SLOT="0"
+-IUSE="build doc epydoc ipc linguas_pl selinux prefix-chaining"
++IUSE="build doc epydoc ipc linguas_pl selinux prefix-chaining cygdll-protect"
+ 
+ python_dep=">=dev-lang/python-2.7 <dev-lang/python-3.0"
+ 
+@@ -92,6 +92,22 @@
  	fi
  
  	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
@@ -40,7 +49,18 @@
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
 +		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
++	else
++		use cygdll-protect && {
++			ewarn "cygdll-protect outside of cygwin?  Hope you"
++			ewarn "know what you're doing -- seems pretty wierd."
++		}
 +	fi
++
++	# WIP, not working yet
++	use cygdll-protect && \
++		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygdll_protect.patch
++
++	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
  }
  
  src_configure() {
@@ -49,6 +69,8 @@
 
 *** The following files appear only in the overlay ***
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cyg_whitelist.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20271-cygdll_protect.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-lib-qa-fix.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-locking-nightmare.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***

@@ -1,0 +1,655 @@
+diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-08 10:18:52.807151500 -0800
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-08 10:18:53.376765400 -0800
+@@ -1455,7 +1455,7 @@
+ 		myvars = list(settings)
+ 	else:
+ 		myvars = ['GENTOO_MIRRORS', 'CONFIG_PROTECT', 'CONFIG_PROTECT_MASK',
+-		          'PORTDIR', 'DISTDIR', 'PKGDIR', 'PORTAGE_TMPDIR',
++		          'PORTDIR', 'DISTDIR', 'PKGDIR', 'PORTAGE_TMPDIR', 'CYGDLL_PROTECT',
+ 		          'PORTDIR_OVERLAY', 'PORTAGE_BUNZIP2_COMMAND',
+ 		          'PORTAGE_BZIP2_COMMAND',
+ 		          'USE', 'CHOST', 'CFLAGS', 'CXXFLAGS',
+diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-08 10:18:52.810152100 -0800
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-08 10:18:53.379766000 -0800
+@@ -33,7 +33,7 @@
+ from portage.dbapi.dep_expand import dep_expand
+ from portage.util import normalize_path as normpath
+ from portage.util import (shlex_split, varexpand,
+-	writemsg_level, writemsg_stdout)
++	writemsg_level, writemsg_stdout, recalc_cygdll_protect)
+ from portage._sets import SETPREFIX
+ from portage._global_updates import _global_updates
+ 
+@@ -357,6 +357,7 @@
+ 	settings.lock()
+ 
+ 	config_protect = shlex_split(settings.get("CONFIG_PROTECT", ""))
++
+ 	infodirs = settings.get("INFOPATH","").split(":") + \
+ 		settings.get("INFODIR","").split(":")
+ 
+@@ -1548,6 +1549,16 @@
+ 
+ 	return bool(ignored_repos)
+ 
++def cygdll_protect_check(trees):
++	for root, root_trees in trees.items():
++		settings = root_trees["root_config"].settings
++		if not settings.get("CYGDLL_PROTECT"):
++			msg = "!!! CYGDLL_PROTECT is empty"
++			if settings["ROOT"] != "/":
++				msg + "for '%s'" % root
++			msg += "\n"
++			writemsg_level(msg, level=logging.WARN, noiselevel=-1)
++
+ def config_protect_check(trees):
+ 	for root, root_trees in trees.items():
+ 		settings = root_trees["root_config"].settings
+@@ -1676,6 +1687,8 @@
+ 			repo_name_check(trees)
+ 		repo_name_duplicate_check(trees)
+ 		config_protect_check(trees)
++		cygdll_protect_check(trees)
++
+ 	check_procfs()
+ 
+ 	if "getbinpkg" in settings.features:
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-08 10:18:52.812152500 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-08 10:18:53.381766400 -0800
+@@ -130,7 +130,7 @@
+ 		EBUILD_SH_BINARY, SANDBOX_BINARY, BASH_BINARY, \
+ 		MOVE_BINARY, PRELINK_BINARY, WORLD_FILE, MAKE_CONF_FILE, MAKE_DEFAULTS_FILE, \
+ 		DEPRECATED_PROFILE_FILE, USER_VIRTUALS_FILE, EBUILD_SH_ENV_FILE, \
+-		INVALID_ENV_FILE, CUSTOM_MIRRORS_FILE, CONFIG_MEMORY_FILE,\
++		INVALID_ENV_FILE, CUSTOM_MIRRORS_FILE, CONFIG_MEMORY_FILE, CYGDLL_MEMORY_FILE, \
+ 		INCREMENTALS, EAPI, MISC_SH_BINARY, REPO_NAME_LOC, REPO_NAME_FILE, \
+ 		EPREFIX, EPREFIX_LSTRIP, rootuid
+ 
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-08 10:18:52.815653200 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-08 10:18:53.383766800 -0800
+@@ -55,6 +55,7 @@
+ WORLD_FILE               = PRIVATE_PATH + "/world"
+ WORLD_SETS_FILE          = PRIVATE_PATH + "/world_sets"
+ CONFIG_MEMORY_FILE       = PRIVATE_PATH + "/config"
++CYGDLL_MEMORY_FILE       = PRIVATE_PATH + "/cygdll"
+ NEWS_LIB_PATH            = "var/lib/gentoo"
+ 
+ # these variables get EPREFIX prepended automagically when they are
+@@ -114,6 +115,7 @@
+ INCREMENTALS             = ("USE", "USE_EXPAND", "USE_EXPAND_HIDDEN",
+                            "FEATURES", "ACCEPT_KEYWORDS",
+                            "CONFIG_PROTECT_MASK", "CONFIG_PROTECT",
++			   "CYGDLL_PROTECT",
+                            "PRELINK_PATH", "PRELINK_PATH_MASK",
+                            "PROFILE_ONLY_VARIABLES")
+ EBUILD_PHASES            = ("pretend", "setup", "unpack", "prepare", "configure",
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-08 10:18:52.818153700 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-08 10:18:53.385767200 -0800
+@@ -22,7 +22,7 @@
+ 
+ 	__slots__ = ('mycat', 'mypkg', 'settings', 'treetype',
+ 		'vartree', 'blockers', 'pkgloc', 'infloc', 'myebuild',
+-		'mydbapi', 'prev_mtimes', 'unmerge', '_elog_reader_fd', '_elog_reg_id',
++		'mydbapi', 'prev_mtimes', 'cygdll_prev_mtimes', 'unmerge', '_elog_reader_fd', '_elog_reg_id',
+ 		'_buf', '_elog_keys', '_locked_vdb')
+ 
+ 	def _start(self):
+@@ -213,7 +213,9 @@
+ 			else:
+ 				rval = mylink.merge(self.pkgloc, self.infloc,
+ 					myebuild=self.myebuild, mydbapi=self.mydbapi,
+-					prev_mtimes=self.prev_mtimes, counter=counter)
++					prev_mtimes=self.prev_mtimes,
++					cygdll_prev_mtimes=self.cygdll_prev_mtimes,
++					counter=counter)
+ 		except SystemExit:
+ 			raise
+ 		except:
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-08 10:18:52.821154300 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-08 10:18:53.388267700 -0800
+@@ -299,7 +299,7 @@
+ 			self._pkgindex_header_keys = set([
+ 				"ACCEPT_KEYWORDS", "ACCEPT_LICENSE",
+ 				"ACCEPT_PROPERTIES", "CBUILD",
+-				"CONFIG_PROTECT", "CONFIG_PROTECT_MASK", "FEATURES",
++				"CONFIG_PROTECT", "CONFIG_PROTECT_MASK", "CYGDLL_PROTECT", "FEATURES",
+ 				"GENTOO_MIRRORS", "INSTALL_MASK", "SYNC", "USE", "EPREFIX"])
+ 			self._pkgindex_default_pkg_data = {
+ 				"BUILD_TIME"         : "",
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-08 10:18:52.829656000 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-08 10:19:57.580103500 -0800
+@@ -39,7 +39,7 @@
+ 	'tarfile',
+ )
+ 
+-from portage.const import CACHE_PATH, CONFIG_MEMORY_FILE, \
++from portage.const import CACHE_PATH, CONFIG_MEMORY_FILE, CYGDLL_MEMORY_FILE, \
+ 	PORTAGE_PACKAGE_ATOM, PRIVATE_PATH, VDB_PATH, EPREFIX, EPREFIX_LSTRIP, BASH_BINARY
+ from portage.const import _ENABLE_DYN_LINK_MAP, _ENABLE_PRESERVE_LIBS
+ from portage.dbapi import dbapi
+@@ -151,6 +151,7 @@
+ 		self._lock_count = 0
+ 
+ 		self._conf_mem_file = self._eroot + CONFIG_MEMORY_FILE
++		self._cygdll_mem_file = self._eroot + CYGDLL_MEMORY_FILE
+ 		self._fs_lock_obj = None
+ 		self._fs_lock_count = 0
+ 
+@@ -1485,13 +1486,18 @@
+ 			portage.util.shlex_split(
+ 				self.settings.get("CONFIG_PROTECT", "")),
+ 			portage.util.shlex_split(
+-				self.settings.get("CONFIG_PROTECT_MASK", "")))
++				self.settings.get("CONFIG_PROTECT_MASK", "")),
++			portage.util.shlex_split(
++				self.settings.get("CYGDLL_PROTECT_MASK", "")))
+ 
+ 		return self._protect_obj
+ 
+ 	def isprotected(self, obj):
+ 		return self._get_protect_obj().isprotected(obj)
+ 
++	def iscygdllprotected(self, obj):
++		return self._get_protect_obj().iscygdllprotected(obj)
++
+ 	def updateprotect(self):
+ 		self._get_protect_obj().updateprotect()
+ 
+@@ -2042,7 +2048,10 @@
+ 					vartree=self.vartree, treetype="vartree", pipe=self._pipe))
+ 
+ 		cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
++		cygdlldict = grabdict(self.vartree.dbapi._cygdll_mem_file)
++
+ 		stale_confmem = []
++		stale_cygdllmem = []
+ 		protected_symlinks = {}
+ 
+ 		unmerge_orphans = "unmerge-orphans" in self.settings.features
+@@ -2203,8 +2212,11 @@
+ 					if is_owned:
+ 						show_unmerge("---", unmerge_desc["replaced"], file_type, obj)
+ 						continue
+-					elif relative_path in cfgfiledict:
+-						stale_confmem.append(relative_path)
++					else:
++						if relative_path in cfgfiledict:
++							stale_confmem.append(relative_path)
++						if relative_path in cygdlldict:
++							stale_cygdllmem.append(relative_path)
+ 				# next line includes a tweak to protect modules from being unmerged,
+ 				# but we don't protect modules from being overwritten if they are
+ 				# upgraded. We effectively only want one half of the config protection
+@@ -2371,6 +2383,12 @@
+ 				del cfgfiledict[filename]
+ 			writedict(cfgfiledict, self.vartree.dbapi._conf_mem_file)
+ 
++		# Remove stale entries from cygdll memory.
++		if stale_cygdllmem:
++			for filename in stale_cygdllmem:
++				del cygdlldict[filename]
++			writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
++
+ 		#remove self from vartree database so that our own virtual gets zapped if we're the last node
+ 		self.vartree.zap(self.mycpv)
+ 
+@@ -3363,7 +3381,7 @@
+ 		emergelog(False, msg)
+ 
+ 	def treewalk(self, srcroot, destroot, inforoot, myebuild, cleanup=0,
+-		mydbapi=None, prev_mtimes=None, counter=None):
++		mydbapi=None, prev_mtimes=None, counter=None, cygdll_prev_mtimes=None):
+ 		"""
+ 		
+ 		This function does the following:
+@@ -3830,6 +3848,7 @@
+ 		self.vartree.dbapi._fs_lock()
+ 		try:
+ 			cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
++			cygdlldict = grabdict(self.vartree.dbapi._cygdll_mem_file)
+ 			if "NOCONFMEM" in self.settings:
+ 				cfgfiledict["IGNORE"]=1
+ 			else:
+@@ -3844,7 +3863,7 @@
+ 					cfgfiledict["IGNORE"] = 1
+ 					break
+ 
+-			rval = self._merge_contents(srcroot, destroot, cfgfiledict)
++			rval = self._merge_contents(srcroot, destroot, cfgfiledict, cygdlldict)
+ 			if rval != os.EX_OK:
+ 				return rval
+ 		finally:
+@@ -4091,9 +4110,10 @@
+ 
+ 		return backup_p
+ 
+-	def _merge_contents(self, srcroot, destroot, cfgfiledict):
++	def _merge_contents(self, srcroot, destroot, cfgfiledict, cygdlldict):
+ 
+ 		cfgfiledict_orig = cfgfiledict.copy()
++		cygdlldict_orig = cygdlldict.copy()
+ 
+ 		# open CONTENTS file (possibly overwriting old one) for recording
+ 		# Use atomic_ofstream for automatic coercion of raw bytes to
+@@ -4118,7 +4138,7 @@
+ 		# we do a first merge; this will recurse through all files in our srcroot but also build up a
+ 		# "second hand" of symlinks to merge later
+ 		if self.mergeme(srcroot, destroot, outfile, secondhand,
+-			self.settings["EPREFIX"].lstrip(os.sep), cfgfiledict, mymtime):
++			self.settings["EPREFIX"].lstrip(os.sep), cfgfiledict, mymtime, cygdlldict):
+ 			return 1
+ 
+ 		# now, it's time for dealing our second hand; we'll loop until we can't merge anymore.	The rest are
+@@ -4130,7 +4150,7 @@
+ 
+ 			thirdhand = []
+ 			if self.mergeme(srcroot, destroot, outfile, thirdhand,
+-				secondhand, cfgfiledict, mymtime):
++				secondhand, cfgfiledict, mymtime, cygdlldict):
+ 				return 1
+ 
+ 			#swap hands
+@@ -4144,7 +4164,7 @@
+ 		if len(secondhand):
+ 			# force merge of remaining symlinks (broken or circular; oh well)
+ 			if self.mergeme(srcroot, destroot, outfile, None,
+-				secondhand, cfgfiledict, mymtime):
++				secondhand, cfgfiledict, mymtime, cygdlldict):
+ 				return 1
+ 
+ 		#restore umask
+@@ -4165,7 +4185,14 @@
+ 
+ 		return os.EX_OK
+ 
+-	def mergeme(self, srcroot, destroot, outfile, secondhand, stufftomerge, cfgfiledict, thismtime):
++		if cygdlldict != cygdlldict_orig:
++			try:
++				writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
++			except InvalidLocation:
++				self.settings._init_dirs()
++				writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
++
++	def mergeme(self, srcroot, destroot, outfile, secondhand, stufftomerge, cfgfiledict, thismtime, cygdlldict):
+ 		"""
+ 		
+ 		This function handles actual merging of the package contents to the livefs.
+@@ -4186,6 +4213,8 @@
+ 		@type cfgfiledict: Dictionary
+ 		@param thismtime: The current time (typically long(time.time())
+ 		@type thismtime: Long
++		@param cygdlldict: { File:mtime } mapping for cygdll_protected files
++		@type cygdlldict: Dictionary
+ 		@rtype: None or Boolean
+ 		@returns:
+ 		1. True on failure
+@@ -4415,7 +4444,7 @@
+ 				outfile.write("dir "+myrealdest+"\n")
+ 				# recurse and merge this directory
+ 				if self.mergeme(srcroot, destroot, outfile, secondhand,
+-					join(offset, x), cfgfiledict, thismtime):
++					join(offset, x), cfgfiledict, thismtime, cygdlldict):
+ 					return 1
+ 			elif stat.S_ISREG(mymode):
+ 				# we are merging a regular file
+@@ -4426,6 +4455,7 @@
+ 				zing = "!!!"
+ 				mymtime = None
+ 				protected = self.isprotected(mydest)
++				cygdllprotected = self.iscygdllprotected(mydest)
+ 				if mydmode != None:
+ 					# destination file exists
+ 					
+@@ -4456,8 +4486,8 @@
+ 									inst_info = self._installed_instance.getcontents()[contents_key]
+ 									if inst_info[0] == "obj" and inst_info[2] == destmd5:
+ 										protected = False
+-
+ 						if protected:
++							cygdllprotected = False
+ 							# we have a protection path; enable config file management.
+ 							cfgprot = 0
+ 							if mymd5 == destmd5:
+@@ -4486,6 +4516,38 @@
+ 
+ 							if cfgprot:
+ 								mydest = new_protect_filename(mydest, newmd5=mymd5)
++						elif cygdllprotected:
++							destmd5 = perform_md5(mydest, calc_prelink=calc_prelink)
++							contents_key = self._installed_instance._match_contents(myrealdest)
++							if contents_key:
++								inst_info = self._installed_instance.getcontents()[contents_key]
++								if inst_info[0] == "obj" and inst_info[2] == destmd5:
++									cygdllprotected = False
++
++						if cygdllprotected:
++							cygprot = 0
++							if mymd5 == destmd5:
++								# file already in place; simply update mtimes of destinatino
++								moveme = 1
++							else:
++								if mymd5 == cygdlldict.get(myrealdest, [None])[0]:
++									""" An identical update has previously been
++									merged.  Skip it."""
++									moveme = 0
++									cygprot = 0
++									mymtime = mystat[stat.ST_MTIME]
++								else:
++									moveme = 1
++									cygprot = 1
++							if moveme:
++								# merging a new cygdll so update confmem.
++								cygdlldict[myrealdest] = [mymd5]
++							elif destmd5 == cygdlldict.get(myrealdest, [None])[0]:
++								"""A previously remembered update has been accepted, so it is
++								removed from confmem."""
++								del cygdlldict[myrealdest]
++							if cygprot:
++								mydest = new_cygdllprotect_filename(mydest, newmd5=mymd5)
+ 
+ 				# whether config protection or not, we merge the new file the
+ 				# same way.  Unless moveme=0 (blocking directory)
+@@ -4530,7 +4592,7 @@
+ 				showMessage(zing + " " + mydest + "\n")
+ 
+ 	def merge(self, mergeroot, inforoot, myroot=None, myebuild=None, cleanup=0,
+-		mydbapi=None, prev_mtimes=None, counter=None):
++		mydbapi=None, prev_mtimes=None, counter=None, cygdll_prev_mtimes=None):
+ 		"""
+ 		@param myroot: ignored, self._eroot is used instead
+ 		"""
+@@ -4545,7 +4607,7 @@
+ 		try:
+ 			retval = self.treewalk(mergeroot, myroot, inforoot, myebuild,
+ 				cleanup=cleanup, mydbapi=mydbapi, prev_mtimes=prev_mtimes,
+-				counter=counter)
++				counter=counter, cygdll_prev_mtimes=cygdll_prev_mtimes)
+ 
+ 			# If PORTAGE_BUILDDIR doesn't exist, then it probably means
+ 			# fail-clean is enabled, and the success/die hooks have
+@@ -4650,7 +4712,7 @@
+ def merge(mycat, mypkg, pkgloc, infloc,
+ 	myroot=None, settings=None, myebuild=None,
+ 	mytree=None, mydbapi=None, vartree=None, prev_mtimes=None, blockers=None,
+-	scheduler=None):
++	scheduler=None, cygdll_prev_mtimes=None):
+ 	"""
+ 	@param myroot: ignored, settings['EROOT'] is used instead
+ 	"""
+@@ -4668,7 +4730,8 @@
+ 		scheduler=(scheduler or PollScheduler().sched_iface),
+ 		background=background, blockers=blockers, pkgloc=pkgloc,
+ 		infloc=infloc, myebuild=myebuild, mydbapi=mydbapi,
+-		prev_mtimes=prev_mtimes, logfile=settings.get('PORTAGE_LOG_FILE'))
++		prev_mtimes=prev_mtimes, cygdll_prev_mtimes=cygdll_prev_mtimes,
++		logfile=settings.get('PORTAGE_LOG_FILE'))
+ 	merge_task.start()
+ 	retcode = merge_task.wait()
+ 	return retcode
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-08 10:18:52.832156500 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-08 10:18:53.396769400 -0800
+@@ -150,7 +150,7 @@
+ # portage config variables and variables set directly by portage
+ environ_filter += [
+ 	"ACCEPT_CHOSTS", "ACCEPT_KEYWORDS", "ACCEPT_PROPERTIES", "AUTOCLEAN",
+-	"CLEAN_DELAY", "COLLISION_IGNORE", "CONFIG_PROTECT",
++	"CLEAN_DELAY", "COLLISION_IGNORE", "CONFIG_PROTECT", "CYGDLL_PROTECT",
+ 	"CONFIG_PROTECT_MASK", "EGENCACHE_DEFAULT_OPTS", "EMERGE_DEFAULT_OPTS",
+ 	"EMERGE_LOG_DIR",
+ 	"EMERGE_WARNING_DELAY",
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/doebuild.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.py	2012-03-08 10:18:52.836157300 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/doebuild.py	2012-03-08 10:18:53.399770000 -0800
+@@ -427,7 +427,7 @@
+ def doebuild(myebuild, mydo, _unused=None, settings=None, debug=0, listonly=0,
+ 	fetchonly=0, cleanup=0, dbkey=None, use_cache=1, fetchall=0, tree=None,
+ 	mydbapi=None, vartree=None, prev_mtimes=None,
+-	fd_pipes=None, returnpid=False):
++	fd_pipes=None, returnpid=False, cygdll_prev_mtimes=None):
+ 	"""
+ 	Wrapper function that invokes specific ebuild phases through the spawning
+ 	of ebuild.sh
+@@ -470,6 +470,8 @@
+ 		an integer value if spawn is unsuccessful. NOTE: This requires the
+ 		caller clean up all returned PIDs.
+ 	@type returnpid: Boolean
++	@param cygdll_prev_mtimes: A dict of {filename:mtime } keys used by merge() to do cygdll_protection
++	@type cygdll_prev_mtimes: dictionary
+ 	@rtype: Boolean
+ 	@returns:
+ 	1. 0 for success
+@@ -478,7 +480,7 @@
+ 	Most errors have an accompanying error message.
+ 	
+ 	listonly and fetchonly are only really necessary for operations involving 'fetch'
+-	prev_mtimes are only necessary for merge operations.
++	prev_mtimes and cygdll_prev_mtimes are only necessary for merge operations.
+ 	Other variables may not be strictly required, many have defaults that are set inside of doebuild.
+ 	
+ 	"""
+@@ -1048,7 +1050,8 @@
+ 				mysettings["CATEGORY"], mysettings["PF"], mysettings["D"],
+ 				os.path.join(mysettings["PORTAGE_BUILDDIR"], "build-info"),
+ 				myroot, mysettings, myebuild=mysettings["EBUILD"], mytree=tree,
+-				mydbapi=mydbapi, vartree=vartree, prev_mtimes=prev_mtimes)
++				mydbapi=mydbapi, vartree=vartree, prev_mtimes=prev_mtimes,
++				cygdll_prev_mtimes=cygdll_prev_mtimes)
+ 		elif mydo=="merge":
+ 			retval = spawnebuild("install", actionmap, mysettings, debug,
+ 				alwaysdep=1, logfile=logfile, fd_pipes=fd_pipes,
+@@ -1064,7 +1067,7 @@
+ 					mysettings["D"], os.path.join(mysettings["PORTAGE_BUILDDIR"],
+ 					"build-info"), myroot, mysettings,
+ 					myebuild=mysettings["EBUILD"], mytree=tree, mydbapi=mydbapi,
+-					vartree=vartree, prev_mtimes=prev_mtimes)
++					vartree=vartree, prev_mtimes=prev_mtimes, cygdll_prev_mtimes=cygdll_prev_mtimes)
+ 		else:
+ 			writemsg_stdout(_("!!! Unknown mydo: %s\n") % mydo, noiselevel=-1)
+ 			return 1
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-08 10:18:52.840658200 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-08 10:18:53.403770800 -0800
+@@ -7,7 +7,8 @@
+ 	'find_updated_config_files', 'getconfig', 'getlibpaths', 'grabdict',
+ 	'grabdict_package', 'grabfile', 'grabfile_package', 'grablines',
+ 	'initialize_logger', 'LazyItemsDict', 'map_dictlist_vals',
+-	'new_protect_filename', 'normalize_path', 'pickle_read', 'stack_dictlist',
++	'new_protect_filename', 'normalize_path', 'pickle_read',
++	'recalc_cygdll_protect', 'stack_dictlist',
+ 	'stack_dicts', 'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
+ 	'write_atomic', 'writedict', 'writemsg', 'writemsg_level', 'writemsg_stdout']
+ 
+@@ -169,6 +170,10 @@
+ 		new_dl[key] = [func(x) for x in myDict[key]]
+ 	return new_dl
+ 
++def recalc_cygdll_protect(origprot):
++	"""TODO: Execute the standard cygdll_protect calculation and merge results additively with provided value"""
++	return origprot
++
+ def stack_dictlist(original_dicts, incremental=0, incrementals=[], ignore_none=0):
+ 	"""
+ 	Stacks an array of dict-types into one array. Optionally merging or
+@@ -1416,15 +1421,16 @@
+ 			return result
+ 
+ class ConfigProtect(object):
+-	def __init__(self, myroot, protect_list, mask_list):
++	def __init__(self, myroot, protect_list, mask_list, cygdllprotect_list = []):
+ 		self.myroot = myroot
+ 		self.protect_list = protect_list
+ 		self.mask_list = mask_list
++		self.cygdllprotect_list = cygdllprotect_list
+ 		self.updateprotect()
+ 
+ 	def updateprotect(self):
+-		"""Update internal state for isprotected() calls.  Nonexistent paths
+-		are ignored."""
++		"""Update internal state for isprotected() and iscygdllprotected() calls.
++		Nonexistent paths are ignored."""
+ 
+ 		os = _os_merge
+ 
+@@ -1457,6 +1463,18 @@
+ 			except OSError:
+ 				# If it doesn't exist, there's no need to mask it.
+ 				pass
++		
++		self.cygdllprotect = []
++		for x in self.cygdllprotect_list:
++			ppath = normalize_path(
++				os.path.join(self.myroot, x.lstrip(os.path.sep)))
++			try:
++				if stat.S_ISREG(os.stat(ppath).st_mode):
++					self.cygdllprotect.append(ppath)
++			except OSError:
++				# if it doesn't exist (or it exists but is not a regular file),
++				# there's no need to protect it.
++				pass
+ 
+ 	def isprotected(self, obj):
+ 		"""Returns True if obj is protected, False otherwise.  The caller must
+@@ -1492,6 +1510,18 @@
+ 						masked = len(pmpath)
+ 		return protected > masked
+ 
++	def iscygdllprotected(self, obj):
++		"""Returns True if obj is cygdll_protected, False otherwise.  The caller must
++		ensure that obj is normalized with a single leading slash."""
++		protected = 0
++		for ppath in self.cygdllprotect:
++			# force exact match
++			if obj != ppath:
++				continue
++			protected = 1
++			break
++		return protected > 0
++
+ def new_protect_filename(mydest, newmd5=None, force=False):
+ 	"""Resolves a config-protect filename for merging, optionally
+ 	using the last filename if the md5 matches. If force is True,
+@@ -1544,6 +1574,104 @@
+ 				return old_pfile
+ 	return new_pfile
+ 
++def new_cygdllprotect_filename(mydest, newmd5=None, force=False):
++	"""Resolves a config-protect filename for merging, optionally
++	using the last filename if the md5 matches. If force is True,
++	then a new filename will be generated even if mydest does not
++	exist yet.
++	(dest,md5) ==> 'string'            --- path_to_target_filename
++	(dest)     ==> ('next', 'highest') --- next_target and most-recent_target
++	"""
++
++	# config protection filename format:
++	# ._cyg0000_foo
++	# 0123456789012
++
++	os = _os_merge
++
++	prot_num = -1
++	last_pfile = ""
++
++	if not force and \
++		not os.path.exists(mydest):
++		return mydest
++
++	real_filename = os.path.basename(mydest)
++	real_dirname  = os.path.dirname(mydest)
++	for pfile in os.listdir(real_dirname):
++		if pfile[0:5] != "._cyg":
++			continue
++		if pfile[10:] != real_filename:
++			continue
++		try:
++			new_prot_num = int(pfile[5:9])
++			if new_prot_num > prot_num:
++				prot_num = new_prot_num
++				last_pfile = pfile
++		except ValueError:
++			continue
++	prot_num = prot_num + 1
++
++	new_pfile = normalize_path(os.path.join(real_dirname,
++		"._cyg" + str(prot_num).zfill(4) + "_" + real_filename))
++	old_pfile = normalize_path(os.path.join(real_dirname, last_pfile))
++	if last_pfile and newmd5:
++		try:
++			last_pfile_md5 = portage.checksum._perform_md5_merge(old_pfile)
++		except FileNotFound:
++			# The file suddenly disappeared or it's a broken symlink.
++			pass
++		else:
++			if last_pfile_md5 == newmd5:
++				return old_pfile
++	return new_pfile
++
++def find_updated_cygdll_files(target_root, cygdll_protect):
++	"""
++	Return a tuple of configuration files that needs to be updated.
++	The tuple contains lists organized like this (this would be
++	rediculous if we werent mirroring config_protect, but we are, so...):
++	[ protected_file, None ]
++	If no configuration files needs to be updated, None is returned
++	"""
++
++	os = _os_merge
++
++	if cygdll_protect:
++		# directories with some protect files in them
++		for x in cygdll_protect:
++			files = []
++
++			x = os.path.join(target_root, x.lstrip(os.path.sep))
++			if not os.access(x, os.W_OK):
++				continue
++			try:
++				mymode = os.lstat(x).st_mode
++			except OSError:
++				continue
++
++			if stat.S_ISLNK(mymode):
++				# We want to treat it like a directory if it
++				# is a symlink to an existing directory.
++				try:
++					real_mode = os.stat(x).st_mode
++					if stat.S_ISDIR(real_mode):
++						mymode = real_mode
++				except OSError:
++					pass
++
++			if not stat.S_ISDIR(mymode):
++				a = subprocess_getstatusoutput( "find '%s' -maxdepth 1 -name '._cyg????_%s'" % \
++						os.path.split(x.rstrip(os.path.sep)) % \
++						" ! -name '.*~' ! -iname '.*.bak' -print0" )
++				if a[0] == 0:
++					files = a[1].split('\0')
++					# split always produces an empty string as the last element
++					if files and not files[-1]:
++						del files[-1]
++					if files:
++						yield (x, None)
++
+ def find_updated_config_files(target_root, config_protect):
+ 	"""
+ 	Return a tuple of configuration files that needs to be updated.
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-08 10:18:52.843158700 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-08 10:18:53.405771200 -0800
+@@ -104,7 +104,7 @@
+ 	fns = templist
+ 	del templist
+ 
+-	space_separated = set(["CONFIG_PROTECT", "CONFIG_PROTECT_MASK"])
++	space_separated = set(["CONFIG_PROTECT", "CONFIG_PROTECT_MASK", "CYGDLL_PROTECT"])
+ 	colon_separated = set(["ADA_INCLUDE_PATH", "ADA_OBJECTS_PATH",
+ 		"CLASSPATH", "INFODIR", "INFOPATH", "KDEDIRS", "LDPATH", "MANPATH",
+ 		  "PATH", "PKG_CONFIG_PATH", "PRELINK_PATH", "PRELINK_PATH_MASK",
