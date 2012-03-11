@@ -375,6 +375,7 @@ ninj() { [[ ${type} == "kern" ]] && echo $1 || echo $2 ; }
 		i?86-pc-netbsd*)          echo x86-netbsd;;
 		i?86-pc-interix*)         echo x86-interix;;
 		i?86-pc-winnt*)           echo x86-winnt;;
+		i?86-pc-cygwin*)	  echo x86-cygwin;;
 
 		alpha*)		echo alpha;;
 		arm*)		echo arm;;
@@ -624,56 +625,108 @@ gcc-specs-nostrict() {
 # correctly to point to the latest version of the library present.
 gen_usr_ldscript() {
 	local lib libdir=$(get_libdir) output_format="" auto=false suffix=$(get_libname)
-	[[ -z ${ED+set} ]] && local ED=${D%/}${EPREFIX}/
+	[[ -z ${ED+set} ]] && local ED=${D%/}${EPREFIX%/}/
 
 	tc-is-static-only && return
 
 	# Just make sure it exists
 	dodir /usr/${libdir}
 
+	[[ ${CTARGET:-${CHOST}} == *-cygwin* ]] && dodir /usr/bin
+
 	if [[ $1 == "-a" ]] ; then
 		auto=true
 		shift
 		dodir /${libdir}
+		[[ ${CTARGET:-${CHOST}} == *-cygwin* ]] && dodir /bin
 	fi
 
 	# OUTPUT_FORMAT gives hints to the linker as to what binary format
 	# is referenced ... makes multilib saner
-	# note, on cygwin (maybe on all non-multilib build-hosts?) it comes out as OUTPUT_FORMAT(pei-i386)
-	output_format=$($(tc-getCC) ${CFLAGS} ${LDFLAGS} -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\?\([^"),]*\).*$/\1/p')
+	# nb: on my cygwin (and maybe all non-multilib build-hosts?) it comes out as OUTPUT_FORMAT(pei-i386),
+	# without quotes.  I changed the sed magic to permit this, while still doing the right thing (I actually
+	# tested this!!!) for the quoted case. -gmt
+	output_format=$( $(tc-getCC) ${CFLAGS} ${LDFLAGS} -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\?\([^"),]*\).*$/\1/p' )
 
 	[[ -n ${output_format} ]] && output_format="OUTPUT_FORMAT ( ${output_format} )"
 
-	# FIXME: in cygwin this is really awkward, the names don't really mean the same things, and
-	# the naming conventions prevent the version-suffixing approach taken everywhere else.
-	# rather than just kludging around this as we do now, the real solution is to generalize
-	# the varibles and thier handling in this function so as to gracefully handle both cases.
-
 	for lib in "$@" ; do
 		local tlib
+
+		# to accomodate Cygwin we must distinguish between the physical shared library
+		# and the library which compilers (mostly gcc obv.) will be looking for.  We manipulate both
+		# here, but Cygwin will require us to split this particular hair and stop conflating these two
+		# senses of "library".  If you find this confusing think of the link_shlib_prefix as analogous to
+		# a libtool .la file (the phys_shlib_prefix is the .so/.dll shared library, no analogy required).
+		# specifically, the cygwin .dll.a file is what we are after in creating the 'link_shlib_prefix' var
+
+		local phys_shlib_prefix
+		local phys_shlib_suffix
+		local link_shlib_prefix
+		local link_shlib_suffix
+
+		# one of (so far)
+		#   cygwin: intermediate version info; matches i.e.: ${phys_shlib_prefix}${lib}*${phys_shlib_suffix}
+		#   linux: suffixed version info; matches i.e.: ${phys_shlib_prefix}${lib}${phys_shlib_suffix}*
+		#   noauto: arbitrary semantics based on single arguent, ${noauto_libname}.  It seems to me
+		#           that deprecation is a decent idea for this option since there is no portable way
+		#           for ebuilds to communicate their intentions (although, in all probability, it's a filename
+		#           and a linux-style suffixing convention is presumed -- special-casing cygwin for these
+		#           uses ought to more or less solve the problem).
+		#
+		local target_lib_name_convetion
+
+		# arbitrary system-and-invocation-dependent meaning, not used for cygwin
+		# when target_lib_name_convention is linux, we use this as a shorthand for what used to end up as lib:
+		# in the old codebase: "lib${lib}${suffix}".  When it's noauto, it is the 'lib' argument.
+		local noauto_libname
+
+		# NOTE: we used to kind-of grossly repurpose the lib variable here to contain the full shared library
+		# name (unversioned); that has limited utility once we start trying to accomodate Cygwin's idiosyncratic
+		# naming conventions (plus it's a sloppy coding practice -- it had to go ;) ).  Anyhow...
+		# perhaps I haven't expunged all the old semantics of "lib" from every code-path and comment below.
+		# So watch out for regressions and confusing comments.  If you find a library name with a missing "lib"
+		# prefix escaping into the atmosphere somewhere, or with a double-prefix (i.e., liblibmistake.so),
+		# this could be the culprit. fix it by using "noauto_libname" or whatever is appropriate contextually.
+		# "lib" now will just refer to the bare library name, like what you put after -l on the gcc command-line
+
 		if ${auto} ; then
-			# FIXME: is this really a gentoo-ly correct way to find out if we are compiling
-			# for cygwin including cross-compiles, etc?
-			if [[ ${CTARGET} == *-cygwin* ]] ; then
-				lib="cyg${lib}${suffix}"
-			else
-				lib="lib${lib}${suffix}"
-			fi
+			case ${CTARGET:-${CHOST}} in
+			  *-cygwin*)
+				phys_shlib_prefix="cyg"
+				phys_shlib_suffix=".dll"
+				link_shlib_prefix="lib"
+				link_shlib_suffix=".dll.a"
+				noauto_libname="ERROR-INVALID-USAGE-OF-NOAUTO-LIBNAME"
+				lib_name_convention=cygwin
+				;;
+			  *)
+				phys_shlib_prefix="lib"
+				phys_shlib_suffix=".so"
+				link_shlib_prefix="lib"
+				link_shlib_suffix=".so"
+				noauto_libname="lib${lib}${suffix}"
+				lib_name_convention=linux
+				;;
+			esac
 		else
-			# Ensure /lib/${lib} exists to avoid dangling scripts/symlinks.
+			noauto_libname="${lib}"
+			lib_name_convention=noauto
+
+			# Ensure /lib/${noauto_libname} exists to avoid dangling scripts/symlinks.
 			# This especially is for AIX where $(get_libname) can return ".a",
-			# so /lib/${lib} might be moved to /usr/lib/${lib} (by accident).
-			[[ -r ${ED}/${libdir}/${lib} ]] || continue
+			# so /lib/${noauto_libname} might be moved to /usr/lib/${lib} (by accident).
+			[[ -r ${ED}/${libdir}/${noauto_libname} ]] || continue
 			#TODO: better die here?
 		fi
 
 		case ${CTARGET:-${CHOST}} in
 		*-darwin*)
-			if ${auto} ; then
-				tlib=$(scanmacho -qF'%S#F' "${ED}"/usr/${libdir}/${lib})
-			else
-				tlib=$(scanmacho -qF'%S#F' "${ED}"/${libdir}/${lib})
-			fi
+			case ${lib_name_convention} in
+				linux) tlib=$(scanmacho -qF'%S#F' "${ED}"/usr/${libdir}/${noauto_libname}) ;;
+				noauto) tlib=$(scanmacho -qF'%S#F' "${ED}"/${libdir}/${noauto_libname}) ;;
+				*) die "lib_name_convention mismatch" ;;
+			esac
 			if [[ -z ${tlib} ]] ; then
 				ewarn "gen_usr_ldscript: unable to read install_name from ${lib}"
 				tlib=${lib}
@@ -681,12 +734,12 @@ gen_usr_ldscript() {
 			tlib=${tlib##*/}
 
 			if ${auto} ; then
-				mv "${ED}"/usr/${libdir}/${lib%${suffix}}.*${suffix#.} "${ED}"/${libdir}/ || die
+				mv "${ED}"/usr/${libdir}/${noauto_libname%${suffix}}.*${suffix#.} "${ED}"/${libdir}/ || die
 				# some install_names are funky: they encode a version
-				if [[ ${tlib} != ${lib%${suffix}}.*${suffix#.} ]] ; then
+				if [[ ${tlib} != ${noauto_libname%${suffix}}.*${suffix#.} ]] ; then
 					mv "${ED}"/usr/${libdir}/${tlib%${suffix}}.*${suffix#.} "${ED}"/${libdir}/ || die
 				fi
-				[[ ${tlib} != ${lib} ]] && rm -f "${ED}"/${libdir}/${lib}
+				[[ ${tlib} != ${noauto_libname} ]] && rm -f "${ED}"/${libdir}/${noauto_libname}
 			fi
 
 			# Mach-O files have an id, which is like a soname, it tells how
@@ -712,19 +765,21 @@ gen_usr_ldscript() {
 			;;
 		*-aix*|*-irix*|*64*-hpux*|*-interix*|*-winnt*)
 			if ${auto} ; then
-				mv "${ED}"/usr/${libdir}/${lib}* "${ED}"/${libdir}/ || die
+				[[ ${lib_name_convention} == linux ]] || \
+					die "lib_name_convention mismatch"
+				mv "${ED}"/usr/${libdir}/${noauto_libname}* "${ED}"/${libdir}/ || die
 				# no way to retrieve soname on these platforms (?)
-				tlib=$(readlink "${ED}"/${libdir}/${lib})
+				tlib=$(readlink "${ED}"/${libdir}/${noauto_libname})
 				tlib=${tlib##*/}
 				if [[ -z ${tlib} ]] ; then
 					# ok, apparently was not a symlink, don't remove it and
 					# just link to it
 					tlib=${lib}
 				else
-					rm -f "${ED}"/${libdir}/${lib}
+					rm -f "${ED}"/${libdir}/${noauto_libnaame}
 				fi
 			else
-				tlib=${lib}
+				tlib=${noauto_libname}
 			fi
 
 			# we don't have GNU binutils on these platforms, so we symlink
@@ -741,94 +796,119 @@ gen_usr_ldscript() {
 			# libxml2, but links without libtool (and does not add libz to the
 			# command line by itself).
 			pushd "${ED}/usr/${libdir}" > /dev/null
-			ln -snf "../../${libdir}/${tlib}" "${lib}"
-			popd > /dev/null
-			;;
-		*-cygwin*)
-			# ugh, did it wind up in ./lib or ./bin, and if so, should we fix it?
-			# for now we'll try fixing and see what develops.
-			if ${auto} ; then
-				# first, if we find the .dll in ${libdir}, put it in "bin" where it
-				# belongs
-				if [[ -f "${ED%/}"/usr/${libdir}/${lib} ]] ; then
-					mv "${ED%/}"/usr/${libdir}/${lib} \
-						"${ED%/}"/bin/${lib}
-				elif [[ -f "${ED%/}"/usr/bin/${lib} ]] ; then
-					mv "${ED%/}"/usr/bin/${lib} "${ED%/}"/bin/${lib}
-				else
-					die "gen_usr_ldscript unable to find the .dll \"${lib}\"."
-				fi
-				# now, what if the following fails?  not sure that should be fatal
-				# anymore so let's fail silently.  It should now be safe/correct,
-				# however, to proceed since the dll was already moved above to /bin.
-				local alibprefix="$( echo ${lib} | sed 's/^cyg/lib/,s/.dll$//' )"
-				mv "${ED%/}"/usr/${libdir}/${alibprefix}*.a "${ED%/}"/${libdir}/ || die \
-					"gen_usr_ldscript Couldn't match '"${ED%/}"/usr/${libdir}/${alibprefix}*.a'"
-				# no way to retrieve soname (?)
-				tlib=$(readlink "${ED%/}"/lib/${alibprefix}.a)
-				tlib=${tlib##*/}
-				if [[ -z ${tlib} ]] ; then
-					# ok, apparently was not a symlink, don't remove it and
-					# just link to it
-					tlib=${lib}
-				else
-					rm -f "${ED}"/bin/${lib}
-				fi
-			else
-				die "Only auto mode is supported in cygwin gen_usr_ldscript, so far, sorry."
-			fi
-
-			# FIXME: do the right thing here, whatever that is ... ask cygwin list?
-			# could it possibly be so easy as to just change /lib to /bin in the
-			# general-case script below?  Would the script go into the .a or the .dll?
-			# TODO: try various and see what happens.
-			#
-			pushd "${ED}/usr/${libdir}" > /dev/null
-			ln -snf "../../${libdir}/${tlib}" .
+			ln -snf "../../${libdir}/${tlib}" "${noauto_libname}"
 			popd > /dev/null
 			;;
 		hppa*-hpux*) # PA-RISC 32bit (SOM) only, others (ELF) match *64*-hpux* above.
 			if ${auto} ; then
-				tlib=$(chatr "${ED}"/usr/${libdir}/${lib} | sed -n '/internal name:/{n;s/^ *//;p;q}')
-				[[ -z ${tlib} ]] && tlib=${lib}
+				[[ ${lib_name_convention} == linux ]] || \
+					die "lib_name_convention mismatch"
+				tlib=$(chatr "${ED}"/usr/${libdir}/${noauto_libname} | sed -n '/internal name:/{n;s/^ *//;p;q}')
+				[[ -z ${tlib} ]] && tlib=${noauto_libname}
 				tlib=${tlib##*/} # 'internal name' can have a path component
-				mv "${ED}"/usr/${libdir}/${lib}* "${ED}"/${libdir}/ || die
+				mv "${ED}"/usr/${libdir}/${noauto_libname}* "${ED}"/${libdir}/ || die
 				# some SONAMEs are funky: they encode a version before the .so
-				if [[ ${tlib} != ${lib}* ]] ; then
+				if [[ ${tlib} != ${noauto_libname}* ]] ; then
 					mv "${ED}"/usr/${libdir}/${tlib}* "${ED}"/${libdir}/ || die
 				fi
-				[[ ${tlib} != ${lib} ]] &&
-				rm -f "${ED}"/${libdir}/${lib}
+				[[ ${tlib} != ${noauto_libname} ]] &&
+				rm -f "${ED}"/${libdir}/${noauto_libname}
 			else
-				tlib=$(chatr "${ED}"/${libdir}/${lib} | sed -n '/internal name:/{n;s/^ *//;p;q}')
-				[[ -z ${tlib} ]] && tlib=${lib}
+				tlib=$(chatr "${ED}"/${libdir}/${noauto_libname} | sed -n '/internal name:/{n;s/^ *//;p;q}')
+				[[ -z ${tlib} ]] && tlib=${noauto_libname}
 				tlib=${tlib##*/} # 'internal name' can have a path component
 			fi
 			pushd "${ED}"/usr/${libdir} >/dev/null
-			ln -snf "../../${libdir}/${tlib}" "${lib}"
+			ln -snf "../../${libdir}/${tlib}" "${noauto_libname}"
 			# need the internal name in usr/lib too, to be available at runtime
 			# when linked with /path/to/lib.sl (hardcode_direct_absolute=yes)
-			[[ ${tlib} != ${lib} ]] &&
+			[[ ${tlib} != ${noauto_libname} ]] &&
 			ln -snf "../../${libdir}/${tlib}" "${tlib}"
 			popd >/dev/null
 			;;
+		*-cygwin*)
+			if ${auto} ; then
+				[[ ${lib_name_convention} == cygwin ]] || \
+					die "lib_name_convention mismatch"
+				tlib="${link_shlib_prefix}${lib}${link_shlib_suffix}"
+				if [[ -z ${tlib} ]] ; then
+					ewarn "gen_usr_ldscript: unable to determine cygwin SONAME"
+					die "This should never happen"
+				fi
+				# first move the .dll.  If the package is smart it will be in bin:
+				if [[ -f "${ED%/}"/usr/bin/${phys_shlib_prefix}${lib}${phys_shlib_suffix} ]] ; then
+					mv "${ED%/}"/usr/bin/${phys_shlib_prefix}${lib}${phys_shlib_suffix} \
+						"${ED%/}"/bin/ || \
+						die "Could not move '${phys_shlib_prefix}${lib}${phys_shlib_suffix}'"
+				# if the package is dumb, the .dll will be in lib:
+				elif [[ -f "${ED%/}"/usr/${libdir}/${phys_shlib_prefix}${lib}${phys_shlib_suffix} ]] ; then
+					mv "${ED%/}"/usr/${libdir}/${phys_shlib_prefix}${lib}${phys_shlib_suffix} \
+						"${ED%/}"/bin/ || \
+						die "Could not move '${phys_shlib_prefix}${lib}${phys_shlib_suffix}'"
+				else
+					die "gen_usr_ldscript: Could not find '${phys_shlib_prefix}${lib}${phys_shlib_suffix}'"
+				fi
+				chmod a+x "${ED%/}"/bin/${phys_shlib_prefix}${lib}${phys_shlib_suffix} || die d9x234jsdg8
+				# now move the .dll.a and any links
+				mv "${ED%/}"/usr/${libdir}/${link_shlib_prefix}${lib}*${link_shlib_suffix} \
+					"${ED%/}"/${libdir} || die "gen_usr_ldscript: cant move ${link_shlib_suffix} files"
+			else
+				tlib=${noauto_libname}
+				# if ebuilds naievely use noauto under cygwin, they will break.  They at least need
+				# code to put the .dll into bin.  Did they do so?  Since this could get pretty
+				# confusing, if things don't look right, just die, rather than trying to patch things up.
+				# but, if this ends up happening a lot, we could
+				# perhaps add code here to try to fix the problem automatically
+				[[ ${tlib} =~ \.so(\.[0-9.-]*)?$ ]] &&
+					die "cygwin gen_usr_ldscript noauto on linux style soname '${tlib}'."
+				if [[ ${tlib} =~ \.dll\.a$ && ${tlib} =~ ^lib ]] ; then
+					tliblib="${tlib#lib}"
+					tliblib="${tliblib%.dll.a}"
+					if [[ ! -f ${ED%/}"/bin/cyg${tliblib}.dll" ]] ; then
+						ewarn "gen_usr_ldscript got noauto libname '${tlib}' which seemed"
+						ewarn "reasonable.  However, we expect '${ED%/}/bin/cyg${tliblib}.dll' to exist"
+						die
+					fi
+				else
+					ewarn "gen_usr_ldscript noauto under cygwin requires special handling."
+					ewarn "Tried to sanity check provided libname '${tlib}' but it seems"
+					ewarn "wierd.  Something is probably broken."
+					die
+				fi
+			fi
+			cat > "${ED%/}/usr/${libdir}/${link_shlib_prefix}${lib}${link_shlib_suffix}" <<-END_LDSCRIPT
+			/* GNU ld script
+			   Since Gentoo has critical dynamic libraries in /lib, and the static versions
+			   in /usr/lib, we need to have a "fake" dynamic lib in /usr/lib, otherwise we
+			   run into linking problems.  This "fake" dynamic lib is a linker script that
+			   redirects the linker to the real lib.  And yes, this works in the cross-
+			   compiling scenario as the sysroot-ed linker will prepend the real path.
+
+			   See bug http://bugs.gentoo.org/4411 for more info.
+			 */
+			${output_format}
+			GROUP ( ${EPREFIX}/${libdir}/${tlib} )
+			END_LDSCRIPT
+			;;
 		*)
 			if ${auto} ; then
-				tlib=$(scanelf -qF'%S#F' "${ED}"/usr/${libdir}/${lib})
+				[[ ${lib_name_convention} == linux ]] || \
+					die "lib_name_convention mismatch"
+				tlib=$(scanelf -qF'%S#F' "${ED}"/usr/${libdir}/${noauto_libname})
 				if [[ -z ${tlib} ]] ; then
-					ewarn "gen_usr_ldscript: unable to read SONAME from ${lib}"
-					tlib=${lib}
+					ewarn "gen_usr_ldscript: unable to read SONAME from ${noauto_libname}"
+					tlib=${noauto_libname}
 				fi
-				mv "${ED}"/usr/${libdir}/${lib}* "${ED}"/${libdir}/ || die
+				mv "${ED}"/usr/${libdir}/${noauto_libname}* "${ED}"/${libdir}/ || die
 				# some SONAMEs are funky: they encode a version before the .so
-				if [[ ${tlib} != ${lib}* ]] ; then
+				if [[ ${tlib} != ${noauto_libname}* ]] ; then
 					mv "${ED}"/usr/${libdir}/${tlib}* "${ED}"/${libdir}/ || die
 				fi
-				[[ ${tlib} != ${lib} ]] && rm -f "${ED}"/${libdir}/${lib}
+				[[ ${tlib} != ${noauto_libname} ]] && rm -f "${ED}"/${libdir}/${noauto_libname}
 			else
-				tlib=${lib}
+				tlib=${noauto_libname}
 			fi
-			cat > "${ED}/usr/${libdir}/${lib}" <<-END_LDSCRIPT
+			cat > "${ED}/usr/${libdir}/${noauto_libname}" <<-END_LDSCRIPT
 			/* GNU ld script
 			   Since Gentoo has critical dynamic libraries in /lib, and the static versions
 			   in /usr/lib, we need to have a "fake" dynamic lib in /usr/lib, otherwise we
@@ -843,7 +923,13 @@ gen_usr_ldscript() {
 			END_LDSCRIPT
 			;;
 		esac
-		fperms a+x "/usr/${libdir}/${lib}" || die "could not change perms on ${lib}"
+		if ${auto} ; then
+			fperms a+x "/usr/${libdir}/${link_shlib_prefix}${lib}${link_shlib_suffix}" || \
+				die "could not change perms on ${link_shlib_prefix}${lib}${link_shlib_suffix}"
+		else
+			fperms a+x "/usr/${libdir}/${noauto_libname}" || \
+				die "could not change perms on ${noauto_libname}"
+		fi
 	done
 }
 
