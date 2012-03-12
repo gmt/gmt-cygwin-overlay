@@ -1,6 +1,6 @@
 diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
---- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-11 23:40:03.913482600 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-11 23:40:04.507101300 -0700
+--- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-12 02:54:38.577097000 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-12 02:54:39.099097000 -0700
 @@ -112,6 +112,7 @@
  # profiles define them too
  CONFIG_PROTECT="/etc"
@@ -10,8 +10,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.0
  # Disable auto-use
  USE_ORDER="env:pkg:conf:defaults:pkginternal:repo:env.d"
 diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-11 23:40:03.917483400 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-11 23:40:04.510602000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-12 02:54:38.580097000 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-12 02:54:39.102097000 -0700
 @@ -1455,7 +1455,7 @@
  		myvars = list(settings)
  	else:
@@ -22,17 +22,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage
  		          'PORTAGE_BZIP2_COMMAND',
  		          'USE', 'CHOST', 'CFLAGS', 'CXXFLAGS',
 diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-11 23:40:03.919983900 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-11 23:40:04.513102500 -0700
-@@ -33,7 +33,7 @@
- from portage.dbapi.dep_expand import dep_expand
- from portage.util import normalize_path as normpath
- from portage.util import (shlex_split, varexpand,
--	writemsg_level, writemsg_stdout)
-+	writemsg_level, writemsg_stdout, recalc_cygdll_protect)
- from portage._sets import SETPREFIX
- from portage._global_updates import _global_updates
- 
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-12 02:54:38.582597000 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-12 04:28:00.115597000 -0700
 @@ -357,6 +357,7 @@
  	settings.lock()
  
@@ -68,8 +59,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.
  
  	if "getbinpkg" in settings.features:
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-11 23:40:03.921984300 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-11 23:40:04.515102900 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-12 02:54:38.585097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-12 02:54:39.107097000 -0700
 @@ -99,7 +99,8 @@
  		'portage.util:atomic_ofstream,apply_secpass_permissions,' + \
  			'apply_recursive_permissions,dump_traceback,getconfig,' + \
@@ -90,8 +81,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portag
  		EPREFIX, EPREFIX_LSTRIP, rootuid
  
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-11 23:40:03.925485000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-11 23:40:04.519103700 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-12 02:54:38.587097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-12 02:54:39.110097000 -0700
 @@ -55,6 +55,7 @@
  WORLD_FILE               = PRIVATE_PATH + "/world"
  WORLD_SETS_FILE          = PRIVATE_PATH + "/world_sets"
@@ -109,8 +100,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2
                             "PROFILE_ONLY_VARIABLES")
  EBUILD_PHASES            = ("pretend", "setup", "unpack", "prepare", "configure",
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-11 23:40:03.926985300 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-11 23:40:04.521104100 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-12 02:54:38.588597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-12 02:54:39.112097000 -0700
 @@ -22,7 +22,7 @@
  
  	__slots__ = ('mycat', 'mypkg', 'settings', 'treetype',
@@ -132,8 +123,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py pr
  			raise
  		except:
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-11 23:40:03.929485800 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-11 23:40:04.523104500 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-12 02:54:38.591097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-12 02:54:39.114597000 -0700
 @@ -299,7 +299,7 @@
  			self._pkgindex_header_keys = set([
  				"ACCEPT_KEYWORDS", "ACCEPT_LICENSE",
@@ -144,8 +135,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-p
  			self._pkgindex_default_pkg_data = {
  				"BUILD_TIME"         : "",
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-11 23:40:03.935987100 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-11 23:57:58.051267200 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-12 02:54:38.597097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-12 04:03:12.630597000 -0700
 @@ -23,7 +23,7 @@
  	'portage.update:fixdbentries',
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
@@ -192,9 +183,11 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  	def updateprotect(self):
  		self._get_protect_obj().updateprotect()
  
-@@ -2042,7 +2048,10 @@
+@@ -2040,9 +2046,11 @@
+ 				others_in_slot.append(dblink(self.cat, catsplit(cur_cpv)[1],
+ 					settings=self.settings,
  					vartree=self.vartree, treetype="vartree", pipe=self._pipe))
- 
+-
  		cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
 +		cygdlldict = grabdict(self.vartree.dbapi._cygdll_mem_file)
 +
@@ -203,7 +196,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  		protected_symlinks = {}
  
  		unmerge_orphans = "unmerge-orphans" in self.settings.features
-@@ -2203,8 +2212,11 @@
+@@ -2203,8 +2211,11 @@
  					if is_owned:
  						show_unmerge("---", unmerge_desc["replaced"], file_type, obj)
  						continue
@@ -217,7 +210,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  				# next line includes a tweak to protect modules from being unmerged,
  				# but we don't protect modules from being overwritten if they are
  				# upgraded. We effectively only want one half of the config protection
-@@ -2371,6 +2383,12 @@
+@@ -2371,6 +2382,12 @@
  				del cfgfiledict[filename]
  			writedict(cfgfiledict, self.vartree.dbapi._conf_mem_file)
  
@@ -230,7 +223,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  		#remove self from vartree database so that our own virtual gets zapped if we're the last node
  		self.vartree.zap(self.mycpv)
  
-@@ -3363,7 +3381,7 @@
+@@ -3363,7 +3380,7 @@
  		emergelog(False, msg)
  
  	def treewalk(self, srcroot, destroot, inforoot, myebuild, cleanup=0,
@@ -239,7 +232,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  		"""
  		
  		This function does the following:
-@@ -3830,6 +3848,7 @@
+@@ -3830,6 +3847,7 @@
  		self.vartree.dbapi._fs_lock()
  		try:
  			cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
@@ -247,7 +240,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  			if "NOCONFMEM" in self.settings:
  				cfgfiledict["IGNORE"]=1
  			else:
-@@ -3844,7 +3863,7 @@
+@@ -3844,7 +3862,7 @@
  					cfgfiledict["IGNORE"] = 1
  					break
  
@@ -256,7 +249,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  			if rval != os.EX_OK:
  				return rval
  		finally:
-@@ -4091,9 +4110,10 @@
+@@ -4091,9 +4109,10 @@
  
  		return backup_p
  
@@ -268,7 +261,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  
  		# open CONTENTS file (possibly overwriting old one) for recording
  		# Use atomic_ofstream for automatic coercion of raw bytes to
-@@ -4118,7 +4138,7 @@
+@@ -4118,7 +4137,7 @@
  		# we do a first merge; this will recurse through all files in our srcroot but also build up a
  		# "second hand" of symlinks to merge later
  		if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -277,7 +270,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  			return 1
  
  		# now, it's time for dealing our second hand; we'll loop until we can't merge anymore.	The rest are
-@@ -4130,7 +4150,7 @@
+@@ -4130,7 +4149,7 @@
  
  			thirdhand = []
  			if self.mergeme(srcroot, destroot, outfile, thirdhand,
@@ -286,7 +279,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  				return 1
  
  			#swap hands
-@@ -4144,7 +4164,7 @@
+@@ -4144,7 +4163,7 @@
  		if len(secondhand):
  			# force merge of remaining symlinks (broken or circular; oh well)
  			if self.mergeme(srcroot, destroot, outfile, None,
@@ -295,11 +288,10 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  				return 1
  
  		#restore umask
-@@ -4165,7 +4185,14 @@
+@@ -4163,9 +4182,16 @@
+ 				self.settings._init_dirs()
+ 				writedict(cfgfiledict, self.vartree.dbapi._conf_mem_file)
  
- 		return os.EX_OK
- 
--	def mergeme(self, srcroot, destroot, outfile, secondhand, stufftomerge, cfgfiledict, thismtime):
 +		if cygdlldict != cygdlldict_orig:
 +			try:
 +				writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
@@ -307,11 +299,14 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
 +				self.settings._init_dirs()
 +				writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
 +
+ 		return os.EX_OK
+ 
+-	def mergeme(self, srcroot, destroot, outfile, secondhand, stufftomerge, cfgfiledict, thismtime):
 +	def mergeme(self, srcroot, destroot, outfile, secondhand, stufftomerge, cfgfiledict, thismtime, cygdlldict):
  		"""
  		
  		This function handles actual merging of the package contents to the livefs.
-@@ -4186,6 +4213,8 @@
+@@ -4186,6 +4212,8 @@
  		@type cfgfiledict: Dictionary
  		@param thismtime: The current time (typically long(time.time())
  		@type thismtime: Long
@@ -320,7 +315,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  		@rtype: None or Boolean
  		@returns:
  		1. True on failure
-@@ -4415,7 +4444,7 @@
+@@ -4415,7 +4443,7 @@
  				outfile.write("dir "+myrealdest+"\n")
  				# recurse and merge this directory
  				if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -329,7 +324,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  					return 1
  			elif stat.S_ISREG(mymode):
  				# we are merging a regular file
-@@ -4426,6 +4455,7 @@
+@@ -4426,6 +4454,7 @@
  				zing = "!!!"
  				mymtime = None
  				protected = self.isprotected(mydest)
@@ -337,7 +332,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  				if mydmode != None:
  					# destination file exists
  					
-@@ -4456,8 +4486,8 @@
+@@ -4456,8 +4485,8 @@
  									inst_info = self._installed_instance.getcontents()[contents_key]
  									if inst_info[0] == "obj" and inst_info[2] == destmd5:
  										protected = False
@@ -347,7 +342,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  							# we have a protection path; enable config file management.
  							cfgprot = 0
  							if mymd5 == destmd5:
-@@ -4486,6 +4516,34 @@
+@@ -4486,6 +4515,34 @@
  
  							if cfgprot:
  								mydest = new_protect_filename(mydest, newmd5=mymd5)
@@ -382,7 +377,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  
  				# whether config protection or not, we merge the new file the
  				# same way.  Unless moveme=0 (blocking directory)
-@@ -4530,7 +4588,7 @@
+@@ -4530,7 +4587,7 @@
  				showMessage(zing + " " + mydest + "\n")
  
  	def merge(self, mergeroot, inforoot, myroot=None, myebuild=None, cleanup=0,
@@ -391,7 +386,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  		"""
  		@param myroot: ignored, self._eroot is used instead
  		"""
-@@ -4545,7 +4603,7 @@
+@@ -4545,7 +4602,7 @@
  		try:
  			retval = self.treewalk(mergeroot, myroot, inforoot, myebuild,
  				cleanup=cleanup, mydbapi=mydbapi, prev_mtimes=prev_mtimes,
@@ -400,7 +395,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  
  			# If PORTAGE_BUILDDIR doesn't exist, then it probably means
  			# fail-clean is enabled, and the success/die hooks have
-@@ -4650,7 +4708,7 @@
+@@ -4650,7 +4707,7 @@
  def merge(mycat, mypkg, pkgloc, infloc,
  	myroot=None, settings=None, myebuild=None,
  	mytree=None, mydbapi=None, vartree=None, prev_mtimes=None, blockers=None,
@@ -409,7 +404,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  	"""
  	@param myroot: ignored, settings['EROOT'] is used instead
  	"""
-@@ -4668,7 +4726,8 @@
+@@ -4668,7 +4725,8 @@
  		scheduler=(scheduler or PollScheduler().sched_iface),
  		background=background, blockers=blockers, pkgloc=pkgloc,
  		infloc=infloc, myebuild=myebuild, mydbapi=mydbapi,
@@ -420,8 +415,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  	retcode = merge_task.wait()
  	return retcode
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-11 23:40:03.937487400 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-11 23:40:04.532106300 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-12 02:54:38.598597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-12 02:54:39.122597000 -0700
 @@ -150,7 +150,7 @@
  # portage config variables and variables set directly by portage
  environ_filter += [
@@ -432,8 +427,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/sp
  	"EMERGE_LOG_DIR",
  	"EMERGE_WARNING_DELAY",
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/doebuild.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.py	2012-03-11 23:40:03.940488000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/doebuild.py	2012-03-11 23:40:04.537607400 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.py	2012-03-12 02:54:38.601597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/doebuild.py	2012-03-12 02:54:39.126597000 -0700
 @@ -427,7 +427,7 @@
  def doebuild(myebuild, mydo, _unused=None, settings=None, debug=0, listonly=0,
  	fetchonly=0, cleanup=0, dbkey=None, use_cache=1, fetchall=0, tree=None,
@@ -481,30 +476,23 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.p
  			writemsg_stdout(_("!!! Unknown mydo: %s\n") % mydo, noiselevel=-1)
  			return 1
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-11 23:40:03.944488800 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-11 23:40:04.541608200 -0700
-@@ -7,7 +7,8 @@
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-12 02:54:38.605597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-12 04:56:14.262097000 -0700
+@@ -7,9 +7,10 @@
  	'find_updated_config_files', 'getconfig', 'getlibpaths', 'grabdict',
  	'grabdict_package', 'grabfile', 'grabfile_package', 'grablines',
  	'initialize_logger', 'LazyItemsDict', 'map_dictlist_vals',
 -	'new_protect_filename', 'normalize_path', 'pickle_read', 'stack_dictlist',
+-	'stack_dicts', 'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
+-	'write_atomic', 'writedict', 'writemsg', 'writemsg_level', 'writemsg_stdout']
 +	'new_cygdllprotect_filename', 'new_protect_filename', 'normalize_path',
-+	'pickle_read', 'recalc_cygdll_protect', 'stack_dictlist',
- 	'stack_dicts', 'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
- 	'write_atomic', 'writedict', 'writemsg', 'writemsg_level', 'writemsg_stdout']
++	'pickle_read', 'stack_dictlist', 'stack_dicts', 'stack_lists',
++	'unique_array', 'unique_everseen', 'varexpand', 'write_atomic',
++	'writedict', 'writemsg', 'writemsg_level', 'writemsg_stdout']
  
-@@ -169,6 +170,10 @@
- 		new_dl[key] = [func(x) for x in myDict[key]]
- 	return new_dl
- 
-+def recalc_cygdll_protect(origprot):
-+	"""TODO: Execute the standard cygdll_protect calculation and merge results additively with provided value"""
-+	return origprot
-+
- def stack_dictlist(original_dicts, incremental=0, incrementals=[], ignore_none=0):
- 	"""
- 	Stacks an array of dict-types into one array. Optionally merging or
-@@ -1416,15 +1421,16 @@
+ from copy import deepcopy
+ import errno
+@@ -1416,15 +1417,16 @@
  			return result
  
  class ConfigProtect(object):
@@ -524,7 +512,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  
  		os = _os_merge
  
-@@ -1457,6 +1463,18 @@
+@@ -1457,6 +1459,18 @@
  			except OSError:
  				# If it doesn't exist, there's no need to mask it.
  				pass
@@ -543,7 +531,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  
  	def isprotected(self, obj):
  		"""Returns True if obj is protected, False otherwise.  The caller must
-@@ -1492,6 +1510,18 @@
+@@ -1492,6 +1506,18 @@
  						masked = len(pmpath)
  		return protected > masked
  
@@ -562,19 +550,19 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  def new_protect_filename(mydest, newmd5=None, force=False):
  	"""Resolves a config-protect filename for merging, optionally
  	using the last filename if the md5 matches. If force is True,
-@@ -1544,6 +1574,104 @@
+@@ -1544,6 +1570,104 @@
  				return old_pfile
  	return new_pfile
  
 +def new_cygdllprotect_filename(mydest, newmd5=None, force=False):
-+	"""Resolves a config-protect filename for merging, optionally
++	"""Resolves a cygdll-protect filename for merging, optionally
 +	using the last filename if the md5 matches. If force is True,
 +	then a new filename will be generated even if mydest does not
 +	exist yet.
 +	(dest,md5) ==> 'string'            --- path_to_target_filename
 +	(dest)     ==> ('next', 'highest') --- next_target and most-recent_target
 +	"""
-+
++	
 +	# config protection filename format:
 +	# ._cyg0000_foo
 +	# 0123456789012
@@ -668,8 +656,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  	"""
  	Return a tuple of configuration files that needs to be updated.
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-11 23:40:03.946489200 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-11 23:40:04.543108500 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-12 02:54:38.607597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-12 02:54:39.133597000 -0700
 @@ -104,7 +104,7 @@
  	fns = templist
  	del templist
