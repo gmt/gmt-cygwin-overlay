@@ -9,9 +9,102 @@ diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.0
  
  # Disable auto-use
  USE_ORDER="env:pkg:conf:defaults:pkginternal:repo:env.d"
+diff -urN prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
+--- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-01 12:36:30.000000000 -0800
++++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-13 16:39:21.317097000 -0700
+@@ -1010,6 +1010,88 @@
+ offset by Portage before they are considered.  Hence, these paths never
+ contain the offset prefix, and the variables can be defined in
+ offset-unaware locations, such as the profiles. 
++.SH "CYGWIN DLL PROTECTION"
++Portage for cygwin includes a feature called "cygwin dll protection", which
++roughly mirrors the functionality of the "configuration file protection"
++feature (see \fBCONFIGURATION FILES\fR above). The purpose of this feature
++is to prevent new package installs from crashing portage when replacing
++files such as .dll's which are currently in use by portage.
++.LP
++This is necessary due to a rather inconvenient limitation of the cygwin
++environment, which is necessary, in turn, due to yet another rather inconvenient
++limitation of Microsoft Windows. A full explanation is beyond the scope of
++this document, but the problem has to do with the way cygwin's implementation of
++the UNIX fork() API works, and idiocyncracies of the Windows platform's mapping
++of executable code into the so-called 'virtual memory address space.'
++Regardless of the etiology, the symptomoatology is brutally noticeable and
++readily explained:
++.LP
++If a cygwin program (such as python.exe, and hence, cygwin portage) is
++running, and we replace any execuable (again, including .dll files) which that
++program may be using, then although nothing may happen right away, as soon as
++that program attempts to call the fork() API, the program will almost certainly
++crash. This is normally not a problem in cygwin because cygwin includes an
++installation utility, 'setup.exe,' which is not itself a cygwin program (it
++is instead just a regular Windows GUI program).
++.LP
++Note that there is a second problem in cygwin which will cause crashes with
++errors about address space mapping, immediately upon program invocation.
++Although this problem is very closely related to the problem with
++replacing executables while a program is running, it is
++technically distinct and arises from different causes. The "cygwin dll
++protection" feature is only intended to solve the replacement problem (a full
++solution to the rebasing problem is still under development, but see the
++cygwin overlay's \fBprofile.bashrc\fR file for its interim pseudo\-solution.
++.LP
++When Portage installs a file that it determines to require protection (more on
++how this determination is made follows) existing files will not be overwritten.
++If a file of the same name already exists, Portage will change the name of the
++to\-be\-installed file from 'foo' to '._cygdll_foo'. If '._cygdll_foo'
++already exists, it will be overwritten. The files will later have to
++be moved to their final destination 'foo' if they are to be used. When in this
++state, the files can be said to be in 'cygwin\-dll\-protection\-limbo'.
++.LP
++Files can be explicitly protected using the \fICYGDLL_PROTECT\fR variable,
++normally defined in make.globals. Note that any file can be protected in this way,
++but it only really makes sense to protect .dll or .exe files (unless a program is
++loading files with other names into its address-space, but this is very unusual).
++The \fICYGDLL_PROTECT\fR variable, like the \fICONFIG_PROTECT\fR variable,
++is relative to the \fIEPREFIX\fR in offset (prefix) portage installations, and
++is cumulative, so that the filenames found in the various locations portage
++searches for it (the same places it looks for \fICONFIG_PROTECT\fR, including the
++environment, profile, and so on) are aggregated. Unlike \fICONFIG_PROTECT\fR,
++which can contain files and directories (and usually only contains the latter),
++\fICYGDLL_PROTECT\fR only contains file-names. Placing directory names into it
++has not been tested as of this writing and is therefore very likely to cause
++problems or trigger bugs.
++.LP
++Unfortunately, unlike \fICONFIG_PROTECT\fR, \fICYGDLL_PROTECT\fR lacks any means
++to "deactivate" the protections (in other words, there is no
++\fICYGDLL_PROTECT_MASK\fR variable). The lack of such a means, combined with
++the facts that there is no way to turn off cygwin dll protection globally,
++and that protections are aggregated across various files, means that effectively,
++deactivating the feature is all but impossible. This is simply a bug; there
++are perfectly legitimate reasons to want to not use this feature (i.e., when
++targeting a chained prefix). In the future, something will need to be done about
++this, but for now, we can only offer our apologies. You will need to find all
++the \fICYGDLL_PROTECT\fR usages across your various portage configuration files
++and empty them out to deactivate the feature.
++.LP
++In addition to deferring the overwriting of protected files, Portage should not
++delete any protected files when a package is unmerged. The exact handling of
++this scenario has not yet been worked out. At the moment, Portage leaves the
++files around(?), but in the future, something more sophisticated will need to be
++done. Most likely, the behavior will be to create an empty '._cygdll_foo'
++file which will serve as a hint to the administrator (or cygdll\-update)
++that the file should be removed.
++.LP
++A tool, \fBcygdll\-update\fR is available to aid in the merging of files in
++cygwin\-dll\-protection\-limbo. The tool will wait (forever, if need be)
++for all running portage instances to terminate, and then automagically
++find all in\-limbo files and move them to their final destinations. In the
++future, some means may be provided to do this automatically, but don't hold
++your breath.  If portage were to invoke cygdll-update itself, it would
++trigger the very conditions cygwin dll protection is designed to avoid.
+ .SH "REPORTING BUGS"
+ Please report any bugs you encounter through our website:
+ .LP
+Binary files prefix-portage-2.2.01.20271.orig/pym/_emerge/.actions.py.swp and prefix-portage-2.2.01.20271/pym/_emerge/.actions.py.swp differ
 diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-12 07:22:44.359597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-12 17:41:03.475614700 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-13 02:08:19.986410100 -0700
 @@ -1455,7 +1455,7 @@
  		myvars = list(settings)
  	else:
@@ -180,7 +273,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-p
  				"BUILD_TIME"         : "",
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-12 07:22:44.377097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-12 09:33:51.349097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-13 12:38:15.658097000 -0700
 @@ -23,7 +23,7 @@
  	'portage.update:fixdbentries',
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
@@ -412,7 +505,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
 +
 +				# once we introduce the "currently loaded dlls" heuristic
 +				# CYGDLL_PROTECT offers no easy way (except, perhaps,
-+				# "find / -name '_cygdll_protect_*', but that's too slow) to
++				# "find / -name '_cygdll_*', but that's too slow) to
 +				# find the CYGDLL_PROTECT'ed files.  for this reason we ought
 +				# not to be as cavalier as we are with cygdlldict. let's save
 +				# out our changes now, *before* anything gets merged to the fs)
@@ -451,7 +544,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.p
  	"""
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-12 07:22:44.385597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-12 15:59:57.031568500 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-13 13:04:29.638097000 -0700
 @@ -4,12 +4,13 @@
  __all__ = ['apply_permissions', 'apply_recursive_permissions',
  	'apply_secpass_permissions', 'apply_stat_permissions', 'atomic_ofstream',
@@ -472,6 +565,15 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  
  from copy import deepcopy
  import errno
+@@ -45,7 +46,7 @@
+ from portage.localization import _
+ from portage.proxy.objectproxy import ObjectProxy
+ from portage.cache.mappings import UserDict
+-from portage.const import EPREFIX
++from portage.const import EPREFIX, CYGDLL_MEMORY_FILE
+ 
+ noiselimit = 0
+ 
 @@ -1416,15 +1417,16 @@
  			return result
  
@@ -523,7 +625,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  def new_protect_filename(mydest, newmd5=None, force=False):
  	"""Resolves a config-protect filename for merging, optionally
  	using the last filename if the md5 matches. If force is True,
-@@ -1544,6 +1563,50 @@
+@@ -1544,6 +1563,53 @@
  				return old_pfile
  	return new_pfile
  
@@ -535,7 +637,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
 +	"""
 +	
 +	# cygdll protection filename format:
-+	# foo.dll => _cygdll_protect_foo.dll
++	# foo.dll => _cygdll_foo.dll
 +
 +	# unlike with config files, there is no need to support multiple layers of
 +	# pending changes, so no numbers are used. 
@@ -559,14 +661,17 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
 +	CYGDLL_PROTECT), looks for dlls with pending cygdll_protected updates merged into
 +	the filesystem.  It will check everything in cygdll_protect manually and also
 +	everything in the eprefix + '/var/lib/portage/cygdll' database.  Returns a regular
-+	list (unlike find_updated_config_files, confusingly) of fully-qualified paths.
++	list (unlike, confusingly, find_updated_config_files) of fully-qualified paths.
 +	"""
 +	os = _os_merge
 +
 +	candidates = [ os.path.join(target_root, os.path.relpath(x, os.sep)) \
 +		       for x in cygdll_protect ]
 +
-+	# FIXME: check the db
++	cygdll_mem_file = os.path.join(target_root, CYGDLL_MEMORY_FILE);
++	cygdll_dict = grabdict(cygdll_mem_file)
++	candidates.extend(cygdll_dict.keys())
++
 +	return [x for (x,p) in [(x,new_cygdllprotect_filename(x, None, True)) \
 +				for x in candidates] \
 +		if os.path.exists(p)]
