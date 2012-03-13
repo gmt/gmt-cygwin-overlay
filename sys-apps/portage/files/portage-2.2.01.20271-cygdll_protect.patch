@@ -11,7 +11,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.0
  USE_ORDER="env:pkg:conf:defaults:pkginternal:repo:env.d"
 diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-12 07:22:44.359597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-12 07:22:44.888097000 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-12 17:41:03.475614700 -0700
 @@ -1455,7 +1455,7 @@
  		myvars = list(settings)
  	else:
@@ -21,18 +21,72 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage
  		          'PORTDIR_OVERLAY', 'PORTAGE_BUNZIP2_COMMAND',
  		          'PORTAGE_BZIP2_COMMAND',
  		          'USE', 'CHOST', 'CFLAGS', 'CXXFLAGS',
+@@ -2532,6 +2532,9 @@
+ 	chk_updated_cfg_files(settings["EROOT"],
+ 		portage.util.shlex_split(settings.get("CONFIG_PROTECT", "")))
+ 
++	chk_updated_cygdll_files(settings["EROOT"],
++		portage.util.shlex_split(settings.get("CYGDLL_PROTECT", "")))
++
+ 	if myaction != "metadata":
+ 		postsync = os.path.join(settings["PORTAGE_CONFIGROOT"],
+ 			portage.USER_CONFIG_PATH, "bin", "post_sync")
+@@ -3072,6 +3075,22 @@
+ 				+ " section of the " + bold("emerge"))
+ 		print(" "+yellow("*")+" man page to learn how to update config files.")
+ 
++def chk_updated_cygdll_files(eroot, cygdll_protect):
++	result = portage.util.find_updated_cygdll_files(eroot, cygdll_protect)
++
++	for x in result:
++		writemsg_level("\n %s " % (colorize("WARN", "* IMPORTANT:"),),
++			level=logging.INFO, noiselevel=-1)
++		writemsg_level("file '%s' is in cygwin-dll-protection-limbo.\n" % x,
++			level=logging.INFO, noiselevel=-1)
++	if result:
++		print(" "+yellow("*")+" Run '" + bold("cygdll-update") + \
++					"' to fully merge files held in CYGDLL_PROTECT 'limbo'")
++		print(" "+yellow("*")+" To learn why you suffer" + \
++					" from this affliction, read the")
++		print(" "+yellow("*")+" " + colorize("INFORM","CYGWIN DLL PROTECTION") + \
++					" section of the " + bold("emerge") + " man page.")
++
+ def display_news_notification(root_config, myopts):
+ 	if "news" not in root_config.settings.features:
+ 		return
 diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-12 07:22:44.362597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-12 07:22:44.890597000 -0700
-@@ -357,6 +357,7 @@
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-12 12:22:57.285097000 -0700
+@@ -39,8 +39,9 @@
+ 
+ from _emerge.actions import action_config, action_sync, action_metadata, \
+ 	action_regen, action_search, action_uninstall, action_info, action_build, \
+-	adjust_configs, chk_updated_cfg_files, display_missing_pkg_set, \
+-	display_news_notification, getportageversion, load_emerge_config
++	adjust_configs, chk_updated_cfg_files, chk_updated_cygdll_files, \
++	display_missing_pkg_set, display_news_notification, getportageversion, \
++	load_emerge_config
+ import _emerge
+ from _emerge.emergelog import emergelog
+ from _emerge._flush_elog_mod_echo import _flush_elog_mod_echo
+@@ -357,6 +358,8 @@
  	settings.lock()
  
  	config_protect = shlex_split(settings.get("CONFIG_PROTECT", ""))
++	cygdll_protect = shlex_split(settings.get("CYGDLL_PROTECT", ""))
 +
  	infodirs = settings.get("INFOPATH","").split(":") + \
  		settings.get("INFODIR","").split(":")
  
-@@ -1548,6 +1549,16 @@
+@@ -393,6 +396,7 @@
+ 				vardbapi.unlock()
+ 
+ 	chk_updated_cfg_files(settings['EROOT'], config_protect)
++	chk_updated_cygdll_files(settings['EROOT'], cygdll_protect)
+ 
+ 	display_news_notification(root_config, myopts)
+ 	if retval in (None, os.EX_OK) or (not "--pretend" in myopts):
+@@ -1548,6 +1552,16 @@
  
  	return bool(ignored_repos)
  
@@ -49,7 +103,7 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.
  def config_protect_check(trees):
  	for root, root_trees in trees.items():
  		settings = root_trees["root_config"].settings
-@@ -1676,6 +1687,8 @@
+@@ -1676,6 +1690,8 @@
  			repo_name_check(trees)
  		repo_name_duplicate_check(trees)
  		config_protect_check(trees)
@@ -397,18 +451,24 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.p
  	"""
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-12 07:22:44.385597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-12 08:57:19.428097000 -0700
-@@ -7,9 +7,10 @@
- 	'find_updated_config_files', 'getconfig', 'getlibpaths', 'grabdict',
- 	'grabdict_package', 'grabfile', 'grabfile_package', 'grablines',
- 	'initialize_logger', 'LazyItemsDict', 'map_dictlist_vals',
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-12 15:59:57.031568500 -0700
+@@ -4,12 +4,13 @@
+ __all__ = ['apply_permissions', 'apply_recursive_permissions',
+ 	'apply_secpass_permissions', 'apply_stat_permissions', 'atomic_ofstream',
+ 	'cmp_sort_key', 'ConfigProtect', 'dump_traceback', 'ensure_dirs',
+-	'find_updated_config_files', 'getconfig', 'getlibpaths', 'grabdict',
+-	'grabdict_package', 'grabfile', 'grabfile_package', 'grablines',
+-	'initialize_logger', 'LazyItemsDict', 'map_dictlist_vals',
 -	'new_protect_filename', 'normalize_path', 'pickle_read', 'stack_dictlist',
 -	'stack_dicts', 'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
 -	'write_atomic', 'writedict', 'writemsg', 'writemsg_level', 'writemsg_stdout']
-+	'new_cygdllprotect_filename', 'new_protect_filename', 'normalize_path',
-+	'pickle_read', 'stack_dictlist', 'stack_dicts', 'stack_lists',
-+	'unique_array', 'unique_everseen', 'varexpand', 'write_atomic',
-+	'writedict', 'writemsg', 'writemsg_level', 'writemsg_stdout']
++	'find_updated_config_files', 'find_updated_cygdll_files', 'getconfig',
++	'getlibpaths', 'grabdict', 'grabdict_package', 'grabfile',
++	'grabfile_package', 'grablines', 'initialize_logger', 'LazyItemsDict',
++	'map_dictlist_vals', 'new_cygdllprotect_filename', 'new_protect_filename',
++	'normalize_path', 'pickle_read', 'stack_dictlist', 'stack_dicts',
++	'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
++	'write_atomic', 'writedict', 'writemsg', 'writemsg_level','writemsg_stdout']
  
  from copy import deepcopy
  import errno
@@ -451,26 +511,19 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  
  	def isprotected(self, obj):
  		"""Returns True if obj is protected, False otherwise.  The caller must
-@@ -1492,6 +1506,18 @@
+@@ -1492,6 +1506,11 @@
  						masked = len(pmpath)
  		return protected > masked
  
 +	def iscygdllprotected(self, obj):
 +		"""Returns True if obj is cygdll_protected, False otherwise.  The caller must
 +		ensure that obj is normalized with a single leading slash."""
-+		protected = 0
-+		for ppath in self.cygdllprotect:
-+			# force exact match
-+			if obj != ppath:
-+				continue
-+			protected = 1
-+			break
-+		return protected > 0
++		return (obj in self.cygdllprotect)
 +
  def new_protect_filename(mydest, newmd5=None, force=False):
  	"""Resolves a config-protect filename for merging, optionally
  	using the last filename if the md5 matches. If force is True,
-@@ -1544,6 +1570,81 @@
+@@ -1544,6 +1563,50 @@
  				return old_pfile
  	return new_pfile
  
@@ -498,56 +551,25 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
 +	real_filename = os.path.basename(mydest)
 +	real_dirname  = os.path.dirname(mydest)
 +
-+	new_pfile = normalize_path(os.path.join(real_dirname,
-+		"_cygdll_" + real_filename))
-+
-+	return new_pfile
++	return normalize_path(os.path.join(real_dirname, "_cygdll_" + real_filename))
 +
 +def find_updated_cygdll_files(target_root, cygdll_protect):
 +	"""
-+	Return a tuple of configuration files that needs to be updated.
-+	The tuple contains lists organized like this (this would be
-+	rediculous if we werent mirroring config_protect, but we are, so...):
-+	[ protected_file, None ]
-+	If no configuration files needs to be updated, None is returned
++	Given a root (prefix), and a list of unprefixed paths (such as are to be found in
++	CYGDLL_PROTECT), looks for dlls with pending cygdll_protected updates merged into
++	the filesystem.  It will check everything in cygdll_protect manually and also
++	everything in the eprefix + '/var/lib/portage/cygdll' database.  Returns a regular
++	list (unlike find_updated_config_files, confusingly) of fully-qualified paths.
 +	"""
-+
 +	os = _os_merge
 +
-+	if cygdll_protect:
-+		# directories with some protect files in them
-+		for x in cygdll_protect:
-+			files = []
++	candidates = [ os.path.join(target_root, os.path.relpath(x, os.sep)) \
++		       for x in cygdll_protect ]
 +
-+			x = os.path.join(target_root, x.lstrip(os.path.sep))
-+			if not os.access(x, os.W_OK):
-+				continue
-+			try:
-+				mymode = os.lstat(x).st_mode
-+			except OSError:
-+				continue
-+
-+			if stat.S_ISLNK(mymode):
-+				# We want to treat it like a directory if it
-+				# is a symlink to an existing directory.
-+				try:
-+					real_mode = os.stat(x).st_mode
-+					if stat.S_ISDIR(real_mode):
-+						mymode = real_mode
-+				except OSError:
-+					pass
-+
-+			if not stat.S_ISDIR(mymode):
-+				a = subprocess_getstatusoutput( "find '%s' -maxdepth 1 -name '._cyg????_%s'" % \
-+						os.path.split(x.rstrip(os.path.sep)) % \
-+						" ! -name '.*~' ! -iname '.*.bak' -print0" )
-+				if a[0] == 0:
-+					files = a[1].split('\0')
-+					# split always produces an empty string as the last element
-+					if files and not files[-1]:
-+						del files[-1]
-+					if files:
-+						yield (x, None)
++	# FIXME: check the db
++	return [x for (x,p) in [(x,new_cygdllprotect_filename(x, None, True)) \
++				for x in candidates] \
++		if os.path.exists(p)]
 +
  def find_updated_config_files(target_root, config_protect):
  	"""
