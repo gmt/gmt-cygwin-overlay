@@ -1,17 +1,77 @@
+diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.20271/cnf/make.conf
+--- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2011-12-23 02:30:05.000000000 -0800
++++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-15 12:11:41.031097000 -0700
+@@ -356,3 +356,25 @@
+ #                               ${PACKAGE} - see description of PORTAGE_ELOG_COMMAND
+ #                               ${HOST} - FQDN of the host portage is running on
+ #PORTAGE_ELOG_MAILSUBJECT="[portage] ebuild log for \${PACKAGE} on \${HOST}"
++
++# PORTAGE_HOSTNAME: this variable is used by portage internally to keep track of
++#                   different machines sharing the same portage database.  This
++#                   is only neccesary if you are running a cluster of machines
++#                   which share the same filesystem (i.e., over nfs), /and/ more
++#                   than one of those machines runs portage.  At the moment, it
++#                   is only used by the "portage master-lock" feature, which,
++#                   in turn, is only so far used by the cygwin dll protection
++#                   feature.  Therefore, in practice, almost everyone can safely
++#                   completely ignore this for now.  However, if you share a
++#                   cygwin gentoo prefix across multiple hosts, more than one of
++#                   which is allowed to run emerges, you will need to set this
++#                   variable to something other than the default.
++#
++#                   The variable can be empty, in which case portage will
++#                   automatically guess the hostname of the local machine using
++#                   the python socket.getfqdn() API; alternatively, you can
++#                   set this explicitly to anything you want -- it simply needs
++#                   to be unique for each machine in the cluster that might
++#                   run portage.  By default, it is defined to "localhost" in
++#                   make.globals.
++#PORTAGE_HOSTNAME=""
 diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
---- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-12 07:22:44.356097000 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-12 07:22:44.885097000 -0700
-@@ -112,6 +112,7 @@
- # profiles define them too
+--- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-14 20:43:35.637097000 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-15 10:08:52.390597000 -0700
+@@ -8,7 +8,8 @@
+ # **** CHANGES TO make.conf *OVERRIDE* THIS FILE ****
+ # ***************************************************
+ # ** Incremental Variables Accumulate Across Files **
+-# **  USE, CONFIG_*, and FEATURES are incremental  **
++# **  USE, CONFIG_*, CYGDLL_PROTECT, and FEATURES  **
++# **  are incremental                              **
+ # ***************************************************
+ 
+ # When compiler flags are unset, many packages will substitute their own
+@@ -113,6 +114,10 @@
  CONFIG_PROTECT="/etc"
  CONFIG_PROTECT_MASK="/etc/env.d"
-+CYGDLL_PROTECT=""
  
++# Nothing is included in CYGDLL_PROTECT by default
++# These are typically added at the profile level or higher.
++CYGDLL_PROTECT=""
++
  # Disable auto-use
  USE_ORDER="env:pkg:conf:defaults:pkginternal:repo:env.d"
+ 
+@@ -125,6 +130,17 @@
+ PORTAGE_INST_UID="@rootuid@"
+ PORTAGE_INST_GID="@rootgid@"
+ 
++# Systems in a cluster sharing var/lib/portage need to
++# set this to be empty in make.conf.  This is because
++# portage will automatically clean out stale PID's
++# from var/lib/portage/masterlock/${PORTAGE_HOSTNAME}, but
++# can only do so correctly if it can be sure those pids come
++# from the local machine.  Emptying the variable will activate
++# automatic hostname detection.  Alternatively, a hard-coded
++# hostname may be used if cluster machines have a nonshared
++# portage configuration area somewhere.
++PORTAGE_HOSTNAME="localhost"
++
+ # Default PATH for ebuild env
+ DEFAULT_PATH="@DEFAULT_PATH@"
+ # Any extra PATHs to add to the ebuild environment's PATH (if any)
 diff -urN prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
---- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-01 12:36:30.000000000 -0800
-+++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-13 16:39:21.317097000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-14 20:43:35.640597000 -0700
++++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-14 20:43:36.186597000 -0700
 @@ -1010,6 +1010,88 @@
  offset by Portage before they are considered.  Hence, these paths never
  contain the offset prefix, and the variables can be defined in
@@ -101,10 +161,56 @@ diff -urN prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20
  .SH "REPORTING BUGS"
  Please report any bugs you encounter through our website:
  .LP
-Binary files prefix-portage-2.2.01.20271.orig/pym/_emerge/.actions.py.swp and prefix-portage-2.2.01.20271/pym/_emerge/.actions.py.swp differ
+diff -urN prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01.20271/man/make.conf.5
+--- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-14 20:43:33.502097000 -0700
++++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-15 09:53:30.517597000 -0700
+@@ -151,6 +151,14 @@
+ This variable is passed by the \fIebuild scripts\fR to the \fIconfigure\fR
+ as \fI\-\-target=${CTARGET}\fR only if it is defined.
+ .TP
++\fBCYGDLL_PROTECT\fR = \fI[space delimited list of files]\fR
++All files defined here will have "cygwin dll protection"
++enabled for them. See the \fBCYGWIN DLL PROTECTION\fR section
++of \fBemerge\fR(1) for more information.
++Note that if an offset prefix (\fBEPREFIX\fR) is activated, all paths defined
++in \fBCYGDLL_PROTECT\fR are prefixed by Portage with the offset before
++they are used.
++.TP
+ \fBDISTDIR\fR = \fI[path]\fR
+ Defines the location of your local source file repository. After packages
+ are built, it is safe to remove any and all files from this directory since
+@@ -743,6 +751,28 @@
+ The command used by \fBrepoman\fR(1) to sign manifests when \fBsign\fR is
+ in \fBFEATURES\fR.
+ .TP
++.B PORTAGE_HOSTNAME
++In order to prevent portage from running at the same time as certain
++programs (to date, \fBcygdll-update\fR(1) is the only one) , it is
++necessary to distinguish between different machines which may share
++the same portage database.  To do so, portage can attempt to use the
++fully qualified domain name as detected by the python
++socket.getfqdn() API.  In certain cases, this will not have
++the intended result (in the case of a machine with a dynamic IP, for
++example, it could result in a buildup of crufty little files in
++\\${EROOT}/var/lib/portage/masterlock, which might, in turn, cause portage
++to take a long time to start up).  By setting this to something that
++uniquely identifies the machine (it is not important for it to be a real
++DNS name), this automatic detection can be overridden.
++.br
++If you are sure that your filesystem will never be shared, it is safe
++(and arguably prefereable) to use "localhost".  Since this is by
++far the most common scenario, it has been made the default.  To
++override it, either add a fixed PORTAGE_HOSTNAME, or,
++to activate the automatic detection feature, an empty PORTAGE_HOSTNAME
++to make.conf.  Unless you run portage on a "cluster" of machines with a
++shared filesystem, the default should be fine.
++.TP
+ \fBPORTAGE_IONICE_COMMAND\fR = \fI[ionice command string]\fR
+ This variable should contain a command for portage to call in order
+ to adjust the io priority of portage and it's subprocesses. The command
 diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-12 07:22:44.359597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-13 02:08:19.986410100 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-14 20:43:35.643597000 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-14 20:43:36.190097000 -0700
 @@ -1455,7 +1455,7 @@
  		myvars = list(settings)
  	else:
@@ -148,8 +254,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage
  	if "news" not in root_config.settings.features:
  		return
 diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-12 07:22:44.362597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-12 12:22:57.285097000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-14 20:43:35.647597000 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-14 20:43:36.194597000 -0700
 @@ -39,8 +39,9 @@
  
  from _emerge.actions import action_config, action_sync, action_metadata, \
@@ -206,8 +312,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.
  
  	if "getbinpkg" in settings.features:
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-12 07:22:44.364597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-12 07:22:44.892597000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-14 20:43:35.651097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-14 20:43:36.197597000 -0700
 @@ -99,7 +99,8 @@
  		'portage.util:atomic_ofstream,apply_secpass_permissions,' + \
  			'apply_recursive_permissions,dump_traceback,getconfig,' + \
@@ -228,17 +334,18 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portag
  		EPREFIX, EPREFIX_LSTRIP, rootuid
  
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-12 07:22:44.366597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-12 07:22:44.894597000 -0700
-@@ -55,6 +55,7 @@
+--- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-14 20:43:35.652597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-14 21:24:03.373780300 -0700
+@@ -55,6 +55,8 @@
  WORLD_FILE               = PRIVATE_PATH + "/world"
  WORLD_SETS_FILE          = PRIVATE_PATH + "/world_sets"
  CONFIG_MEMORY_FILE       = PRIVATE_PATH + "/config"
 +CYGDLL_MEMORY_FILE       = PRIVATE_PATH + "/cygdll"
++PORTAGE_MASTER_LOCKDIR   = PRIVATE_PATH + "/masterlock"
  NEWS_LIB_PATH            = "var/lib/gentoo"
  
  # these variables get EPREFIX prepended automagically when they are
-@@ -114,6 +115,7 @@
+@@ -114,6 +116,7 @@
  INCREMENTALS             = ("USE", "USE_EXPAND", "USE_EXPAND_HIDDEN",
                             "FEATURES", "ACCEPT_KEYWORDS",
                             "CONFIG_PROTECT_MASK", "CONFIG_PROTECT",
@@ -247,8 +354,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2
                             "PROFILE_ONLY_VARIABLES")
  EBUILD_PHASES            = ("pretend", "setup", "unpack", "prepare", "configure",
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-12 07:22:44.368097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-12 09:22:24.899597000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-14 20:43:35.654597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-14 20:43:36.201597000 -0700
 @@ -213,7 +213,8 @@
  			else:
  				rval = mylink.merge(self.pkgloc, self.infloc,
@@ -260,8 +367,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py pr
  			raise
  		except:
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-12 07:22:44.370597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-12 07:22:44.898597000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-14 20:43:35.658097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-14 20:43:36.204097000 -0700
 @@ -299,7 +299,7 @@
  			self._pkgindex_header_keys = set([
  				"ACCEPT_KEYWORDS", "ACCEPT_LICENSE",
@@ -272,8 +379,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-p
  			self._pkgindex_default_pkg_data = {
  				"BUILD_TIME"         : "",
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-12 07:22:44.377097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-13 12:38:15.658097000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-14 20:43:35.664597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-15 12:22:12.026097000 -0700
 @@ -23,7 +23,7 @@
  	'portage.update:fixdbentries',
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
@@ -507,8 +614,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
 +				# CYGDLL_PROTECT offers no easy way (except, perhaps,
 +				# "find / -name '_cygdll_*', but that's too slow) to
 +				# find the CYGDLL_PROTECT'ed files.  for this reason we ought
-+				# not to be as cavalier as we are with cygdlldict. let's save
-+				# out our changes now, *before* anything gets merged to the fs)
++				# not to be as cavalier as we are with conffiledict. let's save
++				# our changes now, *before* anything gets merged to the fs)
 +				if cygdlldict != orig_cygdlldict:
 +					try:
 +						writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
@@ -518,9 +625,10 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  
  				# whether config protection or not, we merge the new file the
  				# same way.  Unless moveme=0 (blocking directory)
+Binary files prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/.config.py.swp and prefix-portage-2.2.01.20271/pym/portage/package/ebuild/.config.py.swp differ
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-12 07:22:44.379097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-12 07:22:44.908097000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-14 20:43:35.666097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-14 23:37:53.955075400 -0700
 @@ -150,7 +150,7 @@
  # portage config variables and variables set directly by portage
  environ_filter += [
@@ -530,21 +638,71 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/sp
  	"CONFIG_PROTECT_MASK", "EGENCACHE_DEFAULT_OPTS", "EMERGE_DEFAULT_OPTS",
  	"EMERGE_LOG_DIR",
  	"EMERGE_WARNING_DELAY",
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/doebuild.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/doebuild.py	2012-03-12 07:22:44.382097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/doebuild.py	2012-03-12 09:23:50.532597000 -0700
-@@ -478,7 +478,7 @@
- 	Most errors have an accompanying error message.
- 	
- 	listonly and fetchonly are only really necessary for operations involving 'fetch'
--	prev_mtimes are only necessary for merge operations.
-+	prev_mtimes is only necessary for merge operations.
- 	Other variables may not be strictly required, many have defaults that are set inside of doebuild.
- 	
- 	"""
+@@ -167,6 +167,7 @@
+ 	"PORTAGE_FETCH_CHECKSUM_TRY_MIRRORS", "PORTAGE_FETCH_RESUME_MIN_SIZE",
+ 	"PORTAGE_GPG_DIR",
+ 	"PORTAGE_GPG_KEY", "PORTAGE_GPG_SIGNING_COMMAND",
++	"PORTAGE_HOSTNAME",
+ 	"PORTAGE_IONICE_COMMAND",
+ 	"PORTAGE_PACKAGE_EMPTY_ABORT",
+ 	"PORTAGE_REPO_DUPLICATE_WARN",
+@@ -187,6 +188,7 @@
+ # settings.
+ global_only_vars = frozenset([
+ 	"CONFIG_PROTECT",
++	"PORTAGE_HOSTNAME",
+ ])
+ 
+ default_globals = {
+@@ -199,4 +201,4 @@
+ 
+ # To enhance usability, make some vars case insensitive
+ # by forcing them to lower case.
+-case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR',)
++case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR', 'PORTAGE_HOSTNAME')
+diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py	2012-02-19 02:09:03.000000000 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py	2012-03-15 11:53:43.973097000 -0700
+@@ -14,6 +14,7 @@
+ import re
+ import sys
+ import warnings
++from socket import getfqdn
+ 
+ from _emerge.Package import Package
+ import portage
+@@ -24,7 +25,7 @@
+ 	load_mod, os, selinux, _unicode_decode
+ from portage.const import CACHE_PATH, \
+ 	DEPCACHE_PATH, INCREMENTALS, MAKE_CONF_FILE, \
+-	MODULES_FILE_PATH, \
++	MODULES_FILE_PATH, PORTAGE_MASTER_LOCKDIR, \
+ 	PRIVATE_PATH, PROFILE_PATH, USER_CONFIG_PATH, \
+ 	USER_VIRTUALS_FILE
+ from portage.dbapi import dbapi
+@@ -726,6 +727,10 @@
+ 					self["USERLAND"] = "GNU"
+ 				self.backup_changes("USERLAND")
+ 
++			if "PORTAGE_HOSTNAME" not in self or self["PORTAGE_HOSTNAME"] == "":
++				self["PORTAGE_HOSTNAME"] = getfqdn()
++				self.backup_changes("PORTAGE_HOSTNAME")
++
+ 			default_inst_ids = {
+ 				"PORTAGE_INST_GID": "0",
+ 				"PORTAGE_INST_UID": "0",
+@@ -853,6 +858,8 @@
+ 			"tmp"             : (         -1, 0o1777,  0,  True),
+ 			"var/tmp"         : (         -1, 0o1777,  0,  True),
+ 			PRIVATE_PATH      : (portage_gid, 0o2750, 0o2, False),
++			PORTAGE_MASTER_LOCKDIR \
++			                  : (portage_gid, 0o2750, 0o2, False),
+ 			CACHE_PATH        : (portage_gid,  0o755, 0o2, False)
+ 		}
+ 
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-12 07:22:44.385597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-13 13:04:29.638097000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-14 20:43:35.672597000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-14 20:43:36.218597000 -0700
 @@ -4,12 +4,13 @@
  __all__ = ['apply_permissions', 'apply_recursive_permissions',
  	'apply_secpass_permissions', 'apply_stat_permissions', 'atomic_ofstream',
@@ -680,8 +838,8 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  	"""
  	Return a tuple of configuration files that needs to be updated.
 diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-12 07:22:44.388097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-12 07:22:44.917097000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-14 20:43:35.675097000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-14 20:43:36.220597000 -0700
 @@ -104,7 +104,7 @@
  	fns = templist
  	del templist
