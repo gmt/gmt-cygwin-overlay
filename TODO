@@ -20,3 +20,15 @@ o It turns out that the CHOST setting I have used is an historical
   -- can be abandoned.  yay!  Unfortunately, doing so is going to pretty
   much fsck up my half-completed bootstrap process and I'm too lazy/entrenched
   to comfortably do so just yet.  So for now I guess I am stuck with it.  boo!
+
+o When directly merging a formerly cygdll_protected file, we should wipe out
+  any in-limbo files -- otherwise the administrator with automatically revert
+  to some older version when they run cygdll-update!!!  This means we need to
+  check the cygdlldict for every regular file that is merged.
+  
+o Some thought will eventually need to be put into just how big the cygdll
+  protections database is going to get.  If its getting out of hand, we might
+  consider embedded mysql or something.  The cygdll protections db is flushed
+  much more frequently than the configdb and potentially could get large if
+  someone is running big emerges (but wouldn't this cause breakage anyhow
+  due to bad BDEPs?)... something to keep an eye on anyhow.
