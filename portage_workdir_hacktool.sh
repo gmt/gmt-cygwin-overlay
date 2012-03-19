@@ -84,7 +84,7 @@ if [[ $cold_vars == yes ]] ; then
 fi
 
 # kludge to re-source this file when hacking on it
-sourceit() { source /g2pfx/pfxhome/greg/src/portage_hacking.sh ; }
+sourceit() { source "${overlay_dir}"/portage_workdir_hacktool.sh ; }
 
 files_equal () 
 { 
