@@ -29,6 +29,7 @@ patch_pile_series_default="cygdllprotect.wip"
 patch_pile_default="/home/greg/src"
 pwork="prefix-portage-${fakePV}"
 garbage_files=( "autom4te.cache" "config.log" "config.status" "tags" "*.orig" "*.swp" ".gitignore" )
+codegrep_specs=( "-name '*.py'" "-name '*.sh'" "-path './bin/*'" )
 #%%%%%%%%%#
 # the end #
 #%%%%%%%%%#
@@ -371,3 +372,38 @@ bumpit()
     fi
 }
 
+# convenience function, arguably doesn't belong here
+grepit()
+{
+    local context_lines=${codegrep_context_lines:-3}
+
+    [[ "$1" ]] || { echo "for what?" >&2 ; exit 1 ; }
+    local grepfor="$1"
+    shift
+
+    declare -a grep_args
+    grep_args=( "-C${context_lines}" "-n" "--color=yes" )
+    # "$@" : args > 1 are passed along to grep.
+    for grep_arg in "$@" ; do
+	grep_args=( "${grep_args[@]}" "${grep_arg}" )
+    done
+    grep_args=( "${grep_args[@]}" "${grepfor}" )
+
+    {
+	pushd "${pwork_full}"/ > /dev/null
+	local findcmd="find . -type f \\( "
+	local firstiter=yes
+	for codegrep_spec in "${codegrep_specs[@]}" ; do
+	    [[ $firstiter == no ]] && findcmd="${findcmd} -o "
+	    findcmd="${findcmd} \\( ${codegrep_spec} \\)"
+	    firstiter=no
+	done
+	findcmd="${findcmd} \\) -print0"
+	echo ">> ( cd ${pwork_full}; ${findcmd} ) | xargs -0 grep $( for arg in "${grep_args[@]}" ; do \
+		echo -n "\"${arg}\" " ; done ) | less -FKqXR"
+	eval "${findcmd}"
+	popd > /dev/null
+    } | xargs -0 grep -C${context_lines} -n --color=yes "${grep_args[@]}" 2>/dev/null | less -FKqXR
+    # above, we drop stderr from xargs because when less quits before grep finishes,
+    # annoying messages end up on the console
+}
