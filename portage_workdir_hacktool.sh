@@ -182,7 +182,7 @@ fudgeit()
 	    # if the files have differing shebangs, fudgeit, this is probably some prefix nonsense.
 	    ! diff "${todir}/${fout}" "${fromdir}/${fout}" >/dev/null && {
 		head -n 1 "${todir}/${fout}" | grep '^#!' >/dev/null && \
-		head -n 1 "${fromdir}/${fout}" | grep '^#!' >dev/null && \
+		head -n 1 "${fromdir}/${fout}" | grep '^#!' >/dev/null && \
 	        diff <( head -n 1 "${todir}/${fout}" ) <( head -n 1 "${fromdir}/${fout}" ) >/dev/null || {
 		    { head -n 1 "${fromdir}/${fout}" ; tail -n +2 "${todir}/${fout}" ; } > "${todir}/${fout}.lolfudgery"
 		    mv "${todir}/${fout}.lolfudgery" "${todir}/${fout}"
