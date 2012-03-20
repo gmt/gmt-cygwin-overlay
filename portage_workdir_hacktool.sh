@@ -142,7 +142,7 @@ latestpatchp1()
 
 lateststashp1()
 {
-    int_fmt $(( $( lateststash | sed 's/^0//' ) + 1 )) 0000
+    int_fmt $(( $( lateststash | sed 's/^0*//' ) + 1 )) 0000
 }
 
 nukeit()
