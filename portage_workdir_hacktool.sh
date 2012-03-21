@@ -108,18 +108,18 @@ tamepatch ()
 { 
     cat "${1}" | \
 	sed -e 's/^\(\(---\|+++\).*[^[:space:]]\)[[:space:]]*[[:digit:]]\{4\}-[[:digit:]]\{2\}-[[:digit:]]\{2\}[[:space:]].*$/\1/' \
-	    -e '/^diff/s/\([[:space:]]\+\)-x\([[:space:]]\+[^[:space:]]*\)/\1/g;s/[[:space:]][[:space:]]*/ /g' \
+	    -e '/^diff/s/\([[:space:]]\+\)-x\([[:space:]]\+[^[:space:]]*\)/\1/g;/^diff/s/[[:space:]][[:space:]]*/ /g' \
 	    -e '/^Binary files [^[:space:]]* and [^[:space:]]* differ$/d'
 }
 
 patches_equiv()
 {
-	diff -u <( tamepatch "${1}" ) <( tamepatch "${2}" ) > /dev/null
-}
-
-pile_patches_equiv() 
-{ 
-    patches_equiv "${patch_pile}/${patch_pile_series}.${1}.patch" "${patch_pile}/${patch_pile_series}.${2}.patch"
+	diffcount="$( diff -u <( tamepatch "${1}" ) <( tamepatch "${2}" ) | wc -l )"
+	if [[ ${diffcount} == 0 ]] ; then
+		return 0
+	else
+		return 1
+	fi
 }
 
 latestpatch() 
