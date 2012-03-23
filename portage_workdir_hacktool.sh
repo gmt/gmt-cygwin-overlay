@@ -211,17 +211,27 @@ diffit()
 	delcompdir=yes
 	compdir="${pwork}.stash"
 	dostash=yes
+	shift
 	;;
 	--portage|portage|-p)
 	delcompdir=yes
 	compdir="${pwork}.portage"
 	doportage=yes
+	shift
 	;;
-	*)
-	echo "Usage: diffit [--stash/stash/-s|--portage/portage/-p]" >&2
+	--help|-h)
+	echo "Usage: diffit [--help/-h|--stash/stash/-s|--portage/portage/-p] [diff arguments]" >&2
 	return 1
 	;;
     esac
+    local dashu="-u"
+    for arg in "$@" ; do
+	case $arg in
+	    --side-by-side|-y|-u|--normal|-e|--ed|-U)
+		dashu=""
+		;;
+	esac
+    done
     { 
 	pushd "${p_workdir}" >/dev/null
 	if [[ $dostash == yes ]] ; then
@@ -244,7 +254,7 @@ diffit()
 	for ign in "${garbage_files[@]}" ; do
 	    ignorance="${ignorance}${ignorance:+ }-x ${ign}"
 	done
-	diff -urN ${ignorance} "${compdir}" "${pwork}" && { [[ $terminal == yes ]] && echo '(trees are identical)' ; }
+	diff $dashu -rN ${ignorance} "${compdir}" "${pwork}" "$@" && { [[ $terminal == yes ]] && echo '(trees are identical)' ; }
 	popd > /dev/null
     } | if [[ $terminal == yes ]] ; then
 	colordiff | less -FKqXR
