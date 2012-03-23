@@ -1,4 +1,4 @@
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.20271/cnf/make.conf
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.20271/cnf/make.conf
 --- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2012-03-22 23:48:21.715148700 -0700
 +++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-22 23:48:22.778361300 -0700
 @@ -356,3 +356,25 @@
@@ -27,7 +27,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
 +#                   run portage.  By default, it is defined to "localhost" in
 +#                   make.globals.
 +#PORTAGE_HOSTNAME=""
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
 --- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-22 23:48:21.719149500 -0700
 +++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-22 23:48:22.781862000 -0700
 @@ -8,7 +8,8 @@
@@ -69,7 +69,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  # Default PATH for ebuild env
  DEFAULT_PATH="@DEFAULT_PATH@"
  # Any extra PATHs to add to the ebuild environment's PATH (if any)
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
 --- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-22 23:48:21.725650800 -0700
 +++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-22 23:48:22.789363500 -0700
 @@ -1010,6 +1010,88 @@
@@ -161,7 +161,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  .SH "REPORTING BUGS"
  Please report any bugs you encounter through our website:
  .LP
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01.20271/man/make.conf.5
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01.20271/man/make.conf.5
 --- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-22 23:48:21.731151900 -0700
 +++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-22 23:48:22.796865000 -0700
 @@ -151,6 +151,14 @@
@@ -208,7 +208,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  \fBPORTAGE_IONICE_COMMAND\fR = \fI[ionice command string]\fR
  This variable should contain a command for portage to call in order
  to adjust the io priority of portage and it's subprocesses. The command
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-22 23:48:21.737653200 -0700
 +++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-22 23:48:22.807367100 -0700
 @@ -1455,7 +1455,7 @@
@@ -253,9 +253,9 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  def display_news_notification(root_config, myopts):
  	if "news" not in root_config.settings.features:
  		return
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-22 23:48:21.743654400 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-22 23:48:22.812868200 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-23 00:21:53.977489000 -0700
 @@ -39,8 +39,9 @@
  
  from _emerge.actions import action_config, action_sync, action_metadata, \
@@ -302,40 +302,813 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  def config_protect_check(trees):
  	for root, root_trees in trees.items():
  		settings = root_trees["root_config"].settings
-@@ -1626,6 +1640,14 @@
+@@ -1626,410 +1640,425 @@
  	tmpcmdline.extend(args)
  	myaction, myopts, myfiles = parse_opts(tmpcmdline)
  
+-	# skip global updates prior to sync, since it's called after sync
 +	acquired_portage_master_lock = False
-+	if myaction not in ('help', 'info', 'sync', 'version') and \
+ 	if myaction not in ('help', 'info', 'sync', 'version') and \
+-		myopts.get('--package-moves') != 'n' and \
+-		_global_updates(trees, mtimedb["updates"], quiet=("--quiet" in myopts)):
+-		mtimedb.commit()
+-		# Reload the whole config from scratch.
+-		settings, trees, mtimedb = load_emerge_config(trees=trees)
+-		portdb = trees[settings['EROOT']]['porttree'].dbapi
+-
+-	xterm_titles = "notitles" not in settings.features
+-	if xterm_titles:
+-		xtermTitle("emerge")
+-
+-	if "--digest" in myopts:
+-		os.environ["FEATURES"] = os.environ.get("FEATURES","") + " digest"
+-		# Reload the whole config from scratch so that the portdbapi internal
+-		# config is updated with new FEATURES.
+-		settings, trees, mtimedb = load_emerge_config(trees=trees)
+-		portdb = trees[settings['EROOT']]['porttree'].dbapi
+-
+-	# NOTE: adjust_configs() can map options to FEATURES, so any relevant
+-	# options adjustments should be made prior to calling adjust_configs().
+-	if "--buildpkgonly" in myopts:
+-		myopts["--buildpkg"] = True
+-
+-	adjust_configs(myopts, trees)
+-	apply_priorities(settings)
+-
+-	if myaction == 'version':
+-		writemsg_stdout(getportageversion(
+-			settings["PORTDIR"], None,
+-			settings.profile_path, settings["CHOST"],
+-			trees[settings['EROOT']]['vartree'].dbapi) + '\n', noiselevel=-1)
+-		return 0
+-	elif myaction == 'help':
+-		_emerge.help.help()
+-		return 0
+-
+-	spinner = stdout_spinner()
+-	if "candy" in settings.features:
+-		spinner.update = spinner.update_scroll
+-
+-	if "--quiet" not in myopts:
+-		portage.deprecated_profile_check(settings=settings)
+-		if portage.const._ENABLE_REPO_NAME_WARN:
+-			# Bug #248603 - Disable warnings about missing
+-			# repo_name entries for stable branch.
+-			repo_name_check(trees)
+-		repo_name_duplicate_check(trees)
+-		config_protect_check(trees)
+-	check_procfs()
+-
+-	if "getbinpkg" in settings.features:
+-		myopts["--getbinpkg"] = True
+-
+-	if "--getbinpkgonly" in myopts:
+-		myopts["--getbinpkg"] = True
+-
+-	if "--getbinpkgonly" in myopts:
+-		myopts["--usepkgonly"] = True
+-
+-	if "--getbinpkg" in myopts:
+-		myopts["--usepkg"] = True
+-
+-	if "--usepkgonly" in myopts:
+-		myopts["--usepkg"] = True
+-
+-	if "--buildpkgonly" in myopts:
+-		# --buildpkgonly will not merge anything, so
+-		# it cancels all binary package options.
+-		for opt in ("--getbinpkg", "--getbinpkgonly",
+-			"--usepkg", "--usepkgonly"):
+-			myopts.pop(opt, None)
+-
+-	for mytrees in trees.values():
+-		mydb = mytrees["porttree"].dbapi
+-		# Freeze the portdbapi for performance (memoize all xmatch results).
+-		mydb.freeze()
+-
+-		if myaction in ('search', None) and \
+-			"--usepkg" in myopts:
+-			# Populate the bintree with current --getbinpkg setting.
+-			# This needs to happen before expand_set_arguments(), in case
+-			# any sets use the bintree.
+-			mytrees["bintree"].populate(
+-				getbinpkgs="--getbinpkg" in myopts)
+-
+-	del mytrees, mydb
+-
+-	if "moo" in myfiles:
+-		print(COWSAY_MOO % platform.system())
+-		msg = ("The above `emerge moo` display is deprecated. "
+-			"Please use `emerge --moo` instead.")
+-		for line in textwrap.wrap(msg, 50):
+-			print(" %s %s" % (colorize("WARN", "*"), line))
+-
+-	for x in myfiles:
+-		ext = os.path.splitext(x)[1]
+-		if (ext == ".ebuild" or ext == ".tbz2") and os.path.exists(os.path.abspath(x)):
+-			print(colorize("BAD", "\n*** emerging by path is broken and may not always work!!!\n"))
+-			break
+-
+-	root_config = trees[settings['EROOT']]['root_config']
+-	if myaction == "moo":
+-		print(COWSAY_MOO % platform.system())
+-		return os.EX_OK
+-	elif myaction == "list-sets":
+-		writemsg_stdout("".join("%s\n" % s for s in sorted(root_config.sets)))
+-		return os.EX_OK
+-	elif myaction == "check-news":
+-		news_counts = count_unread_news(
+-			root_config.trees["porttree"].dbapi,
+-			root_config.trees["vartree"].dbapi)
+-		if any(news_counts.values()):
+-			display_news_notifications(news_counts)
+-		elif "--quiet" not in myopts:
+-			print("", colorize("GOOD", "*"), "No news items were found.")
+-		return os.EX_OK
 +		'--pretend' not in myopts:
 +		# FIXME: acquire portage master lock
 +		acquired_portage_master_lock = True
-+
-+	# FIXME: try
-+
- 	# skip global updates prior to sync, since it's called after sync
- 	if myaction not in ('help', 'info', 'sync', 'version') and \
- 		myopts.get('--package-moves') != 'n' and \
-@@ -1676,6 +1698,8 @@
- 			repo_name_check(trees)
- 		repo_name_duplicate_check(trees)
- 		config_protect_check(trees)
-+		cygdll_protect_check(trees)
-+
- 	check_procfs()
  
- 	if "getbinpkg" in settings.features:
-@@ -2033,3 +2057,8 @@
- 			trees, mtimedb, retval)
+-	ensure_required_sets(trees)
++	try:
  
- 		return retval
+-	# only expand sets for actions taking package arguments
+-	oldargs = myfiles[:]
+-	if myaction in ("clean", "config", "depclean", "info", "prune", "unmerge", None):
+-		myfiles, retval = expand_set_arguments(myfiles, myaction, root_config)
+-		if retval != os.EX_OK:
+-			return retval
++		# skip global updates prior to sync, since it's called after sync
++		if myaction not in ('help', 'info', 'sync', 'version') and \
++			myopts.get('--package-moves') != 'n' and \
++			_global_updates(trees, mtimedb["updates"], quiet=("--quiet" in myopts)):
++			mtimedb.commit()
++			# Reload the whole config from scratch.
++			settings, trees, mtimedb = load_emerge_config(trees=trees)
++			portdb = trees[settings['EROOT']]['porttree'].dbapi
+ 
+-		# Need to handle empty sets specially, otherwise emerge will react 
+-		# with the help message for empty argument lists
+-		if oldargs and not myfiles:
+-			print("emerge: no targets left after set expansion")
+-			return 0
++		xterm_titles = "notitles" not in settings.features
++		if xterm_titles:
++			xtermTitle("emerge")
+ 
+-	if ("--tree" in myopts) and ("--columns" in myopts):
+-		print("emerge: can't specify both of \"--tree\" and \"--columns\".")
+-		return 1
++		if "--digest" in myopts:
++			os.environ["FEATURES"] = os.environ.get("FEATURES","") + " digest"
++			# Reload the whole config from scratch so that the portdbapi internal
++			# config is updated with new FEATURES.
++			settings, trees, mtimedb = load_emerge_config(trees=trees)
++			portdb = trees[settings['EROOT']]['porttree'].dbapi
 +
-+	# FIXME: finally
++		# NOTE: adjust_configs() can map options to FEATURES, so any relevant
++		# options adjustments should be made prior to calling adjust_configs().
++		if "--buildpkgonly" in myopts:
++			myopts["--buildpkg"] = True
++
++		adjust_configs(myopts, trees)
++		apply_priorities(settings)
++
++		if myaction == 'version':
++			writemsg_stdout(getportageversion(
++				settings["PORTDIR"], None,
++				settings.profile_path, settings["CHOST"],
++				trees[settings['EROOT']]['vartree'].dbapi) + '\n', noiselevel=-1)
++			return 0
++		elif myaction == 'help':
++			_emerge.help.help()
++			return 0
+ 
+-	if '--emptytree' in myopts and '--noreplace' in myopts:
+-		writemsg_level("emerge: can't specify both of " + \
+-			"\"--emptytree\" and \"--noreplace\".\n",
+-			level=logging.ERROR, noiselevel=-1)
+-		return 1
++		spinner = stdout_spinner()
++		if "candy" in settings.features:
++			spinner.update = spinner.update_scroll
++
++		if "--quiet" not in myopts:
++			portage.deprecated_profile_check(settings=settings)
++			if portage.const._ENABLE_REPO_NAME_WARN:
++				# Bug #248603 - Disable warnings about missing
++				# repo_name entries for stable branch.
++				repo_name_check(trees)
++			repo_name_duplicate_check(trees)
++			config_protect_check(trees)
++			cygdll_protect_check(trees)
++
++		check_procfs()
++
++		if "getbinpkg" in settings.features:
++			myopts["--getbinpkg"] = True
++
++		if "--getbinpkgonly" in myopts:
++			myopts["--getbinpkg"] = True
++
++		if "--getbinpkgonly" in myopts:
++			myopts["--usepkgonly"] = True
++
++		if "--getbinpkg" in myopts:
++			myopts["--usepkg"] = True
++
++		if "--usepkgonly" in myopts:
++			myopts["--usepkg"] = True
++
++		if "--buildpkgonly" in myopts:
++			# --buildpkgonly will not merge anything, so
++			# it cancels all binary package options.
++			for opt in ("--getbinpkg", "--getbinpkgonly",
++				"--usepkg", "--usepkgonly"):
++				myopts.pop(opt, None)
++
++		for mytrees in trees.values():
++			mydb = mytrees["porttree"].dbapi
++			# Freeze the portdbapi for performance (memoize all xmatch results).
++			mydb.freeze()
++
++			if myaction in ('search', None) and \
++				"--usepkg" in myopts:
++				# Populate the bintree with current --getbinpkg setting.
++				# This needs to happen before expand_set_arguments(), in case
++				# any sets use the bintree.
++				mytrees["bintree"].populate(
++					getbinpkgs="--getbinpkg" in myopts)
++
++		del mytrees, mydb
++
++		if "moo" in myfiles:
++			print(COWSAY_MOO % platform.system())
++			msg = ("The above `emerge moo` display is deprecated. "
++				"Please use `emerge --moo` instead.")
++			for line in textwrap.wrap(msg, 50):
++				print(" %s %s" % (colorize("WARN", "*"), line))
+ 
+-	if ("--quiet" in myopts):
+-		spinner.update = spinner.update_quiet
+-		portage.util.noiselimit = -1
+-
+-	if "--fetch-all-uri" in myopts:
+-		myopts["--fetchonly"] = True
+-
+-	if "--skipfirst" in myopts and "--resume" not in myopts:
+-		myopts["--resume"] = True
+-
+-	# Allow -p to remove --ask
+-	if "--pretend" in myopts:
+-		myopts.pop("--ask", None)
+-
+-	# forbid --ask when not in a terminal
+-	# note: this breaks `emerge --ask | tee logfile`, but that doesn't work anyway.
+-	if ("--ask" in myopts) and (not sys.stdin.isatty()):
+-		portage.writemsg("!!! \"--ask\" should only be used in a terminal. Exiting.\n",
+-			noiselevel=-1)
+-		return 1
++		for x in myfiles:
++			ext = os.path.splitext(x)[1]
++			if (ext == ".ebuild" or ext == ".tbz2") and os.path.exists(os.path.abspath(x)):
++				print(colorize("BAD", "\n*** emerging by path is broken and may not always work!!!\n"))
++				break
+ 
+-	if settings.get("PORTAGE_DEBUG", "") == "1":
+-		spinner.update = spinner.update_quiet
+-		portage.util.noiselimit = 0
+-		if "python-trace" in settings.features:
+-			import portage.debug as portage_debug
+-			portage_debug.set_trace(True)
+-
+-	if not ("--quiet" in myopts):
+-		if '--nospinner' in myopts or \
+-			settings.get('TERM') == 'dumb' or \
+-			not sys.stdout.isatty():
+-			spinner.update = spinner.update_basic
++		root_config = trees[settings['EROOT']]['root_config']
++		if myaction == "moo":
++			print(COWSAY_MOO % platform.system())
++			return os.EX_OK
++		elif myaction == "list-sets":
++			writemsg_stdout("".join("%s\n" % s for s in sorted(root_config.sets)))
++			return os.EX_OK
++		elif myaction == "check-news":
++			news_counts = count_unread_news(
++				root_config.trees["porttree"].dbapi,
++				root_config.trees["vartree"].dbapi)
++			if any(news_counts.values()):
++				display_news_notifications(news_counts)
++			elif "--quiet" not in myopts:
++				print("", colorize("GOOD", "*"), "No news items were found.")
++			return os.EX_OK
++
++		ensure_required_sets(trees)
++
++		# only expand sets for actions taking package arguments
++		oldargs = myfiles[:]
++		if myaction in ("clean", "config", "depclean", "info", "prune", "unmerge", None):
++			myfiles, retval = expand_set_arguments(myfiles, myaction, root_config)
++			if retval != os.EX_OK:
++				return retval
++
++			# Need to handle empty sets specially, otherwise emerge will react 
++			# with the help message for empty argument lists
++			if oldargs and not myfiles:
++				print("emerge: no targets left after set expansion")
++				return 0
+ 
+-	if "--debug" in myopts:
+-		print("myaction", myaction)
+-		print("myopts", myopts)
++		if ("--tree" in myopts) and ("--columns" in myopts):
++			print("emerge: can't specify both of \"--tree\" and \"--columns\".")
++			return 1
+ 
+-	if not myaction and not myfiles and "--resume" not in myopts:
+-		_emerge.help.help()
+-		return 1
++		if '--emptytree' in myopts and '--noreplace' in myopts:
++			writemsg_level("emerge: can't specify both of " + \
++				"\"--emptytree\" and \"--noreplace\".\n",
++				level=logging.ERROR, noiselevel=-1)
++			return 1
+ 
+-	pretend = "--pretend" in myopts
+-	fetchonly = "--fetchonly" in myopts or "--fetch-all-uri" in myopts
+-	buildpkgonly = "--buildpkgonly" in myopts
+-
+-	# check if root user is the current user for the actions where emerge needs this
+-	if portage.secpass < 2:
+-		# We've already allowed "--version" and "--help" above.
+-		if "--pretend" not in myopts and myaction not in ("search","info"):
+-			need_superuser = myaction in ('clean', 'depclean', 'deselect',
+-				'prune', 'unmerge') or not \
+-				(fetchonly or \
+-				(buildpkgonly and secpass >= 1) or \
+-				myaction in ("metadata", "regen", "sync"))
+-			if portage.secpass < 1 or \
+-				need_superuser:
+-				if need_superuser:
+-					access_desc = "superuser"
+-				else:
+-					access_desc = "portage group"
+-				# Always show portage_group_warning() when only portage group
+-				# access is required but the user is not in the portage group.
+-				from portage.data import portage_group_warning
+-				if "--ask" in myopts:
+-					writemsg_stdout("This action requires %s access...\n" % \
+-						(access_desc,), noiselevel=-1)
+-					if portage.secpass < 1 and not need_superuser:
+-						portage_group_warning()
+-					if userquery("Would you like to add --pretend to options?",
+-						"--ask-enter-invalid" in myopts) == "No":
+-						return 1
+-					myopts["--pretend"] = True
+-					del myopts["--ask"]
+-				else:
+-					sys.stderr.write(("emerge: %s access is required\n") \
+-						% access_desc)
+-					if portage.secpass < 1 and not need_superuser:
+-						portage_group_warning()
+-					return 1
+-
+-	# Disable emergelog for everything except build or unmerge operations.
+-	# This helps minimize parallel emerge.log entries that can confuse log
+-	# parsers like genlop.
+-	disable_emergelog = False
+-	for x in ("--pretend", "--fetchonly", "--fetch-all-uri"):
+-		if x in myopts:
+-			disable_emergelog = True
+-			break
+-	if disable_emergelog:
+-		pass
+-	elif myaction in ("search", "info"):
+-		disable_emergelog = True
+-	elif portage.data.secpass < 1:
+-		disable_emergelog = True
++		if ("--quiet" in myopts):
++			spinner.update = spinner.update_quiet
++			portage.util.noiselimit = -1
+ 
+-	_emerge.emergelog._disable = disable_emergelog
++		if "--fetch-all-uri" in myopts:
++			myopts["--fetchonly"] = True
+ 
+-	if not disable_emergelog:
+-		if 'EMERGE_LOG_DIR' in settings:
+-			try:
+-				# At least the parent needs to exist for the lock file.
+-				portage.util.ensure_dirs(settings['EMERGE_LOG_DIR'])
+-			except portage.exception.PortageException as e:
+-				writemsg_level("!!! Error creating directory for " + \
+-					"EMERGE_LOG_DIR='%s':\n!!! %s\n" % \
+-					(settings['EMERGE_LOG_DIR'], e),
+-					noiselevel=-1, level=logging.ERROR)
+-				portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
+-			else:
+-				_emerge.emergelog._emerge_log_dir = settings["EMERGE_LOG_DIR"]
+-		else:
+-			_emerge.emergelog._emerge_log_dir = os.path.join(os.sep,
+-				settings["EPREFIX"].lstrip(os.sep), "var", "log")
+-			portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
+-
+-	if not "--pretend" in myopts:
+-		emergelog(xterm_titles, "Started emerge on: "+\
+-			_unicode_decode(
+-				time.strftime("%b %d, %Y %H:%M:%S", time.localtime()),
+-				encoding=_encodings['content'], errors='replace'))
+-		myelogstr=""
+-		if myopts:
+-			opt_list = []
+-			for opt, arg in myopts.items():
+-				if arg is True:
+-					opt_list.append(opt)
+-				elif isinstance(arg, list):
+-					# arguments like --exclude that use 'append' action
+-					for x in arg:
+-						opt_list.append("%s=%s" % (opt, x))
+-				else:
+-					opt_list.append("%s=%s" % (opt, arg))
+-			myelogstr=" ".join(opt_list)
+-		if myaction:
+-			myelogstr += " --" + myaction
+-		if myfiles:
+-			myelogstr += " " + " ".join(oldargs)
+-		emergelog(xterm_titles, " *** emerge " + myelogstr)
+-	del oldargs
+-
+-	def emergeexitsig(signum, frame):
+-		signal.signal(signal.SIGINT, signal.SIG_IGN)
+-		signal.signal(signal.SIGTERM, signal.SIG_IGN)
+-		portage.util.writemsg("\n\nExiting on signal %(signal)s\n" % {"signal":signum})
+-		sys.exit(128 + signum)
+-	signal.signal(signal.SIGINT, emergeexitsig)
+-	signal.signal(signal.SIGTERM, emergeexitsig)
+-
+-	def emergeexit():
+-		"""This gets out final log message in before we quit."""
+-		if "--pretend" not in myopts:
+-			emergelog(xterm_titles, " *** terminating.")
+-		if xterm_titles:
+-			xtermTitleReset()
+-	portage.atexit_register(emergeexit)
++		if "--skipfirst" in myopts and "--resume" not in myopts:
++			myopts["--resume"] = True
+ 
+-	if myaction in ("config", "metadata", "regen", "sync"):
++		# Allow -p to remove --ask
+ 		if "--pretend" in myopts:
+-			sys.stderr.write(("emerge: The '%s' action does " + \
+-				"not support '--pretend'.\n") % myaction)
++			myopts.pop("--ask", None)
++
++		# forbid --ask when not in a terminal
++		# note: this breaks `emerge --ask | tee logfile`, but that doesn't work anyway.
++		if ("--ask" in myopts) and (not sys.stdin.isatty()):
++			portage.writemsg("!!! \"--ask\" should only be used in a terminal. Exiting.\n",
++				noiselevel=-1)
+ 			return 1
+ 
+-	if "sync" == myaction:
+-		return action_sync(settings, trees, mtimedb, myopts, myaction)
+-	elif "metadata" == myaction:
+-		action_metadata(settings, portdb, myopts)
+-	elif myaction=="regen":
+-		validate_ebuild_environment(trees)
+-		return action_regen(settings, portdb, myopts.get("--jobs"),
+-			myopts.get("--load-average"))
+-	# HELP action
+-	elif "config"==myaction:
+-		validate_ebuild_environment(trees)
+-		action_config(settings, trees, myopts, myfiles)
++		if settings.get("PORTAGE_DEBUG", "") == "1":
++			spinner.update = spinner.update_quiet
++			portage.util.noiselimit = 0
++			if "python-trace" in settings.features:
++				import portage.debug as portage_debug
++				portage_debug.set_trace(True)
++
++		if not ("--quiet" in myopts):
++			if '--nospinner' in myopts or \
++				settings.get('TERM') == 'dumb' or \
++				not sys.stdout.isatty():
++				spinner.update = spinner.update_basic
++
++		if "--debug" in myopts:
++			print("myaction", myaction)
++			print("myopts", myopts)
+ 
+-	# SEARCH action
+-	elif "search"==myaction:
+-		validate_ebuild_environment(trees)
+-		action_search(trees[settings['EROOT']]['root_config'],
+-			myopts, myfiles, spinner)
++		if not myaction and not myfiles and "--resume" not in myopts:
++			_emerge.help.help()
++			return 1
+ 
+-	elif myaction in ('clean', 'depclean', 'deselect', 'prune', 'unmerge'):
+-		validate_ebuild_environment(trees)
+-		rval = action_uninstall(settings, trees, mtimedb["ldpath"],
+-			myopts, myaction, myfiles, spinner)
+-		if not (myaction == 'deselect' or buildpkgonly or fetchonly or pretend):
+-			post_emerge(myaction, myopts, myfiles, settings['EROOT'],
+-				trees, mtimedb, rval)
+-		return rval
++		pretend = "--pretend" in myopts
++		fetchonly = "--fetchonly" in myopts or "--fetch-all-uri" in myopts
++		buildpkgonly = "--buildpkgonly" in myopts
++
++		# check if root user is the current user for the actions where emerge needs this
++		if portage.secpass < 2:
++			# We've already allowed "--version" and "--help" above.
++			if "--pretend" not in myopts and myaction not in ("search","info"):
++				need_superuser = myaction in ('clean', 'depclean', 'deselect',
++					'prune', 'unmerge') or not \
++					(fetchonly or \
++					(buildpkgonly and secpass >= 1) or \
++					myaction in ("metadata", "regen", "sync"))
++				if portage.secpass < 1 or \
++					need_superuser:
++					if need_superuser:
++						access_desc = "superuser"
++					else:
++						access_desc = "portage group"
++					# Always show portage_group_warning() when only portage group
++					# access is required but the user is not in the portage group.
++					from portage.data import portage_group_warning
++					if "--ask" in myopts:
++						writemsg_stdout("This action requires %s access...\n" % \
++							(access_desc,), noiselevel=-1)
++						if portage.secpass < 1 and not need_superuser:
++							portage_group_warning()
++						if userquery("Would you like to add --pretend to options?",
++							"--ask-enter-invalid" in myopts) == "No":
++							return 1
++						myopts["--pretend"] = True
++						del myopts["--ask"]
++					else:
++						sys.stderr.write(("emerge: %s access is required\n") \
++							% access_desc)
++						if portage.secpass < 1 and not need_superuser:
++							portage_group_warning()
++						return 1
++
++		# Disable emergelog for everything except build or unmerge operations.
++		# This helps minimize parallel emerge.log entries that can confuse log
++		# parsers like genlop.
++		disable_emergelog = False
++		for x in ("--pretend", "--fetchonly", "--fetch-all-uri"):
++			if x in myopts:
++				disable_emergelog = True
++				break
++		if disable_emergelog:
++			pass
++		elif myaction in ("search", "info"):
++			disable_emergelog = True
++		elif portage.data.secpass < 1:
++			disable_emergelog = True
+ 
+-	elif myaction == 'info':
++		_emerge.emergelog._disable = disable_emergelog
+ 
+-		# Ensure atoms are valid before calling unmerge().
+-		vardb = trees[settings['EROOT']]['vartree'].dbapi
+-		portdb = trees[settings['EROOT']]['porttree'].dbapi
+-		bindb = trees[settings['EROOT']]["bintree"].dbapi
+-		valid_atoms = []
+-		for x in myfiles:
+-			if is_valid_package_atom(x, allow_repo=True):
++		if not disable_emergelog:
++			if 'EMERGE_LOG_DIR' in settings:
+ 				try:
+-					#look at the installed files first, if there is no match
+-					#look at the ebuilds, since EAPI 4 allows running pkg_info
+-					#on non-installed packages
+-					valid_atom = dep_expand(x, mydb=vardb, settings=settings)
+-					if valid_atom.cp.split("/")[0] == "null":
+-						valid_atom = dep_expand(x, mydb=portdb, settings=settings)
+-					if valid_atom.cp.split("/")[0] == "null" and "--usepkg" in myopts:
+-						valid_atom = dep_expand(x, mydb=bindb, settings=settings)
+-					valid_atoms.append(valid_atom)
+-				except portage.exception.AmbiguousPackageName as e:
+-					msg = "The short ebuild name \"" + x + \
+-						"\" is ambiguous.  Please specify " + \
+-						"one of the following " + \
+-						"fully-qualified ebuild names instead:"
+-					for line in textwrap.wrap(msg, 70):
+-						writemsg_level("!!! %s\n" % (line,),
+-							level=logging.ERROR, noiselevel=-1)
+-					for i in e.args[0]:
+-						writemsg_level("    %s\n" % colorize("INFORM", i),
+-							level=logging.ERROR, noiselevel=-1)
+-					writemsg_level("\n", level=logging.ERROR, noiselevel=-1)
+-					return 1
+-				continue
+-			msg = []
+-			msg.append("'%s' is not a valid package atom." % (x,))
+-			msg.append("Please check ebuild(5) for full details.")
+-			writemsg_level("".join("!!! %s\n" % line for line in msg),
+-				level=logging.ERROR, noiselevel=-1)
+-			return 1
++					# At least the parent needs to exist for the lock file.
++					portage.util.ensure_dirs(settings['EMERGE_LOG_DIR'])
++				except portage.exception.PortageException as e:
++					writemsg_level("!!! Error creating directory for " + \
++						"EMERGE_LOG_DIR='%s':\n!!! %s\n" % \
++						(settings['EMERGE_LOG_DIR'], e),
++						noiselevel=-1, level=logging.ERROR)
++					portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
++				else:
++					_emerge.emergelog._emerge_log_dir = settings["EMERGE_LOG_DIR"]
++			else:
++				_emerge.emergelog._emerge_log_dir = os.path.join(os.sep,
++					settings["EPREFIX"].lstrip(os.sep), "var", "log")
++				portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
++
++		if not "--pretend" in myopts:
++			emergelog(xterm_titles, "Started emerge on: "+\
++				_unicode_decode(
++					time.strftime("%b %d, %Y %H:%M:%S", time.localtime()),
++					encoding=_encodings['content'], errors='replace'))
++			myelogstr=""
++			if myopts:
++				opt_list = []
++				for opt, arg in myopts.items():
++					if arg is True:
++						opt_list.append(opt)
++					elif isinstance(arg, list):
++						# arguments like --exclude that use 'append' action
++						for x in arg:
++							opt_list.append("%s=%s" % (opt, x))
++					else:
++						opt_list.append("%s=%s" % (opt, arg))
++				myelogstr=" ".join(opt_list)
++			if myaction:
++				myelogstr += " --" + myaction
++			if myfiles:
++				myelogstr += " " + " ".join(oldargs)
++			emergelog(xterm_titles, " *** emerge " + myelogstr)
++		del oldargs
++
++		def emergeexitsig(signum, frame):
++			signal.signal(signal.SIGINT, signal.SIG_IGN)
++			signal.signal(signal.SIGTERM, signal.SIG_IGN)
++			portage.util.writemsg("\n\nExiting on signal %(signal)s\n" % {"signal":signum})
++			sys.exit(128 + signum)
++		signal.signal(signal.SIGINT, emergeexitsig)
++		signal.signal(signal.SIGTERM, emergeexitsig)
++
++		def emergeexit():
++			"""This gets out final log message in before we quit."""
++			if "--pretend" not in myopts:
++				emergelog(xterm_titles, " *** terminating.")
++			if xterm_titles:
++				xtermTitleReset()
++		portage.atexit_register(emergeexit)
++
++		if myaction in ("config", "metadata", "regen", "sync"):
++			if "--pretend" in myopts:
++				sys.stderr.write(("emerge: The '%s' action does " + \
++					"not support '--pretend'.\n") % myaction)
++				return 1
++
++		if "sync" == myaction:
++			return action_sync(settings, trees, mtimedb, myopts, myaction)
++		elif "metadata" == myaction:
++			action_metadata(settings, portdb, myopts)
++		elif myaction=="regen":
++			validate_ebuild_environment(trees)
++			return action_regen(settings, portdb, myopts.get("--jobs"),
++				myopts.get("--load-average"))
++		# HELP action
++		elif "config"==myaction:
++			validate_ebuild_environment(trees)
++			action_config(settings, trees, myopts, myfiles)
++
++		# SEARCH action
++		elif "search"==myaction:
++			validate_ebuild_environment(trees)
++			action_search(trees[settings['EROOT']]['root_config'],
++				myopts, myfiles, spinner)
++
++		elif myaction in ('clean', 'depclean', 'deselect', 'prune', 'unmerge'):
++			validate_ebuild_environment(trees)
++			rval = action_uninstall(settings, trees, mtimedb["ldpath"],
++				myopts, myaction, myfiles, spinner)
++			if not (myaction == 'deselect' or buildpkgonly or fetchonly or pretend):
++				post_emerge(myaction, myopts, myfiles, settings['EROOT'],
++					trees, mtimedb, rval)
++			return rval
++
++		elif myaction == 'info':
++
++			# Ensure atoms are valid before calling unmerge().
++			vardb = trees[settings['EROOT']]['vartree'].dbapi
++			portdb = trees[settings['EROOT']]['porttree'].dbapi
++			bindb = trees[settings['EROOT']]["bintree"].dbapi
++			valid_atoms = []
++			for x in myfiles:
++				if is_valid_package_atom(x, allow_repo=True):
++					try:
++						#look at the installed files first, if there is no match
++						#look at the ebuilds, since EAPI 4 allows running pkg_info
++						#on non-installed packages
++						valid_atom = dep_expand(x, mydb=vardb, settings=settings)
++						if valid_atom.cp.split("/")[0] == "null":
++							valid_atom = dep_expand(x, mydb=portdb, settings=settings)
++						if valid_atom.cp.split("/")[0] == "null" and "--usepkg" in myopts:
++							valid_atom = dep_expand(x, mydb=bindb, settings=settings)
++						valid_atoms.append(valid_atom)
++					except portage.exception.AmbiguousPackageName as e:
++						msg = "The short ebuild name \"" + x + \
++							"\" is ambiguous.  Please specify " + \
++							"one of the following " + \
++							"fully-qualified ebuild names instead:"
++						for line in textwrap.wrap(msg, 70):
++							writemsg_level("!!! %s\n" % (line,),
++								level=logging.ERROR, noiselevel=-1)
++						for i in e.args[0]:
++							writemsg_level("    %s\n" % colorize("INFORM", i),
++								level=logging.ERROR, noiselevel=-1)
++						writemsg_level("\n", level=logging.ERROR, noiselevel=-1)
++						return 1
++					continue
++				msg = []
++				msg.append("'%s' is not a valid package atom." % (x,))
++				msg.append("Please check ebuild(5) for full details.")
++				writemsg_level("".join("!!! %s\n" % line for line in msg),
++					level=logging.ERROR, noiselevel=-1)
++				return 1
+ 
+-		return action_info(settings, trees, myopts, valid_atoms)
++			return action_info(settings, trees, myopts, valid_atoms)
+ 
+-	# "update", "system", or just process files:
+-	else:
+-		validate_ebuild_environment(trees)
++		# "update", "system", or just process files:
++		else:
++			validate_ebuild_environment(trees)
+ 
+-		for x in myfiles:
+-			if x.startswith(SETPREFIX) or \
+-				is_valid_package_atom(x, allow_repo=True):
+-				continue
+-			if x[:1] == os.sep:
+-				continue
+-			try:
+-				os.lstat(x)
+-				continue
+-			except OSError:
+-				pass
+-			msg = []
+-			msg.append("'%s' is not a valid package atom." % (x,))
+-			msg.append("Please check ebuild(5) for full details.")
+-			writemsg_level("".join("!!! %s\n" % line for line in msg),
+-				level=logging.ERROR, noiselevel=-1)
+-			return 1
++			for x in myfiles:
++				if x.startswith(SETPREFIX) or \
++					is_valid_package_atom(x, allow_repo=True):
++					continue
++				if x[:1] == os.sep:
++					continue
++				try:
++					os.lstat(x)
++					continue
++				except OSError:
++					pass
++				msg = []
++				msg.append("'%s' is not a valid package atom." % (x,))
++				msg.append("Please check ebuild(5) for full details.")
++				writemsg_level("".join("!!! %s\n" % line for line in msg),
++					level=logging.ERROR, noiselevel=-1)
++				return 1
++
++			if "--pretend" not in myopts:
++				display_news_notification(root_config, myopts)
++			retval = action_build(settings, trees, mtimedb,
++				myopts, myaction, myfiles, spinner)
++			post_emerge(myaction, myopts, myfiles, settings['EROOT'],
++				trees, mtimedb, retval)
+ 
+-		if "--pretend" not in myopts:
+-			display_news_notification(root_config, myopts)
+-		retval = action_build(settings, trees, mtimedb,
+-			myopts, myaction, myfiles, spinner)
+-		post_emerge(myaction, myopts, myfiles, settings['EROOT'],
+-			trees, mtimedb, retval)
++			return retval
+ 
+-		return retval
++	finally:
 +		if acquired_portage_master_lock:
 +			# FIXME: release portage master lock
 +			pass
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-22 23:48:21.749655600 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-22 23:48:22.817869200 -0700
 @@ -99,7 +99,8 @@
@@ -357,7 +1130,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  		INCREMENTALS, EAPI, MISC_SH_BINARY, REPO_NAME_LOC, REPO_NAME_FILE, \
  		EPREFIX, EPREFIX_LSTRIP, rootuid
  
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-22 23:48:21.756657000 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-22 23:48:22.822870200 -0700
 @@ -55,6 +55,8 @@
@@ -377,7 +1150,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
                             "PRELINK_PATH", "PRELINK_PATH_MASK",
                             "PROFILE_ONLY_VARIABLES")
  EBUILD_PHASES            = ("pretend", "setup", "unpack", "prepare", "configure",
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-22 23:48:21.759657600 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-22 23:48:22.825870800 -0700
 @@ -213,7 +213,8 @@
@@ -390,7 +1163,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  		except SystemExit:
  			raise
  		except:
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-22 23:48:21.765158700 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-22 23:48:22.830371700 -0700
 @@ -299,7 +299,7 @@
@@ -402,7 +1175,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  				"GENTOO_MIRRORS", "INSTALL_MASK", "SYNC", "USE", "EPREFIX"])
  			self._pkgindex_default_pkg_data = {
  				"BUILD_TIME"         : "",
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-22 23:48:21.775160700 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-22 23:48:22.840873800 -0700
 @@ -23,7 +23,7 @@
@@ -649,7 +1422,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  
  				# whether config protection or not, we merge the new file the
  				# same way.  Unless moveme=0 (blocking directory)
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/exception.py prefix-portage-2.2.01.20271/pym/portage/exception.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/exception.py prefix-portage-2.2.01.20271/pym/portage/exception.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/exception.py	2012-03-22 23:48:21.778161300 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/exception.py	2012-03-22 23:48:22.844374500 -0700
 @@ -188,3 +188,14 @@
@@ -667,7 +1440,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
 +
 +class IllegalMasterLockOperation(PortageException):
 +	"""Attempt to use internal MasterLock API incorrectly"""
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20271/pym/portage/master_lock.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20271/pym/portage/master_lock.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py	1969-12-31 16:00:00.000000000 -0800
 +++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-23 00:08:06.542066700 -0700
 @@ -0,0 +1,717 @@
@@ -1388,7 +2161,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
 +
 +def release_master_lock():
 +	_MasterLockDB().release()
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-22 23:48:21.790663800 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-22 23:48:22.858877400 -0700
 @@ -150,7 +150,7 @@
@@ -1422,7 +2195,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  # by forcing them to lower case.
 -case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR',)
 +case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR', 'PORTAGE_HOSTNAME')
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py	2012-03-22 23:48:21.823670400 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py	2012-03-23 00:05:06.315528600 -0700
 @@ -2,7 +2,7 @@
@@ -1558,7 +2331,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  	def load_best_module(self,property_string):
  		best_mod = best_from_dict(property_string,self.modules,self.module_priority)
  		mod = None
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-22 23:48:21.849675600 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-23 00:10:50.816489000 -0700
 @@ -4,12 +4,13 @@
@@ -1704,7 +2477,7 @@ diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-por
  def find_updated_config_files(target_root, config_protect):
  	"""
  	Return a tuple of configuration files that needs to be updated.
-diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-22 23:48:21.854676600 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-22 23:48:22.923890400 -0700
 @@ -104,7 +104,7 @@
