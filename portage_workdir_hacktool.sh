@@ -180,15 +180,19 @@ fudgeit()
 	elif [[ -f "${todir}/${fout}" && ! -e "${fromdir}/${fout}" ]] ; then
 		rm "${todir}/${fout}" || return 1
 	elif [[ -f "${todir}/${fout}" && -f "${fromdir}/${fout}" ]] ; then
+	    if [[ -f "${todir}/${f}" && -f "${fromdir}/${f}" ]] ; then
+		# ok, looks like $f generates $fout and is present everywhere, so just make
+		# the generated files equal and hope for the best.
+		cp "${fromdir}/${fout}" "${todir}/${fout}" || return 1
 	    # if the files have differing shebangs, fudgeit, this is probably some prefix nonsense.
-	    ! diff "${todir}/${fout}" "${fromdir}/${fout}" >/dev/null && {
+	    elif diff "${todir}/${fout}" "${fromdir}/${fout}" >/dev/null ; then
 		head -n 1 "${todir}/${fout}" | grep '^#!' >/dev/null && \
 		head -n 1 "${fromdir}/${fout}" | grep '^#!' >/dev/null && \
 	        diff <( head -n 1 "${todir}/${fout}" ) <( head -n 1 "${fromdir}/${fout}" ) >/dev/null || {
 		    { head -n 1 "${fromdir}/${fout}" ; tail -n +2 "${todir}/${fout}" ; } > "${todir}/${fout}.lolfudgery"
 		    mv "${todir}/${fout}.lolfudgery" "${todir}/${fout}"
 		}
-	    }
+	    fi
 	fi
     done
     return 0
@@ -281,19 +285,17 @@ prepit()
     nukeit -q && \
     echo ">> USE=\"cygdll-protect\" FEATURES=\"-collision-protect keepwork\" CYG_DONT_REBASE=1 ebuild ${ebuild_file} prepare" && \
     USE="cygdll-protect" FEATURES="-collision-protect keepwork" CYG_DONT_REBASE=1 ebuild "${ebuild_file}" prepare && \
-    echo ">> cd ${pwork_full}" && \
-    cd "${pwork_full}" && \
-    echo ">> patch -p1 -R < ${ebuild_filesdir}/${hack_patch}" && \
-    patch -p1 -R < "${ebuild_filesdir}"/${hack_patch} && \
-    echo ">> cd .." && \
-    cd .. && \
-    echo '>> cp -a' "${pwork}" "${pwork}.orig" && \
+    echo ">> cd ${p_workdir}" && \
+    cd "${p_workdir}" && \
+    echo ">> cp -a \"${pwork}\" \"${pwork}.orig\"" && \
     cp -a "${pwork}" "${pwork}.orig" && \
-    echo ">> cd ${pwork}" && \
-    cd "${pwork}" && \
-    echo '>> patch -p1 < '"${ebuild_filesdir}"/${hack_patch} && \
-    patch -p1 < "${ebuild_filesdir}"/${hack_patch} && \
-    echo '>> ctags -R' && \
+    echo ">> cd \"${pwork}.orig\"" && \
+    cd "${pwork}.orig" && \
+    echo ">> patch -p1 -R < \"${ebuild_filesdir}/${hack_patch}\"" && \
+    patch -p1 -R < "${ebuild_filesdir}"/${hack_patch} && \
+    echo ">> cd \"../${pwork}\"" && \
+    cd "../${pwork}" && \
+    echo ">> ctags -R" && \
     ctags -R
 }
 
