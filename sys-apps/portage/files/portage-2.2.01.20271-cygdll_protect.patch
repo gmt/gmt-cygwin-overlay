@@ -255,8 +255,16 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		return
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-22 23:48:21.743654400 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-23 00:21:53.977489000 -0700
-@@ -39,8 +39,9 @@
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-23 03:01:36.967989000 -0700
+@@ -30,6 +30,7 @@
+ import portage.exception
+ from portage.const import EPREFIX, EPREFIX_LSTRIP
+ from portage.data import secpass
++from portage.master_lock import acquire_master_lock, release_master_lock
+ from portage.dbapi.dep_expand import dep_expand
+ from portage.util import normalize_path as normpath
+ from portage.util import (shlex_split, varexpand,
+@@ -39,8 +40,9 @@
  
  from _emerge.actions import action_config, action_sync, action_metadata, \
  	action_regen, action_search, action_uninstall, action_info, action_build, \
@@ -268,7 +276,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  import _emerge
  from _emerge.emergelog import emergelog
  from _emerge._flush_elog_mod_echo import _flush_elog_mod_echo
-@@ -357,6 +358,8 @@
+@@ -357,6 +359,8 @@
  	settings.lock()
  
  	config_protect = shlex_split(settings.get("CONFIG_PROTECT", ""))
@@ -277,7 +285,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	infodirs = settings.get("INFOPATH","").split(":") + \
  		settings.get("INFODIR","").split(":")
  
-@@ -393,6 +396,7 @@
+@@ -393,6 +397,7 @@
  				vardbapi.unlock()
  
  	chk_updated_cfg_files(settings['EROOT'], config_protect)
@@ -285,7 +293,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  
  	display_news_notification(root_config, myopts)
  	if retval in (None, os.EX_OK) or (not "--pretend" in myopts):
-@@ -1548,6 +1552,16 @@
+@@ -1548,6 +1553,16 @@
  
  	return bool(ignored_repos)
  
@@ -302,7 +310,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  def config_protect_check(trees):
  	for root, root_trees in trees.items():
  		settings = root_trees["root_config"].settings
-@@ -1626,410 +1640,425 @@
+@@ -1626,410 +1641,425 @@
  	tmpcmdline.extend(args)
  	myaction, myopts, myfiles = parse_opts(tmpcmdline)
  
@@ -426,7 +434,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -			print("", colorize("GOOD", "*"), "No news items were found.")
 -		return os.EX_OK
 +		'--pretend' not in myopts:
-+		# FIXME: acquire portage master lock
++		if acquire_master_lock(True, settings) != os.EX_OK:
++			return 1
 +		acquired_portage_master_lock = True
  
 -	ensure_required_sets(trees)
@@ -1106,8 +1115,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -		return retval
 +	finally:
 +		if acquired_portage_master_lock:
-+			# FIXME: release portage master lock
-+			pass
++			release_master_lock(settings)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-22 23:48:21.749655600 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-22 23:48:22.817869200 -0700
@@ -1442,8 +1450,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	"""Attempt to use internal MasterLock API incorrectly"""
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20271/pym/portage/master_lock.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-23 00:08:06.542066700 -0700
-@@ -0,0 +1,717 @@
++++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-23 03:01:09.946489000 -0700
+@@ -0,0 +1,723 @@
 +# portage: master_lock
 +# Copyright 2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
@@ -1751,7 +1759,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	machine than the (zombie) lock-holder.  If this occurs, some text will at least
 +	be dumped to the console/logs explaining how to rectify the problem.
 +	"""
-+	__slots__ = ['_loaded_local_MasterLockHostDB']
++	__slots__ = ['_loaded_local_MasterLockHostDB', '_settings']
 +
 +	_MASTERLOCK_POLL_LATENCY = 3 # seconds
 +	_MASTERLOCK_SILENT_SPIN_COUNT = 2 # * _MASTERLOCK_POLL_LATENCY = six seconds
@@ -1782,7 +1790,13 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	# not that of the logical lock holder!
 +	_master_lock_pid = None
 +
-+	def __init__(self):
++	def __init__(self, teh_settings=None):
++		if teh_settings is None:
++			# FIXME: are we supposed to be calling _get_legacy_global here?
++			self._settings = portage.settings
++		else:
++			self._settings = teh_settings
++
 +		if not os.path.exists(self._portage_master_lockdir()):
 +			# we don't take responsibility for creating it (config does)
 +			# but if it doesn't exist, we can't possibly do our job, so...
@@ -1816,7 +1830,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		otherwise crop up as a result.
 +		"""
 +		if _MasterLockDB._portage_hostname_cache is None:
-+			_MasterLockDB._portage_hostname_cache = portage.settings['PORTAGE_HOSTNAME'].lower()
++			_MasterLockDB._portage_hostname_cache = self._settings['PORTAGE_HOSTNAME'].lower()
 +			if not validate_portage_hostname(_MasterLockDB._portage_hostname_cache):
 +				_MasterLockDB._portage_hostname_cache = None
 +				writemsg_level(colorize("BAD", "!!!") + " " + \
@@ -1829,7 +1843,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	def _portage_master_lockdir(self):
 +		if _MasterLockDB._portage_master_lockdir_cache is None:
 +			_MasterLockDB._portage_master_lockdir_cache = \
-+				os.path.join(portage.settings['EROOT'], PORTAGE_MASTER_LOCKDIR)
++				os.path.join(self._settings['EROOT'], PORTAGE_MASTER_LOCKDIR)
 +		return _MasterLockDB._portage_master_lockdir_cache
 +
 +
@@ -2156,11 +2170,11 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		finally:
 +			self._phys_lock_release()
 +
-+def acquire_master_lock(asportage=False):
-+	return _MasterLockDB().acquire(asportage)
++def acquire_master_lock(asportage=False, teh_settings=None):
++	return _MasterLockDB(teh_settings).acquire(asportage)
 +
-+def release_master_lock():
-+	_MasterLockDB().release()
++def release_master_lock(teh_settings=None):
++	_MasterLockDB(teh_settings).release()
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-22 23:48:21.790663800 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-22 23:48:22.858877400 -0700
