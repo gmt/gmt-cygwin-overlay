@@ -1,6 +1,6 @@
-diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.20271/cnf/make.conf
---- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2011-12-23 02:30:05.000000000 -0800
-+++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-15 12:11:41.031097000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.20271/cnf/make.conf
+--- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2012-03-22 23:48:21.715148700 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-22 23:48:22.778361300 -0700
 @@ -356,3 +356,25 @@
  #                               ${PACKAGE} - see description of PORTAGE_ELOG_COMMAND
  #                               ${HOST} - FQDN of the host portage is running on
@@ -27,9 +27,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.2
 +#                   run portage.  By default, it is defined to "localhost" in
 +#                   make.globals.
 +#PORTAGE_HOSTNAME=""
-diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
---- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-14 20:43:35.637097000 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-15 10:08:52.390597000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
+--- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-22 23:48:21.719149500 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-22 23:48:22.781862000 -0700
 @@ -8,7 +8,8 @@
  # **** CHANGES TO make.conf *OVERRIDE* THIS FILE ****
  # ***************************************************
@@ -69,9 +69,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.0
  # Default PATH for ebuild env
  DEFAULT_PATH="@DEFAULT_PATH@"
  # Any extra PATHs to add to the ebuild environment's PATH (if any)
-diff -urN prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
---- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-14 20:43:35.640597000 -0700
-+++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-14 20:43:36.186597000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
+--- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-22 23:48:21.725650800 -0700
++++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-22 23:48:22.789363500 -0700
 @@ -1010,6 +1010,88 @@
  offset by Portage before they are considered.  Hence, these paths never
  contain the offset prefix, and the variables can be defined in
@@ -161,9 +161,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20
  .SH "REPORTING BUGS"
  Please report any bugs you encounter through our website:
  .LP
-diff -urN prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01.20271/man/make.conf.5
---- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-14 20:43:33.502097000 -0700
-+++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-15 09:53:30.517597000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01.20271/man/make.conf.5
+--- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-22 23:48:21.731151900 -0700
++++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-22 23:48:22.796865000 -0700
 @@ -151,6 +151,14 @@
  This variable is passed by the \fIebuild scripts\fR to the \fIconfigure\fR
  as \fI\-\-target=${CTARGET}\fR only if it is defined.
@@ -208,9 +208,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01
  \fBPORTAGE_IONICE_COMMAND\fR = \fI[ionice command string]\fR
  This variable should contain a command for portage to call in order
  to adjust the io priority of portage and it's subprocesses. The command
-diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-14 20:43:35.643597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-14 20:43:36.190097000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-22 23:48:21.737653200 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-22 23:48:22.807367100 -0700
 @@ -1455,7 +1455,7 @@
  		myvars = list(settings)
  	else:
@@ -253,9 +253,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage
  def display_news_notification(root_config, myopts):
  	if "news" not in root_config.settings.features:
  		return
-diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-14 20:43:35.647597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-14 20:43:36.194597000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-22 23:48:21.743654400 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-22 23:48:22.812868200 -0700
 @@ -39,8 +39,9 @@
  
  from _emerge.actions import action_config, action_sync, action_metadata, \
@@ -302,7 +302,22 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.
  def config_protect_check(trees):
  	for root, root_trees in trees.items():
  		settings = root_trees["root_config"].settings
-@@ -1676,6 +1690,8 @@
+@@ -1626,6 +1640,14 @@
+ 	tmpcmdline.extend(args)
+ 	myaction, myopts, myfiles = parse_opts(tmpcmdline)
+ 
++	acquired_portage_master_lock = False
++	if myaction not in ('help', 'info', 'sync', 'version') and \
++		'--pretend' not in myopts:
++		# FIXME: acquire portage master lock
++		acquired_portage_master_lock = True
++
++	# FIXME: try
++
+ 	# skip global updates prior to sync, since it's called after sync
+ 	if myaction not in ('help', 'info', 'sync', 'version') and \
+ 		myopts.get('--package-moves') != 'n' and \
+@@ -1676,6 +1698,8 @@
  			repo_name_check(trees)
  		repo_name_duplicate_check(trees)
  		config_protect_check(trees)
@@ -311,9 +326,18 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.
  	check_procfs()
  
  	if "getbinpkg" in settings.features:
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-14 20:43:35.651097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-14 20:43:36.197597000 -0700
+@@ -2033,3 +2057,8 @@
+ 			trees, mtimedb, retval)
+ 
+ 		return retval
++
++	# FIXME: finally
++		if acquired_portage_master_lock:
++			# FIXME: release portage master lock
++			pass
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-22 23:48:21.749655600 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-22 23:48:22.817869200 -0700
 @@ -99,7 +99,8 @@
  		'portage.util:atomic_ofstream,apply_secpass_permissions,' + \
  			'apply_recursive_permissions,dump_traceback,getconfig,' + \
@@ -333,9 +357,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portag
  		INCREMENTALS, EAPI, MISC_SH_BINARY, REPO_NAME_LOC, REPO_NAME_FILE, \
  		EPREFIX, EPREFIX_LSTRIP, rootuid
  
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-14 20:43:35.652597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-14 21:24:03.373780300 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-22 23:48:21.756657000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-22 23:48:22.822870200 -0700
 @@ -55,6 +55,8 @@
  WORLD_FILE               = PRIVATE_PATH + "/world"
  WORLD_SETS_FILE          = PRIVATE_PATH + "/world_sets"
@@ -353,9 +377,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2
                             "PRELINK_PATH", "PRELINK_PATH_MASK",
                             "PROFILE_ONLY_VARIABLES")
  EBUILD_PHASES            = ("pretend", "setup", "unpack", "prepare", "configure",
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-14 20:43:35.654597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-14 20:43:36.201597000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-22 23:48:21.759657600 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-22 23:48:22.825870800 -0700
 @@ -213,7 +213,8 @@
  			else:
  				rval = mylink.merge(self.pkgloc, self.infloc,
@@ -366,9 +390,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py pr
  		except SystemExit:
  			raise
  		except:
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-14 20:43:35.658097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-14 20:43:36.204097000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-22 23:48:21.765158700 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-22 23:48:22.830371700 -0700
 @@ -299,7 +299,7 @@
  			self._pkgindex_header_keys = set([
  				"ACCEPT_KEYWORDS", "ACCEPT_LICENSE",
@@ -378,9 +402,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-p
  				"GENTOO_MIRRORS", "INSTALL_MASK", "SYNC", "USE", "EPREFIX"])
  			self._pkgindex_default_pkg_data = {
  				"BUILD_TIME"         : "",
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-14 20:43:35.664597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-15 12:22:12.026097000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-22 23:48:21.775160700 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-22 23:48:22.840873800 -0700
 @@ -23,7 +23,7 @@
  	'portage.update:fixdbentries',
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
@@ -625,10 +649,748 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-p
  
  				# whether config protection or not, we merge the new file the
  				# same way.  Unless moveme=0 (blocking directory)
-Binary files prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/.config.py.swp and prefix-portage-2.2.01.20271/pym/portage/package/ebuild/.config.py.swp differ
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-14 20:43:35.666097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-14 23:37:53.955075400 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/exception.py prefix-portage-2.2.01.20271/pym/portage/exception.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/exception.py	2012-03-22 23:48:21.778161300 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/exception.py	2012-03-22 23:48:22.844374500 -0700
+@@ -188,3 +188,14 @@
+ class UntrustedSignature(SignatureException):
+ 	"""Signature was not certified to the desired security level"""
+ 
++class InvalidHostname(PortageException):
++	"""Invalid hostname provided"""
++
++class DuplicateMasterLockAcquisition(PortageException):
++	"""Attempt to acquire master lock we already hold"""
++
++class SuperfluousMasterLockRelease(PortageException):
++	"""Attempt to release master lock but not held by us"""
++
++class IllegalMasterLockOperation(PortageException):
++	"""Attempt to use internal MasterLock API incorrectly"""
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20271/pym/portage/master_lock.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py	1969-12-31 16:00:00.000000000 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-23 00:08:06.542066700 -0700
+@@ -0,0 +1,717 @@
++# portage: master_lock
++# Copyright 2012 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++
++# This ended up being a lot more complicated than I'd hoped for.
++# The idea is pretty simple and the best way to quickly understand it may be
++# to trace it in the debugger -- I think perhaps it's a bit less hairy than it
++# appears due to my tendency to write so many comments and due to the way
++# it was coded (forgive me, I don't really know python, or didn't when I started
++# this, so did a good bit of self-hand-holding).
++#
++# The basic idea is to provide external consumers with a way to stop
++# portage from running while doing another task.  I designed it with
++# cygdll-update in mind.  cygdll-update has the unfortunate responsibility
++# of finalizing portage .dll-file merges which have been deferred, which is done
++# in cases where it suspects that changing them while portage is running
++# will cause portage to crash.
++#
++# The only way to ensure that things behave as expected is to make damn sure
++# that cygdll-update never runs in parallel with an emerge.  This wouldn't be
++# so hard, but for the fact that there's no reason that the cygwin filesystem
++# can't be shared across multiple hosts, any one of which could decide to run
++# portage.  To ensure that we really got it right, we have to coordinate not
++# only across processes, but across multiple hosts.  To do this, we create a
++# database of lock-statii which are globally shared across all machines
++# sharing a portage (and, we must presume, an ${EROOT}).
++#
++# Machines are differentiated by their PORTAGE_HOSTNAMEs (a new portage setting
++# which I dreamed up for precisely this purpose -- it's thoroughly documented in
++# the make.conf manpage (of the version of portage you are presumably looking
++# at the source code for)).
++#
++# Sorry for writing so much code to achieve such a simple result.
++# Perhaps some other consumers will find a use for this in the future, although
++# it should be used quite sparingly for reasons that should be obvious!!
++#
++# -gmt
++
++__all__ = [ "acquire_master_lock", "release_master_lock" ]
++
++import errno
++import logging
++import platform
++import sys
++import textwrap
++import time
++
++try:
++	import threading
++except ImportError:
++	import dummy_threading as threading
++
++import portage
++from portage import os
++from portage.const import PORTAGE_MASTER_LOCKDIR
++from portage.localization import _
++portage.proxy.lazyimport.lazyimport(globals(),
++	'portage.exception:DirectoryNotFound,DuplicateMasterLockAcquisition,IllegalMasterLockOperation,'
++		'InvalidDataType,InvalidHostname,SuperfluousMasterLockRelease',
++	'portage.locks:lockdir,unlockdir',
++	'portage.output:colorize',
++	'portage.package.ebuild.config:validate_portage_hostname',
++	'portage.util:grablines,writemsg_level,write_atomic'
++)
++
++# This used to be a dict descendant, hence the excessive complexity.
++# We could try to simplify it by getting rid of most of the dict-isms
++# but it works fine as is, and if it ain't broke....
++class _MasterLockHostDB(object):
++	__slots__ = ['portagen', 'nonportage', 'waiting']
++
++	def clear(self):
++		self.portagen = []
++		self.nonportage = None
++		self.waiting = None
++
++	def __init__(self):
++		self.clear()
++
++	def __len__(self):
++		return 3
++
++	def __contains__(self, item):
++		return item in ['portagen', 'nonportage', 'waiting']
++
++	def __getitem__(self, key):
++		if key == 'portagen':
++			return self.portagen
++		elif key == 'nonportage':
++			return self.nonportage
++		elif key == 'waiting':
++			return self.waiting
++		else:
++			raise KeyError(_("_MasterLockHostDB supports keys: \"portagen\", \"nonportage\" and \"waiting\" only."))
++
++	def __setitem__(self, key, value):
++		if key == 'portagen':
++			self.portagen = value
++		elif key == 'nonportage':
++			self.nonportage = value
++		elif key == 'waiting':
++			self.waiting = value
++		else:
++			raise KeyError(_("Unsupported key \"%s\" set in _MasterLockHostDB.") % key)
++
++	# don't actually del them -- just void them out
++	def __delitem__(self, key):
++		if key == 'portagen':
++			self.portagen = []
++		elif key == 'nonportage':
++			self.nonportage = None
++		elif key == 'waiting':
++			self.waitinig = None
++
++	def __eq__(self, other):
++		return (self.portagen == other.portagen) and (self.nonportage == other.nonportage) and (self.waiting == other.waiting)
++
++	def __ne__(self, other):
++		return not self.__eq__(other)
++
++	def __nonzero__(self):
++		return self.anyportagen() or self.anynonportage()
++
++	# once they start blinking, stop chasing ghosts and resume eating dots....
++	def __repr__(self):
++		return "{'portagen': %r, 'nonportage': %r, 'waiting': %r}" % ( self.portagen, self.nonportage, self.waiting )
++
++	__str__ = __repr__
++
++	def __iter__(self):
++		yield 'portagen'
++		yield 'nonportage'
++		yield 'waiting'
++
++	def values(self):
++		# ironically, this is lazy in both senses of the term
++		return [ x for x in self.__iter__() ]
++
++	def iteritems(self):
++		yield ( 'portagen', self.portagen )
++		yield ( 'nonportage', self.nonportage )
++		yield ( 'waiting', self.waiting )
++
++	def items(self):
++		# ironically, this is lazy in both senses of the term
++		return [ x for x in self.iteritems() ]
++
++	def __del__(self):
++		self.clear()
++
++	def anyportagen(self):
++		return len(self.portagen) > 0
++
++	def anynonportage(self):
++		# technically, if somehow PID 0 were used, testing these directly would be wrong; so:
++		return self.nonportage is not None or self.waiting is not None
++
++	def _pidactive(self, pid):
++		"""Check whether pid exists in the current process table."""
++		if pid < 0:
++			return False
++		try:
++			os.kill(pid, 0)
++		except OSError, e:
++			return e.errno != errno.ESRCH
++		else:
++			return True
++
++	def _validpid(self, pid, ignore_self_pid, mypid):
++		"""
++		Convenience function: assumes global _mypid is result of os.getpid()
++		And then returns True iff the PID is live in the process table, unless
++		ignore_self_pid is true and pid == _mypid, in which case, it returns False
++		if pid is None, returns None
++		"""
++		if mypid >= 0 and pid == mypid:
++			return (not ignore_self_pid)
++		return self._pidactive(pid)
++
++	def _clean_pids(self, ignore_self_pid=True):
++		"""
++		Assume that self is the host db for the local host, and clean out any pids not
++		found in the operating system (on the assumption that they crashed, forgot to
++		release the lock before exiting, had the plug pulled on them, etc).  Note:
++		we specialcase the current PID, treating it as if it were not a live OS PID,
++		if the provided argument is true.  This could cause us to fail to detect a
++		coding error where the same process manages to acquire the logical lock twice
++		without triggering any of the various sanity checks, however, it avoids a worse,
++		and more plausible possibility: that in fact a crash of some kind may have occured
++		and there was a PID collision (i.e.: perhaps due to portage automatically being
++		invoked at boot time on a non-pid-randomizing host).
++		"""
++		mypid = os.getpid()
++		self.portagen = [ x for x in self.portagen if self._validpid(x, ignore_self_pid, mypid) ]
++		self.nonportage = None if self.nonportage is None \
++			or not self._validpid(self.nonportage, ignore_self_pid, mypid) else self.nonportage
++		self.waiting = None if self.waiting is None \
++			or not self._validpid(self.waiting, ignore_self_pid, mypid) else self.waiting
++
++	# I can't figure out __deepcopy__, or I suppose, I'm just too lazy to do so.
++	# So here's a method to return a deep clone of self which is correct for all
++	# valid _MasterLockHostDB's, (and doesn't require a PhD in python)
++	def deepclone(self):
++		"""
++		Returns a quick-and-dirty deep clone from a given _MasterLockHostDB
++		"""
++		result = _MasterLockHostDB()
++		result.portagen = self.portagen[:]
++		result.nonportage = self.nonportage
++		result.waiting = self.waiting
++		return result
++
++	def saveto(self, myfilename):
++		"""
++		Save contents to text file
++		"""
++		content = "portagen %s\n" % " ".join([ str(pid) for pid in self.portagen ]) + \
++		           "nonportage %s\n" % self.nonportage + \
++			   "waiting %s\n" % self.waiting
++
++		write_atomic(myfilename, content)
++
++	def loadfrom(self, myfilename):
++		"""
++		Load contents from text file -- analogous to portage.util.grabdict()
++		"""
++		for x in grablines(myfilename):
++			if x[0] == "#":
++				continue
++			myline=x.split()
++			mylinetemp = []
++			if len(myline) == 0:
++				continue
++			if myline[0][:1] == "#":
++				continue
++			if len(myline) == 1:
++				if myline[0] == 'portagen':
++					self.portagen = []
++				else:
++					self[myline[0]] = None
++				continue
++			else:
++				mykey=myline[0]
++				if mykey == 'portagen':
++					try:
++						self.portagen = [ int(x) for x in myline[1:] ]
++						continue
++					except ValueError:
++						writemsg_level(colorize("BAD", "!!!") + " " + \
++								_("Cannot load _MasterLockHostDB from corrupt file %s, ignoring.") + \
++								" \n" % myfilename,
++							level=logging.ERROR, noiselevel=-1)
++						self.clear()
++						break
++				else:
++					if len(myline) > 2:
++						writemsg_level(colorize("BAD", "!!!") + " " + \
++								_("Cannot load _MasterLockHostDB from corrupt file %s, ignoring.") + \
++								" \n" % myfilename,
++							level=logging.ERROR, noiselevel=-1)
++						self.clear()
++						break
++				if myline[1] == 'None':
++					mylinetemp = None
++				else:
++					try:
++						mylinetemp = int(myline[1])
++					except ValueError:
++						writemsg_level(colorize("BAD", "!!!") + " " + \
++								_("Cannot load _MasterLockHostDB from corrupt file %s, ignoring.") + \
++								" \n" % myfilename,
++							level=logging.ERROR, noiselevel=-1)
++						self.clear()
++						break
++				self[mykey] = mylinetemp
++
++# note: it is A-OK to destroy these things while holding the logical master lock.  Just create
++# a new one later and call release().  In fact this is the recommended approach.  They are all
++# interchangeable throw aways. Arguably, this shouldn't be a class at all since most of what
++# it does is "static".
++class _MasterLockDB(dict):
++	"""
++	Manages the logical master lock synchronization mechanism.  This is
++	a shared mutex-type thingy with two classes of lock-holders: portage and
++	non-portage.
++
++	At any moment any number of portage customers may hold the lock or a single
++	non-portage customer may hold it, but never both.
++
++	When the lock is held by a portage customer, non-portage customers attempting
++	to acquire the lock block forever, until all portage customers release it.
++
++	As soon as a non-portage customer grabs the lock or even starts waiting
++	for it, any further attempts to grab the lock fail without blocking, regardless
++	of customer type.
++
++	Although one may instantiate this class to one's heart's
++	content, there is only one logical mutex that is portage-database-global.
++
++	Atomicity is enforced by means of creative use of lockdir() and a database of
++	lock status data indexed by PORTAGE_HOSTNAME and PID.  It should be fine to
++	share the lock database over nfs with multiple hosts; however, in corner cases
++	where a lock-holder fails to explicitly release the lock before terminating,
++	there is the potential for deadlock if the lock acquirer is on a different
++	machine than the (zombie) lock-holder.  If this occurs, some text will at least
++	be dumped to the console/logs explaining how to rectify the problem.
++	"""
++	__slots__ = ['_loaded_local_MasterLockHostDB']
++
++	_MASTERLOCK_POLL_LATENCY = 3 # seconds
++	_MASTERLOCK_SILENT_SPIN_COUNT = 2 # * _MASTERLOCK_POLL_LATENCY = six seconds
++
++	_portage_master_lockdir_cache = None
++	_portage_hostname_cache = None
++
++	# lockdir() tuple used to synchronize access to the logical lock database across all hosts
++	# sharing _portage_master_lockdir -- this lockdir does NOT represent the logical lock,
++	# it is only used to avoid race conditions during database reads and writes.
++	_phys_lock_tuple = None
++
++	# set to true once we successfully acquire the logical lock.
++	# only useful/safe when we have the phys_lock
++	_acquired_master_lock = False
++
++	# this globally shared threadlock protects against some subtle inter-thread
++	# race conditions that could maybe occur between one or more _MasterLockDB instances
++	# racing each other.  In reality this is not a particularly important concern, but
++	# it shouldn't hurt (or, if it does hurt, it will have uncovered some kind of thinko
++	# worth fixing anyhow)
++	_master_lock_threadlock = threading.Lock()
++
++	# this is only used for the fork detection heuristic
++	_master_lock_threadlock_locked = False
++
++	# the _master_lock_pid variable gives the pid of the physical lock holder,
++	# not that of the logical lock holder!
++	_master_lock_pid = None
++
++	def __init__(self):
++		if not os.path.exists(self._portage_master_lockdir()):
++			# we don't take responsibility for creating it (config does)
++			# but if it doesn't exist, we can't possibly do our job, so...
++			raise DirectoryNotFound(self._portage_master_lockdir())
++
++		# when we load the DB, we store a copy of the original state of the _MasterLockHostDB
++		# of the local host at load time.  This way, when we save, all we have to do is compare
++		# the two to decide if we have anything to do.  Note that at load time, we always create
++		# an implicit empty _MasterLockHostDB for the local host, even if none is present on the
++		# filesystem -- so if, for whatever reason, we chose not to add any items to this empty
++		# db, and saved our changes, this would qualify as not having changed, and no new file
++		# would be created.  It would be harmless to do so, but pointlessly crufty.
++		# This is also used as a sanity check -- currently there is no reason to do multiple
++		# load or save operations within a given lock cycle so if we detect that we can spew
++		# warnings (this we do by checking if it is None).
++		self._loaded_local_MasterLockHostDB = None
++
++		dict.__init__(self)
++
++	def clear(self):
++		self._loaded_local_MasterLockHostDB = None
++		dict.clear(self)
++
++	def __del__(self):
++		self.clear()
++
++	def _portage_hostname(self):
++		"""
++		Returns the PORTAGE_HOSTNAME portage configuration value for the active EROOT,
++		converted to lower case so as to avoid random stupid misbehaviors that might
++		otherwise crop up as a result.
++		"""
++		if _MasterLockDB._portage_hostname_cache is None:
++			_MasterLockDB._portage_hostname_cache = portage.settings['PORTAGE_HOSTNAME'].lower()
++			if not validate_portage_hostname(_MasterLockDB._portage_hostname_cache):
++				_MasterLockDB._portage_hostname_cache = None
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("Cannot create _MasterLockDB object due to illegal hostname") + \
++						" \"%s\"\n" % _MasterLockDB._portage_hostname_cache,
++					level=logging.ERROR, noiselevel=-1)
++				raise InvalidHostname("_MasterLockDB._portage_hostname(\"%s\")" % _MasterLockDB._portage_hostname_cache)
++		return _MasterLockDB._portage_hostname_cache
++
++	def _portage_master_lockdir(self):
++		if _MasterLockDB._portage_master_lockdir_cache is None:
++			_MasterLockDB._portage_master_lockdir_cache = \
++				os.path.join(portage.settings['EROOT'], PORTAGE_MASTER_LOCKDIR)
++		return _MasterLockDB._portage_master_lockdir_cache
++
++
++	def _master_lock_threadlock_acquire(self):
++		if _MasterLockDB._master_lock_threadlock_locked and _MasterLockDB._master_lock_pid != os.getpid():
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++					_("Detected reaquisition of master lock after fork") + "\n",
++ 				level=logging.WARN, noiselevel=-1)
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++					_("Activating heuristic to reset master-lock in forkee") + "\n",
++ 				level=logging.WARN, noiselevel=-1)
++			_MasterLockDB._acquired_master_lock = False
++			_MasterLockDB._master_lock_pid = None
++			_MasterLockDB._phys_lock_tuple = None
++			_MasterLockDB._master_lock_threadlock_locked = False
++			_MasterLockDB._master_lock_threadlock = threading.Lock()
++		_MasterLockDB._master_lock_threadlock.acquire()
++		_MasterLockDB._master_lock_threadlock_locked = True
++		_MasterLockDB._master_lock_pid = os.getpid()
++
++	def _master_lock_threadlock_release(self):
++		_MasterLockDB._master_lock_pid = None
++		_MasterLockDB._master_lock_threadlock_locked = False
++		_MasterLockDB._master_lock_threadlock.release()
++
++	# Note that although nonportage processes busy-wait, they release the lock.  So always blocking
++	# during physical lock acquisition -- it shouldn't be long -- is correct, even though we busy wait
++	# for the logical lock.  This might be a good moment to remind anyone reading this of the most
++	# confusing thing about this code -- the physlock and the logical lock, follow completely different
++	# semantics.  We always release the physlock before we consider the logical lock to be acquired!!!
++	# BTW: The threadlock, a third locking construct you will see floating around here, mirrors the
++	# action of the physlock and is used to protect against races during setup/teardown of the
++	# resources associated with the physlock
++	def _phys_lock_acquire(self):
++		self._master_lock_threadlock_acquire()
++
++		# FIXME? what if another thread were to fork() right at this instant
++		# and the forkee were to call get_master_lock_*?  We need some kind
++		# of ability to detect such circumstances and replace the threading.Lock
++		# if we really want 100% thread-safety.  The more I think about this problem
++		# the more I suspect that the only real solution would be to implement our own
++		# lock primitive in C with an after fork handler... so maybe it's not worth it.
++
++		if not _MasterLockDB._phys_lock_tuple is None:
++			# this is just a sanity check -- it should be absolutely impossible for this
++			# to happen because anyone else that grabbed the physlock would have first
++			# acquired the threadlock -- therefore, we would have blocked above until
++			# that other thread released it during _phys_lock_release
++			raise IllegalMasterLockOperation('_phys_lock_acquire: duplicate acquisition')
++
++		_MasterLockDB._phys_lock_tuple = lockdir(self._portage_master_lockdir(), 1)
++
++	def _phys_lock_release(self):
++		if _MasterLockDB._phys_lock_tuple is None:
++			raise IllegalMasterLockOperation('_phys_lock_release: superfluous release')
++
++		unlockdir(_MasterLockDB._phys_lock_tuple)
++		_MasterLockDB._phys_lock_tuple = None
++
++		self._master_lock_threadlock_release()
++
++	def _holding_lock(self):
++		"""
++		Test, in a rigorous(-ish?) manner, whether we (or a sibling instance) already hold(s)
++		the lock.  Note that this can only be done correctly while the physical lock is held
++		(otherwise, the returned result could already be stale by the time the caller got it
++		back!).  Therefore, this is useful internally, as a way to guard against duplicate
++		lock acquisition/release, not as an informational API. (If you /really/ wanted to
++		test, you could do an extra acquire()/release() to see if you got an exception, but
++		the idea is that your process will do ths once, globally, and protect it with some
++		kind of try/finally or signal handler, so no such test should ever be called for).
++
++		This does not use the database!!!!, but the class variable _acquired_master_lock.
++		What we are testing is whether anyone sharing our same global address space has
++		acquired the lock.  However, as a safeguard against forkees of processes holding the
++		lock getting bogus results, we must also check that we still have the same pid as
++		the process that acquired the lock, and "forget" about our lock ownership if there
++		is a mismatch.
++		"""
++		# heuristic to guard against misinformed attempts to use this as an informational
++		# API.  Note that if we went crazy with threads we could manage to erroneously
++		# pass this test, but the test will should never erroneously fail due to the
++		# threadlock
++		if not _MasterLockDB._master_lock_threadlock_locked:
++			raise IllegalMasterLockOperation('_holding_lock query without required threadlock')
++
++		if os.getpid() != _MasterLockDB._master_lock_pid:
++			# assume fork() is the culprit
++			_MasterLockDB._acquired_master_lock = False
++			_MasterLockDB._phys_lock_tuple = None
++			_MasterLockDB._master_lock_pid = None
++			return False
++
++		return _MasterLockDB._acquired_master_lock
++
++	def _anyportagen(self):
++		"""
++		Returns true iff one or more of the loaded _MasterLockHostDBs reflects
++		that a portage process is holding the lock.  A second return argument
++		will contain a list of (hostname, pid-list) tuples representing the full
++		compliment of current portage lock-holders
++		"""
++		holders = [ (hostname, hostdb.portagen[:]) \
++				for (hostname, hostdb) in self.iteritems() \
++				if hostdb.anyportagen() ]
++		return ( len(holders) > 0, holders )
++
++	def _anynonportage(self):
++		"""
++		Returns true iff one or more of the loaded _MasterLockHostDBs reflects
++		that a non-portage process either holds or is waiting for the lock.  A second return
++		argument will contain the (hostname, pid) of the non-portage process.  A third will
++		be true iff the nonportage process in question holds the master lock (if the
++		first argument is true and the third is false, then they are waiting for the lock)
++		If no nonportage processes are contending for or holding the lock, returns
++		(False, (None, None), None)
++		"""
++		for (hostname, hostdb) in self.iteritems():
++			if hostdb.nonportage is not None:
++				return (True, (hostname, hostdb.nonportage), True)
++			elif hostdb.waiting is not None:
++				return (True, (hostname, hostdb.waiting), False)
++		return (False, (None, None), None)
++
++	def _load_db_from_fs(self):
++		"""
++		Assumes the physlock is acquired and loads the db from the fs.  Note that we go ahead and clean
++		stale PIDS as we load.  We could make it a separate step but for now there is no benefit.
++		Notably, this also treats as "stale" any pid (on the local host) equal to os.getpid().  The
++		acquire/release code relies on side effects of this quite heavily so be mindful of that if
++		you are a developer considering changing that behavior.
++		"""
++		if self._loaded_local_MasterLockHostDB is not None:
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++					_("_MasterLockDB: Multiple contiguous _load_db_from_fs operations") + "\n",
++ 				level=logging.WARN, noiselevel=-1)
++		self.clear()
++		for f in os.listdir(self._portage_master_lockdir()):
++			# we ignore non-lowercase names because this framework should never create them -- obviously,
++			# something is wrong, or they came from without, so messing with them is asking for trouble.
++			# It is possible that somewhere somebody needs to run portage on a filesystem that automagically
++			# capitalizes filenames; for such a system, the islower() below would need to be removed.  For the
++			# vast majority, however, this will always be a file we didn't create ourselves, and, therefore,
++			# probably a square hole to our round MasterLockHostDB peg.
++			if validate_portage_hostname(f, False) and f.islower():
++				hdb = _MasterLockHostDB()
++				hdb.loadfrom(os.path.join(self._portage_master_lockdir(), f))
++				self[f] = hdb
++				if f == self._portage_hostname():
++					# we save this before cleaning pids to avoid incorrectly deciding that we
++					# didn't change the database, and therefore failing to save.
++					self._loaded_local_MasterLockHostDB = hdb.deepclone()
++					# we only clean pids on our own box. This weakens our prohibitions against
++					# duplicate lock acquisition but the class variable _master_lock_acquired
++					# guards against it, which should be enough).
++					hdb._clean_pids()
++
++		if self._loaded_local_MasterLockHostDB is None:
++			# then so far, a MasterLockHostDB for the local host has not been created.
++			# we go ahead and create one now -- it will not be saved unless we actually
++			# decide to put something in there.
++			self._loaded_local_MasterLockHostDB = _MasterLockHostDB()
++			# a deep clone of an empty _MasterLockHostDB is... another empty _MasterLockHostDB!
++			self[self._portage_hostname()] = _MasterLockHostDB()
++
++	def _save_db_to_fs(self):
++		"""
++		Assumes the physlock is acquired and saves the in-memory db to the FS.  Afterward, we clear
++		out the in-memory representation to avoid any confusion about how things are "supposed" to
++		work (specifically, saving this should always be part of the three stage teardown: save ->
++		unlock fs physlock -> release threadlock (even if logically we just grabbed the master lock!)
++		Therefore, to get meaningful data back in self, our caller would need to re-acquire the
++		thread and physlocks, and then reload.
++		"""
++		if self._loaded_local_MasterLockHostDB is None:
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++					_("_MasterLockDB: _save_db_from_fs seemingly without prior load") + "\n",
++ 				level=logging.WARN, noiselevel=-1)
++
++		# to see why this is correct consider that we held the physlock during the critical section,
++		# which we are still in.  During that time only we had permission to change anything, and the
++		# only _MasterLockHostDB that it makes sense for us to be mucking around with is our own!  If
++		# we wanted to sanity check this, we could go through the fs and make sure nothing changed, but
++		# do we trust the physlock or not?  I think the answer has to be "yes" or else what's the point?
++		myhostdb = self[self._portage_hostname()]
++		if myhostdb != self._loaded_local_MasterLockHostDB:
++			myhostdbpath = os.path.join(self._portage_master_lockdir(), self._portage_hostname())
++			if not myhostdb and os.path.exists(myhostdbpath):
++				os.unlink(myhostdbpath)
++			else:
++				myhostdb.saveto(myhostdbpath)
++
++		self.clear()
++
++	def acquire(self, asportage):
++		# this game we play with relinquished_phys_lock is not really 100% safe I suspect but almost surely close enough
++		relinquished_phys_lock = False
++		self._phys_lock_acquire()
++		try:
++			if self._holding_lock():
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("attempt to acquire master while already held") + "\n",
++		 			level=logging.ERROR, noiselevel=-1)
++				raise DuplicateMasterLockAcquisition('duplicate _MasterLockDB.acquire')
++			self._load_db_from_fs()
++			# if any non portage is holding/waiting, we always immediately fail
++			result, (hostname, pid), holding = self._anynonportage()
++			if result:
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("unable to acquire master lock: a non-portage process %s is %s") % \
++						( _("with pid %s") % pid if hostname == self._portage_hostname() else \
++											_("(pid %s on host %s)") % (pid, hostname),
++						  _("holding the master lock") if holding else _("waiting on the master lock") ) + ".\n",
++		 			level=logging.ERROR, noiselevel=-1)
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("To resolve this problem, simply wait for the process to complete or terminate it.") + "\n",
++		 			level=logging.ERROR, noiselevel=-1)
++				if hostname != self._portage_hostname():
++					writemsg_level(colorize("BAD", "!!!") + " " + \
++							_("Or, if you are sure that the process is no longer running, remove the file %s") % \
++							( os.path.join(self._portage_master_lockdir(), hostname) ) + "\n",
++			 			level=logging.ERROR, noiselevel=-1)
++				return 1
++			if asportage:
++				# our pid will never be in the list because it would have been filtered out at loadtime
++				# however, if that default ever changes, we should check if our pid is already in the list first!
++				self[self._portage_hostname()].portagen.append(os.getpid())
++				self._save_db_to_fs()
++				_MasterLockDB._acquired_master_lock = True
++				return os.EX_OK
++
++			# if we made it here, we are the only non portage lock contender.  We either
++			# take the lock now or wait for all the portagen to finish.
++			spincount = 0
++			result, lockholders = self._anyportagen()
++			while result:
++				if spincount == _MasterLockDB._MASTERLOCK_SILENT_SPIN_COUNT:
++					# obviously, this warning message is not thorough enough (just kidding)
++					msg = _( "Waiting for portage master lock.  This program can not "
++						 "continue until the following processes terminate:" )
++					writemsg_level("\n" + "".join(colorize("BAD", "!!!") + \
++							" %s\n" % s for s in textwrap.wrap(msg, 70)),
++						level=logging.WARN, noiselevel=-1)
++
++					writemsg_level(colorize("BAD", "!!!") + "\n", level=logging.WARN, noiselevel=-1)
++
++					msg = ""
++					for (hostname, pidlist) in lockholders:
++						pidstrlist = [ "pid %s" % pid for pid in pidlist ]
++						if len(pidstrlist) > 1:
++							# fancy footwork eh?
++							pidstrlist[-2:]=[ (" " + _("and") + " ").join(pidstrlist[-2:]) ]
++						# not sure how to localize a comma so if you speak space-robot or something, tough shit
++						line = colorize("BAD", "!!!") + "      " + ", ".join(pidstrlist)
++						# if there is only one host involved, and that host is us
++						# (which in practice is almost always going to be the case),
++						# then it seems less confusing to not even acknowledge the
++						# possibility that some other host might be involved
++						if hostname != self._portage_hostname() or len(lockholders) > 1:
++							line = line + " " + _("on") + " "
++						if hostname == self._portage_hostname():
++							if len(lockholders) > 1:
++								line = line + _("the local host")
++							line = line + "\n"
++							# seems nice for local pids to always come first
++							msg = line + msg
++						else:
++							line = line + hostname + ".\n"
++							msg = msg + line
++
++					if len(msg) > 0:
++						writemsg_level(msg, level=logging.WARN, noiselevel=-1)
++
++					writemsg_level(colorize("BAD", "!!!") + "\n", level=logging.WARN, noiselevel=-1)
++
++					msg = _( "If you think you have received this message in error (this is possible "
++						 "if one of the above processes is in fact a zombie, or "
++						 "a remote host crashed while running portage, or some other kind"
++						 "of corruption has crept into the master lock database). "
++						 "You should terminate this program (i.e., press Ctrl-C), "
++						 "terminate all of the above-listed portage processes, "
++						 "and (only!) then correct the master-lock database files in %s (i.e., by "
++						 "removing files which only contain pids which no longer exist). "
++						 "Then try running this program again." ) % self._portage_master_lockdir()
++					writemsg_level("".join(colorize("BAD", "!!!") + \
++							" %s\n" % s for s in textwrap.wrap(msg, 70)) + "\n",
++						level=logging.WARN, noiselevel=-1)
++
++				self[self._portage_hostname()].waiting = os.getpid()
++				self._save_db_to_fs()
++				relinquished_phys_lock = True;
++				self._phys_lock_release()
++
++				time.sleep(_MasterLockDB._MASTERLOCK_POLL_LATENCY)
++
++				relinquished_phys_lock = False;
++				self._phys_lock_acquire()
++				self._load_db_from_fs()
++				result, lockholders = self._anyportagen()
++				spincount = spincount + 1
++
++			self[self._portage_hostname()].nonportage = os.getpid()
++			self._save_db_to_fs()
++			_MasterLockDB._acquired_master_lock = True
++			return os.EX_OK
++
++		finally:
++			if not relinquished_phys_lock:
++				self._phys_lock_release()
++
++	def release(self):
++		self._phys_lock_acquire()
++		try:
++			if not self._holding_lock():
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("Attempt detected to release master lock not held by us") + "\n",
++		 			level=logging.ERROR, noiselevel=-1)
++				raise SuperfluousMasterLockRelease('superfluous _MasterLockDB.release')
++			# this is kinda tricky.  Since we filter out selfpid while loading,
++			# our job is already done.
++			self._load_db_from_fs()
++			self._save_db_to_fs()
++			_MasterLockDB._acquired_master_lock = False
++		finally:
++			self._phys_lock_release()
++
++def acquire_master_lock(asportage=False):
++	return _MasterLockDB().acquire(asportage)
++
++def release_master_lock():
++	_MasterLockDB().release()
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-22 23:48:21.790663800 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-22 23:48:22.858877400 -0700
 @@ -150,7 +150,7 @@
  # portage config variables and variables set directly by portage
  environ_filter += [
@@ -660,18 +1422,28 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/sp
  # by forcing them to lower case.
 -case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR',)
 +case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR', 'PORTAGE_HOSTNAME')
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py	2012-02-19 02:09:03.000000000 -0800
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py	2012-03-15 11:53:43.973097000 -0700
-@@ -14,6 +14,7 @@
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py	2012-03-22 23:48:21.823670400 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py	2012-03-23 00:05:06.315528600 -0700
+@@ -2,7 +2,7 @@
+ # Distributed under the terms of the GNU General Public License v2
+ 
+ __all__ = [
+-	'autouse', 'best_from_dict', 'check_config_instance', 'config',
++	'autouse', 'best_from_dict', 'check_config_instance', 'config', 'validate_portage_hostname'
+ ]
+ 
+ import copy
+@@ -14,6 +14,8 @@
  import re
  import sys
  import warnings
++import textwrap
 +from socket import getfqdn
  
  from _emerge.Package import Package
  import portage
-@@ -24,7 +25,7 @@
+@@ -24,7 +26,7 @@
  	load_mod, os, selinux, _unicode_decode
  from portage.const import CACHE_PATH, \
  	DEPCACHE_PATH, INCREMENTALS, MAKE_CONF_FILE, \
@@ -680,18 +1452,95 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py 
  	PRIVATE_PATH, PROFILE_PATH, USER_CONFIG_PATH, \
  	USER_VIRTUALS_FILE
  from portage.dbapi import dbapi
-@@ -726,6 +727,10 @@
+@@ -93,6 +95,59 @@
+ 	regex = regex.replace("\\.\\*", ".*")
+ 	return regex
+ 
++# more-or-less ripped off from:
++# http://stackoverflow.com/questions/2532053/validate-hostname-string-in-python
++_hostname_regex = re.compile('(?!-)[a-zA-Z0-9-]{1,63}(?<!-)$')
++
++# enforces most of the DNS hostname rules, except the one about pure-numeric
++# names.  The fundamental purpose for this is somewhat non-obvious: our ultimate
++# objective is to ensure that there can be no conflicts between
++# settings['PORTAGE_HOSTNAME'] and the cruft-filtering that goes on in
++# portage.config.MasterLockDB during database loading.  Specifically, this
++# means the most important rules are that they be valid, nonempty file-names
++# that don't start with a '.'
++#
++# Beyond that, it is not currently important that it be a truly valid DNS host
++# name (however, if this ever went upstream, it could obviously serve other purposes
++# than just servicing the master_lock module, so... what-have-you)
++def validate_portage_hostname(hostname, warn=True):
++	"""
++	Dump some warning text if the provided hostname is not valid.
++	Validity, in this context, means, nonempty and starts with an
++	alphanumeric character; however some additional DNS conventions,
++	such as not ending in '-', are also enforced.  Specifically, does
++	not reject pure-numeric strings.  Returns True/False for,
++	respectively, Valid/Invalid.
++	"""
++
++	# (fixme?): is unicode ever not defined here? does it matter?
++	if type(hostname) not in [str, unicode]:
++		raise InvalidDataType(_("validate_portage_hostanme: hostname: \"%s\" is not a string type") % \
++		type(hostname).__name__)
++
++	valid = True
++
++	# strip exactly one dot from the right, if present
++	if hostname[-1:] == ".":
++		hostname = hostname[:-1]
++
++	if len(hostname) == 0 or len(hostname) > 255:
++		valid = False
++	elif not all(_hostname_regex.match(x) for x in hostname.split(".")):
++		valid = False
++
++	if warn and not valid:
++		msg = _( ("PORTAGE_HOSTNAME=\"%s\" is not valid."
++		      " Automatic detection may be used instead."
++		      " If you quickly get an error about the master lock,"
++		      " this may be the underlying problem.") ) % hostname
++		writemsg_level("\n" + "".join(colorize("BAD", "!!!") + \
++				" %s\n" % s for s in textwrap.wrap(msg, 70)) + "\n",
++ 			level=logging.WARN, noiselevel=-1)
++
++	return valid
++
++
+ class _iuse_implicit_match_cache(object):
+ 
+ 	def __init__(self, settings):
+@@ -397,6 +452,15 @@
+ 						pass
+ 				del k, v
+ 
++			# env_blacklist is too strong (semantically speaking)
++			# for PORTAGE_HOSTNAME... perhaps there ought to be a
++			# distinction between env_blacklist and, i.e., 'envvar_blacklist'?
++			# or, perhaps I'm missing some feature that handles stuff that
++			# we don't want coming from env but do from make.conf or even env.d
++			# -gmt, confusedly, 3.19.12
++			if "PORTAGE_HOSTNAME" in self.backupenv:
++				del self.backupenv["PORTAGE_HOSTNAME"]
++
+ 			self.configdict["env"] = LazyItemsDict(self.backupenv)
+ 
+ 			self.configlist.append(make_globals)
+@@ -726,6 +790,11 @@
  					self["USERLAND"] = "GNU"
  				self.backup_changes("USERLAND")
  
-+			if "PORTAGE_HOSTNAME" not in self or self["PORTAGE_HOSTNAME"] == "":
++			if "PORTAGE_HOSTNAME" not in self or self["PORTAGE_HOSTNAME"] == "" or \
++				not validate_portage_hostname(self["PORTAGE_HOSTNAME"]):
 +				self["PORTAGE_HOSTNAME"] = getfqdn()
 +				self.backup_changes("PORTAGE_HOSTNAME")
 +
  			default_inst_ids = {
  				"PORTAGE_INST_GID": "0",
  				"PORTAGE_INST_UID": "0",
-@@ -853,6 +858,8 @@
+@@ -853,6 +922,8 @@
  			"tmp"             : (         -1, 0o1777,  0,  True),
  			"var/tmp"         : (         -1, 0o1777,  0,  True),
  			PRIVATE_PATH      : (portage_gid, 0o2750, 0o2, False),
@@ -700,9 +1549,18 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py 
  			CACHE_PATH        : (portage_gid,  0o755, 0o2, False)
  		}
  
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-14 20:43:35.672597000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-14 20:43:36.218597000 -0700
+@@ -961,6 +1032,8 @@
+ 				writemsg(_("!!! See https://bugs.pypy.org/issue833 for details.\n"),
+ 					noiselevel=-1)
+ 
++		validate_portage_hostname(self['PORTAGE_HOSTNAME'])
++
+ 	def load_best_module(self,property_string):
+ 		best_mod = best_from_dict(property_string,self.modules,self.module_priority)
+ 		mod = None
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-22 23:48:21.849675600 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-22 23:48:22.917889200 -0700
 @@ -4,12 +4,13 @@
  __all__ = ['apply_permissions', 'apply_recursive_permissions',
  	'apply_secpass_permissions', 'apply_stat_permissions', 'atomic_ofstream',
@@ -837,9 +1695,9 @@ diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-p
  def find_updated_config_files(target_root, config_protect):
  	"""
  	Return a tuple of configuration files that needs to be updated.
-diff -urN prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-14 20:43:35.675097000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-14 20:43:36.220597000 -0700
+diff -urN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-22 23:48:21.854676600 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-22 23:48:22.923890400 -0700
 @@ -104,7 +104,7 @@
  	fns = templist
  	del templist
