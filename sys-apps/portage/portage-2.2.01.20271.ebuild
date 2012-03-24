@@ -106,8 +106,10 @@ src_prepare() {
 	# WIP, not working yet
 	use cygdll-protect && { \
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygdll_protect.patch
-		einfo "setting executable bits for bin/cygdll-update since patch doesn't"
-		chmod a+x "${S}"/bin/cygdll-update
+		for f in "bin/cygdll-update" "bin/portage_master_lock" ; do
+			einfo "setting executable bits for ${f} since patch doesn't"
+			chmod a+x "${S}"/${f}
+		done
 	}
 
 	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
