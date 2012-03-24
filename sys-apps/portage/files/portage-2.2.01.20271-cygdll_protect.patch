@@ -18,8 +18,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/cygdll-update prefix-portage-2.2.01.20271/bin/cygdll-update
 --- prefix-portage-2.2.01.20271.orig/bin/cygdll-update	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/bin/cygdll-update	2012-03-24 02:56:48.014989000 -0700
-@@ -0,0 +1,135 @@
++++ prefix-portage-2.2.01.20271/bin/cygdll-update	2012-03-24 03:41:19.817989000 -0700
+@@ -0,0 +1,145 @@
 +#!@PORTAGE_BASH@
 +# Copyright 1999-2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
@@ -81,6 +81,12 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +die() {
 +	trap SIGTERM
 +	trap SIGINT
++	trap EXIT
++
++	# FIXME: this relies on quirks of portage.master_lock that are not
++	# future-proof -- namely, we are gambling that releasing a lock
++	# which we did not successfully acquire is OK.
++	portage_master_lock release
 +
 +	if [ "$2" -eq 0 ]; then
 +		echo "Exiting: ${1}"
@@ -132,9 +138,13 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	PORTAGE_TMPDIR EROOT USERLAND)
 +export PORTAGE_TMPDIR
 +
++trap "die suprise-termination 1" EXIT
 +# TMP="${PORTAGE_TMPDIR}/cygdll-update-$$"
 +trap "die terminated 1" SIGTERM
 +trap "die interrupted 1" SIGINT
++
++type portage_master_lock > /dev/null || exit $?
++portage_master_lock acquire || exit $?
 +
 +# [ -w ${PORTAGE_CONFIGROOT}etc ] || die "Need write access to ${PORTAGE_CONFIGROOT}etc" 1
 +#echo $PORTAGE_TMPDIR
@@ -1879,7 +1889,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	"""Attempt to use internal MasterLock API incorrectly"""
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20271/pym/portage/master_lock.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-24 02:56:48.081989000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-24 03:32:40.403489000 -0700
 @@ -0,0 +1,805 @@
 +# portage: master_lock
 +# Copyright 2012 Gentoo Foundation
@@ -2577,7 +2587,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +					msg = _( "If you think you have received this message in error (this is possible "
 +						 "if one of the above processes is in fact a zombie, or "
-+						 "a remote host crashed while running portage, or some other kind"
++						 "a remote host crashed while running portage, or some other kind "
 +						 "of corruption has crept into the master lock database). "
 +						 "You should terminate this program (i.e., press Ctrl-C), "
 +						 "terminate all of the above-listed portage processes, "
