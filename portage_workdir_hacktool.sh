@@ -389,7 +389,7 @@ grepit()
 {
     local context_lines=${codegrep_context_lines:-3}
 
-    [[ "$1" ]] || { echo "for what?" >&2 ; exit 1 ; }
+    [[ "$1" ]] || { echo "for what?" >&2 ; return 1 ; }
     local grepfor="$1"
     shift
 
