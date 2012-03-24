@@ -1,7 +1,7 @@
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/Makefile.in prefix-portage-2.2.01.20271/bin/Makefile.in
---- prefix-portage-2.2.01.20271.orig/bin/Makefile.in	2012-03-23 11:11:15.945489000 -0700
-+++ prefix-portage-2.2.01.20271/bin/Makefile.in	2012-03-23 11:11:17.101489000 -0700
-@@ -26,6 +26,7 @@
+--- prefix-portage-2.2.01.20271.orig/bin/Makefile.in	2012-03-23 11:49:21.723913800 -0700
++++ prefix-portage-2.2.01.20271/bin/Makefile.in	2012-03-23 22:55:41.429989000 -0700
+@@ -26,12 +26,14 @@
  
  usr_sbinprogs = \
  	archive-conf \
@@ -9,9 +9,16 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	dispatch-conf \
  	emaint \
  	emerge-webrsync \
+ 	env-update \
+ 	etc-update \
+ 	fixpackages \
++	portage_master_lock \
+ 	readpecoff \
+ 	regenworld
+ 
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/cygdll-update prefix-portage-2.2.01.20271/bin/cygdll-update
 --- prefix-portage-2.2.01.20271.orig/bin/cygdll-update	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/bin/cygdll-update	2012-03-23 11:33:47.808489000 -0700
++++ prefix-portage-2.2.01.20271/bin/cygdll-update	2012-03-23 11:49:18.409088400 -0700
 @@ -0,0 +1,135 @@
 +#!@PORTAGE_BASH@
 +# Copyright 1999-2012 Gentoo Foundation
@@ -148,9 +155,180 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +die "Nothing left to do; exiting. :)" 0
 +
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/portage_master_lock prefix-portage-2.2.01.20271/bin/portage_master_lock
+--- prefix-portage-2.2.01.20271.orig/bin/portage_master_lock	1969-12-31 16:00:00.000000000 -0800
++++ prefix-portage-2.2.01.20271/bin/portage_master_lock	2012-03-24 02:30:26.903989000 -0700
+@@ -0,0 +1,167 @@
++#!@PREFIX_PORTAGE_PYTHON@ -O
++# Copyright 1999-2012 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++
++import signal
++import sys
++# This block ensures that ^C interrupts are handled quietly.
++try:
++
++	def exithandler(signum, frame):
++		signal.signal(signal.SIGINT, signal.SIG_IGN)
++		signal.signal(signal.SIGTERM, signal.SIG_IGN)
++		sys.exit(128 + signum)
++
++	signal.signal(signal.SIGINT, exithandler)
++	signal.signal(signal.SIGTERM, exithandler)
++
++except KeyboardInterrupt:
++	sys.exit(128 + signal.SIGINT)
++
++import os
++import types
++
++# for an explanation on this logic, see pym/_emerge/__init__.py
++# if there's nothing there, then obviously you understand it already!
++if os.environ.__contains__("PORTAGE_PYTHONPATH"):
++	pym_path = os.environ["PORTAGE_PYTHONPATH"]
++else:
++	pym_path = os.path.join(os.path.dirname(
++		os.path.dirname(os.path.realpath(__file__))), "pym")
++
++# Avoid sandbox violations after python upgrade.
++if os.environ.get("SANDBOX_ON") == "1":
++	sandbox_write = os.environ.get("SANDBOX_WRITE", "").split(":")
++	if pym_path not in sandbox_write:
++		sandbox_write.append(pym_path)
++		os.environ["SANDBOX_WRITE"] = \
++			":".join(filter(None, sandbox_write))
++	del sandbox_write
++
++try:
++	import portage
++except ImportError:
++	sys.path.insert(0, pym_path)
++	import portage
++del pym_path
++
++from portage import os
++from portage.util import writemsg
++
++portage.proxy.lazyimport.lazyimport(globals(),
++	'portage.master_lock:acquire_master_lock,release_master_lock'
++)
++
++def acquire():
++	"""
++	[--as-portage]
++
++	Acquire the portage master lock.  If the --as-portage parameter
++	is provided, we will acquire the lock as a 'portage' process;
++	otherwise, as a 'non-portage' process.  The difference is that
++	portage processes (including 'emerge') can all run at the same
++	time, but only one non-portage process can run at a time.  Portage
++	and non-portage processes cannot run simultaneously.
++
++	Once a non-portage process starts waiting for the master lock,
++	it will block indefinitely and all attempts to acquire the lock
++	will immediately fail until the non-portage process acquires the
++	lock and then releases it.
++	"""
++	pass
++
++def release():
++	"""
++	[--as-portage]
++
++	Release the portage master lock, either as a portage or a non-portage
++	process.
++	"""
++	pass
++
++non_commands = frozenset(['elog', 'exithandler', 'main',
++	'usage', 'writemsg', 'acquire_master_lock', 'release_master_lock' ])
++commands = sorted(k for k, v in globals().items() \
++	if k not in non_commands and isinstance(v, types.FunctionType))
++
++def usage(argv):
++	print(">>> Portage master lock tool")
++	print(">>> %s" % portage.VERSION)
++	print(">>> Usage: portage_master_lock <command> [<option> ...]")
++	print("")
++	print("Available commands:")
++
++	#
++	# Show our commands -- we do this by scanning the functions in this
++	# file, and formatting each functions documentation.
++	#
++	help_mode = '--help' in sys.argv
++	for name in commands:
++		# Drop non-functions
++		obj = globals()[name]
++
++		doc = obj.__doc__
++		if (doc == None):
++			print("   " + name)
++			print("      MISSING DOCUMENTATION!")
++			print("")
++			continue
++
++		lines = doc.lstrip("\n").split("\n")
++		print("   " + name + " " + lines[0].strip())
++		if (len(sys.argv) > 1):
++			if (not help_mode):
++				lines = lines[:-1]
++			for line in lines[1:]:
++				print("      " + line.strip())
++	if (len(sys.argv) == 1):
++		print("\nRun 'portage_master_lock --help' for info")
++
++def elog(elog_funcname, lines):
++	cmd = "source '%s/isolated-functions.sh' ; " % \
++		os.environ["PORTAGE_BIN_PATH"]
++	for line in lines:
++		cmd += "%s %s ; " % (elog_funcname, portage._shell_quote(line))
++	subprocess.call([portage.const.BASH_BINARY, "-c", cmd])
++
++def main():
++
++	nocolor = os.environ.get('NOCOLOR')
++	if nocolor in ('yes', 'true'):
++		portage.output.nocolor()
++
++	if len(sys.argv) < 2:
++		usage(sys.argv)
++		sys.exit(os.EX_USAGE)
++
++	for x in sys.argv:
++		if x in ("-h", "--help"):
++			usage(sys.argv)
++			sys.exit(os.EX_OK)
++		elif x == "--version":
++			print("Portage", portage.VERSION)
++			sys.exit(os.EX_OK)
++
++	cmd = sys.argv[1]
++	function = globals().get(cmd)
++	if function is None or cmd not in commands:
++		usage(sys.argv)
++		sys.exit(os.EX_USAGE)
++	function = globals()[cmd]
++
++	args = sys.argv[2:]
++	if args and isinstance(args[0], bytes):
++		for i in range(len(args)):
++			args[i] = portage._unicode_decode(args[i])
++
++	try:
++		retval = function(args)
++		if retval:
++			sys.exit(retval)
++	except portage.exception.PermissionDenied as e:
++		sys.stderr.write("Permission denied: '%s'\n" % str(e))
++		sys.exit(e.errno)
++
++main()
++
++#-----------------------------------------------------------------------------
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.20271/cnf/make.conf
---- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2012-03-23 11:11:15.951989000 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-23 11:11:17.109489000 -0700
+--- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2012-03-23 11:49:21.731416800 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-23 11:49:18.411589400 -0700
 @@ -356,3 +356,25 @@
  #                               ${PACKAGE} - see description of PORTAGE_ELOG_COMMAND
  #                               ${HOST} - FQDN of the host portage is running on
@@ -178,8 +356,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +#                   make.globals.
 +#PORTAGE_HOSTNAME=""
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
---- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-23 11:11:15.954989000 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-23 11:11:17.111989000 -0700
+--- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-23 11:49:21.734418000 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-23 11:49:18.413590200 -0700
 @@ -8,7 +8,8 @@
  # **** CHANGES TO make.conf *OVERRIDE* THIS FILE ****
  # ***************************************************
@@ -220,8 +398,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  DEFAULT_PATH="@DEFAULT_PATH@"
  # Any extra PATHs to add to the ebuild environment's PATH (if any)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/Makefile.am prefix-portage-2.2.01.20271/man/Makefile.am
---- prefix-portage-2.2.01.20271.orig/man/Makefile.am	2012-03-23 11:11:15.957489000 -0700
-+++ prefix-portage-2.2.01.20271/man/Makefile.am	2012-03-23 11:11:17.114489000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/Makefile.am	2012-03-23 11:49:21.736919000 -0700
++++ prefix-portage-2.2.01.20271/man/Makefile.am	2012-03-23 11:49:18.415591000 -0700
 @@ -2,6 +2,7 @@
  
  man_MANS = \
@@ -231,8 +409,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	ebuild.1 \
  	ebuild.5 \
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/Makefile.in prefix-portage-2.2.01.20271/man/Makefile.in
---- prefix-portage-2.2.01.20271.orig/man/Makefile.in	2012-03-23 11:11:15.963489000 -0700
-+++ prefix-portage-2.2.01.20271/man/Makefile.in	2012-03-23 11:11:17.120489000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/Makefile.in	2012-03-23 11:49:21.742421200 -0700
++++ prefix-portage-2.2.01.20271/man/Makefile.in	2012-03-23 11:49:18.419092400 -0700
 @@ -194,6 +194,7 @@
  top_srcdir = @top_srcdir@
  man_MANS = \
@@ -243,7 +421,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	ebuild.5 \
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/cygdll-update.1 prefix-portage-2.2.01.20271/man/cygdll-update.1
 --- prefix-portage-2.2.01.20271.orig/man/cygdll-update.1	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/man/cygdll-update.1	2012-03-23 11:11:17.125489000 -0700
++++ prefix-portage-2.2.01.20271/man/cygdll-update.1	2012-03-23 11:49:18.421093200 -0700
 @@ -0,0 +1,52 @@
 +.TH "CYGDLL-UPDATE" "1" "Mar 2012" "Portage 2.2.01.20271-prefix" "Portage"
 +.SH NAME
@@ -298,8 +476,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +.SH "SEE ALSO"
 +.BR make.conf (5)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
---- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-23 11:11:15.971489000 -0700
-+++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-23 11:11:17.134989000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-23 11:49:21.752925400 -0700
++++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-23 11:49:18.425094800 -0700
 @@ -1010,6 +1010,88 @@
  offset by Portage before they are considered.  Hence, these paths never
  contain the offset prefix, and the variables can be defined in
@@ -390,8 +568,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  Please report any bugs you encounter through our website:
  .LP
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01.20271/man/make.conf.5
---- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-23 11:11:15.978489000 -0700
-+++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-23 11:11:17.140989000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-23 11:49:21.758927800 -0700
++++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-23 11:49:18.429096400 -0700
 @@ -151,6 +151,14 @@
  This variable is passed by the \fIebuild scripts\fR to the \fIconfigure\fR
  as \fI\-\-target=${CTARGET}\fR only if it is defined.
@@ -437,8 +615,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  This variable should contain a command for portage to call in order
  to adjust the io priority of portage and it's subprocesses. The command
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-23 11:11:15.986989000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-23 11:11:17.150489000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-23 11:49:21.765430400 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-23 11:49:18.433098000 -0700
 @@ -1455,7 +1455,7 @@
  		myvars = list(settings)
  	else:
@@ -482,8 +660,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	if "news" not in root_config.settings.features:
  		return
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-23 11:11:16.001489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-23 11:11:17.163989000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-23 11:49:21.778435600 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-24 02:34:32.625989000 -0700
 @@ -30,6 +30,7 @@
  import portage.exception
  from portage.const import EPREFIX, EPREFIX_LSTRIP
@@ -662,7 +840,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -			print("", colorize("GOOD", "*"), "No news items were found.")
 -		return os.EX_OK
 +		'--pretend' not in myopts:
-+		if acquire_master_lock(True, settings) != os.EX_OK:
++		if acquire_master_lock(True, settings=settings) != os.EX_OK:
 +			return 1
 +		acquired_portage_master_lock = True
  
@@ -1343,10 +1521,10 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -		return retval
 +	finally:
 +		if acquired_portage_master_lock:
-+			release_master_lock(settings)
++			release_master_lock(True, settings=settings)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-23 11:11:16.007489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-23 11:11:17.171489000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-23 11:49:21.783437600 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-23 11:49:18.447603800 -0700
 @@ -99,7 +99,8 @@
  		'portage.util:atomic_ofstream,apply_secpass_permissions,' + \
  			'apply_recursive_permissions,dump_traceback,getconfig,' + \
@@ -1367,8 +1545,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		EPREFIX, EPREFIX_LSTRIP, rootuid
  
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-23 11:11:16.013489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-23 11:11:17.176489000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-23 11:49:21.788439600 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-23 11:49:18.451105200 -0700
 @@ -55,6 +55,8 @@
  WORLD_FILE               = PRIVATE_PATH + "/world"
  WORLD_SETS_FILE          = PRIVATE_PATH + "/world_sets"
@@ -1387,8 +1565,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
                             "PROFILE_ONLY_VARIABLES")
  EBUILD_PHASES            = ("pretend", "setup", "unpack", "prepare", "configure",
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-23 11:11:16.017989000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-23 11:11:17.178989000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-23 11:49:21.791440800 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-23 11:49:18.453106000 -0700
 @@ -213,7 +213,8 @@
  			else:
  				rval = mylink.merge(self.pkgloc, self.infloc,
@@ -1400,8 +1578,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			raise
  		except:
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-23 11:11:16.024489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-23 11:11:17.184489000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-23 11:49:21.795942600 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-23 11:49:18.456107200 -0700
 @@ -299,7 +299,7 @@
  			self._pkgindex_header_keys = set([
  				"ACCEPT_KEYWORDS", "ACCEPT_LICENSE",
@@ -1412,8 +1590,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			self._pkgindex_default_pkg_data = {
  				"BUILD_TIME"         : "",
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-23 11:11:16.035489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-23 11:11:17.194489000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-23 11:49:21.806446800 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-23 11:49:18.462609800 -0700
 @@ -23,7 +23,7 @@
  	'portage.update:fixdbentries',
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
@@ -1658,8 +1836,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				# whether config protection or not, we merge the new file the
  				# same way.  Unless moveme=0 (blocking directory)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/exception.py prefix-portage-2.2.01.20271/pym/portage/exception.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/exception.py	2012-03-23 11:11:16.040489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/exception.py	2012-03-23 11:11:17.197989000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/exception.py	2012-03-23 11:49:21.809448000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/exception.py	2012-03-23 11:49:18.464610600 -0700
 @@ -188,3 +188,14 @@
  class UntrustedSignature(SignatureException):
  	"""Signature was not certified to the desired security level"""
@@ -1677,8 +1855,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	"""Attempt to use internal MasterLock API incorrectly"""
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20271/pym/portage/master_lock.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-23 11:11:17.210989000 -0700
-@@ -0,0 +1,723 @@
++++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-24 02:25:40.509989000 -0700
+@@ -0,0 +1,805 @@
 +# portage: master_lock
 +# Copyright 2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
@@ -1847,23 +2025,23 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		else:
 +			return True
 +
-+	def _validpid(self, pid, ignore_self_pid, mypid):
++	def _validpid(self, pid, mypid, ignore_mypid):
 +		"""
-+		Convenience function: assumes global _mypid is result of os.getpid()
++		Convenience function: assumes global _mypid represents the current user
 +		And then returns True iff the PID is live in the process table, unless
-+		ignore_self_pid is true and pid == _mypid, in which case, it returns False
++		ignore_mypid is true and pid == mypid, in which case, it returns False
 +		if pid is None, returns None
 +		"""
 +		if mypid >= 0 and pid == mypid:
-+			return (not ignore_self_pid)
++			return (not ignore_mypid)
 +		return self._pidactive(pid)
 +
-+	def _clean_pids(self, ignore_self_pid=True):
++	def _clean_pids(self, mypid, ignore_mypid=True):
 +		"""
 +		Assume that self is the host db for the local host, and clean out any pids not
 +		found in the operating system (on the assumption that they crashed, forgot to
 +		release the lock before exiting, had the plug pulled on them, etc).  Note:
-+		we specialcase the current PID, treating it as if it were not a live OS PID,
++		mypid is treated it as if it were /not/ a live OS PID,
 +		if the provided argument is true.  This could cause us to fail to detect a
 +		coding error where the same process manages to acquire the logical lock twice
 +		without triggering any of the various sanity checks, however, it avoids a worse,
@@ -1871,12 +2049,11 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		and there was a PID collision (i.e.: perhaps due to portage automatically being
 +		invoked at boot time on a non-pid-randomizing host).
 +		"""
-+		mypid = os.getpid()
-+		self.portagen = [ x for x in self.portagen if self._validpid(x, ignore_self_pid, mypid) ]
++		self.portagen = [ x for x in self.portagen if self._validpid(x, mypid, ignore_mypid) ]
 +		self.nonportage = None if self.nonportage is None \
-+			or not self._validpid(self.nonportage, ignore_self_pid, mypid) else self.nonportage
++			or not self._validpid(self.nonportage, mypid, ignore_mypid) else self.nonportage
 +		self.waiting = None if self.waiting is None \
-+			or not self._validpid(self.waiting, ignore_self_pid, mypid) else self.waiting
++			or not self._validpid(self.waiting, mypid, ignore_mypid) else self.waiting
 +
 +	# I can't figure out __deepcopy__, or I suppose, I'm just too lazy to do so.
 +	# So here's a method to return a deep clone of self which is correct for all
@@ -1957,8 +2134,32 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +# note: it is A-OK to destroy these things while holding the logical master lock.  Just create
 +# a new one later and call release().  In fact this is the recommended approach.  They are all
-+# interchangeable throw aways. Arguably, this shouldn't be a class at all since most of what
-+# it does is "static".
++# interchangeable throw-aways. Arguably, this shouldn't be a class at all since most of what
++# it does is infact "static".  However as a DB-accessor object a-la Delphi's TClientDataset,
++# the tiny smidgeon of object orientatation that actually goes on here is legit OOP imo.
++#
++# FIXME: The current implementation goes out of its way to ensure that duplicate acquire/release
++# cycles do not occur.  However, the value of this is questionable.  To see why, note that non-direct
++# instances of this class can actually acquire and release to their hearts content -- the operations
++# always succed so long as other lock-holders don't show up to make us either wait for the lock
++# or fail to acquire it.  This has the rather misleading result that the latest acquire or release
++# operation controls the current state of the database.  For direct lock holders, the in-process
++# sanity checks prevent such malfeasance, but there's no compelling reason for this assymetry
++# Clearly, the emperor's new clothes are a few textiles short of a kimono...
++# Two possibilties exist to fix this:
++#
++# (a) since we are already most of the way to an RLock-style reentrant capability,
++#     we could go ahead and finish the job; this could be as simple as saving the
++#     pid to the list multiple times or saving (pid, lockcount) tuples instead of just pids.
++#
++# (b) Fix it to be non-reentrant fully by testing our expectations before acting on them.
++#     This is arguably preferable until somebody comes up with a compelling reason to
++#     support reentrant locking in this framework.
++#
++# either way, the current oh-so-clever reliance on side-effects of pid-filtering's
++# assumption that instances of _my_pid() in the database are in fact pid collisions
++# will need to be replaced.  This shouldn't be a big deal but so far I've been too lazy to
++# get it done.
 +class _MasterLockDB(dict):
 +	"""
 +	Manages the logical master lock synchronization mechanism.  This is
@@ -1986,7 +2187,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	machine than the (zombie) lock-holder.  If this occurs, some text will at least
 +	be dumped to the console/logs explaining how to rectify the problem.
 +	"""
-+	__slots__ = ['_loaded_local_MasterLockHostDB', '_settings']
++	__slots__ = ['_loaded_local_MasterLockHostDB', '_settings', '_direct']
 +
 +	_MASTERLOCK_POLL_LATENCY = 3 # seconds
 +	_MASTERLOCK_SILENT_SPIN_COUNT = 2 # * _MASTERLOCK_POLL_LATENCY = six seconds
@@ -1998,6 +2199,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	# sharing _portage_master_lockdir -- this lockdir does NOT represent the logical lock,
 +	# it is only used to avoid race conditions during database reads and writes.
 +	_phys_lock_tuple = None
++	_phys_lock_pid = None
 +
 +	# set to true once we successfully acquire the logical lock.
 +	# only useful/safe when we have the phys_lock
@@ -2013,16 +2215,14 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	# this is only used for the fork detection heuristic
 +	_master_lock_threadlock_locked = False
 +
-+	# the _master_lock_pid variable gives the pid of the physical lock holder,
-+	# not that of the logical lock holder!
-+	_master_lock_pid = None
-+
-+	def __init__(self, teh_settings=None):
-+		if teh_settings is None:
++	def __init__(self, direct=True, settings=None):
++		if settings is None:
 +			# FIXME: are we supposed to be calling _get_legacy_global here?
 +			self._settings = portage.settings
 +		else:
-+			self._settings = teh_settings
++			self._settings = settings
++
++		self._direct = direct
 +
 +		if not os.path.exists(self._portage_master_lockdir()):
 +			# we don't take responsibility for creating it (config does)
@@ -2050,6 +2250,12 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	def __del__(self):
 +		self.clear()
 +
++	def _get_pid(self):
++		if self._direct:
++			return os.getpid()
++		else:
++			return os.getppid()
++
 +	def _portage_hostname(self):
 +		"""
 +		Returns the PORTAGE_HOSTNAME portage configuration value for the active EROOT,
@@ -2075,7 +2281,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +
 +	def _master_lock_threadlock_acquire(self):
-+		if _MasterLockDB._master_lock_threadlock_locked and _MasterLockDB._master_lock_pid != os.getpid():
++		if _MasterLockDB._master_lock_threadlock_locked and _MasterLockDB._phys_lock_pid != os.getpid():
 +			writemsg_level(colorize("BAD", "!!!") + " " + \
 +					_("Detected reaquisition of master lock after fork") + "\n",
 + 				level=logging.WARN, noiselevel=-1)
@@ -2083,16 +2289,16 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +					_("Activating heuristic to reset master-lock in forkee") + "\n",
 + 				level=logging.WARN, noiselevel=-1)
 +			_MasterLockDB._acquired_master_lock = False
-+			_MasterLockDB._master_lock_pid = None
++			_MasterLockDB._phys_lock_pid = None
 +			_MasterLockDB._phys_lock_tuple = None
 +			_MasterLockDB._master_lock_threadlock_locked = False
 +			_MasterLockDB._master_lock_threadlock = threading.Lock()
 +		_MasterLockDB._master_lock_threadlock.acquire()
 +		_MasterLockDB._master_lock_threadlock_locked = True
-+		_MasterLockDB._master_lock_pid = os.getpid()
++		_MasterLockDB._phys_lock_pid = os.getpid()
 +
 +	def _master_lock_threadlock_release(self):
-+		_MasterLockDB._master_lock_pid = None
++		_MasterLockDB._phys_lock_pid = None
 +		_MasterLockDB._master_lock_threadlock_locked = False
 +		_MasterLockDB._master_lock_threadlock.release()
 +
@@ -2157,11 +2363,11 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		if not _MasterLockDB._master_lock_threadlock_locked:
 +			raise IllegalMasterLockOperation('_holding_lock query without required threadlock')
 +
-+		if os.getpid() != _MasterLockDB._master_lock_pid:
++		if os.getpid() != _MasterLockDB._phys_lock_pid:
 +			# assume fork() is the culprit
 +			_MasterLockDB._acquired_master_lock = False
 +			_MasterLockDB._phys_lock_tuple = None
-+			_MasterLockDB._master_lock_pid = None
++			_MasterLockDB._phys_lock_pid = None
 +			return False
 +
 +		return _MasterLockDB._acquired_master_lock
@@ -2199,7 +2405,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		"""
 +		Assumes the physlock is acquired and loads the db from the fs.  Note that we go ahead and clean
 +		stale PIDS as we load.  We could make it a separate step but for now there is no benefit.
-+		Notably, this also treats as "stale" any pid (on the local host) equal to os.getpid().  The
++		Notably, this also treats as "stale" any pid (on the local host) equal to mypid.  The
 +		acquire/release code relies on side effects of this quite heavily so be mindful of that if
 +		you are a developer considering changing that behavior.
 +		"""
@@ -2226,7 +2432,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +					# we only clean pids on our own box. This weakens our prohibitions against
 +					# duplicate lock acquisition but the class variable _master_lock_acquired
 +					# guards against it, which should be enough).
-+					hdb._clean_pids()
++					hdb._clean_pids(self._get_pid())
 +
 +		if self._loaded_local_MasterLockHostDB is None:
 +			# then so far, a MasterLockHostDB for the local host has not been created.
@@ -2266,7 +2472,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		self.clear()
 +
 +	def acquire(self, asportage):
-+		# this game we play with relinquished_phys_lock is not really 100% safe I suspect but almost surely close enough
 +		relinquished_phys_lock = False
 +		self._phys_lock_acquire()
 +		try:
@@ -2297,7 +2502,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +			if asportage:
 +				# our pid will never be in the list because it would have been filtered out at loadtime
 +				# however, if that default ever changes, we should check if our pid is already in the list first!
-+				self[self._portage_hostname()].portagen.append(os.getpid())
++				self[self._portage_hostname()].portagen.append(self._get_pid())
 +				self._save_db_to_fs()
 +				_MasterLockDB._acquired_master_lock = True
 +				return os.EX_OK
@@ -2359,7 +2564,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +							" %s\n" % s for s in textwrap.wrap(msg, 70)) + "\n",
 +						level=logging.WARN, noiselevel=-1)
 +
-+				self[self._portage_hostname()].waiting = os.getpid()
++				self[self._portage_hostname()].waiting = self._get_pid()
 +				self._save_db_to_fs()
 +				relinquished_phys_lock = True;
 +				self._phys_lock_release()
@@ -2372,7 +2577,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +				result, lockholders = self._anyportagen()
 +				spincount = spincount + 1
 +
-+			self[self._portage_hostname()].nonportage = os.getpid()
++			self[self._portage_hostname()].nonportage = self._get_pid()
 +			self._save_db_to_fs()
 +			_MasterLockDB._acquired_master_lock = True
 +			return os.EX_OK
@@ -2381,10 +2586,12 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +			if not relinquished_phys_lock:
 +				self._phys_lock_release()
 +
-+	def release(self):
++	def release(self, asportage):
 +		self._phys_lock_acquire()
 +		try:
-+			if not self._holding_lock():
++			# we cannot rely on this test when direct is false -- it tests that the releasing process
++			# is the same as the acquiring process, which is exactly the opposite of what direct means!
++			if self._direct and not self._holding_lock():
 +				writemsg_level(colorize("BAD", "!!!") + " " + \
 +						_("Attempt detected to release master lock not held by us") + "\n",
 +		 			level=logging.ERROR, noiselevel=-1)
@@ -2397,14 +2604,67 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		finally:
 +			self._phys_lock_release()
 +
-+def acquire_master_lock(asportage=False, teh_settings=None):
-+	return _MasterLockDB(teh_settings).acquire(asportage)
++def acquire_master_lock(asportage=False, direct=None, settings=None):
++	"""
 +
-+def release_master_lock(teh_settings=None):
-+	_MasterLockDB(teh_settings).release()
++	Acquire the master lock.
++
++        @param asportage: Whether to acquire the master lock as a portage
++	process or a non-portage process.
++	
++	This parameter significantly alters the dynamics of lock acquisition.
++	asportage acquisitions either fail or succeed immediately (there may
++	be some short delay; failure will result in a return value other than
++	os.EX_OK), whereas, the first non-asportage process that attempts
++	master lock acquisition will block until all portage lock-holders
++	relinquish their locks, and then will always succeed.  Once any single
++	non-portage acquirer begins waiting for the lock, subsequent attempts
++	to acquire the lock always fail immediately, by both classes of acquirers.
++	The same is true for non-portage lock holders (that are not waiting but
++	have actually acquired the lock).
++
++	This argument is optional and defaults to False.
++	@type asportage: Boolean
++
++	@param direct: This controls how to get the pid of the lock acquirer
++	which will go into the database.  It also controls whether certain
++	sanity checks -- namely those enforcing a rule that the lock
++	acquirer be the same process as the lock releaser -- are performed.
++	If False, the pid of the lock acquirer is the pid of the parent
++	process of the current process.  If True, the pid of the lock acquirer
++	is considered to be the pid of the current process.  The reason for this
++	difference is to accomodate non-portage processes which are not
++	python-based, but simply invoke python to acquire the lock as a subprocess.
++	This parameter is optional; when not provided the default will be
++	equal to the value (which may itself be a default value) of the asportage
++	parameter.
++	@type direct: Boolean
++
++	@param settings: When provided, this object will be used to determine
++	various defaults for portage, notably including the PORTAGE_HOSTNAME
++	When omitted, the portage.settings global variable will be used instead.
++	@type portage.package.ebuild.config
++
++        @rtype: int
++        @return: returns os.EX_OK when successful, otherwise, a nonzero
++	value suitable for the caller to return as a failure exit code.
++	"""
++	if direct is None:
++		direct = asportage
++	return _MasterLockDB(direct, settings).acquire(asportage)
++
++def release_master_lock(asportage=False, direct=None, settings=None):
++	"""
++	Releases the previously acquired master lock; see acquire_master_lock
++	for a detailed description of the arguments.  This function always succeeds
++	unless an exception of some kind is raised.
++	"""
++	if direct is None:
++		direct = asportage
++	_MasterLockDB(direct, settings).release(asportage)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-23 11:11:16.050989000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-23 11:11:17.213489000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-23 11:49:21.820452400 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-23 11:49:18.476615400 -0700
 @@ -150,7 +150,7 @@
  # portage config variables and variables set directly by portage
  environ_filter += [
@@ -2437,8 +2697,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR',)
 +case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR', 'PORTAGE_HOSTNAME')
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py	2012-03-23 11:11:16.087489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py	2012-03-23 11:11:17.248489000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py	2012-03-23 11:49:21.854466000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py	2012-03-23 11:49:18.494122400 -0700
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  
@@ -2573,8 +2833,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		best_mod = best_from_dict(property_string,self.modules,self.module_priority)
  		mod = None
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-23 11:11:16.117489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-23 11:11:17.275489000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-23 11:49:21.881476800 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-23 11:49:18.508628200 -0700
 @@ -4,12 +4,13 @@
  __all__ = ['apply_permissions', 'apply_recursive_permissions',
  	'apply_secpass_permissions', 'apply_stat_permissions', 'atomic_ofstream',
@@ -2714,8 +2974,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	"""
  	Return a tuple of configuration files that needs to be updated.
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-23 11:11:16.122489000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-23 11:11:17.282989000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-23 11:49:21.886478800 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-23 11:49:18.512129600 -0700
 @@ -104,7 +104,7 @@
  	fns = templist
  	del templist
