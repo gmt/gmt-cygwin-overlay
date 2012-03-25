@@ -738,8 +738,16 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  to adjust the io priority of portage and it's subprocesses. The command
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-25 01:02:59.653685500 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-25 01:02:57.628780600 -0700
-@@ -1455,7 +1455,7 @@
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-25 05:57:59.691816500 -0700
+@@ -25,6 +25,7 @@
+ 	'portage.news:count_unread_news,display_news_notifications',
+ )
+ 
++from portage.localization import _
+ from portage import os
+ from portage import shutil
+ from portage import subprocess_getstatusoutput
+@@ -1455,7 +1456,7 @@
  		myvars = list(settings)
  	else:
  		myvars = ['GENTOO_MIRRORS', 'CONFIG_PROTECT', 'CONFIG_PROTECT_MASK',
@@ -748,7 +756,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		          'PORTDIR_OVERLAY', 'PORTAGE_BUNZIP2_COMMAND',
  		          'PORTAGE_BZIP2_COMMAND',
  		          'USE', 'CHOST', 'CFLAGS', 'CXXFLAGS',
-@@ -2532,6 +2532,9 @@
+@@ -2532,6 +2533,9 @@
  	chk_updated_cfg_files(settings["EROOT"],
  		portage.util.shlex_split(settings.get("CONFIG_PROTECT", "")))
  
@@ -758,29 +766,57 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	if myaction != "metadata":
  		postsync = os.path.join(settings["PORTAGE_CONFIGROOT"],
  			portage.USER_CONFIG_PATH, "bin", "post_sync")
-@@ -3072,6 +3075,22 @@
- 				+ " section of the " + bold("emerge"))
- 		print(" "+yellow("*")+" man page to learn how to update config files.")
+@@ -3051,26 +3055,43 @@
+ 		portage.util.find_updated_config_files(target_root, config_protect))
  
+ 	for x in result:
+-		writemsg_level("\n %s " % (colorize("WARN", "* IMPORTANT:"),),
++		writemsg_level("\n %s " % (colorize("WARN", "* " + _("IMPORTANT:"))),
+ 			level=logging.INFO, noiselevel=-1)
+ 		if not x[1]: # it's a protected file
+-			writemsg_level("config file '%s' needs updating.\n" % x[0],
++			writemsg_level( _("config file '%s' needs updating.\n") % x[0],
+ 				level=logging.INFO, noiselevel=-1)
+ 		else: # it's a protected dir
+ 			if len(x[1]) == 1:
+ 				head, tail = os.path.split(x[1][0])
+ 				tail = tail[len("._cfg0000_"):]
+ 				fpath = os.path.join(head, tail)
+-				writemsg_level("config file '%s' needs updating.\n" % fpath,
++				writemsg_level(_("config file '%s' needs updating.\n") % fpath,
+ 					level=logging.INFO, noiselevel=-1)
+ 			else:
+-				writemsg_level("%d config files in '%s' need updating.\n" % \
++				writemsg_level( _("%d config files in '%s' need updating.\n") % \
+ 					(len(x[1]), x[0]), level=logging.INFO, noiselevel=-1)
+ 
+ 	if result:
+-		print(" "+yellow("*")+" See the "+colorize("INFORM","CONFIGURATION FILES")\
+-				+ " section of the " + bold("emerge"))
+-		print(" "+yellow("*")+" man page to learn how to update config files.")
++		print(" "+yellow("*")+ " See the "+colorize("INFORM", _("CONFIGURATION FILES"))\
++				+ " " + _("section of the") + " " + bold("emerge"))
++		print(" "+yellow("*")+ " " + _("man page to learn how to update config files."))
++
 +def chk_updated_cygdll_files(eroot, cygdll_protect):
-+	result = portage.util.find_updated_cygdll_files(eroot, cygdll_protect)
++	result = portage.util.cygdll_protection.find_updated_cygdll_files(eroot, cygdll_protect)
 +
 +	for x in result:
-+		writemsg_level("\n %s " % (colorize("WARN", "* IMPORTANT:"),),
++		writemsg_level("\n %s " % (colorize("WARN", "* " + _("IMPORTANT:"))),
 +			level=logging.INFO, noiselevel=-1)
-+		writemsg_level("file '%s' is in cygwin-dll-protection-limbo.\n" % x,
++		writemsg_level( _("file '%s' is in cygwin-dll-protection-limbo.\n") % x,
 +			level=logging.INFO, noiselevel=-1)
 +	if result:
-+		print(" "+yellow("*")+" Run '" + bold("cygdll-update") + \
-+					"' to fully merge files held in CYGDLL_PROTECT 'limbo'")
-+		print(" "+yellow("*")+" To learn why you suffer" + \
-+					" from this affliction, read the")
-+		print(" "+yellow("*")+" " + colorize("INFORM","CYGWIN DLL PROTECTION") + \
-+					" section of the " + bold("emerge") + " man page.")
-+
++		print(" "+yellow("*")+" " + _("Run") + " '" + bold("cygdll-update") + \
++					"' " + _("to fully merge files held in 'cygwin-dll-protection-limbo'"))
++		print(" "+yellow("*")+" " + _("To learn why you suffer"
++					" from this affliction, read the"))
++		print(" "+yellow("*")+" " + colorize("INFORM", _("CYGWIN DLL PROTECTION")) + \
++					" " + _("section of the") + " " + bold("emerge") + " " + \
++					_("man page") + ".")
+ 
  def display_news_notification(root_config, myopts):
  	if "news" not in root_config.settings.features:
- 		return
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-25 01:02:59.669188600 -0700
 +++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-25 01:02:57.638782600 -0700
@@ -1729,14 +1765,12 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				"BUILD_TIME"         : "",
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-25 01:02:59.699694700 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-25 03:06:56.213349300 -0700
-@@ -23,7 +23,8 @@
- 	'portage.update:fixdbentries',
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-25 06:18:25.616952500 -0700
+@@ -24,6 +24,7 @@
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
  		'writemsg,writemsg_level,write_atomic,atomic_ofstream,writedict,' + \
--		'grabdict,normalize_path,new_protect_filename',
-+		'grabdict,normalize_path,new_protect_filename,cygdllprotect_filename',
-+	'portage.util.cygdll_protection:CygwinDLLProtection',
+ 		'grabdict,normalize_path,new_protect_filename',
++	'portage.util.cygdll_protection:CygwinDLLProtection,cygdllprotect_filename',
  	'portage.util.digraph:digraph',
  	'portage.util.env_update:env_update',
  	'portage.util.listdir:dircache,listdir',
@@ -1749,60 +1783,52 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	PORTAGE_PACKAGE_ATOM, PRIVATE_PATH, VDB_PATH, EPREFIX, EPREFIX_LSTRIP, BASH_BINARY
  from portage.const import _ENABLE_DYN_LINK_MAP, _ENABLE_PRESERVE_LIBS
  from portage.dbapi import dbapi
-@@ -151,6 +152,7 @@
- 		self._lock_count = 0
- 
- 		self._conf_mem_file = self._eroot + CONFIG_MEMORY_FILE
-+		self._cygdll_mem_file = self._eroot + CYGDLL_MEMORY_FILE
- 		self._fs_lock_obj = None
- 		self._fs_lock_count = 0
- 
-@@ -175,6 +177,11 @@
+@@ -175,6 +176,13 @@
  				os.path.join(self._eroot, PRIVATE_PATH,
  				"preserved_libs_registry"))
  
 +		eprefix = EPREFIX
 +		if settings["EPREFIX"]:
 +			eprefix = settings["EPREFIX"]
-+		self._cygdllprotect = CygwinDLLProtection(self._eroot, eprefix)
++
++		self._cygdllprotect = CygwinDLLProtection(self._eroot, eprefix,
++			portage.util.shlex_split(self.settings.get("CYGDLL_PROTECT", "")))
 +
  		self._linkmap = None
  		if _ENABLE_DYN_LINK_MAP:
  			chost = self.settings.get('CHOST')
-@@ -1485,13 +1492,18 @@
- 			portage.util.shlex_split(
- 				self.settings.get("CONFIG_PROTECT", "")),
- 			portage.util.shlex_split(
--				self.settings.get("CONFIG_PROTECT_MASK", "")))
-+				self.settings.get("CONFIG_PROTECT_MASK", "")),
-+			portage.util.shlex_split(
-+				self.settings.get("CYGDLL_PROTECT", "")))
+@@ -1479,7 +1487,6 @@
+ 			self._hash_key == other._hash_key
  
- 		return self._protect_obj
- 
+ 	def _get_protect_obj(self):
+-
+ 		if self._protect_obj is None:
+ 			self._protect_obj = ConfigProtect(self._eroot,
+ 			portage.util.shlex_split(
+@@ -1492,6 +1499,9 @@
  	def isprotected(self, obj):
  		return self._get_protect_obj().isprotected(obj)
  
-+	def iscygdllprotected(self, obj):
-+		return self._get_protect_obj().iscygdllprotected(obj)
++	def _is_cygdll_protected(self, obj):
++		return self.vartree.dbapi._cygdllprotect.is_cygdll_protected(obj)
 +
  	def updateprotect(self):
  		self._get_protect_obj().updateprotect()
  
-@@ -2040,9 +2052,11 @@
+@@ -2040,9 +2050,11 @@
  				others_in_slot.append(dblink(self.cat, catsplit(cur_cpv)[1],
  					settings=self.settings,
  					vartree=self.vartree, treetype="vartree", pipe=self._pipe))
 -
  		cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
-+		cygdlldict = grabdict(self.vartree.dbapi._cygdll_mem_file)
++		cygdlldict = grabdict(self.vartree.dbapi._cygdllprotect.limbodb_file)
 +
  		stale_confmem = []
 +		stale_cygdllmem = []
  		protected_symlinks = {}
  
  		unmerge_orphans = "unmerge-orphans" in self.settings.features
-@@ -2203,8 +2217,11 @@
+@@ -2203,8 +2215,11 @@
  					if is_owned:
  						show_unmerge("---", unmerge_desc["replaced"], file_type, obj)
  						continue
@@ -1816,7 +1842,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				# next line includes a tweak to protect modules from being unmerged,
  				# but we don't protect modules from being overwritten if they are
  				# upgraded. We effectively only want one half of the config protection
-@@ -2371,6 +2388,12 @@
+@@ -2371,6 +2386,12 @@
  				del cfgfiledict[filename]
  			writedict(cfgfiledict, self.vartree.dbapi._conf_mem_file)
  
@@ -1824,20 +1850,20 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		if stale_cygdllmem:
 +			for filename in stale_cygdllmem:
 +				del cygdlldict[filename]
-+			writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
++			writedict(cygdlldict, self.vartree.dbapi._cygdllprotect.limbodb_file)
 +
  		#remove self from vartree database so that our own virtual gets zapped if we're the last node
  		self.vartree.zap(self.mycpv)
  
-@@ -3830,6 +3853,7 @@
+@@ -3830,6 +3851,7 @@
  		self.vartree.dbapi._fs_lock()
  		try:
  			cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
-+			cygdlldict = grabdict(self.vartree.dbapi._cygdll_mem_file)
++			cygdlldict = grabdict(self.vartree.dbapi._cygdllprotect.limbodb_file)
  			if "NOCONFMEM" in self.settings:
  				cfgfiledict["IGNORE"]=1
  			else:
-@@ -3844,7 +3868,7 @@
+@@ -3844,7 +3866,7 @@
  					cfgfiledict["IGNORE"] = 1
  					break
  
@@ -1846,7 +1872,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			if rval != os.EX_OK:
  				return rval
  		finally:
-@@ -4091,7 +4115,7 @@
+@@ -4091,7 +4113,7 @@
  
  		return backup_p
  
@@ -1855,7 +1881,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  
  		cfgfiledict_orig = cfgfiledict.copy()
  
-@@ -4118,7 +4142,7 @@
+@@ -4118,7 +4140,7 @@
  		# we do a first merge; this will recurse through all files in our srcroot but also build up a
  		# "second hand" of symlinks to merge later
  		if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -1864,7 +1890,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			return 1
  
  		# now, it's time for dealing our second hand; we'll loop until we can't merge anymore.	The rest are
-@@ -4130,7 +4154,7 @@
+@@ -4130,7 +4152,7 @@
  
  			thirdhand = []
  			if self.mergeme(srcroot, destroot, outfile, thirdhand,
@@ -1873,7 +1899,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  			#swap hands
-@@ -4144,7 +4168,7 @@
+@@ -4144,7 +4166,7 @@
  		if len(secondhand):
  			# force merge of remaining symlinks (broken or circular; oh well)
  			if self.mergeme(srcroot, destroot, outfile, None,
@@ -1882,7 +1908,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  		#restore umask
-@@ -4165,7 +4189,7 @@
+@@ -4165,7 +4187,7 @@
  
  		return os.EX_OK
  
@@ -1891,16 +1917,16 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		"""
  		
  		This function handles actual merging of the package contents to the livefs.
-@@ -4186,6 +4210,8 @@
+@@ -4186,6 +4208,8 @@
  		@type cfgfiledict: Dictionary
  		@param thismtime: The current time (typically long(time.time())
  		@type thismtime: Long
-+		@param cygdlldict: { File:md5 } mapping for cygdll_protected files
++		@param cygdlldict: { File: [ md5 ] } mappings for cygdll_protected files
 +		@type cygdlldict: Dictionary
  		@rtype: None or Boolean
  		@returns:
  		1. True on failure
-@@ -4203,6 +4229,8 @@
+@@ -4203,6 +4227,8 @@
  		destroot = normalize_path(destroot).rstrip(sep) + sep
  		calc_prelink = "prelink-checksums" in self.settings.features
  
@@ -1909,7 +1935,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		protect_if_modified = \
  			"config-protect-if-modified" in self.settings.features and \
  			self._installed_instance is not None
-@@ -4415,7 +4443,7 @@
+@@ -4415,7 +4441,7 @@
  				outfile.write("dir "+myrealdest+"\n")
  				# recurse and merge this directory
  				if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -1918,15 +1944,15 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  					return 1
  			elif stat.S_ISREG(mymode):
  				# we are merging a regular file
-@@ -4426,6 +4454,7 @@
+@@ -4426,6 +4452,7 @@
  				zing = "!!!"
  				mymtime = None
  				protected = self.isprotected(mydest)
-+				cygdllprotected = self.iscygdllprotected(mydest)
++				cygdllprotected = self._is_cygdll_protected(mydest)
  				if mydmode != None:
  					# destination file exists
  					
-@@ -4456,8 +4485,8 @@
+@@ -4456,8 +4483,8 @@
  									inst_info = self._installed_instance.getcontents()[contents_key]
  									if inst_info[0] == "obj" and inst_info[2] == destmd5:
  										protected = False
@@ -1936,7 +1962,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  							# we have a protection path; enable config file management.
  							cfgprot = 0
  							if mymd5 == destmd5:
-@@ -4486,6 +4515,49 @@
+@@ -4486,6 +4513,49 @@
  
  							if cfgprot:
  								mydest = new_protect_filename(mydest, newmd5=mymd5)
@@ -1979,10 +2005,10 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +				# our changes now, *before* anything gets merged to the fs)
 +				if cygdlldict != orig_cygdlldict:
 +					try:
-+						writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
++						writedict(cygdlldict, self.vartree.dbapi._cygdllprotect.limbodb_file)
 +					except InvalidLocation:
 +						self.settings._init_dirs()
-+						writedict(cygdlldict, self.vartree.dbapi._cygdll_mem_file)
++						writedict(cygdlldict, self.vartree.dbapi._cygdllprotect.limbodb_file)
  
  				# whether config protection or not, we merge the new file the
  				# same way.  Unless moveme=0 (blocking directory)
@@ -2985,7 +3011,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		mod = None
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-25 01:02:59.817718300 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-25 01:02:57.700795000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-25 04:48:52.568349300 -0700
 @@ -4,12 +4,13 @@
  __all__ = ['apply_permissions', 'apply_recursive_permissions',
  	'apply_secpass_permissions', 'apply_stat_permissions', 'atomic_ofstream',
@@ -2996,10 +3022,10 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -	'new_protect_filename', 'normalize_path', 'pickle_read', 'stack_dictlist',
 -	'stack_dicts', 'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
 -	'write_atomic', 'writedict', 'writemsg', 'writemsg_level', 'writemsg_stdout']
-+	'find_updated_config_files', 'find_updated_cygdll_files', 'getconfig',
++	'find_updated_config_files', 'getconfig',
 +	'getlibpaths', 'grabdict', 'grabdict_package', 'grabfile',
 +	'grabfile_package', 'grablines', 'initialize_logger', 'LazyItemsDict',
-+	'map_dictlist_vals', 'cygdllprotect_filename', 'new_protect_filename',
++	'map_dictlist_vals', 'new_protect_filename',
 +	'normalize_path', 'pickle_read', 'stack_dictlist', 'stack_dicts',
 +	'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
 +	'write_atomic', 'writedict', 'writemsg', 'writemsg_level','writemsg_stdout']
@@ -3024,61 +3050,143 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	"""
  	newdict={}
  	for x in grablines(myfilename, recursive):
-@@ -1416,15 +1417,16 @@
- 			return result
- 
- class ConfigProtect(object):
--	def __init__(self, myroot, protect_list, mask_list):
-+	def __init__(self, myroot, protect_list, mask_list, cygdllprotect_list = []):
- 		self.myroot = myroot
- 		self.protect_list = protect_list
- 		self.mask_list = mask_list
-+		self.cygdllprotect_list = cygdllprotect_list
+@@ -1423,8 +1424,8 @@
  		self.updateprotect()
  
  	def updateprotect(self):
 -		"""Update internal state for isprotected() calls.  Nonexistent paths
 -		are ignored."""
-+		"""Update internal state for isprotected() and iscygdllprotected() calls.
++		"""Update internal state for isprotected() calls.
 +		Nonexistent paths are ignored."""
  
  		os = _os_merge
  
-@@ -1457,6 +1459,18 @@
+@@ -1457,7 +1458,7 @@
  			except OSError:
  				# If it doesn't exist, there's no need to mask it.
  				pass
+-
 +		
-+		self.cygdllprotect = []
-+		for x in self.cygdllprotect_list:
+ 	def isprotected(self, obj):
+ 		"""Returns True if obj is protected, False otherwise.  The caller must
+ 		ensure that obj is normalized with a single leading slash.  A trailing
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/cygdll_protection.py prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/cygdll_protection.py	1969-12-31 16:00:00.000000000 -0800
++++ prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py	2012-03-25 06:27:41.774161700 -0700
+@@ -0,0 +1,151 @@
++# Copyright 2012 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++
++import errno
++import logging
++import stat
++import sys
++
++import portage
++from portage import os, normalize_path
++from portage.const import CYGDLL_MEMORY_FILE
++from portage.localization import _
++portage.proxy.lazyimport.lazyimport(globals(),
++	'portage.exception:IncorrectParameter',
++	'portage.util:grabdict,writedict')
++
++if sys.hexversion >= 0x3000000:
++	basestring = str
++
++__all__ = [ 'CygwinDLLProtection', 'cygdllprotect_filename', 'find_updated_cygdll_files' ]
++
++class CygwinDLLProtection(object):
++	"""
++	This class manages the Cygwin DLL protection feature
++	"""
++	__slots__ = ['_cygdll_memory_file_path', '_eprefix', '_cygdllprotect_list']
++	def __init__(self, eroot, eprefix, cygdll_protect):
++		"""
++		Constructor for CygwinDLLProtection object
++		@param eroot: A portage EROOT where we store our database
++		@type eroot: String
++		@param eprefix: EPREFIX value;is prepended to CyginDllProtection
++		database entries (the CygwinDLLProtection API prefers to think in
++		terms of un-prefixed file paths such as '/bin/bash'.  Should begin
++		with a slash; a trailing slash is optional.
++		@type eprefix: String
++		@param cygdll_protect: A list of cygwin dll protection specifiers
++		as are to be found in the CYGDLL_PROTECT portage variable (no prefixes).
++		@type cygdll_protect: List
++		"""
++		if not eprefix is basestring and eroot is basestring:
++			raise IncorrectParameter(_("Parameter is not a string"))
++		if len(eprefix) == 0:
++			raise IncorrectParameter(_("eprefix parameter cannot be empty"))
++		if len(eroot) == 0:
++			raise IncorrectParameter(_("eroot paramater cannot be empty"))
++		if not eroot[0] == os.sep:
++			raise IncorrectParameter(_("eroot must start with '%s'") % os.sep)
++		if not eprefix[0] == os.sep:
++			raise IncorrectParameter(_("eprefix must start with '%s'") % os.sep)
++		eprefix = eprefix.rstrip(os.sep)
++		eroot = eroot.rstrip(os.sep)
++		self._cygdll_memory_file_path = os.path.join(eroot, CYGDLL_MEMORY_FILE)
++		self._eprefix = eprefix
++		self._init_cygdllprotect_list(cygdll_protect)
++
++	def _init_cygdllprotect_list(self, cygdll_protect):
++		self._cygdllprotect_list = []
++		for x in cygdll_protect:
 +			ppath = normalize_path(
-+				os.path.join(self.myroot, x.lstrip(os.path.sep)))
++				os.path.join(self._eprefix, x.lstrip(os.path.sep)))
 +			try:
 +				if stat.S_ISREG(os.stat(ppath).st_mode):
-+					self.cygdllprotect.append(ppath)
++					self._cygdllprotect_list.append(ppath)
 +			except OSError:
 +				# if it doesn't exist (or it exists but is not a regular file),
 +				# there's no need to protect it.
 +				pass
- 
- 	def isprotected(self, obj):
- 		"""Returns True if obj is protected, False otherwise.  The caller must
-@@ -1492,6 +1506,11 @@
- 						masked = len(pmpath)
- 		return protected > masked
- 
-+	def iscygdllprotected(self, obj):
++
++
++	def is_cygdll_protected(self, filename):
 +		"""Returns True if obj is cygdll_protected, False otherwise.  The caller must
 +		ensure that obj is normalized with a single leading slash."""
-+		return (obj in self.cygdllprotect)
++		return (filename in self._cygdllprotect_list)
 +
- def new_protect_filename(mydest, newmd5=None, force=False):
- 	"""Resolves a config-protect filename for merging, optionally
- 	using the last filename if the md5 matches. If force is True,
-@@ -1544,6 +1563,48 @@
- 				return old_pfile
- 	return new_pfile
- 
++	def limbodb_list(self):
++		"""
++		Creates a list of (filename, md5) tuples corresponding to the current
++		contents of the cygdll protection database.  Although the filenames in the
++		physical database begin with EPREFIX, this API returns them without it,
++		starting with an file path separator (typically, '/')
++		@returns: A list of (filename, md5) tuples
++		@rtype: List
++		"""
++		filesdict = grabdict(self._cygdll_memory_file_path)
++		result = [ ( os.sep + os.path.relpath(filename, self._eprefix), f_md5[0]) \
++				for (filename, f_md5) in filesdict.iteritems() ]
++		return result
++
++	def limbodb_drop(self, file_list):
++		"""
++		Accepts a list of un-prefixed file names beginning with '/' and removes any
++		matching entries from the cygwin dll protection in-limbo files database.
++		are remove
++		@param: file_list
++		@type: List
++		"""
++		oldfilesdict = self.limbodb_list()
++		newfilesdict = dict([ (filename, filemd5) \
++			for (filename, filemd5) in oldfilesdict \
++			if filename not in file_list ])
++		if newfilesdict != oldfilesdict:
++			prefixed_dict = dict([ (os.path.join(self._eprefix, os.path.relpath(filename, os.sep)), [f_md5]) \
++						for (filename, f_md5) in newfilesdict.iteritems() ])
++			writedict(prefixed_dict, self._cygdll_memory_file_path)
++			return os.EX_OK
++		else:
++			return 1
++
++	@property
++	def limbodb_file(self):
++		return self._cygdll_memory_file_path
++
 +def cygdllprotect_filename(mydest, force=False):
 +	"""
 +	Resolves a cygdll-protect filename for merging.  If force is provided
@@ -3088,8 +3196,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	pending changes, so no numbers are used.  Currently the protection
 +	filename format simply prepends "_cygdll_protect_" to the original.
 +	"""
-+	
-+	os = _os_merge
 +
 +	old_pfile = False
 +
@@ -3108,8 +3214,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	everything in the eprefix + '/var/lib/portage/cygdll' database.  Returns a regular
 +	list (unlike, confusingly, find_updated_config_files) of fully-qualified paths.
 +	"""
-+	os = _os_merge
-+
 +	candidates = [ os.path.join(target_root, os.path.relpath(x, os.sep)) \
 +		       for x in cygdll_protect ]
 +
@@ -3121,95 +3225,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +				for x in candidates] \
 +		if os.path.exists(p)]
 +
- def find_updated_config_files(target_root, config_protect):
- 	"""
- 	Return a tuple of configuration files that needs to be updated.
-diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/cygdll_protection.py prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/cygdll_protection.py	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py	2012-03-25 03:49:03.409849300 -0700
-@@ -0,0 +1,82 @@
-+# Copyright 2012 Gentoo Foundation
-+# Distributed under the terms of the GNU General Public License v2
-+
-+import errno
-+import logging
-+import sys
-+
-+from portage import os
-+from portage.const import CYGDLL_MEMORY_FILE
-+from portage.exception import IncorrectParameter
-+from portage.localization import _
-+from portage.util import grabdict, writedict
-+
-+if sys.hexversion >= 0x3000000:
-+	basestring = str
-+
-+__all__ = [ 'cygdll_limbo_files_fn', 'resolve_cygdll_limbo_fn' ]
-+
-+class CygwinDLLProtection(object):
-+	"""
-+	This class manages the Cygwin DLL protection feature
-+	"""
-+	__slots__ = ['_cygdll_memory_file_path', '_eprefix']
-+	def __init__(self, eroot, eprefix):
-+		"""
-+		Constructor for CygwinDLLProtection object
-+		@param eroot: A portage EROOT where we store our database
-+		@type eroot: String
-+		@param eprefix: EPREFIX value;is prepended to CyginDllProtection
-+		database entries (the CygwinDLLProtection API prefers to think in
-+		terms of un-prefixed file paths such as '/bin/bash'.  Should begin
-+		with a slash; a trailing slash is optional.
-+		@type eprefix: String
-+		"""
-+		if not eprefix is basestring and eroot is basestring:
-+			raise IncorrectParameter("Parameter is not a string")
-+		if len(eprefix) == 0:
-+			raise IncorrectParameter("eprefix parameter cannot be empty")
-+		if len(eroot) == 0:
-+			raise IncorrectParameter("eroot paramater cannot be empty")
-+		if not eroot[0] == '/':
-+			raise IncorrectParameter("eroot must start with '/'")
-+		if not eprefix[0] == '/':
-+			raise IncorrectParameter("eprefix must start with '/'")
-+		eprefix = eprefix.rstrip('/')
-+		eroot = eroot.rstrip('/')
-+		self._cygdll_memory_file_path = os.path.join(eroot, CYGDLL_MEMORY_FILE)
-+		self._eprefix = eprefix
-+
-+	def limbodb_list(self):
-+		"""
-+		Creates a list of (filename, md5) tuples corresponding to the current
-+		contents of the cygdll protection database.  Although the filenames in the
-+		physical database begin with EPREFIX, this API returns them without it,
-+		starting with a '/'.
-+		@returns: A list of (filename, md5) tuples
-+		@rtype: List
-+		"""
-+		filesdict = grabdict(self._cygdll_memory_file_path)
-+		result = [ ( '/' + os.path.relpath(filename, self._eprefix), f_md5[0]) \
-+				for (filename, f_md5) in filesdict.iteritems() ]
-+		return result
-+
-+	def limbodb_drop(self, file_list):
-+		"""
-+		Accepts a list of un-prefixed file names beginning with '/' and removes any
-+		matching entries from the cygwin dll protection in-limbo files database.
-+		are remove
-+		@param: file_list
-+		@type: List
-+		"""
-+		oldfilesdict = self.limbodb_list()
-+		newfilesdict = dict([ (filename, filemd5) \
-+			for (filename, filemd5) in oldfilesdict \
-+			if filename not in file_list ])
-+		if newfilesdict != oldfilesdict:
-+			prefixed_dict = dict([ (os.path.join(self._eprefix, os.path.relpath(filename, '/')), [f_md5]) \
-+						for (filename, f_md5) in newfilesdict.iteritems() ])
-+			writedict(prefixed_dict, self._cygdll_memory_file_path)
-+			return os.EX_OK
-+		else:
-+			return 1
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-25 01:02:59.829720700 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-25 01:02:57.705295900 -0700
