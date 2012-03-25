@@ -1,6 +1,6 @@
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/Makefile.in prefix-portage-2.2.01.20271/bin/Makefile.in
---- prefix-portage-2.2.01.20271.orig/bin/Makefile.in	2012-03-24 15:36:07.401200000 -0700
-+++ prefix-portage-2.2.01.20271/bin/Makefile.in	2012-03-24 15:36:05.388800000 -0700
+--- prefix-portage-2.2.01.20271.orig/bin/Makefile.in	2012-03-25 01:02:59.571169000 -0700
++++ prefix-portage-2.2.01.20271/bin/Makefile.in	2012-03-25 01:02:57.593273500 -0700
 @@ -26,12 +26,14 @@
  
  usr_sbinprogs = \
@@ -18,7 +18,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/cygdll-update prefix-portage-2.2.01.20271/bin/cygdll-update
 --- prefix-portage-2.2.01.20271.orig/bin/cygdll-update	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/bin/cygdll-update	2012-03-25 00:10:48.018849300 -0700
++++ prefix-portage-2.2.01.20271/bin/cygdll-update	2012-03-25 01:02:57.595774000 -0700
 @@ -0,0 +1,167 @@
 +#!@PORTAGE_BASH@
 +# Copyright 1999-2012 Gentoo Foundation
@@ -189,7 +189,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +# vim: syntax=sh
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/portage_master_lock prefix-portage-2.2.01.20271/bin/portage_master_lock
 --- prefix-portage-2.2.01.20271.orig/bin/portage_master_lock	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/bin/portage_master_lock	2012-03-24 15:36:05.388800000 -0700
++++ prefix-portage-2.2.01.20271/bin/portage_master_lock	2012-03-25 01:02:57.598274500 -0700
 @@ -0,0 +1,191 @@
 +#!@PREFIX_PORTAGE_PYTHON@ -O
 +# Copyright 1999-2012 Gentoo Foundation
@@ -383,8 +383,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +#-----------------------------------------------------------------------------
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/portageq prefix-portage-2.2.01.20271/bin/portageq
---- prefix-portage-2.2.01.20271.orig/bin/portageq	2012-02-09 00:02:33.000000000 -0800
-+++ prefix-portage-2.2.01.20271/bin/portageq	2012-03-25 00:40:21.314849300 -0700
+--- prefix-portage-2.2.01.20271.orig/bin/portageq	2012-03-25 01:02:59.589672700 -0700
++++ prefix-portage-2.2.01.20271/bin/portageq	2012-03-25 03:20:16.803849300 -0700
 @@ -757,6 +757,57 @@
  	return rValue
  list_preserved_libs.uses_root = True
@@ -410,7 +410,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	elif len(argv) != 1:
 +		print("ERROR: wrong number of arguments")
 +		sys.exit(2)
-+	myfiles = portage.db[argv[0]]["vartree"].dbapi._cygdll_limbo_files()
++	myfiles = portage.db[argv[0]]["vartree"].dbapi._cygdllprotect.limbodb_list()
 +	msg = [ "%s\n" % ("%s %s" % (f, f_md5) if printmd5 else f) \
 +		for (f, f_md5) in myfiles ]
 +	if msg:
@@ -437,7 +437,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	if len(argv) < 2:
 +		print("ERROR: wrong number of arguments")
 +		sys.exit(2)
-+	return portage.db[argv[0]]["vartree"].dbapi._resolve_cygdll_limbo(argv[1:])
++	return portage.db[argv[0]]["vartree"].dbapi._cygdllprotect.limbodb_drop(argv[1:])
 +cygdll_protect_clear.uses_root = True
 +
  #-----------------------------------------------------------------------------
@@ -449,8 +449,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  #-----------------------------------------------------------------------------
 +# vim: syntax=python
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.20271/cnf/make.conf
---- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2012-03-24 15:36:07.416800000 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-24 15:36:05.388800000 -0700
+--- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2012-03-25 01:02:59.597674300 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-25 01:02:57.608276500 -0700
 @@ -356,3 +356,25 @@
  #                               ${PACKAGE} - see description of PORTAGE_ELOG_COMMAND
  #                               ${HOST} - FQDN of the host portage is running on
@@ -478,8 +478,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +#                   make.globals.
 +#PORTAGE_HOSTNAME=""
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
---- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-24 15:36:07.416800000 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-24 15:36:05.388800000 -0700
+--- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-25 01:02:59.601675100 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-25 01:02:57.610276900 -0700
 @@ -8,7 +8,8 @@
  # **** CHANGES TO make.conf *OVERRIDE* THIS FILE ****
  # ***************************************************
@@ -520,8 +520,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  DEFAULT_PATH="@DEFAULT_PATH@"
  # Any extra PATHs to add to the ebuild environment's PATH (if any)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/Makefile.am prefix-portage-2.2.01.20271/man/Makefile.am
---- prefix-portage-2.2.01.20271.orig/man/Makefile.am	2012-03-24 15:36:07.416800000 -0700
-+++ prefix-portage-2.2.01.20271/man/Makefile.am	2012-03-24 15:36:05.388800000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/Makefile.am	2012-03-25 01:02:59.603675500 -0700
++++ prefix-portage-2.2.01.20271/man/Makefile.am	2012-03-25 01:02:57.611777200 -0700
 @@ -2,6 +2,7 @@
  
  man_MANS = \
@@ -531,8 +531,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	ebuild.1 \
  	ebuild.5 \
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/Makefile.in prefix-portage-2.2.01.20271/man/Makefile.in
---- prefix-portage-2.2.01.20271.orig/man/Makefile.in	2012-03-24 15:36:07.432400000 -0700
-+++ prefix-portage-2.2.01.20271/man/Makefile.in	2012-03-24 15:36:05.388800000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/Makefile.in	2012-03-25 01:02:59.609676700 -0700
++++ prefix-portage-2.2.01.20271/man/Makefile.in	2012-03-25 01:02:57.614777800 -0700
 @@ -194,6 +194,7 @@
  top_srcdir = @top_srcdir@
  man_MANS = \
@@ -543,7 +543,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	ebuild.5 \
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/cygdll-update.1 prefix-portage-2.2.01.20271/man/cygdll-update.1
 --- prefix-portage-2.2.01.20271.orig/man/cygdll-update.1	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/man/cygdll-update.1	2012-03-24 15:36:05.404400000 -0700
++++ prefix-portage-2.2.01.20271/man/cygdll-update.1	2012-03-25 01:02:57.616778200 -0700
 @@ -0,0 +1,52 @@
 +.TH "CYGDLL-UPDATE" "1" "Mar 2012" "Portage 2.2.01.20271-prefix" "Portage"
 +.SH NAME
@@ -598,8 +598,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +.SH "SEE ALSO"
 +.BR make.conf (5)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
---- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-24 15:36:07.432400000 -0700
-+++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-24 15:36:05.404400000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-25 01:02:59.618678500 -0700
++++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-25 01:02:57.620779000 -0700
 @@ -1010,6 +1010,88 @@
  offset by Portage before they are considered.  Hence, these paths never
  contain the offset prefix, and the variables can be defined in
@@ -690,8 +690,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  Please report any bugs you encounter through our website:
  .LP
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01.20271/man/make.conf.5
---- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-24 15:36:07.432400000 -0700
-+++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-24 15:36:05.404400000 -0700
+--- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-25 01:02:59.624179600 -0700
++++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-25 01:02:57.624279700 -0700
 @@ -151,6 +151,14 @@
  This variable is passed by the \fIebuild scripts\fR to the \fIconfigure\fR
  as \fI\-\-target=${CTARGET}\fR only if it is defined.
@@ -737,8 +737,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  This variable should contain a command for portage to call in order
  to adjust the io priority of portage and it's subprocesses. The command
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-24 15:36:07.448000000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-24 15:36:05.404400000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-25 01:02:59.653685500 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-25 01:02:57.628780600 -0700
 @@ -1455,7 +1455,7 @@
  		myvars = list(settings)
  	else:
@@ -782,8 +782,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	if "news" not in root_config.settings.features:
  		return
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
---- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-24 15:36:07.463600000 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-24 15:36:05.420000000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-25 01:02:59.669188600 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-25 01:02:57.638782600 -0700
 @@ -30,6 +30,7 @@
  import portage.exception
  from portage.const import EPREFIX, EPREFIX_LSTRIP
@@ -1645,8 +1645,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		if acquired_portage_master_lock:
 +			release_master_lock(True, settings=settings)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-24 15:36:07.463600000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-24 15:36:05.420000000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-25 01:02:59.676190000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-25 01:02:57.641783200 -0700
 @@ -99,7 +99,8 @@
  		'portage.util:atomic_ofstream,apply_secpass_permissions,' + \
  			'apply_recursive_permissions,dump_traceback,getconfig,' + \
@@ -1667,8 +1667,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		EPREFIX, EPREFIX_LSTRIP, rootuid
  
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/const.py prefix-portage-2.2.01.20271/pym/portage/const.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-24 15:36:07.463600000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-24 18:48:08.368652000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/const.py	2012-03-25 01:02:59.681691100 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/const.py	2012-03-25 01:02:57.644783800 -0700
 @@ -55,6 +55,8 @@
  WORLD_FILE               = PRIVATE_PATH + "/world"
  WORLD_SETS_FILE          = PRIVATE_PATH + "/world_sets"
@@ -1703,8 +1703,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  if not _ENABLE_SET_CONFIG:
  	WORLD_SETS_FILE = '/dev/null'
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-24 15:36:07.479200000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-24 15:36:05.420000000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-25 01:02:59.684691700 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-25 01:02:57.646784200 -0700
 @@ -213,7 +213,8 @@
  			else:
  				rval = mylink.merge(self.pkgloc, self.infloc,
@@ -1716,8 +1716,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			raise
  		except:
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-24 15:36:07.479200000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-24 15:36:05.435600000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-25 01:02:59.690192800 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-25 01:02:57.649784800 -0700
 @@ -299,7 +299,7 @@
  			self._pkgindex_header_keys = set([
  				"ACCEPT_KEYWORDS", "ACCEPT_LICENSE",
@@ -1728,15 +1728,15 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			self._pkgindex_default_pkg_data = {
  				"BUILD_TIME"         : "",
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-24 15:36:07.510400000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-24 20:55:47.168849300 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-25 01:02:59.699694700 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-25 03:06:56.213349300 -0700
 @@ -23,7 +23,8 @@
  	'portage.update:fixdbentries',
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
  		'writemsg,writemsg_level,write_atomic,atomic_ofstream,writedict,' + \
 -		'grabdict,normalize_path,new_protect_filename',
 +		'grabdict,normalize_path,new_protect_filename,cygdllprotect_filename',
-+	'portage.util.cygdll_protection:cygdll_limbo_files_fn,resolve_cygdll_limbo_fn',
++	'portage.util.cygdll_protection:CygwinDLLProtection',
  	'portage.util.digraph:digraph',
  	'portage.util.env_update:env_update',
  	'portage.util.listdir:dircache,listdir',
@@ -1757,20 +1757,19 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		self._fs_lock_obj = None
  		self._fs_lock_count = 0
  
-@@ -175,6 +177,12 @@
+@@ -175,6 +177,11 @@
  				os.path.join(self._eroot, PRIVATE_PATH,
  				"preserved_libs_registry"))
  
 +		eprefix = EPREFIX
 +		if settings["EPREFIX"]:
 +			eprefix = settings["EPREFIX"]
-+		self._cygdll_limbo_files = cygdll_limbo_files_fn(self._eroot, eprefix)
-+		self._resolve_cygdll_limbo = resolve_cygdll_limbo_fn(self._eroot, eprefix)
++		self._cygdllprotect = CygwinDLLProtection(self._eroot, eprefix)
 +
  		self._linkmap = None
  		if _ENABLE_DYN_LINK_MAP:
  			chost = self.settings.get('CHOST')
-@@ -1485,13 +1493,18 @@
+@@ -1485,13 +1492,18 @@
  			portage.util.shlex_split(
  				self.settings.get("CONFIG_PROTECT", "")),
  			portage.util.shlex_split(
@@ -1790,7 +1789,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	def updateprotect(self):
  		self._get_protect_obj().updateprotect()
  
-@@ -2040,9 +2053,11 @@
+@@ -2040,9 +2052,11 @@
  				others_in_slot.append(dblink(self.cat, catsplit(cur_cpv)[1],
  					settings=self.settings,
  					vartree=self.vartree, treetype="vartree", pipe=self._pipe))
@@ -1803,7 +1802,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		protected_symlinks = {}
  
  		unmerge_orphans = "unmerge-orphans" in self.settings.features
-@@ -2203,8 +2218,11 @@
+@@ -2203,8 +2217,11 @@
  					if is_owned:
  						show_unmerge("---", unmerge_desc["replaced"], file_type, obj)
  						continue
@@ -1817,7 +1816,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				# next line includes a tweak to protect modules from being unmerged,
  				# but we don't protect modules from being overwritten if they are
  				# upgraded. We effectively only want one half of the config protection
-@@ -2371,6 +2389,12 @@
+@@ -2371,6 +2388,12 @@
  				del cfgfiledict[filename]
  			writedict(cfgfiledict, self.vartree.dbapi._conf_mem_file)
  
@@ -1830,7 +1829,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		#remove self from vartree database so that our own virtual gets zapped if we're the last node
  		self.vartree.zap(self.mycpv)
  
-@@ -3830,6 +3854,7 @@
+@@ -3830,6 +3853,7 @@
  		self.vartree.dbapi._fs_lock()
  		try:
  			cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
@@ -1838,7 +1837,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			if "NOCONFMEM" in self.settings:
  				cfgfiledict["IGNORE"]=1
  			else:
-@@ -3844,7 +3869,7 @@
+@@ -3844,7 +3868,7 @@
  					cfgfiledict["IGNORE"] = 1
  					break
  
@@ -1847,7 +1846,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			if rval != os.EX_OK:
  				return rval
  		finally:
-@@ -4091,7 +4116,7 @@
+@@ -4091,7 +4115,7 @@
  
  		return backup_p
  
@@ -1856,7 +1855,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  
  		cfgfiledict_orig = cfgfiledict.copy()
  
-@@ -4118,7 +4143,7 @@
+@@ -4118,7 +4142,7 @@
  		# we do a first merge; this will recurse through all files in our srcroot but also build up a
  		# "second hand" of symlinks to merge later
  		if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -1865,7 +1864,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			return 1
  
  		# now, it's time for dealing our second hand; we'll loop until we can't merge anymore.	The rest are
-@@ -4130,7 +4155,7 @@
+@@ -4130,7 +4154,7 @@
  
  			thirdhand = []
  			if self.mergeme(srcroot, destroot, outfile, thirdhand,
@@ -1874,7 +1873,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  			#swap hands
-@@ -4144,7 +4169,7 @@
+@@ -4144,7 +4168,7 @@
  		if len(secondhand):
  			# force merge of remaining symlinks (broken or circular; oh well)
  			if self.mergeme(srcroot, destroot, outfile, None,
@@ -1883,7 +1882,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  		#restore umask
-@@ -4165,7 +4190,7 @@
+@@ -4165,7 +4189,7 @@
  
  		return os.EX_OK
  
@@ -1892,7 +1891,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		"""
  		
  		This function handles actual merging of the package contents to the livefs.
-@@ -4186,6 +4211,8 @@
+@@ -4186,6 +4210,8 @@
  		@type cfgfiledict: Dictionary
  		@param thismtime: The current time (typically long(time.time())
  		@type thismtime: Long
@@ -1901,7 +1900,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		@rtype: None or Boolean
  		@returns:
  		1. True on failure
-@@ -4203,6 +4230,8 @@
+@@ -4203,6 +4229,8 @@
  		destroot = normalize_path(destroot).rstrip(sep) + sep
  		calc_prelink = "prelink-checksums" in self.settings.features
  
@@ -1910,7 +1909,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		protect_if_modified = \
  			"config-protect-if-modified" in self.settings.features and \
  			self._installed_instance is not None
-@@ -4415,7 +4444,7 @@
+@@ -4415,7 +4443,7 @@
  				outfile.write("dir "+myrealdest+"\n")
  				# recurse and merge this directory
  				if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -1919,7 +1918,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  					return 1
  			elif stat.S_ISREG(mymode):
  				# we are merging a regular file
-@@ -4426,6 +4455,7 @@
+@@ -4426,6 +4454,7 @@
  				zing = "!!!"
  				mymtime = None
  				protected = self.isprotected(mydest)
@@ -1927,7 +1926,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				if mydmode != None:
  					# destination file exists
  					
-@@ -4456,8 +4486,8 @@
+@@ -4456,8 +4485,8 @@
  									inst_info = self._installed_instance.getcontents()[contents_key]
  									if inst_info[0] == "obj" and inst_info[2] == destmd5:
  										protected = False
@@ -1937,7 +1936,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  							# we have a protection path; enable config file management.
  							cfgprot = 0
  							if mymd5 == destmd5:
-@@ -4486,6 +4516,49 @@
+@@ -4486,6 +4515,49 @@
  
  							if cfgprot:
  								mydest = new_protect_filename(mydest, newmd5=mymd5)
@@ -1988,8 +1987,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				# whether config protection or not, we merge the new file the
  				# same way.  Unless moveme=0 (blocking directory)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/exception.py prefix-portage-2.2.01.20271/pym/portage/exception.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/exception.py	2012-03-24 15:36:07.510400000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/exception.py	2012-03-24 15:36:05.435600000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/exception.py	2012-03-25 01:02:59.702695300 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/exception.py	2012-03-25 01:02:57.657786400 -0700
 @@ -188,3 +188,14 @@
  class UntrustedSignature(SignatureException):
  	"""Signature was not certified to the desired security level"""
@@ -2007,7 +2006,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	"""Attempt to use internal MasterLock API incorrectly"""
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20271/pym/portage/master_lock.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-24 15:36:05.451200000 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-25 01:02:57.668788600 -0700
 @@ -0,0 +1,805 @@
 +# portage: master_lock
 +# Copyright 2012 Gentoo Foundation
@@ -2815,8 +2814,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		direct = asportage
 +	_MasterLockDB(direct, settings).release(asportage)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-24 15:36:07.526000000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-24 15:36:05.451200000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-25 01:02:59.719698700 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-25 01:02:57.670288900 -0700
 @@ -150,7 +150,7 @@
  # portage config variables and variables set directly by portage
  environ_filter += [
@@ -2849,8 +2848,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR',)
 +case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR', 'PORTAGE_HOSTNAME')
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py	2012-03-24 15:36:07.557200000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py	2012-03-24 15:36:05.466800000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/config.py	2012-03-25 01:02:59.792713300 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/package/ebuild/config.py	2012-03-25 01:02:57.687292300 -0700
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  
@@ -2985,8 +2984,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		best_mod = best_from_dict(property_string,self.modules,self.module_priority)
  		mod = None
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-24 15:36:07.588400000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-24 15:36:05.482400000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-25 01:02:59.817718300 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-25 01:02:57.700795000 -0700
 @@ -4,12 +4,13 @@
  __all__ = ['apply_permissions', 'apply_recursive_permissions',
  	'apply_secpass_permissions', 'apply_stat_permissions', 'atomic_ofstream',
@@ -3127,8 +3126,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	Return a tuple of configuration files that needs to be updated.
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/cygdll_protection.py prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/util/cygdll_protection.py	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py	2012-03-24 22:12:55.044923500 -0700
-@@ -0,0 +1,42 @@
++++ prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py	2012-03-25 03:49:03.409849300 -0700
+@@ -0,0 +1,82 @@
 +# Copyright 2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
 +
@@ -3138,6 +3137,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +from portage import os
 +from portage.const import CYGDLL_MEMORY_FILE
++from portage.exception import IncorrectParameter
 +from portage.localization import _
 +from portage.util import grabdict, writedict
 +
@@ -3146,34 +3146,73 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +__all__ = [ 'cygdll_limbo_files_fn', 'resolve_cygdll_limbo_fn' ]
 +
-+def cygdll_limbo_files_fn(eroot, eprefix):
-+	cygdll_memory_filepath = os.path.join(eroot, CYGDLL_MEMORY_FILE)
-+	def lambda_limbo_files():
-+		filesdict = grabdict(cygdll_memory_filepath)
-+		result = [ ( '/' + os.path.relpath(filename, eprefix), f_md5[0]) \
++class CygwinDLLProtection(object):
++	"""
++	This class manages the Cygwin DLL protection feature
++	"""
++	__slots__ = ['_cygdll_memory_file_path', '_eprefix']
++	def __init__(self, eroot, eprefix):
++		"""
++		Constructor for CygwinDLLProtection object
++		@param eroot: A portage EROOT where we store our database
++		@type eroot: String
++		@param eprefix: EPREFIX value;is prepended to CyginDllProtection
++		database entries (the CygwinDLLProtection API prefers to think in
++		terms of un-prefixed file paths such as '/bin/bash'.  Should begin
++		with a slash; a trailing slash is optional.
++		@type eprefix: String
++		"""
++		if not eprefix is basestring and eroot is basestring:
++			raise IncorrectParameter("Parameter is not a string")
++		if len(eprefix) == 0:
++			raise IncorrectParameter("eprefix parameter cannot be empty")
++		if len(eroot) == 0:
++			raise IncorrectParameter("eroot paramater cannot be empty")
++		if not eroot[0] == '/':
++			raise IncorrectParameter("eroot must start with '/'")
++		if not eprefix[0] == '/':
++			raise IncorrectParameter("eprefix must start with '/'")
++		eprefix = eprefix.rstrip('/')
++		eroot = eroot.rstrip('/')
++		self._cygdll_memory_file_path = os.path.join(eroot, CYGDLL_MEMORY_FILE)
++		self._eprefix = eprefix
++
++	def limbodb_list(self):
++		"""
++		Creates a list of (filename, md5) tuples corresponding to the current
++		contents of the cygdll protection database.  Although the filenames in the
++		physical database begin with EPREFIX, this API returns them without it,
++		starting with a '/'.
++		@returns: A list of (filename, md5) tuples
++		@rtype: List
++		"""
++		filesdict = grabdict(self._cygdll_memory_file_path)
++		result = [ ( '/' + os.path.relpath(filename, self._eprefix), f_md5[0]) \
 +				for (filename, f_md5) in filesdict.iteritems() ]
 +		return result
-+	return lambda_limbo_files
 +
-+def resolve_cygdll_limbo_fn(eroot, eprefix):
-+	cygdll_memory_filepath = os.path.join(eroot, CYGDLL_MEMORY_FILE)
-+	_load_dict = cygdll_limbo_files_fn(eroot, eprefix)
-+	def lambda_resolve_cygdll_limbo(file_list):
-+		oldfilesdict = _load_dict()
++	def limbodb_drop(self, file_list):
++		"""
++		Accepts a list of un-prefixed file names beginning with '/' and removes any
++		matching entries from the cygwin dll protection in-limbo files database.
++		are remove
++		@param: file_list
++		@type: List
++		"""
++		oldfilesdict = self.limbodb_list()
 +		newfilesdict = dict([ (filename, filemd5) \
 +			for (filename, filemd5) in oldfilesdict \
 +			if filename not in file_list ])
 +		if newfilesdict != oldfilesdict:
-+			prefixed_dict = dict([ (os.path.join(eprefix, os.path.relpath(filename, '/')), [f_md5]) \
++			prefixed_dict = dict([ (os.path.join(self._eprefix, os.path.relpath(filename, '/')), [f_md5]) \
 +						for (filename, f_md5) in newfilesdict.iteritems() ])
-+			writedict(prefixed_dict, cygdll_memory_filepath)
++			writedict(prefixed_dict, self._cygdll_memory_file_path)
 +			return os.EX_OK
 +		else:
 +			return 1
-+	return lambda_resolve_cygdll_limbo
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20271/pym/portage/util/env_update.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-24 15:36:07.588400000 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-24 15:36:05.482400000 -0700
+--- prefix-portage-2.2.01.20271.orig/pym/portage/util/env_update.py	2012-03-25 01:02:59.829720700 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/util/env_update.py	2012-03-25 01:02:57.705295900 -0700
 @@ -104,7 +104,7 @@
  	fns = templist
  	del templist
