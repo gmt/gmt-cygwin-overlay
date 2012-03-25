@@ -416,7 +416,7 @@ cyg_rebase-dirs() {
 		${sed} -e '/cygwin1\.dll$/d' -e '/cyglsa.*\.dll$/d' \
 		-e '/ebuild-helpers\/dolib.so$/d' \
 		-e '/ebuild-helpers\/newlib.so$/d' \
-		-e '/\/_cygdll_[^/]*$/d' \
+		-e '/\/_cygdll_protect_[^/]*$/d' \
 		-e '/\/shlib\/[^/]*\.so$/d' \
 		-e '/rebase\.exe$/d' >"${rebase_lst}"
 
