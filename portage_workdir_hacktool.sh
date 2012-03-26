@@ -400,9 +400,11 @@ grepit()
 	grep_args=( "${grep_args[@]}" "${grep_arg}" )
     done
     grep_args=( "${grep_args[@]}" "${grepfor}" )
-
+    # we need cwd=${pwork_full} when we do xargs grep as well as find; but we don't want
+    # the end users' pwd to change -- hence this subshell.
+    (
+    cd "${pwork_full}"/
     {
-	pushd "${pwork_full}"/ > /dev/null
 	local findcmd="find . -type f \\( "
 	local firstiter=yes
 	for codegrep_spec in "${codegrep_specs[@]}" ; do
@@ -411,11 +413,11 @@ grepit()
 	    firstiter=no
 	done
 	findcmd="${findcmd} \\) -print0"
-	echo ">> ( cd ${pwork_full}; ${findcmd} ) | xargs -0 grep $( for arg in "${grep_args[@]}" ; do \
-		echo -n "\"${arg}\" " ; done ) | less -FKqXR"
+	echo ">> cd ${pwork_full}; ( ${findcmd} | xargs -0 grep $( for arg in "${grep_args[@]}" ; do \
+		echo -n "\"${arg}\" " ; done ) | less -FKqXR" >&2
 	eval "${findcmd}"
-	popd > /dev/null
     } | xargs -0 grep -C${context_lines} -n --color=yes "${grep_args[@]}" 2>/dev/null | less -FKqXR
     # above, we drop stderr from xargs because when less quits before grep finishes,
     # annoying messages end up on the console
+    )
 }
