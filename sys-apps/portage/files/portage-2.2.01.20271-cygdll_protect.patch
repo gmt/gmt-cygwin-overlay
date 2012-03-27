@@ -11,8 +11,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	emerge-webrsync \
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/cygdll-update prefix-portage-2.2.01.20271/bin/cygdll-update
 --- prefix-portage-2.2.01.20271.orig/bin/cygdll-update	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/bin/cygdll-update	2012-03-27 00:41:58.319753600 -0700
-@@ -0,0 +1,166 @@
++++ prefix-portage-2.2.01.20271/bin/cygdll-update	2012-03-27 01:11:28.033753600 -0700
+@@ -0,0 +1,165 @@
 +#!@PORTAGE_BASH@
 +# Copyright 1999-2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
@@ -85,11 +85,11 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +		ofile=""
 +		# The below set -f turns off file name globbing in the ${find_opts} expansion.
-+		for file in $(set -f ; find ${path}/ ${find_opts} -print | \
++		for file in $( set -f ; find ${path}/ ${find_opts} -print | \
 +			   sed -e "s:\(^.*/\)\(_cygdll_protect_\)\(.*$\):\1\2\3\%\1%\2\%\3:" | \
-+			   sort -t'%' -k2,2 -k4,4 -k3,3 | LANG=POSIX LC_ALL=POSIX cut -f1 -d'%'); do
-+			rpath=$(echo "${file/\/\///}" | sed -e "s:/[^/]*$::")
-+			rfile=$(echo "${file/\/\///}" | sed -e "s:^.*/::")
++			   sort -t'%' -k2,2 -k4,4 -k3,3 | LANG=POSIX LC_ALL=POSIX cut -f1 -d'%' ); do
++			rpath=$( echo "${file/\/\///}" | sed -e "s:/[^/]*$::" )
++			rfile=$( echo "${file/\/\///}" | sed -e "s:^.*/::" )
 +			if [[ "${ofile:16}" != "${rfile:16}" ]] ||
 +			   [[ ${opath} != ${rpath} ]]; then
 +				echo "Merging in-limbo update: ${rpath}/${rfile:16}"
@@ -106,8 +106,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	trap SIGINT
 +	trap EXIT
 +
-+
-+	if [ "$2" -eq 0 ]; then
++	if [[ $2 == 0 ]] ; then
 +		echo "Exiting: ${1}"
 +	else
 +		echo "ERROR: ${1}"
@@ -159,9 +158,9 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +${SET_X} && set -x
 +
 +type portageq > /dev/null || exit $?
-+eval $(portageq envvar -v CYGDLL_PROTECT PORTAGE_HOSTNAME \
++eval $( portageq envvar -v CYGDLL_PROTECT PORTAGE_HOSTNAME \
 +	PORTAGE_CONFIGROOT PORTAGE_INST_GID PORTAGE_INST_UID \
-+	PORTAGE_TMPDIR EROOT USERLAND)
++	PORTAGE_TMPDIR EROOT USERLAND )
 +export PORTAGE_TMPDIR
 +
 +trap "die suprise-termination 1" EXIT
