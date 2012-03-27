@@ -1,0 +1,36 @@
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/ebuild-helpers/dosym prefix-portage-2.2.01.20271/bin/ebuild-helpers/dosym
+--- prefix-portage-2.2.01.20271.orig/bin/ebuild-helpers/dosym	2011-12-09 12:43:30.000000000 -0800
++++ prefix-portage-2.2.01.20271/bin/ebuild-helpers/dosym	2012-03-27 16:37:06.142753600 -0700
+@@ -24,7 +24,31 @@
+ # PREFIX LOCAL: when absolute, prefix with offset
+ target="${1}"
+ [[ ${target:0:1} == "/" ]] && target="${EPREFIX}${target}"
+-ln -snf "${target}" "${ED}${2}"
++# on cygwin: test if ${target} is aka ${target.exe}.
++# if so, go ahead and see if we can't create the link
++# as foo.exe -> bar.exe instead of foo -> bar.
++#
++# The insane conditional below says: if we're on cywin, creating a link both
++# to and from files ("foo" and "bar", respectively) that don't include ".exe"
++# at the end, and if bar and bar.exe both exist and have he same inode, and
++# are both executables, and if either (a) neither foo nor foo.exe exist or (b)
++# foo and foo.exe both exist and have the same inode, then we (i) remove any
++# existing foo and (ii) make a foo.exe -> bar.exe symlink; otherwise, just
++# create the normal symlink.  Or something like that :)
++if [[ ${CHOST} == *-cygwin* && ${target} != *.exe && "${ED}"${2} != *.exe && \
++      ( (-e "${target}" && -e "${target}.exe" ) || \
++        (-h "${target}" && -h "${target}.exe" ) ) && \
++      -x "${target}" && -x "${target}.exe" && \
++      $( ls -i "${target}" ).exe == $( ls -i "${target}.exe" ) && \
++      ( ( ( ! -e "${ED}${2}" ) && ( ! -e "${ED}${2}.exe" ) ) || \
++        ( ( -e "${ED}${2}" && -e "${ED}${2}.exe" ) || \
++	  ( -h "${ED}${2}" && -h "${ED}${2}.exe" ) ) && \
++	$( ls -i "${ED}${2}" ).exe == $( ls -i "${ED}${2}.exe" ) ) ]] ; then
++	[[ -e "${ED}{2}" || -h "${ED}${2}" ]] && rm -f "${ED}${2}"
++	ln -snf "${target}.exe" "${ED}${2}.exe"
++else
++	ln -snf "${target}" "${ED}${2}"
++fi
+ # END PREFIX LOCAL
+ ret=$?
+ [[ $ret -ne 0 ]] && helpers_die "${0##*/} failed"
