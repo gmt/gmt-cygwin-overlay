@@ -1821,17 +1821,20 @@ gcc_quick_unpack() {
 #	GENTOO_PATCH_EXCLUDE
 #			List of filenames, relative to ${WORKDIR}/patch/
 #
-# FIXME: upstream got rid of this functino but we rely on it in gmt-cygwin-overlay
-# (for a bad, kludgy hack that ended up not being important)
+# FIXME: upstream got rid of this function but we rely on it in gmt-cygwin-overlay
+# (for a bad, kludgy hack that ended up not being important -- really, fix this!)
 #
 exclude_gcc_patches() {
 	local i
+	local hemlock=0
 	for i in ${GENTOO_PATCH_EXCLUDE} ; do
 		if [[ -f ${WORKDIR}/patch/${i} ]] ; then
-			einfo "Excluding patch ${i}"
-			rm -f "${WORKDIR}"/patch/${i} || die "failed to delete ${i}"
+			hemlock=1
+			ewarn "Fake exclude_gcc_patches used!  This does nothing."
+			ewarn "!!! NOT Excluding patch ${i}"
 		fi
 	done
+	[[ $hemlock == 1 ]] && die "Fix your ebuild."
 }
 
 do_gcc_HTB_patches() {
@@ -2130,3 +2133,5 @@ gcc_pkg_setup() { toolchain_pkg_setup ; }
 gcc_src_unpack() { toolchain_src_unpack ; }
 gcc_src_compile() { toolchain_src_compile ; }
 gcc_src_test() { toolchain_src_test ; }
+
+# vim: syntax=sh
