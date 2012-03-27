@@ -600,7 +600,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  to adjust the io priority of portage and it's subprocesses. The command
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20271/pym/_emerge/actions.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/actions.py	2012-03-27 00:31:44.505753600 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-27 00:31:42.092753600 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/actions.py	2012-03-27 01:57:12.451753600 -0700
 @@ -25,6 +25,7 @@
  	'portage.news:count_unread_news,display_news_notifications',
  )
@@ -636,38 +636,10 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	if myaction != "metadata":
  		postsync = os.path.join(settings["PORTAGE_CONFIGROOT"],
  			portage.USER_CONFIG_PATH, "bin", "post_sync")
-@@ -3051,26 +3056,43 @@
- 		portage.util.find_updated_config_files(target_root, config_protect))
+@@ -3072,6 +3077,23 @@
+ 				+ " section of the " + bold("emerge"))
+ 		print(" "+yellow("*")+" man page to learn how to update config files.")
  
- 	for x in result:
--		writemsg_level("\n %s " % (colorize("WARN", "* IMPORTANT:"),),
-+		writemsg_level("\n %s " % (colorize("WARN", "* " + _("IMPORTANT:"))),
- 			level=logging.INFO, noiselevel=-1)
- 		if not x[1]: # it's a protected file
--			writemsg_level("config file '%s' needs updating.\n" % x[0],
-+			writemsg_level( _("config file '%s' needs updating.\n") % x[0],
- 				level=logging.INFO, noiselevel=-1)
- 		else: # it's a protected dir
- 			if len(x[1]) == 1:
- 				head, tail = os.path.split(x[1][0])
- 				tail = tail[len("._cfg0000_"):]
- 				fpath = os.path.join(head, tail)
--				writemsg_level("config file '%s' needs updating.\n" % fpath,
-+				writemsg_level(_("config file '%s' needs updating.\n") % fpath,
- 					level=logging.INFO, noiselevel=-1)
- 			else:
--				writemsg_level("%d config files in '%s' need updating.\n" % \
-+				writemsg_level( _("%d config files in '%s' need updating.\n") % \
- 					(len(x[1]), x[0]), level=logging.INFO, noiselevel=-1)
- 
- 	if result:
--		print(" "+yellow("*")+" See the "+colorize("INFORM","CONFIGURATION FILES")\
--				+ " section of the " + bold("emerge"))
--		print(" "+yellow("*")+" man page to learn how to update config files.")
-+		print(" "+yellow("*")+ " See the "+colorize("INFORM", _("CONFIGURATION FILES"))\
-+				+ " " + _("section of the") + " " + bold("emerge"))
-+		print(" "+yellow("*")+ " " + _("man page to learn how to update config files."))
-+
 +def chk_updated_cygdll_files(eroot, cygdll_protect):
 +	result = find_updated_cygdll_files(eroot, cygdll_protect)
 +
@@ -684,9 +656,10 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		print(" "+yellow("*")+" " + colorize("INFORM", _("CYGWIN DLL PROTECTION")) + \
 +					" " + _("section of the") + " " + bold("emerge") + " " + \
 +					_("man page") + ".")
- 
++
  def display_news_notification(root_config, myopts):
  	if "news" not in root_config.settings.features:
+ 		return
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-27 00:31:44.523253600 -0700
 +++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-27 00:31:42.104253600 -0700
@@ -1552,18 +1525,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +			release_master_lock(True, settings=settings)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py prefix-portage-2.2.01.20271/pym/portage/__init__.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/__init__.py	2012-03-27 00:31:44.528753600 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-27 00:31:42.110253600 -0700
-@@ -99,7 +99,8 @@
- 		'portage.util:atomic_ofstream,apply_secpass_permissions,' + \
- 			'apply_recursive_permissions,dump_traceback,getconfig,' + \
- 			'grabdict,grabdict_package,grabfile,grabfile_package,' + \
--			'map_dictlist_vals,new_protect_filename,normalize_path,' + \
-+			'map_dictlist_vals,' + \
-+			'new_protect_filename,normalize_path,' + \
- 			'pickle_read,pickle_write,stack_dictlist,stack_dicts,' + \
- 			'stack_lists,unique_array,varexpand,writedict,writemsg,' + \
- 			'writemsg_stdout,write_atomic',
-@@ -130,7 +131,7 @@
++++ prefix-portage-2.2.01.20271/pym/portage/__init__.py	2012-03-27 01:32:30.243753600 -0700
+@@ -130,7 +130,7 @@
  		EBUILD_SH_BINARY, SANDBOX_BINARY, BASH_BINARY, \
  		MOVE_BINARY, PRELINK_BINARY, WORLD_FILE, MAKE_CONF_FILE, MAKE_DEFAULTS_FILE, \
  		DEPRECATED_PROFILE_FILE, USER_VIRTUALS_FILE, EBUILD_SH_ENV_FILE, \
@@ -1608,19 +1571,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
  if not _ENABLE_SET_CONFIG:
  	WORLD_SETS_FILE = '/dev/null'
-diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/_MergeProcess.py	2012-03-27 00:31:44.540753600 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/_MergeProcess.py	2012-03-27 00:31:42.115753600 -0700
-@@ -213,7 +213,8 @@
- 			else:
- 				rval = mylink.merge(self.pkgloc, self.infloc,
- 					myebuild=self.myebuild, mydbapi=self.mydbapi,
--					prev_mtimes=self.prev_mtimes, counter=counter)
-+					prev_mtimes=self.prev_mtimes,
-+					counter=counter)
- 		except SystemExit:
- 			raise
- 		except:
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/bintree.py	2012-03-27 00:31:44.547253600 -0700
 +++ prefix-portage-2.2.01.20271/pym/portage/dbapi/bintree.py	2012-03-27 00:31:42.120753600 -0700
@@ -1635,7 +1585,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				"BUILD_TIME"         : "",
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/dbapi/vartree.py	2012-03-27 00:31:44.562753600 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-27 00:31:42.127253600 -0700
++++ prefix-portage-2.2.01.20271/pym/portage/dbapi/vartree.py	2012-03-27 02:04:05.358753600 -0700
 @@ -24,6 +24,7 @@
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
  		'writemsg,writemsg_level,write_atomic,atomic_ofstream,writedict,' + \
@@ -1671,15 +1621,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	def root(self):
  		warnings.warn("The root attribute of "
  			"portage.dbapi.vartree.vardbapi"
-@@ -1479,7 +1491,6 @@
- 			self._hash_key == other._hash_key
- 
- 	def _get_protect_obj(self):
--
- 		if self._protect_obj is None:
- 			self._protect_obj = ConfigProtect(self._eroot,
- 			portage.util.shlex_split(
-@@ -1492,6 +1503,9 @@
+@@ -1492,6 +1504,9 @@
  	def isprotected(self, obj):
  		return self._get_protect_obj().isprotected(obj)
  
@@ -1689,11 +1631,9 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	def updateprotect(self):
  		self._get_protect_obj().updateprotect()
  
-@@ -2040,9 +2054,11 @@
- 				others_in_slot.append(dblink(self.cat, catsplit(cur_cpv)[1],
- 					settings=self.settings,
+@@ -2042,7 +2057,10 @@
  					vartree=self.vartree, treetype="vartree", pipe=self._pipe))
--
+ 
  		cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
 +		cygdlldict = grabdict(self.vartree.dbapi._cygdllprotect.limbodb_file)
 +
@@ -1702,7 +1642,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		protected_symlinks = {}
  
  		unmerge_orphans = "unmerge-orphans" in self.settings.features
-@@ -2203,8 +2219,11 @@
+@@ -2203,8 +2221,11 @@
  					if is_owned:
  						show_unmerge("---", unmerge_desc["replaced"], file_type, obj)
  						continue
@@ -1716,7 +1656,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				# next line includes a tweak to protect modules from being unmerged,
  				# but we don't protect modules from being overwritten if they are
  				# upgraded. We effectively only want one half of the config protection
-@@ -2371,6 +2390,12 @@
+@@ -2371,6 +2392,12 @@
  				del cfgfiledict[filename]
  			writedict(cfgfiledict, self.vartree.dbapi._conf_mem_file)
  
@@ -1729,7 +1669,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		#remove self from vartree database so that our own virtual gets zapped if we're the last node
  		self.vartree.zap(self.mycpv)
  
-@@ -3830,6 +3855,7 @@
+@@ -3830,6 +3857,7 @@
  		self.vartree.dbapi._fs_lock()
  		try:
  			cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
@@ -1737,7 +1677,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			if "NOCONFMEM" in self.settings:
  				cfgfiledict["IGNORE"]=1
  			else:
-@@ -3844,7 +3870,7 @@
+@@ -3844,7 +3872,7 @@
  					cfgfiledict["IGNORE"] = 1
  					break
  
@@ -1746,7 +1686,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			if rval != os.EX_OK:
  				return rval
  		finally:
-@@ -4091,7 +4117,7 @@
+@@ -4091,7 +4119,7 @@
  
  		return backup_p
  
@@ -1755,7 +1695,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  
  		cfgfiledict_orig = cfgfiledict.copy()
  
-@@ -4118,7 +4144,7 @@
+@@ -4118,7 +4146,7 @@
  		# we do a first merge; this will recurse through all files in our srcroot but also build up a
  		# "second hand" of symlinks to merge later
  		if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -1764,7 +1704,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			return 1
  
  		# now, it's time for dealing our second hand; we'll loop until we can't merge anymore.	The rest are
-@@ -4130,7 +4156,7 @@
+@@ -4130,7 +4158,7 @@
  
  			thirdhand = []
  			if self.mergeme(srcroot, destroot, outfile, thirdhand,
@@ -1773,7 +1713,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  			#swap hands
-@@ -4144,7 +4170,7 @@
+@@ -4144,7 +4172,7 @@
  		if len(secondhand):
  			# force merge of remaining symlinks (broken or circular; oh well)
  			if self.mergeme(srcroot, destroot, outfile, None,
@@ -1782,7 +1722,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  		#restore umask
-@@ -4165,7 +4191,7 @@
+@@ -4165,7 +4193,7 @@
  
  		return os.EX_OK
  
@@ -1791,7 +1731,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		"""
  		
  		This function handles actual merging of the package contents to the livefs.
-@@ -4186,6 +4212,8 @@
+@@ -4186,6 +4214,8 @@
  		@type cfgfiledict: Dictionary
  		@param thismtime: The current time (typically long(time.time())
  		@type thismtime: Long
@@ -1800,7 +1740,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		@rtype: None or Boolean
  		@returns:
  		1. True on failure
-@@ -4203,6 +4231,8 @@
+@@ -4203,6 +4233,8 @@
  		destroot = normalize_path(destroot).rstrip(sep) + sep
  		calc_prelink = "prelink-checksums" in self.settings.features
  
@@ -1809,7 +1749,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		protect_if_modified = \
  			"config-protect-if-modified" in self.settings.features and \
  			self._installed_instance is not None
-@@ -4415,7 +4445,7 @@
+@@ -4415,7 +4447,7 @@
  				outfile.write("dir "+myrealdest+"\n")
  				# recurse and merge this directory
  				if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -1818,7 +1758,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  					return 1
  			elif stat.S_ISREG(mymode):
  				# we are merging a regular file
-@@ -4426,6 +4456,7 @@
+@@ -4426,6 +4458,7 @@
  				zing = "!!!"
  				mymtime = None
  				protected = self.isprotected(mydest)
@@ -1826,17 +1766,15 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				if mydmode != None:
  					# destination file exists
  					
-@@ -4456,8 +4487,8 @@
- 									inst_info = self._installed_instance.getcontents()[contents_key]
- 									if inst_info[0] == "obj" and inst_info[2] == destmd5:
+@@ -4458,6 +4491,7 @@
  										protected = False
--
+ 
  						if protected:
 +							cygdllprotected = False
  							# we have a protection path; enable config file management.
  							cfgprot = 0
  							if mymd5 == destmd5:
-@@ -4486,6 +4517,49 @@
+@@ -4486,6 +4520,49 @@
  
  							if cfgprot:
  								mydest = new_protect_filename(mydest, newmd5=mymd5)
@@ -2907,67 +2845,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	def load_best_module(self,property_string):
  		best_mod = best_from_dict(property_string,self.modules,self.module_priority)
  		mod = None
-diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py prefix-portage-2.2.01.20271/pym/portage/util/__init__.py
---- prefix-portage-2.2.01.20271.orig/pym/portage/util/__init__.py	2012-03-27 00:31:44.645253600 -0700
-+++ prefix-portage-2.2.01.20271/pym/portage/util/__init__.py	2012-03-27 00:31:42.177253600 -0700
-@@ -4,12 +4,13 @@
- __all__ = ['apply_permissions', 'apply_recursive_permissions',
- 	'apply_secpass_permissions', 'apply_stat_permissions', 'atomic_ofstream',
- 	'cmp_sort_key', 'ConfigProtect', 'dump_traceback', 'ensure_dirs',
--	'find_updated_config_files', 'getconfig', 'getlibpaths', 'grabdict',
--	'grabdict_package', 'grabfile', 'grabfile_package', 'grablines',
--	'initialize_logger', 'LazyItemsDict', 'map_dictlist_vals',
--	'new_protect_filename', 'normalize_path', 'pickle_read', 'stack_dictlist',
--	'stack_dicts', 'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
--	'write_atomic', 'writedict', 'writemsg', 'writemsg_level', 'writemsg_stdout']
-+	'find_updated_config_files', 'getconfig',
-+	'getlibpaths', 'grabdict', 'grabdict_package', 'grabfile',
-+	'grabfile_package', 'grablines', 'initialize_logger', 'LazyItemsDict',
-+	'map_dictlist_vals', 'new_protect_filename',
-+	'normalize_path', 'pickle_read', 'stack_dictlist', 'stack_dicts',
-+	'stack_lists', 'unique_array', 'unique_everseen', 'varexpand',
-+	'write_atomic', 'writedict', 'writemsg', 'writemsg_level','writemsg_stdout']
- 
- from copy import deepcopy
- import errno
-@@ -45,7 +46,7 @@
- from portage.localization import _
- from portage.proxy.objectproxy import ObjectProxy
- from portage.cache.mappings import UserDict
--from portage.const import EPREFIX
-+from portage.const import EPREFIX, CYGDLL_MEMORY_FILE
- 
- noiselimit = 0
- 
-@@ -352,7 +353,7 @@
- 		'sys-apps/portage x86 amd64 ppc'
- 		would return
- 		{ "sys-apps/portage" : [ 'x86', 'amd64', 'ppc' ]
--		the line syntax is key : [list of values]
-+		the line syntax is key [list of values]
- 	"""
- 	newdict={}
- 	for x in grablines(myfilename, recursive):
-@@ -1423,8 +1424,8 @@
- 		self.updateprotect()
- 
- 	def updateprotect(self):
--		"""Update internal state for isprotected() calls.  Nonexistent paths
--		are ignored."""
-+		"""Update internal state for isprotected() calls.
-+		Nonexistent paths are ignored."""
- 
- 		os = _os_merge
- 
-@@ -1457,7 +1458,7 @@
- 			except OSError:
- 				# If it doesn't exist, there's no need to mask it.
- 				pass
--
-+		
- 	def isprotected(self, obj):
- 		"""Returns True if obj is protected, False otherwise.  The caller must
- 		ensure that obj is normalized with a single leading slash.  A trailing
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/util/cygdll_protection.py prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/util/cygdll_protection.py	1969-12-31 16:00:00.000000000 -0800
 +++ prefix-portage-2.2.01.20271/pym/portage/util/cygdll_protection.py	2012-03-27 00:31:42.186253600 -0700
