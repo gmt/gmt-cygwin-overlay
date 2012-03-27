@@ -312,7 +312,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +# vim: syntax=python
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.conf prefix-portage-2.2.01.20271/cnf/make.conf
 --- prefix-portage-2.2.01.20271.orig/cnf/make.conf	2012-03-27 00:31:44.449253600 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-27 00:31:42.064253600 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.conf	2012-03-27 02:59:42.097253600 -0700
 @@ -356,3 +356,25 @@
  #                               ${PACKAGE} - see description of PORTAGE_ELOG_COMMAND
  #                               ${HOST} - FQDN of the host portage is running on
@@ -334,14 +334,14 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +#                   The variable can be empty, in which case portage will
 +#                   automatically guess the hostname of the local machine using
 +#                   the python socket.getfqdn() API; alternatively, you can
-+#                   set this explicitly to anything you want -- it simply needs
++#                   set this explicitly to anything reasonable -- it only needs
 +#                   to be unique for each machine in the cluster that might
 +#                   run portage.  By default, it is defined to "localhost" in
 +#                   make.globals.
 +#PORTAGE_HOSTNAME=""
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/cnf/make.globals prefix-portage-2.2.01.20271/cnf/make.globals
 --- prefix-portage-2.2.01.20271.orig/cnf/make.globals	2012-03-27 00:31:44.454253600 -0700
-+++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-27 00:31:42.066753600 -0700
++++ prefix-portage-2.2.01.20271/cnf/make.globals	2012-03-27 02:58:32.736253600 -0700
 @@ -8,7 +8,8 @@
  # **** CHANGES TO make.conf *OVERRIDE* THIS FILE ****
  # ***************************************************
@@ -368,14 +368,14 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  PORTAGE_INST_GID="@rootgid@"
  
 +# Systems in a cluster sharing var/lib/portage need to
-+# set this to be empty in make.conf.  This is because
-+# portage will automatically clean out stale PID's
-+# from var/lib/portage/masterlock/${PORTAGE_HOSTNAME}, but
-+# can only do so correctly if it can be sure those pids come
-+# from the local machine.  Emptying the variable will activate
++# set this in make.conf.  portage will automatically drop
++# stale PID's from
++# ${EROOT}/var/lib/portage/masterlock/${PORTAGE_HOSTNAME}, but
++# can only do so correctly if those pids come only from the
++# local machine.  Emptying the variable will activate
 +# automatic hostname detection.  Alternatively, a hard-coded
-+# hostname may be used if cluster machines have a nonshared
-+# portage configuration area somewhere.
++# value may be used -- it does not affect networking behavior
++# and should not be used in ebuilds.
 +PORTAGE_HOSTNAME="localhost"
 +
  # Default PATH for ebuild env
@@ -461,7 +461,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +.BR make.conf (5)
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/emerge.1 prefix-portage-2.2.01.20271/man/emerge.1
 --- prefix-portage-2.2.01.20271.orig/man/emerge.1	2012-03-27 00:31:44.491753600 -0700
-+++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-27 00:31:42.081753600 -0700
++++ prefix-portage-2.2.01.20271/man/emerge.1	2012-03-27 03:04:58.462753600 -0700
 @@ -1010,6 +1010,88 @@
  offset by Portage before they are considered.  Hence, these paths never
  contain the offset prefix, and the variables can be defined in
@@ -478,7 +478,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +limitation of Microsoft Windows. A full explanation is beyond the scope of
 +this document, but the problem has to do with the way cygwin's implementation of
 +the UNIX fork() API works, and idiocyncracies of the Windows platform's mapping
-+of executable code into the so-called 'virtual memory address space.'
++of executable code into the so\-called 'virtual memory address space.'
 +Regardless of the etiology, the symptomoatology is brutally noticeable and
 +readily explained:
 +.LP
@@ -510,14 +510,14 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +Files can be explicitly protected using the \fICYGDLL_PROTECT\fR variable,
 +normally defined in make.globals. Note that any file can be protected in this way,
 +but it only really makes sense to protect .dll or .exe files (unless a program is
-+loading files with other names into its address-space, but this is very unusual).
++loading files with other names into its address\-space, but this is very unusual).
 +The \fICYGDLL_PROTECT\fR variable, like the \fICONFIG_PROTECT\fR variable,
 +is relative to the \fIEPREFIX\fR in offset (prefix) portage installations, and
 +is cumulative, so that the filenames found in the various locations portage
 +searches for it (the same places it looks for \fICONFIG_PROTECT\fR, including the
 +environment, profile, and so on) are aggregated. Unlike \fICONFIG_PROTECT\fR,
 +which can contain files and directories (and usually only contains the latter),
-+\fICYGDLL_PROTECT\fR only contains file-names. Placing directory names into it
++\fICYGDLL_PROTECT\fR only contains file\-names. Placing directory names into it
 +has not been tested as of this writing and is therefore very likely to cause
 +problems or trigger bugs.
 +.LP
@@ -546,14 +546,14 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +for all running portage instances to terminate, and then automagically
 +find all in\-limbo files and move them to their final destinations. In the
 +future, some means may be provided to do this automatically, but don't hold
-+your breath.  If portage were to invoke cygdll-update itself, it would
++your breath.  If portage were to invoke cygdll\-update itself, it would
 +trigger the very conditions cygwin dll protection is designed to avoid.
  .SH "REPORTING BUGS"
  Please report any bugs you encounter through our website:
  .LP
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/man/make.conf.5 prefix-portage-2.2.01.20271/man/make.conf.5
 --- prefix-portage-2.2.01.20271.orig/man/make.conf.5	2012-03-27 00:31:44.498253600 -0700
-+++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-27 00:31:42.087253600 -0700
++++ prefix-portage-2.2.01.20271/man/make.conf.5	2012-03-27 03:12:17.363753600 -0700
 @@ -151,6 +151,14 @@
  This variable is passed by the \fIebuild scripts\fR to the \fIconfigure\fR
  as \fI\-\-target=${CTARGET}\fR only if it is defined.
@@ -575,7 +575,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  .TP
 +.B PORTAGE_HOSTNAME
 +In order to prevent portage from running at the same time as certain
-+programs (to date, \fBcygdll-update\fR(1) is the only one) , it is
++programs (to date, \fBcygdll\-update\fR(1) is the only one), it is
 +necessary to distinguish between different machines which may share
 +the same portage database.  To do so, portage can attempt to use the
 +fully qualified domain name as detected by the python
@@ -662,7 +662,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		return
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py prefix-portage-2.2.01.20271/pym/_emerge/main.py
 --- prefix-portage-2.2.01.20271.orig/pym/_emerge/main.py	2012-03-27 00:31:44.523253600 -0700
-+++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-27 00:31:42.104253600 -0700
++++ prefix-portage-2.2.01.20271/pym/_emerge/main.py	2012-03-27 03:01:06.915753600 -0700
 @@ -30,6 +30,7 @@
  import portage.exception
  from portage.const import EPREFIX, EPREFIX_LSTRIP
@@ -700,24 +700,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  
  	display_news_notification(root_config, myopts)
  	if retval in (None, os.EX_OK) or (not "--pretend" in myopts):
-@@ -1548,6 +1553,16 @@
- 
- 	return bool(ignored_repos)
- 
-+def cygdll_protect_check(trees):
-+	for root, root_trees in trees.items():
-+		settings = root_trees["root_config"].settings
-+		if not settings.get("CYGDLL_PROTECT"):
-+			msg = "!!! CYGDLL_PROTECT is empty"
-+			if settings["ROOT"] != "/":
-+				msg + "for '%s'" % root
-+			msg += "\n"
-+			writemsg_level(msg, level=logging.WARN, noiselevel=-1)
-+
- def config_protect_check(trees):
- 	for root, root_trees in trees.items():
- 		settings = root_trees["root_config"].settings
-@@ -1626,410 +1641,425 @@
+@@ -1626,410 +1631,424 @@
  	tmpcmdline.extend(args)
  	myaction, myopts, myfiles = parse_opts(tmpcmdline)
  
@@ -917,7 +900,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +				repo_name_check(trees)
 +			repo_name_duplicate_check(trees)
 +			config_protect_check(trees)
-+			cygdll_protect_check(trees)
 +
 +		check_procfs()
 +
@@ -1271,7 +1253,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +						if portage.secpass < 1 and not need_superuser:
 +							portage_group_warning()
 +						return 1
-+
+ 
+-	elif myaction == 'info':
 +		# Disable emergelog for everything except build or unmerge operations.
 +		# This helps minimize parallel emerge.log entries that can confuse log
 +		# parsers like genlop.
@@ -1287,9 +1270,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		elif portage.data.secpass < 1:
 +			disable_emergelog = True
  
--	elif myaction == 'info':
-+		_emerge.emergelog._disable = disable_emergelog
- 
 -		# Ensure atoms are valid before calling unmerge().
 -		vardb = trees[settings['EROOT']]['vartree'].dbapi
 -		portdb = trees[settings['EROOT']]['porttree'].dbapi
@@ -1297,6 +1277,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -		valid_atoms = []
 -		for x in myfiles:
 -			if is_valid_package_atom(x, allow_repo=True):
++		_emerge.emergelog._disable = disable_emergelog
++
 +		if not disable_emergelog:
 +			if 'EMERGE_LOG_DIR' in settings:
  				try:
@@ -1343,7 +1325,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +				_emerge.emergelog._emerge_log_dir = os.path.join(os.sep,
 +					settings["EPREFIX"].lstrip(os.sep), "var", "log")
 +				portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
-+
+ 
+-		return action_info(settings, trees, myopts, valid_atoms)
 +		if not "--pretend" in myopts:
 +			emergelog(xterm_titles, "Started emerge on: "+\
 +				_unicode_decode(
@@ -1459,15 +1442,10 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +					level=logging.ERROR, noiselevel=-1)
 +				return 1
  
--		return action_info(settings, trees, myopts, valid_atoms)
-+			return action_info(settings, trees, myopts, valid_atoms)
- 
 -	# "update", "system", or just process files:
 -	else:
 -		validate_ebuild_environment(trees)
-+		# "update", "system", or just process files:
-+		else:
-+			validate_ebuild_environment(trees)
++			return action_info(settings, trees, myopts, valid_atoms)
  
 -		for x in myfiles:
 -			if x.startswith(SETPREFIX) or \
@@ -1486,6 +1464,16 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -			writemsg_level("".join("!!! %s\n" % line for line in msg),
 -				level=logging.ERROR, noiselevel=-1)
 -			return 1
++		# "update", "system", or just process files:
++		else:
++			validate_ebuild_environment(trees)
+ 
+-		if "--pretend" not in myopts:
+-			display_news_notification(root_config, myopts)
+-		retval = action_build(settings, trees, mtimedb,
+-			myopts, myaction, myfiles, spinner)
+-		post_emerge(myaction, myopts, myfiles, settings['EROOT'],
+-			trees, mtimedb, retval)
 +			for x in myfiles:
 +				if x.startswith(SETPREFIX) or \
 +					is_valid_package_atom(x, allow_repo=True):
@@ -1510,13 +1498,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +				myopts, myaction, myfiles, spinner)
 +			post_emerge(myaction, myopts, myfiles, settings['EROOT'],
 +				trees, mtimedb, retval)
- 
--		if "--pretend" not in myopts:
--			display_news_notification(root_config, myopts)
--		retval = action_build(settings, trees, mtimedb,
--			myopts, myaction, myfiles, spinner)
--		post_emerge(myaction, myopts, myfiles, settings['EROOT'],
--			trees, mtimedb, retval)
++
 +			return retval
  
 -		return retval
@@ -1844,45 +1826,11 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	"""Attempt to use internal MasterLock API incorrectly"""
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20271/pym/portage/master_lock.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/master_lock.py	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-27 00:31:42.140753600 -0700
-@@ -0,0 +1,829 @@
++++ prefix-portage-2.2.01.20271/pym/portage/master_lock.py	2012-03-27 03:34:20.782253600 -0700
+@@ -0,0 +1,788 @@
 +# portage: master_lock
 +# Copyright 2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
-+
-+# This ended up being a lot more complicated than I'd hoped for.
-+# The idea is pretty simple and the best way to quickly understand it may be
-+# to trace it in the debugger -- I think perhaps it's a bit less hairy than it
-+# appears due to my tendency to write so many comments and due to the way
-+# it was coded (forgive me, I don't really know python, or didn't when I started
-+# this, so did a good bit of self-hand-holding).
-+#
-+# The basic idea is to provide external consumers with a way to stop
-+# portage from running while doing another task.  I designed it with
-+# cygdll-update in mind.  cygdll-update has the unfortunate responsibility
-+# of finalizing portage .dll-file merges which have been deferred, which is done
-+# in cases where it suspects that changing them while portage is running
-+# will cause portage to crash.
-+#
-+# The only way to ensure that things behave as expected is to make damn sure
-+# that cygdll-update never runs in parallel with an emerge.  This wouldn't be
-+# so hard, but for the fact that there's no reason that the cygwin filesystem
-+# can't be shared across multiple hosts, any one of which could decide to run
-+# portage.  To ensure that we really got it right, we have to coordinate not
-+# only across processes, but across multiple hosts.  To do this, we create a
-+# database of lock-statii which are globally shared across all machines
-+# sharing a portage (and, we must presume, an ${EROOT}).
-+#
-+# Machines are differentiated by their PORTAGE_HOSTNAMEs (a new portage setting
-+# which I dreamed up for precisely this purpose -- it's thoroughly documented in
-+# the make.conf manpage (of the version of portage you are presumably looking
-+# at the source code for)).
-+#
-+# Sorry for writing so much code to achieve such a simple result.
-+# Perhaps some other consumers will find a use for this in the future, although
-+# it should be used quite sparingly for reasons that should be obvious!!
-+#
-+# -gmt
 +
 +__all__ = [ "acquire_master_lock", "release_master_lock", "enumerate_portagen" ]
 +
@@ -1915,6 +1863,10 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +# We could try to simplify it by getting rid of most of the dict-isms
 +# but it works fine as is, and if it ain't broke....
 +class _MasterLockHostDB(object):
++	"""
++	Internal class for accessing the contents of per-host masterlock
++	database files.
++	"""
 +	__slots__ = ['portagen', 'nonportage', 'waiting']
 +
 +	def __init__(self):
@@ -2143,10 +2095,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		return self
 +
 +# note: it is A-OK to destroy these things while holding the logical master lock.  Just create
-+# a new one later and call release().  In fact this is the recommended approach.  They are all
-+# interchangeable throw-aways. Arguably, this shouldn't be a class at all since most of what
-+# it does is infact "static".  However as a DB-accessor object a-la Delphi's TClientDataset,
-+# the tiny smidgeon of object orientatation that actually goes on here is legit OOP imo.
++# a new one later and call release().  In fact this is the recommended approach.
 +#
 +# FIXME: The current implementation goes out of its way to ensure that duplicate acquire/release
 +# cycles do not occur.  However, the value of this is questionable.  To see why, note that non-direct
@@ -2196,6 +2145,9 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	there is the potential for deadlock if the lock acquirer is on a different
 +	machine than the (zombie) lock-holder.  If this occurs, some text will at least
 +	be dumped to the console/logs explaining how to rectify the problem.
++
++	This is an internal class; import acquire_master_lock and release_master_lock
++	to access master lock functionality from without the master_lock module.
 +	"""
 +	__slots__ = ['_loaded_local_MasterLockHostDB', '_settings', '_direct']
 +
@@ -2313,26 +2265,16 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		_MasterLockDB._master_lock_threadlock.release()
 +
 +	# Note that although nonportage processes busy-wait, they release the lock.  So always blocking
-+	# during physical lock acquisition -- it shouldn't be long -- is correct, even though we busy wait
-+	# for the logical lock.  This might be a good moment to remind anyone reading this of the most
-+	# confusing thing about this code -- the physlock and the logical lock, follow completely different
-+	# semantics.  We always release the physlock before we consider the logical lock to be acquired!!!
-+	# BTW: The threadlock, a third locking construct you will see floating around here, mirrors the
-+	# action of the physlock and is used to protect against races during setup/teardown of the
++	# during physical lock acquisition -- it shouldn't take long -- is correct, even though we busy wait
++	# for the logical lock.  The threadlock, a third locking construct, mirrors the behavior
++	# of the physlock and is used to protect against races during setup/teardown of the
 +	# resources associated with the physlock
 +	def _phys_lock_acquire(self):
 +		self._master_lock_threadlock_acquire()
 +
-+		# FIXME? what if another thread were to fork() right at this instant
-+		# and the forkee were to call get_master_lock_*?  We need some kind
-+		# of ability to detect such circumstances and replace the threading.Lock
-+		# if we really want 100% thread-safety.  The more I think about this problem
-+		# the more I suspect that the only real solution would be to implement our own
-+		# lock primitive in C with an after fork handler... so maybe it's not worth it.
-+
 +		if not _MasterLockDB._phys_lock_tuple is None:
-+			# this is just a sanity check -- it should be absolutely impossible for this
-+			# to happen because anyone else that grabbed the physlock would have first
++			# this is just a sanity check -- it should be impossible for this
++			# to happen because anyone that grabbed the physlock would have first
 +			# acquired the threadlock -- therefore, we would have blocked above until
 +			# that other thread released it during _phys_lock_release
 +			raise IllegalMasterLockOperation('_phys_lock_acquire: duplicate acquisition')
@@ -2350,26 +2292,19 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +	def _holding_lock(self):
 +		"""
-+		Test, in a rigorous(-ish?) manner, whether we (or a sibling instance) already hold(s)
-+		the lock.  Note that this can only be done correctly while the physical lock is held
-+		(otherwise, the returned result could already be stale by the time the caller got it
-+		back!).  Therefore, this is useful internally, as a way to guard against duplicate
-+		lock acquisition/release, not as an informational API. (If you /really/ wanted to
-+		test, you could do an extra acquire()/release() to see if you got an exception, but
-+		the idea is that your process will do ths once, globally, and protect it with some
-+		kind of try/finally or signal handler, so no such test should ever be called for).
++		Test whether we already hold the lock.  This is only used internally, as a way to guard
++		against duplicate lock acquisition/release, not as an informational API; it is also
++		only used by "direct" locking applications such as emerge.
 +
-+		This does not use the database!!!!, but the class variable _acquired_master_lock.
++		This does not use the database, but the class variable _acquired_master_lock.
 +		What we are testing is whether anyone sharing our same global address space has
 +		acquired the lock.  However, as a safeguard against forkees of processes holding the
-+		lock getting bogus results, we must also check that we still have the same pid as
++		lock getting bogus results, we also check that we still have the same pid as
 +		the process that acquired the lock, and "forget" about our lock ownership if there
 +		is a mismatch.
 +		"""
 +		# heuristic to guard against misinformed attempts to use this as an informational
-+		# API.  Note that if we went crazy with threads we could manage to erroneously
-+		# pass this test, but the test will should never erroneously fail due to the
-+		# threadlock
++		# API.
 +		if not _MasterLockDB._master_lock_threadlock_locked:
 +			raise IllegalMasterLockOperation('_holding_lock query without required threadlock')
 +
@@ -2428,9 +2363,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +			# we ignore non-lowercase names because this framework should never create them -- obviously,
 +			# something is wrong, or they came from without, so messing with them is asking for trouble.
 +			# It is possible that somewhere somebody needs to run portage on a filesystem that automagically
-+			# capitalizes filenames; for such a system, the islower() below would need to be removed.  For the
-+			# vast majority, however, this will always be a file we didn't create ourselves, and, therefore,
-+			# probably a square hole to our round MasterLockHostDB peg.
++			# capitalizes filenames; for such a system, the islower() below would need to be removed.
 +			if validate_portage_hostname(f, False) and f.islower():
 +				hdb = _MasterLockHostDB()
 +				hdb.loadfrom(os.path.join(self._portage_master_lockdir(), f))
@@ -2466,11 +2399,9 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +					_("_MasterLockDB: _save_db_from_fs seemingly without prior load") + "\n",
 + 				level=logging.WARN, noiselevel=-1)
 +
-+		# to see why this is correct consider that we held the physlock during the critical section,
++		# to see why this is correct consider that we held the physlock throughout the critical section,
 +		# which we are still in.  During that time only we had permission to change anything, and the
-+		# only _MasterLockHostDB that it makes sense for us to be mucking around with is our own!  If
-+		# we wanted to sanity check this, we could go through the fs and make sure nothing changed, but
-+		# do we trust the physlock or not?  I think the answer has to be "yes" or else what's the point?
++		# only _MasterLockHostDB that it makes sense for us to be mucking around with is our own.
 +		myhostdb = self[self._portage_hostname()]
 +		if myhostdb != self._loaded_local_MasterLockHostDB:
 +			myhostdbpath = os.path.join(self._portage_master_lockdir(), self._portage_hostname())
@@ -2616,7 +2547,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +def acquire_master_lock(asportage=False, direct=None, settings=None):
 +	"""
-+
 +	Acquire the master lock.
 +
 +        @param asportage: Whether to acquire the master lock as a portage
@@ -2674,6 +2604,17 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	_MasterLockDB(direct, settings).release(asportage)
 +
 +def enumerate_portagen(filename):
++	"""
++	Enumerate the PIDs of all portage processes holding the master_lock according
++	to the given master-lock host database file.  Can be called without acquiring the
++	lock.  With or without the master lock, as soon as these results are returned, they
++	become stale and not strictly reliable.  The results can only be treated as heuristic
++	in nature.
++	@param filename: The full filepath of the per-host portage master-lock database file
++	from which to enumerate PIDs.
++	@return: The requested list of PIDs.
++	@rtype: List
++	"""
 +	return _MasterLockHostDB().loadfrom(filename).clean_pids(ignore_mypid=True).portagen
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20271/pym/portage/package/ebuild/_config/special_env_vars.py
 --- prefix-portage-2.2.01.20271.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-03-27 00:31:44.578253600 -0700
