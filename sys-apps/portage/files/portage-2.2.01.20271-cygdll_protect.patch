@@ -180,7 +180,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +# vim: syntax=sh
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/portageq prefix-portage-2.2.01.20271/bin/portageq
 --- prefix-portage-2.2.01.20271.orig/bin/portageq	2012-03-27 00:31:44.441753600 -0700
-+++ prefix-portage-2.2.01.20271/bin/portageq	2012-03-27 00:56:53.054753600 -0700
++++ prefix-portage-2.2.01.20271/bin/portageq	2012-03-27 01:19:29.519253600 -0700
 @@ -54,6 +54,7 @@
  	'_emerge.RootConfig:RootConfig',
  	'portage.dbapi._expand_new_virt:expand_new_virt',
@@ -262,7 +262,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		print("ERROR: expected 1 parameter at most, got %d!" % len(argv))
 +		return 2
 +
-+	if argv and argv[0] <> '--as-portage':
++	if argv and argv[0] != '--as-portage':
 +		print("ERROR: parameter %s is invalid!" % argv[0])
 +		return 2
 +
@@ -281,7 +281,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		print("ERROR: expected 1 parameter at most, got %d!" % len(argv))
 +		return 2
 +
-+	if argv and argv[0] <> '--as-portage':
++	if argv and argv[0] != '--as-portage':
 +		print("ERROR: parameter %s is invalid!" % argv[0])
 +		return 2
 +
