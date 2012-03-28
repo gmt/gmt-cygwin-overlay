@@ -9,5 +9,6 @@
 		<flag name="ipc">Use inter-process communication between portage and running ebuilds.</flag>
 		<flag name="less">Pull in sys-apps/less as default pager for etc-update.</flag>
 		<flag name="prefix-chaining">mduft's experimental prefix chaining facilities</flag>
+		<flag name="cygdll-protect">Apply experimental cygdll-protect portage patch for stable emerges in cygwin</flag>
 	</use>
 </pkgmetadata>
