@@ -1,6 +1,11 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
+
+# XXX: atm, libbz2.a is always PIC :(, so it is always built quickly
+#      (since we're building shared libs) ...
+
+EAPI="2"
 
 inherit eutils multilib toolchain-funcs flag-o-matic prefix
 
@@ -11,15 +16,13 @@ SRC_URI="http://www.bzip.org/${PV}/${P}.tar.gz"
 LICENSE="BZIP2"
 SLOT="0"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
-IUSE="static"
+IUSE="static static-libs"
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
+src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.0.4-makefile-CFLAGS.patch
 	epatch "${FILESDIR}"/${PN}-1.0.6-saneso.patch
 	epatch "${FILESDIR}"/${PN}-1.0.4-man-links.patch #172986
-	epatch "${FILESDIR}"/${PN}-1.0.2-progress.patch
+	epatch "${FILESDIR}"/${PN}-1.0.6-progress.patch
 	epatch "${FILESDIR}"/${PN}-1.0.3-no-test.patch
 	epatch "${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
 	epatch "${FILESDIR}"/${PN}-1.0.5-checkenv.patch # for AIX, Darwin?
@@ -108,12 +111,12 @@ src_install() {
 
 	gen_usr_ldscript -a bz2
 
+	# static doesn't generate dual exe's on cygwin
 	if ! use static && [[ ${CHOST} != *-cygwin* ]] ; then
 		newbin bzip2-shared bzip2 || die
-	elif ! use static ; then
-		# cygwin always installs static so fix it
-		rm "${ED}"/usr/$(get_libdir)/libbz2.a || \
-			die "expected \"${ED}/usr/$(get_libdir)/libbz2.a\""
+	fi
+	if ! use static-libs ; then
+		rm -f "${ED}"/usr/lib*/libbz2.a || die
 	fi
 
 	fi
