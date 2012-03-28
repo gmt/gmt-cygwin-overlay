@@ -6,8 +6,10 @@ EAPI="2"
 
 inherit eutils
 if [[ ${PV} == "99999999" ]] ; then
-	EGIT_REPO_URI="git://git.savannah.gnu.org/config.git"
-	inherit git
+	EGIT_REPO_URI="git://git.savannah.gnu.org/config.git
+		http://git.savannah.gnu.org/r/config.git"
+
+	inherit git-2
 else
 	SRC_URI="mirror://gentoo/${P}.tar.bz2"
 	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~hppa-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
@@ -38,7 +40,7 @@ maint_pkg_create() {
 
 src_unpack() {
 	if [[ ${PV} == "99999999" ]] ; then
-		git_src_unpack
+		git-2_src_unpack
 		maint_pkg_create
 	else
 		unpack ${A}
@@ -47,7 +49,7 @@ src_unpack() {
 
 src_prepare() {
 	epatch "${WORKDIR}"/*.patch
-	epatch "${FILESDIR}"/${PV}/0003-add-cygwin1.7-guess-support.patch
+	epatch "${FILESDIR}"/20110814/0003-add-cygwin1.7-guess-support.patch
 	use elibc_uclibc && sed -i 's:linux-gnu:linux-uclibc:' testsuite/config-guess.data #180637
 }
 
