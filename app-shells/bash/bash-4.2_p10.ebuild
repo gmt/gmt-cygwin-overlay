@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p10.ebuild,v 1.2 2011/05/16 10:36:26 nyhm Exp $
+# $Header: $
 
 EAPI="1"
 
@@ -39,13 +39,15 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
-IUSE="afs bashlogger examples mem-scramble +net nls plugins vanilla +readline"
+IUSE="afs bashlogger examples mem-scramble +net nls plugins vanilla"
 
 DEPEND=">=sys-libs/ncurses-5.2-r2
 	nls? ( virtual/libintl )"
 RDEPEND="${DEPEND}
 	!<sys-apps/portage-2.1.7.16
 	!<sys-apps/paludis-0.26.0_alpha5"
+# we only need yacc when the .y files get patched (bash42-005)
+DEPEND+=" virtual/yacc"
 
 S=${WORKDIR}/${MY_P}
 
@@ -71,6 +73,9 @@ src_unpack() {
 	[[ ${READLINE_PLEVEL} -gt 0 ]] && epatch $(patches -s ${READLINE_PLEVEL} readline ${READLINE_VER})
 	cd ../..
 
+	epatch "${FILESDIR}"/${PN}-4.2-execute-job-control.patch #383237
+	epatch "${FILESDIR}"/${PN}-4.2-parallel-build.patch
+
 	# this adds additional prefixes
 	epatch "${FILESDIR}"/${PN}-4.0-configs-prefix.patch
 	eprefixify pathnames.h.in
@@ -83,7 +88,7 @@ src_unpack() {
 	fi
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
-		epatch "${FILESDIR}"/${PN}-4.1-cygport-src.patch
+		epatch "${FILESDIR}"/${PN}-4.1-cygport-src-abridged.patch
 		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-cache.patch
 	fi
 
@@ -100,10 +105,6 @@ src_unpack() {
 	# DON'T YOU EVER PUT eautoreconf OR SIMILAR HERE!  THIS IS A CRITICAL
 	# PACKAGE THAT MUST NOT RELY ON AUTOTOOLS, USE A SELF-SUFFICIENT PATCH
 	# INSTEAD!!!
-}
-
-src_configure() {
-	return 0
 }
 
 src_compile() {
@@ -160,11 +161,8 @@ src_compile() {
 	# Always use the buildin readline, else if we update readline
 	# bash gets borked as readline is usually not binary compadible
 	# between minor versions.
-
-	# just kidding, go ahead and use it (otherwise we get libiconv problems)
-
-	myconf="${myconf} $(use_with readline installed-readline)"
-	# myconf="${myconf} --without-installed-readline"
+	#myconf="${myconf} $(use_with !readline installed-readline)"
+	myconf="${myconf} --without-installed-readline"
 
 	# Don't even think about building this statically without
 	# reading Bug 7714 first.  If you still build it statically,
