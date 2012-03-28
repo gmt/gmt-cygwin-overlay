@@ -2,3 +2,4 @@
 # we don't want to VC those (just "portage_diffs/latest")
 portage_diffs/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]
 *.swp
+metadata
