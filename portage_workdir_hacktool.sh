@@ -37,9 +37,9 @@ codegrep_specs=( "-name '*.py'" "-name '*.sh'" "-path './bin/*'" )
 cold_vars=${cold_vars:-no}
 case ${cold_vars:-${coldvars:-${COLD_VARS:-${COLDVARS:-no}}}} in
 	y|yes|Y|YES|Yes|T|True|TRUE|t|true|1|cold|COLD|Cold|ice|freezing|yep|please|asawitchestitty)
-	unset patch_pile_default
-	unset patch_pile_series_default
-	unset hack_patch_default
+	unset patch_pile
+	unset patch_pile_series
+	unset hack_patch
 	cold_vars=yes
 	;;
 esac
@@ -85,7 +85,15 @@ if [[ $cold_vars == yes ]] ; then
 fi
 
 # kludge to re-source this file when hacking on it
-sourceit() { source "${overlay_dir}"/portage_workdir_hacktool.sh ; }
+sourceit() {
+	if [[ $1 == --cold ]] ; then
+		cold_vars=yes
+	elif [[ $1 == --help || $1 == -h ]] ; then
+		echo 'usage: sourceit [--cold]'
+		return 0
+	fi
+	source "${overlay_dir}"/portage_workdir_hacktool.sh
+}
 
 files_equal () 
 { 
