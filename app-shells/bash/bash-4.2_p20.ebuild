@@ -88,7 +88,6 @@ src_unpack() {
 	fi
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
-		epatch "${FILESDIR}"/${PN}-4.1-cygport-src-abridged.patch
 		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-cache.patch
 	fi
 
