@@ -1,6 +1,6 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/python-2.7.2-r3.ebuild,v 1.7 2011/10/31 04:02:01 vapier Exp $
+# $Header: $
 
 EAPI="2"
 WANT_AUTOMAKE="none"
@@ -37,7 +37,8 @@ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix 
 IUSE="aqua -berkdb build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml -cygbootstraphack"
 
 RDEPEND=">=app-admin/eselect-python-20091230
-		app-arch/bzip2
+		|| ( >=app-arch/bzip2-1.0.6-r3[static-libs]
+		     <app-arch/bzip2-1.0.6-r3 )
 		>=sys-libs/zlib-1.1.3
 		!m68k-mint? ( virtual/libffi )
 		virtual/libintl
@@ -53,7 +54,7 @@ RDEPEND=">=app-admin/eselect-python-20091230
 			) )
 			gdbm? ( sys-libs/gdbm )
 			ncurses? (
-				>=sys-libs/ncurses-5.2[unicode]
+				>=sys-libs/ncurses-5.2
 				readline? ( >=sys-libs/readline-4.1 )
 			)
 			sqlite? ( >=dev-db/sqlite-3.3.8:3[extensions] )
@@ -229,7 +230,8 @@ src_prepare() {
 		fi
 	fi
 
-	eautoreconf
+	eautoconf
+	eautoheader
 }
 
 src_configure() {
@@ -510,7 +512,7 @@ src_install() {
 
 		# fix up Makefile
 		sed -i \
-			-e '/^LINKFORSHARED=/s/_PyMac_Error.*$/PyMac_Error/' \
+			-e '/^LINKFORSHARED=/s/-u _PyMac_Error.*$//' \
 			-e '/^LDFLAGS=/s/=.*$/=/' \
 			-e '/^prefix=/s:=.*$:= '"${EPREFIX}"'/usr:' \
 			-e '/^PYTHONFRAMEWORK=/s/=.*$/=/' \
@@ -642,13 +644,6 @@ pkg_postinst() {
 			echo -ne "\a"
 			sleep 1
 		done
-	fi
-
-	if [[ "${PV}" != *_pre* ]]; then
-		elog
-		elog "If you want to help in testing of recent changes in Python, then you can use"
-		elog "snapshots of Python from python overlay."
-		elog
 	fi
 }
 
