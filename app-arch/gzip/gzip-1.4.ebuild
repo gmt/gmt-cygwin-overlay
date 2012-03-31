@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/app-arch/gzip/gzip-1.4.ebuild,v 1.8 2011/04/03 11:15:56 ulm Exp $
 
-inherit eutils flag-o-matic prefix shebangfix
+inherit eutils flag-o-matic prefix-gmt
 
 DESCRIPTION="Standard GNU compressor"
 HOMEPAGE="http://www.gnu.org/software/gzip/"
