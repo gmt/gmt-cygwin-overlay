@@ -1,0 +1,15 @@
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20271.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20271.orig/bin/misc-functions.sh prefix-portage-2.2.01.20271/bin/misc-functions.sh
+--- prefix-portage-2.2.01.20271.orig/bin/misc-functions.sh	2012-03-29 14:20:17.992213700 -0700
++++ prefix-portage-2.2.01.20271/bin/misc-functions.sh	2012-03-29 15:15:27.071397200 -0700
+@@ -48,6 +48,11 @@
+ # replacement for "readlink -f" or "realpath"
+ canonicalize() {
+ 	local f=$1 b n=10 wd=$(pwd)
++	# cygwin goes completly apeshit if we "cd //" in bash
++	# ( not a hyperbolic statement. think: kernel panic.) 
++	while [[ ${#f} -gt 1 && ${f:0:1} == / && ${f:1:1} == / ]] ; do
++		f=${f#/}
++	done
+ 	while (( n-- > 0 )); do
+ 		while [[ ${f: -1} = / && ${#f} -gt 1 ]]; do
+ 			f=${f%/}
