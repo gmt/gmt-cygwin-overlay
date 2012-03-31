@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit flag-o-matic eutils multilib toolchain-funcs mono libtool java-pkg-opt-2 autotools
+inherit flag-o-matic eutils multilib toolchain-funcs mono libtool java-pkg-opt-2 autotools prefix-gmt
 
 DESCRIPTION="GNU locale utilities"
 HOMEPAGE="http://www.gnu.org/software/gettext/"
@@ -28,7 +28,7 @@ PDEPEND="emacs? ( app-emacs/po-mode )"
 
 src_prepare() {
 	java-pkg-opt-2_src_prepare
-	if use m68k-mint ; then #334671
+	if use m68k-mint && ! use prefix; then #334671
 		export AT_NO_RECURSIVE=yes
 		cd "${S}"/gettext-runtime || die
 		AT_M4DIR="m4 gnulib-m4" eautoreconf
@@ -36,7 +36,7 @@ src_prepare() {
 		AT_M4DIR="../../m4 ../m4" eautoreconf
 	fi
 	# this script uses syntax that Solaris /bin/sh doesn't grok
-	sed -i -e '1c\#!/usr/bin/env sh' \
+	sed -i -e '1c\#!'"${EPREFIX}"'/usr/bin/env sh' \
 		"${S}"/gettext-tools/misc/convert-archive.in || die
 
 	# work around problem in gnulib on OSX Lion
@@ -49,6 +49,20 @@ src_prepare() {
 
 	epunt_cxx
 
+	if use prefix ; then
+		cd "${S}"
+		# Note: Some of the below may get wiped out during reconfig.  You are welcome to sort that shit
+		# out for me if you like, patches welcome. in the meanwhile we err on the side of caution :) -gmt
+		bash_shebang_prefixify $( find . -name 'config.charset' -o -name 'config.guess' -o -name 'config.sub' -o \
+			-name 'x-to-1.in' -o -name 'autoclean.sh' -o -name 'autogen.sh' ) \
+			gettext-tools/libgettextpo/exported.sh.in gettext-tools/examples \
+			gettext-tools/misc/{add-to-archive,autopoint.in,gettextize.in} \
+			./gettext-tools/src/user-email.sh.in ./gnulib-local/build-aux/moopp \
+			./gnulib-local/tests/test-term-ostream-xterm
+		bash_shebang_prefixify_dirs -r gettext-tools/gnulib-tests gettext-tools/projects \
+			gettext-tools/tests build-aux gettext-tools/examples
+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
+	fi
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
 		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
@@ -58,11 +72,13 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-${PV}-cygport-03-locale-tests.patch
 		epatch "${FILESDIR}"/${PN}-${PV}-woe-is-us.patch
 		epatch "${FILESDIR}"/${PN}-${PV}-cygwin1.7-hostglob.patch
+	fi
 
-		einfo running elibtoolize --force in .
+	if [[ ${CHOST} == *-cygwin* ]] || use prefix ; then
+		einfo "running elibtoolize --force in ."
 		elibtoolize --force || die
 
-		einfo doing autogen stuff for ./gettext-runtime/libasprintf
+		einfo "doing autogen stuff for ./gettext-runtime/libasprintf"
 		cd "${S}"/gettext-runtime/libasprintf || die
 		einfo Running fixaclocal
 		../../build-aux/fixaclocal aclocal -I ../../m4 -I ../m4 -I gnulib-m4 || die
@@ -70,7 +86,7 @@ src_prepare() {
 		eautoheader || die
 		eautomake || die
 
-		einfo doing autogen stuff for ./gettext-runtime
+		einfo "doing autogen stuff for ./gettext-runtime"
 		cd "${S}"/gettext-runtime || die
 		einfo Running fixaclocal
 		../build-aux/fixaclocal aclocal -I m4 -I ../m4 -I gnulib-m4 || die
@@ -79,12 +95,12 @@ src_prepare() {
 		touch config.h.in
 		eautomake || die
 
-		einfo doing autogen stuff for ./gettext-tools/examples
+		einfo "doing autogen stuff for ./gettext-tools/examples"
 		cd "${S}"/gettext-tools/examples || die
 		eautoconf || die
 		eautomake || die
 		
-		einfo doing autogen stuff for ./gettext-tools
+		einfo "doing autogen stuff for ./gettext-tools"
 		cd "${S}"/gettext-tools || die
 		einfo Running fixaclocal
 		../build-aux/fixaclocal aclocal -I m4 -I ../gettext-runtime/m4 -I ../m4 \
@@ -95,7 +111,7 @@ src_prepare() {
 		test -d intl || mkdir intl
 		eautomake || die
 
-		einfo doing autogenstuff for .
+		einfo "doing autogenstuff for ."
 		cd "${S}" || die
 		cp -pv gettext-runtime/ABOUT-NLS gettext-tools/ABOUT-NLS
 		einfo Running fixaclocal

@@ -1,0 +1,2509 @@
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/gnulib-m4/lib-ld.m4 gettext-0.18.1.1/gettext-runtime/gnulib-m4/lib-ld.m4
+--- gettext-0.18.1.1.orig/gettext-runtime/gnulib-m4/lib-ld.m4	2010-02-16 13:31:29.000000000 -0800
++++ gettext-0.18.1.1/gettext-runtime/gnulib-m4/lib-ld.m4	2012-03-30 06:08:04.264723700 -0700
+@@ -31,7 +31,7 @@
+ # Prepare PATH_SEPARATOR.
+ # The user is always right.
+ if test "${PATH_SEPARATOR+set}" != set; then
+-  echo "#! /bin/sh" >conf$$.sh
++  echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh" >conf$$.sh
+   echo  "exit 0"   >>conf$$.sh
+   chmod +x conf$$.sh
+   if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-m4/lib-ld.m4 gettext-0.18.1.1/gettext-tools/gnulib-m4/lib-ld.m4
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-m4/lib-ld.m4	2010-05-24 03:42:19.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-m4/lib-ld.m4	2012-03-30 06:12:44.410223700 -0700
+@@ -31,7 +31,7 @@
+ # Prepare PATH_SEPARATOR.
+ # The user is always right.
+ if test "${PATH_SEPARATOR+set}" != set; then
+-  echo "#! /bin/sh" >conf$$.sh
++  echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh" >conf$$.sh
+   echo  "exit 0"   >>conf$$.sh
+   chmod +x conf$$.sh
+   if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/gnulib-m4/lib-link.m4 gettext-0.18.1.1/gettext-runtime/gnulib-m4/lib-link.m4
+--- gettext-0.18.1.1.orig/gettext-runtime/gnulib-m4/lib-link.m4	2010-04-25 02:20:43.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/gnulib-m4/lib-link.m4	2012-03-30 06:33:43.805723700 -0700
+@@ -129,7 +129,7 @@
+   AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT]) dnl we use $ac_aux_dir
+   AC_CACHE_CHECK([for shared library run path origin], [acl_cv_rpath], [
+     CC="$CC" GCC="$GCC" LDFLAGS="$LDFLAGS" LD="$LD" with_gnu_ld="$with_gnu_ld" \
+-    ${CONFIG_SHELL-/bin/sh} "$ac_aux_dir/config.rpath" "$host" > conftest.sh
++    ${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh} "$ac_aux_dir/config.rpath" "$host" > conftest.sh
+     . ./conftest.sh
+     rm -f ./conftest.sh
+     acl_cv_rpath=done
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/gnulib-m4/relocatable.m4 gettext-0.18.1.1/gettext-runtime/gnulib-m4/relocatable.m4
+--- gettext-0.18.1.1.orig/gettext-runtime/gnulib-m4/relocatable.m4	2010-04-25 02:20:43.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/gnulib-m4/relocatable.m4	2012-03-30 06:34:23.403723700 -0700
+@@ -96,7 +96,7 @@
+   AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT]) dnl we use $ac_aux_dir
+   AC_CACHE_CHECK([for shared library path variable], [acl_cv_libpath], [
+     LD="$LD" \
+-    ${CONFIG_SHELL-/bin/sh} "$ac_aux_dir/config.libpath" "$host" > conftest.sh
++    ${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh} "$ac_aux_dir/config.libpath" "$host" > conftest.sh
+     . ./conftest.sh
+     rm -f ./conftest.sh
+     acl_cv_libpath=${acl_cv_shlibpath_var:-none}
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/intl/Makefile.in gettext-0.18.1.1/gettext-runtime/intl/Makefile.in
+--- gettext-0.18.1.1.orig/gettext-runtime/intl/Makefile.in	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/intl/Makefile.in	2012-03-30 06:35:36.329223700 -0700
+@@ -19,7 +19,7 @@
+ PACKAGE = @PACKAGE@
+ VERSION = @VERSION@
+ 
+-SHELL = /bin/sh
++SHELL = @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ 
+ srcdir = @srcdir@
+ top_srcdir = @top_srcdir@
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/intl-java/Makefile.am gettext-0.18.1.1/gettext-runtime/intl-java/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-runtime/intl-java/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/intl-java/Makefile.am	2012-03-30 06:37:22.030223700 -0700
+@@ -26,7 +26,7 @@
+ 
+ JAR = @JAR@
+ JAVACOMP = $(SHELL) ../javacomp.sh
+-JAVADOC2 = test ! -d /usr/lib/jdk1.3.1 || env PATH=/usr/lib/jdk1.3.1/bin:$$PATH javadoc
++JAVADOC2 = test ! -d @GENTOO_PORTAGE_EPREFIX@/usr/lib/jdk1.3.1 || env PATH=@GENTOO_PORTAGE_EPREFIX@/usr/lib/jdk1.3.1/bin:$$PATH javadoc
+ 
+ 
+ all-local: all-classes all-javadoc2
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/m4/progtest.m4 gettext-0.18.1.1/gettext-runtime/m4/progtest.m4
+--- gettext-0.18.1.1.orig/gettext-runtime/m4/progtest.m4	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/m4/progtest.m4	2012-03-30 06:39:29.530723700 -0700
+@@ -27,7 +27,7 @@
+ # Prepare PATH_SEPARATOR.
+ # The user is always right.
+ if test "${PATH_SEPARATOR+set}" != set; then
+-  echo "#! /bin/sh" >conf$$.sh
++  echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh" >conf$$.sh
+   echo  "exit 0"   >>conf$$.sh
+   chmod +x conf$$.sh
+   if (PATH="/nonexistent;."; conf$$.sh) >/dev/null 2>&1; then
+@@ -41,7 +41,7 @@
+ # Find out how to test for executable files. Don't use a zero-byte file,
+ # as systems may use methods other than mode bits to determine executability.
+ cat >conf$$.file <<_ASEOF
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 0
+ _ASEOF
+ chmod +x conf$$.file
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/po/Makefile.in.in gettext-0.18.1.1/gettext-runtime/po/Makefile.in.in
+--- gettext-0.18.1.1.orig/gettext-runtime/po/Makefile.in.in	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/po/Makefile.in.in	2012-03-30 06:40:54.239723700 -0700
+@@ -15,7 +15,7 @@
+ VERSION = @VERSION@
+ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+ 
+-SHELL = /bin/sh
++SHELL = @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ @SET_MAKE@
+ 
+ srcdir = @srcdir@
+@@ -432,7 +432,8 @@
+ # Recreate Makefile by invoking config.status. Explicitly invoke the shell,
+ # because execution permission bits may not work on the current file system.
+ # Use @SHELL@, which is the shell determined by autoconf for the use by its
+-# scripts, not $(SHELL) which is hardwired to /bin/sh and may be deficient.
++# scripts, not $(SHELL) which is hardwired to @GENTOO_PORTAGE_EPREFIX@/bin/sh
++# and may be deficient.
+ Makefile: Makefile.in.in Makevars $(top_builddir)/config.status @POMAKEFILEDEPS@
+ 	cd $(top_builddir) \
+ 	  && @SHELL@ ./config.status $(subdir)/$@.in po-directories
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/src/gettext.sh.in gettext-0.18.1.1/gettext-runtime/src/gettext.sh.in
+--- gettext-0.18.1.1.orig/gettext-runtime/src/gettext.sh.in	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/src/gettext.sh.in	2012-03-30 06:41:52.793223700 -0700
+@@ -1,4 +1,4 @@
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ #
+ # Copyright (C) 2003, 2005-2007 Free Software Foundation, Inc.
+ #
+@@ -45,7 +45,7 @@
+   # it sets $0 to "gettext.sh", defeating the purpose of this test. But
+   # fortunately we know that when running under zsh, this script is always
+   # being sourced, not executed, because hardly anyone is crazy enough to
+-  # install zsh as /bin/sh.
++  # install zsh as @GENTOO_PORTAGE_EPREFIX@/bin/sh.
+   case "$0" in
+     gettext.sh | */gettext.sh | *\\gettext.sh)
+       progname=$0
+diff -urN gettext-0.18.1.1.orig/gettext-tools/doc/iso-3166.sed gettext-0.18.1.1/gettext-tools/doc/iso-3166.sed
+--- gettext-0.18.1.1.orig/gettext-tools/doc/iso-3166.sed	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/doc/iso-3166.sed	2012-03-30 06:43:48.553723700 -0700
+@@ -1,4 +1,4 @@
+-#! /usr/bin/sed -f
++#! @GENTOO_PORTAGE_EPREFIX@/usr/bin/sed -f
+ #
+ # each line of the form ^..<tab>.* contains the code for a country.
+ #
+diff -urN gettext-0.18.1.1.orig/gettext-tools/doc/iso-639-2.sed gettext-0.18.1.1/gettext-tools/doc/iso-639-2.sed
+--- gettext-0.18.1.1.orig/gettext-tools/doc/iso-639-2.sed	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/doc/iso-639-2.sed	2012-03-30 06:44:08.011223700 -0700
+@@ -1,4 +1,4 @@
+-#! /usr/bin/sed -f
++#! @GENTOO_PORTAGE_EPREFIX@/usr/bin/sed -f
+ #
+ # Each line of the form ^...   .* contains the code for a language.
+ # The categorization in column 60 should be a space, denoting a living language,
+diff -urN gettext-0.18.1.1.orig/gettext-tools/doc/iso-639.sed gettext-0.18.1.1/gettext-tools/doc/iso-639.sed
+--- gettext-0.18.1.1.orig/gettext-tools/doc/iso-639.sed	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/doc/iso-639.sed	2012-03-30 06:44:24.860223700 -0700
+@@ -1,4 +1,4 @@
+-#! /usr/bin/sed -f
++#! @GENTOO_PORTAGE_EPREFIX@/usr/bin/sed -f
+ #
+ # each line of the form ^.. .* contains the code for a language.
+ #
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/acinclude.m4.in gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/acinclude.m4.in
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/acinclude.m4.in	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/acinclude.m4.in	2012-03-30 06:50:07.969223700 -0700
+@@ -304,7 +304,7 @@
+    for dir in $kde_qt_dirs; do
+       qt_bindirs="$qt_bindirs $dir/bin $dir/src/moc"
+    done
+-   qt_bindirs="$qt_bindirs /usr/bin /usr/X11R6/bin /usr/local/qt/bin"
++   qt_bindirs="$qt_bindirs @GENTOO_PORTAGE_EPREFIX@/usr/bin @GENTOO_PORTAGE_EPREFIX@/usr/X11R6/bin /usr/local/qt/bin"
+    if test ! "$ac_qt_bindir" = "NO"; then
+       qt_bindirs="$ac_qt_bindir $qt_bindirs"
+    fi
+@@ -523,7 +523,7 @@
+ AC_DEFUN(KDE_SUBST_PROGRAMS,
+ [
+ 
+-        kde_default_bindirs="/usr/bin /usr/local/bin /opt/local/bin /usr/X11R6/bin /opt/kde/bin /opt/kde3/bin /usr/kde/bin /usr/local/kde/bin"
++        kde_default_bindirs="@GENTOO_PORTAGE_EPREFIX@/usr/bin /usr/local/bin /opt/local/bin @GENTOO_PORTAGE_EPREFIX@/usr/X11R6/bin /opt/kde/bin /opt/kde3/bin @GENTOO_PORTAGE_EPREFIX@/usr/kde/bin /usr/local/kde/bin"
+         test -n "$KDEDIR" && kde_default_bindirs="$KDEDIR/bin $kde_default_bindirs"
+         if test -n "$KDEDIRS"; then
+            kde_save_IFS=$IFS
+@@ -2950,7 +2950,7 @@
+ AM_PROG_LIBTOOL
+ AC_LIBTOOL_CXX
+ 
+-LIBTOOL_SHELL="/bin/sh ./libtool"
++LIBTOOL_SHELL="@GENTOO_PORTAGE_EPREFIX@/bin/sh ./libtool"
+ #  LIBTOOL="$LIBTOOL --silent"
+ KDE_PLUGIN="-avoid-version -module -no-undefined \$(KDE_RPATH) \$(KDE_MT_LDFLAGS)"
+ AC_SUBST(KDE_PLUGIN)
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-csharp/Makefile.am gettext-0.18.1.1/gettext-tools/examples/hello-csharp/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-csharp/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-csharp/Makefile.am	2012-03-30 06:56:25.672723700 -0700
+@@ -47,8 +47,8 @@
+ 	$(CSHARPCOMP) $(CSHARPCOMPFLAGS) -o $@ $(hello_CSHARPLIBS) $(srcdir)/hello.cs
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
+-	  echo "exec /bin/sh '$(pkgdatadir)/csharpexec.sh' @GNU_GETTEXT_LDADD@ '$(pkglibdir)/hello.net.exe' \"\$$@\""; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
++	  echo "exec @GENTOO_PORTAGE_EPREFIX@/bin/sh '$(pkgdatadir)/csharpexec.sh' @GNU_GETTEXT_LDADD@ '$(pkglibdir)/hello.net.exe' \"\$$@\""; \
+ 	} > $@
+ 
+ install-exec-local: all-local
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-csharp-forms/Makefile.am gettext-0.18.1.1/gettext-tools/examples/hello-csharp-forms/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-csharp-forms/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-csharp-forms/Makefile.am	2012-03-30 06:57:26.654723700 -0700
+@@ -47,8 +47,8 @@
+ 	$(CSHARPCOMP) $(CSHARPCOMPFLAGS) -o $@ $(hello_CSHARPLIBS) $(srcdir)/hello.cs
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
+-	  echo "exec /bin/sh '$(pkgdatadir)/csharpexec.sh' @GNU_GETTEXT_LDADD@ '$(pkglibdir)/hello.net.exe' \"\$$@\""; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
++	  echo "exec @GENTOO_PORTAGE_EPREFIX@/bin/sh '$(pkgdatadir)/csharpexec.sh' @GNU_GETTEXT_LDADD@ '$(pkglibdir)/hello.net.exe' \"\$$@\""; \
+ 	} > $@
+ 
+ install-exec-local: all-local
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-java/Hello.java gettext-0.18.1.1/gettext-tools/examples/hello-java/Hello.java
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-java/Hello.java	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-java/Hello.java	2012-03-30 06:58:52.683723700 -0700
+@@ -22,7 +22,7 @@
+   /* Return the process ID of the current process.  */
+   private static String getPid () {
+     try {
+-      String[] args = new String[] { "/bin/sh", "-c", "echo $PPID" };
++      String[] args = new String[] { "@GENTOO_PORTAGE_EPREFIX@/bin/sh", "-c", "echo $PPID" };
+       Process p = Runtime.getRuntime().exec(args);
+       InputStream p_out = p.getInputStream();
+       String s = (new BufferedReader(new InputStreamReader(p_out))).readLine();
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-java/Makefile.am gettext-0.18.1.1/gettext-tools/examples/hello-java/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-java/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-java/Makefile.am	2012-03-30 06:59:29.227723700 -0700
+@@ -86,7 +86,7 @@
+ 	$(JAR) cf $@ $(hello_RESOURCES) $$catalogs
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "CLASSPATH='$(jardir)/hello-resources.jar'\$${CLASSPATH+\"@CLASSPATH_SEPARATOR@\$$CLASSPATH\"}"; \
+ 	  echo "export CLASSPATH"; \
+ 	  echo "exec '$(pkglibdir)/$(hello_MAINCLASS)$(EXEEXT)' \"\$$@\""; \
+@@ -134,10 +134,10 @@
+ 	CLASSPATH=.@CLASSPATH_SEPARATOR@$(hello_JAVALIBS) $(JAVACOMP) -d . $(srcdir)/Hello.java
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "CLASSPATH='$(jardir)/hello.jar@CLASSPATH_SEPARATOR@$(hello_JAVALIBS)'\$${CLASSPATH+\"@CLASSPATH_SEPARATOR@\$$CLASSPATH\"}"; \
+ 	  echo "export CLASSPATH"; \
+-	  echo "exec /bin/sh '$(pkgdatadir)/javaexec.sh' $(hello_MAINCLASS) \"\$$@\""; \
++	  echo "exec @GENTOO_PORTAGE_EPREFIX@/bin/sh '$(pkgdatadir)/javaexec.sh' $(hello_MAINCLASS) \"\$$@\""; \
+ 	} > $@
+ 
+ install-exec-local: all-local
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-awt/Hello.java gettext-0.18.1.1/gettext-tools/examples/hello-java-awt/Hello.java
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-awt/Hello.java	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-java-awt/Hello.java	2012-03-30 07:00:33.737723700 -0700
+@@ -51,7 +51,7 @@
+   /* Return the process ID of the current process.  */
+   private static String getPid () {
+     try {
+-      String[] args = new String[] { "/bin/sh", "-c", "echo $PPID" };
++      String[] args = new String[] { "@GENTOO_PORTAGE_EPREFIX@/bin/sh", "-c", "echo $PPID" };
+       Process p = Runtime.getRuntime().exec(args);
+       InputStream p_out = p.getInputStream();
+       String s = (new BufferedReader(new InputStreamReader(p_out))).readLine();
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-awt/Makefile.am gettext-0.18.1.1/gettext-tools/examples/hello-java-awt/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-awt/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-java-awt/Makefile.am	2012-03-30 07:01:01.322723700 -0700
+@@ -86,7 +86,7 @@
+ 	$(JAR) cf $@ $(hello_RESOURCES) $$catalogs
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "CLASSPATH='$(jardir)/hello-resources.jar'\$${CLASSPATH+\"@CLASSPATH_SEPARATOR@\$$CLASSPATH\"}"; \
+ 	  echo "export CLASSPATH"; \
+ 	  echo "exec '$(pkglibdir)/$(hello_MAINCLASS)$(EXEEXT)' \"\$$@\""; \
+@@ -134,10 +134,10 @@
+ 	CLASSPATH=.@CLASSPATH_SEPARATOR@$(hello_JAVALIBS) $(JAVACOMP) -d . $(srcdir)/Hello.java
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "CLASSPATH='$(jardir)/hello.jar@CLASSPATH_SEPARATOR@$(hello_JAVALIBS)'\$${CLASSPATH+\"@CLASSPATH_SEPARATOR@\$$CLASSPATH\"}"; \
+ 	  echo "export CLASSPATH"; \
+-	  echo "exec /bin/sh '$(pkgdatadir)/javaexec.sh' $(hello_MAINCLASS) \"\$$@\""; \
++	  echo "exec @GENTOO_PORTAGE_EPREFIX@/bin/sh '$(pkgdatadir)/javaexec.sh' $(hello_MAINCLASS) \"\$$@\""; \
+ 	} > $@
+ 
+ install-exec-local: all-local
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-qtjambi/Hello.java gettext-0.18.1.1/gettext-tools/examples/hello-java-qtjambi/Hello.java
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-qtjambi/Hello.java	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-java-qtjambi/Hello.java	2012-03-30 07:01:45.818223700 -0700
+@@ -58,7 +58,7 @@
+   /* Return the process ID of the current process.  */
+   private static String getPid () {
+     try {
+-      String[] args = new String[] { "/bin/sh", "-c", "echo $PPID" };
++      String[] args = new String[] { "@GENTOO_PORTAGE_EPREFIX@/bin/sh", "-c", "echo $PPID" };
+       Process p = Runtime.getRuntime().exec(args);
+       InputStream p_out = p.getInputStream();
+       String s = (new BufferedReader(new InputStreamReader(p_out))).readLine();
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-qtjambi/Makefile.am gettext-0.18.1.1/gettext-tools/examples/hello-java-qtjambi/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-qtjambi/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-java-qtjambi/Makefile.am	2012-03-30 07:02:11.033723700 -0700
+@@ -86,7 +86,7 @@
+ 	$(JAR) cf $@ $(hello_RESOURCES) $$catalogs
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "CLASSPATH='$(jardir)/hello-resources.jar'\$${CLASSPATH+\"@CLASSPATH_SEPARATOR@\$$CLASSPATH\"}"; \
+ 	  echo "export CLASSPATH"; \
+ 	  echo "exec '$(pkglibdir)/$(hello_MAINCLASS)$(EXEEXT)' \"\$$@\""; \
+@@ -134,10 +134,10 @@
+ 	CLASSPATH=.@CLASSPATH_SEPARATOR@$(hello_JAVALIBS)@CLASSPATH_SEPARATOR@$$CLASSPATH $(JAVACOMP) -d . $(srcdir)/Hello.java
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "CLASSPATH='$(jardir)/hello.jar@CLASSPATH_SEPARATOR@$(hello_JAVALIBS)'\$${CLASSPATH+\"@CLASSPATH_SEPARATOR@\$$CLASSPATH\"}"; \
+ 	  echo "export CLASSPATH"; \
+-	  echo "exec /bin/sh '$(pkgdatadir)/javaexec.sh' $(hello_MAINCLASS) \"\$$@\""; \
++	  echo "exec @GENTOO_PORTAGE_EPREFIX@/bin/sh '$(pkgdatadir)/javaexec.sh' $(hello_MAINCLASS) \"\$$@\""; \
+ 	} > $@
+ 
+ install-exec-local: all-local
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-swing/Hello.java gettext-0.18.1.1/gettext-tools/examples/hello-java-swing/Hello.java
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-swing/Hello.java	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-java-swing/Hello.java	2012-03-30 07:03:07.674723700 -0700
+@@ -48,7 +48,7 @@
+   /* Return the process ID of the current process.  */
+   private static String getPid () {
+     try {
+-      String[] args = new String[] { "/bin/sh", "-c", "echo $PPID" };
++      String[] args = new String[] { "@GENTOO_PORTAGE_EPREFIX@/bin/sh", "-c", "echo $PPID" };
+       Process p = Runtime.getRuntime().exec(args);
+       InputStream p_out = p.getInputStream();
+       String s = (new BufferedReader(new InputStreamReader(p_out))).readLine();
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-swing/Makefile.am gettext-0.18.1.1/gettext-tools/examples/hello-java-swing/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-java-swing/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-java-swing/Makefile.am	2012-03-30 07:02:53.578723700 -0700
+@@ -86,7 +86,7 @@
+ 	$(JAR) cf $@ $(hello_RESOURCES) $$catalogs
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "CLASSPATH='$(jardir)/hello-resources.jar'\$${CLASSPATH+\"@CLASSPATH_SEPARATOR@\$$CLASSPATH\"}"; \
+ 	  echo "export CLASSPATH"; \
+ 	  echo "exec '$(pkglibdir)/$(hello_MAINCLASS)$(EXEEXT)' \"\$$@\""; \
+@@ -134,10 +134,10 @@
+ 	CLASSPATH=.@CLASSPATH_SEPARATOR@$(hello_JAVALIBS) $(JAVACOMP) -d . $(srcdir)/Hello.java
+ 
+ hello.sh:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "CLASSPATH='$(jardir)/hello.jar@CLASSPATH_SEPARATOR@$(hello_JAVALIBS)'\$${CLASSPATH+\"@CLASSPATH_SEPARATOR@\$$CLASSPATH\"}"; \
+ 	  echo "export CLASSPATH"; \
+-	  echo "exec /bin/sh '$(pkgdatadir)/javaexec.sh' $(hello_MAINCLASS) \"\$$@\""; \
++	  echo "exec @GENTOO_PORTAGE_EPREFIX@/bin/sh '$(pkgdatadir)/javaexec.sh' $(hello_MAINCLASS) \"\$$@\""; \
+ 	} > $@
+ 
+ install-exec-local: all-local
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-smalltalk/Makefile.am gettext-0.18.1.1/gettext-tools/examples/hello-smalltalk/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-smalltalk/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-smalltalk/Makefile.am	2012-03-30 07:08:25.563223700 -0700
+@@ -18,7 +18,7 @@
+ # The Smalltalk program is installed as data and invoked through a shell script.
+ pkgdata_DATA = hello.st
+ hello:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo "exec '@GST@' -Q '$(pkgdatadir)/hello.st' \"\$$@\""; \
+ 	} > $@
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-ycp/Makefile.am gettext-0.18.1.1/gettext-tools/examples/hello-ycp/Makefile.am
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-ycp/Makefile.am	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-ycp/Makefile.am	2012-03-30 07:09:06.009223700 -0700
+@@ -18,7 +18,7 @@
+ # The YCP program is installed as data and invoked through a shell script.
+ pkgdata_DATA = hello.ycp
+ hello:
+-	{ echo '#!/bin/sh'; \
++	{ echo '#!@GENTOO_PORTAGE_EPREFIX@/bin/sh'; \
+ 	  echo 'if test -n "$$DISPLAY"; then'; \
+ 	  echo "  exec /usr/lib/YaST2/bin/y2base '$(pkgdatadir)/hello.ycp' qt"; \
+ 	  echo 'else'; \
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-lib/javacomp.c gettext-0.18.1.1/gettext-tools/gnulib-lib/javacomp.c
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-lib/javacomp.c	2010-05-24 02:42:38.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-lib/javacomp.c	2012-03-30 07:10:54.349223700 -0700
+@@ -263,11 +263,11 @@
+   if (verbose)
+     printf ("%s\n", command);
+ 
+-  argv[0] = "/bin/sh";
++  argv[0] = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+   argv[1] = "-c";
+   argv[2] = command;
+   argv[3] = NULL;
+-  exitstatus = execute (javac, "/bin/sh", argv, false, false, false,
++  exitstatus = execute (javac, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", argv, false, false, false,
+                         null_stderr, true, true, NULL);
+   err = (exitstatus != 0);
+ 
+@@ -577,11 +577,11 @@
+         abort ();
+ 
+       /* Call $JAVAC --version 2>/dev/null.  */
+-      argv[0] = "/bin/sh";
++      argv[0] = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+       argv[1] = "-c";
+       argv[2] = command;
+       argv[3] = NULL;
+-      child = create_pipe_in (javac, "/bin/sh", argv, DEV_NULL, true, true,
++      child = create_pipe_in (javac, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", argv, DEV_NULL, true, true,
+                               false, fd);
+       if (child == -1)
+         goto failed;
+@@ -659,11 +659,11 @@
+         abort ();
+ 
+       /* Call $JAVAC --version 2>/dev/null.  */
+-      argv[0] = "/bin/sh";
++      argv[0] = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+       argv[1] = "-c";
+       argv[2] = command;
+       argv[3] = NULL;
+-      child = create_pipe_in (javac, "/bin/sh", argv, DEV_NULL, true, true,
++      child = create_pipe_in (javac, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", argv, DEV_NULL, true, true,
+                               false, fd);
+       if (child == -1)
+         goto failed;
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-lib/spawni.c gettext-0.18.1.1/gettext-tools/gnulib-lib/spawni.c
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-lib/spawni.c	2010-05-24 02:42:46.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-lib/spawni.c	2012-03-30 07:11:22.684223700 -0700
+@@ -32,7 +32,7 @@
+ #if _LIBC || HAVE_PATHS_H
+ # include <paths.h>
+ #else
+-# define _PATH_BSHELL "/bin/sh"
++# define _PATH_BSHELL "@GENTOO_PORTAGE_EPREFIX@/bin/sh"
+ #endif
+ 
+ #include <signal.h>
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-m4/lib-link.m4 gettext-0.18.1.1/gettext-tools/gnulib-m4/lib-link.m4
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-m4/lib-link.m4	2010-05-24 03:42:19.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-m4/lib-link.m4	2012-03-30 07:11:56.889723700 -0700
+@@ -129,7 +129,7 @@
+   AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT]) dnl we use $ac_aux_dir
+   AC_CACHE_CHECK([for shared library run path origin], [acl_cv_rpath], [
+     CC="$CC" GCC="$GCC" LDFLAGS="$LDFLAGS" LD="$LD" with_gnu_ld="$with_gnu_ld" \
+-    ${CONFIG_SHELL-/bin/sh} "$ac_aux_dir/config.rpath" "$host" > conftest.sh
++    ${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh} "$ac_aux_dir/config.rpath" "$host" > conftest.sh
+     . ./conftest.sh
+     rm -f ./conftest.sh
+     acl_cv_rpath=done
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-m4/relocatable.m4 gettext-0.18.1.1/gettext-tools/gnulib-m4/relocatable.m4
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-m4/relocatable.m4	2010-05-24 03:42:20.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-m4/relocatable.m4	2012-03-30 07:12:15.817223700 -0700
+@@ -96,7 +96,7 @@
+   AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT]) dnl we use $ac_aux_dir
+   AC_CACHE_CHECK([for shared library path variable], [acl_cv_libpath], [
+     LD="$LD" \
+-    ${CONFIG_SHELL-/bin/sh} "$ac_aux_dir/config.libpath" "$host" > conftest.sh
++    ${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh} "$ac_aux_dir/config.libpath" "$host" > conftest.sh
+     . ./conftest.sh
+     rm -f ./conftest.sh
+     acl_cv_libpath=${acl_cv_shlibpath_var:-none}
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/init.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/init.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/init.sh	2010-05-24 03:42:21.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/init.sh	2012-03-30 07:13:00.364723700 -0700
+@@ -20,7 +20,7 @@
+ #
+ # The typical skeleton of a test looks like this:
+ #
+-#   #!/bin/sh
++#   #!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ #   . "${srcdir=.}/init.sh"; path_prepend_ .
+ #   Execute some commands.
+ #   Note that these commands are executed in a subdirectory, therefore you
+@@ -94,7 +94,7 @@
+     : # The current shell is adequate.  No re-exec required.
+   else
+     # Search for a shell that meets our requirements.
+-    for re_shell_ in "${CONFIG_SHELL:-no_shell}" /bin/sh bash dash zsh pdksh fail
++    for re_shell_ in "${CONFIG_SHELL:-no_shell}" @GENTOO_PORTAGE_EPREFIX@/bin/sh bash dash zsh pdksh fail
+     do
+       test "$re_shell_" = no_shell && continue
+       test "$re_shell_" = fail && skip_ failed to find an adequate shell
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-copy-file.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-copy-file.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-copy-file.sh	2009-08-30 08:49:52.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-copy-file.sh	2012-03-30 07:17:11.146223700 -0700
+@@ -145,16 +145,16 @@
+     macosx)
+       func_test_same_acls ()
+       {
+-        /bin/ls -le "$1" | sed -e "s/$1/FILENAME/g" > tmpaclout1
+-        /bin/ls -le "$2" | sed -e "s/$2/FILENAME/g" > tmpaclout2
++        @GENTOO_PORTAGE_EPREFIX@/bin/ls -le "$1" | sed -e "s/$1/FILENAME/g" > tmpaclout1
++        @GENTOO_PORTAGE_EPREFIX@/bin/ls -le "$2" | sed -e "s/$2/FILENAME/g" > tmpaclout2
+         cmp tmpaclout1 tmpaclout2 > /dev/null
+       }
+       ;;
+     irix)
+       func_test_same_acls ()
+       {
+-        /bin/ls -lD "$1" | sed -e "s/$1/FILENAME/g" > tmpaclout1
+-        /bin/ls -lD "$2" | sed -e "s/$2/FILENAME/g" > tmpaclout2
++        @GENTOO_PORTAGE_EPREFIX@/bin/ls -lD "$1" | sed -e "s/$1/FILENAME/g" > tmpaclout1
++        @GENTOO_PORTAGE_EPREFIX@/bin/ls -lD "$2" | sed -e "s/$2/FILENAME/g" > tmpaclout2
+         cmp tmpaclout1 tmpaclout2 > /dev/null
+       }
+       ;;
+@@ -450,12 +450,12 @@
+       macosx)
+ 
+         # Set an ACL for a user.
+-        /bin/chmod +a "user:daemon allow execute" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod +a "user:daemon allow execute" tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile2
+ 
+         # Set an ACL for a group.
+-        /bin/chmod +a "group:daemon allow read" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod +a "group:daemon allow read" tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile3
+ 
+@@ -465,24 +465,24 @@
+         func_test_copy tmpfile0 tmpfile4
+ 
+         # Remove the ACL for the user.
+-        /bin/chmod -a "user:daemon allow execute" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod -a "user:daemon allow execute" tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile5
+ 
+         # Remove the ACL for the group.
+-        /bin/chmod -a "group:daemon allow read" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod -a "group:daemon allow read" tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile7
+ 
+         # Delete all optional ACLs.
+-        /bin/chmod -N tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod -N tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile8
+ 
+         # Copy ACLs from a file that has no ACLs.
+         echo > tmpfile9
+         chmod a+x tmpfile9
+-        { /bin/ls -le tmpfile9 | sed -n -e 's/^ [0-9][0-9]*: //p'; echo; } | /bin/chmod -E tmpfile0
++        { @GENTOO_PORTAGE_EPREFIX@/bin/ls -le tmpfile9 | sed -n -e 's/^ [0-9][0-9]*: //p'; echo; } | @GENTOO_PORTAGE_EPREFIX@/bin/chmod -E tmpfile0
+         rm -f tmpfile9
+ 
+         func_test_copy tmpfile0 tmpfile9
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-file-has-acl.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-file-has-acl.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-file-has-acl.sh	2009-08-30 08:49:52.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-file-has-acl.sh	2012-03-30 07:18:45.756723700 -0700
+@@ -137,16 +137,16 @@
+       func_test_has_acl ()
+       {
+         func_test_file_has_acl "$1" "$2"
+-        case `/bin/ls $acl_ls_option "$1" | sed 1q` in
++        case `@GENTOO_PORTAGE_EPREFIX@/bin/ls $acl_ls_option "$1" | sed 1q` in
+           ??????????+*)
+             test "$2" = yes || {
+-              echo "/bin/ls $acl_ls_option $1 shows an ACL, but expected $2" 1>&2
++              echo "@GENTOO_PORTAGE_EPREFIX@/bin/ls $acl_ls_option $1 shows an ACL, but expected $2" 1>&2
+               exit 1
+             }
+             ;;
+           ??????????" "*)
+             test "$2" = no || {
+-              echo "/bin/ls $acl_ls_option $1 shows no ACL, but expected $2" 1>&2
++              echo "@GENTOO_PORTAGE_EPREFIX@/bin/ls $acl_ls_option $1 shows no ACL, but expected $2" 1>&2
+               exit 1
+             }
+             ;;
+@@ -157,16 +157,16 @@
+       func_test_has_acl ()
+       {
+         func_test_file_has_acl "$1" "$2"
+-        case `/bin/ls -ldD "$1" | sed 1q` in
++        case `@GENTOO_PORTAGE_EPREFIX@/bin/ls -ldD "$1" | sed 1q` in
+           *" []")
+             test "$2" = no || {
+-              echo "/bin/ls -ldD $1 shows no ACL, but expected $2" 1>&2
++              echo "@GENTOO_PORTAGE_EPREFIX@/bin/ls -ldD $1 shows no ACL, but expected $2" 1>&2
+               exit 1
+             }
+             ;;
+           *)
+             test "$2" = yes || {
+-              echo "/bin/ls -ldD $1 shows an ACL, but expected $2" 1>&2
++              echo "@GENTOO_PORTAGE_EPREFIX@/bin/ls -ldD $1 shows an ACL, but expected $2" 1>&2
+               exit 1
+             }
+             ;;
+@@ -305,12 +305,12 @@
+       macosx)
+ 
+         # Set an ACL for a user.
+-        /bin/chmod +a "user:daemon allow execute" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod +a "user:daemon allow execute" tmpfile0
+ 
+         func_test_has_acl tmpfile0 yes
+ 
+         # Remove the ACL for the user.
+-        /bin/chmod -a "user:daemon allow execute" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod -a "user:daemon allow execute" tmpfile0
+ 
+         func_test_has_acl tmpfile0 no
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbrtowc1.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbrtowc1.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbrtowc1.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbrtowc1.sh	2012-03-30 07:18:59.209723700 -0700
+@@ -3,7 +3,7 @@
+ # Test in an ISO-8859-1 or ISO-8859-15 locale.
+ : ${LOCALE_FR=fr_FR}
+ if test $LOCALE_FR = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no traditional french locale is installed"
+   else
+     echo "Skipping test: no traditional french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbrtowc2.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbrtowc2.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbrtowc2.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbrtowc2.sh	2012-03-30 07:19:11.337723700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific UTF-8 locale is installed.
+ : ${LOCALE_FR_UTF8=fr_FR.UTF-8}
+ if test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french Unicode locale is installed"
+   else
+     echo "Skipping test: no french Unicode locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbrtowc3.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbrtowc3.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbrtowc3.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbrtowc3.sh	2012-03-30 07:19:19.336723700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific EUC-JP locale is installed.
+ : ${LOCALE_JA=ja_JP}
+ if test $LOCALE_JA = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no traditional japanese locale is installed"
+   else
+     echo "Skipping test: no traditional japanese locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbrtowc4.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbrtowc4.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbrtowc4.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbrtowc4.sh	2012-03-30 07:19:26.617723700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific GB18030 locale is installed.
+ : ${LOCALE_ZH_CN=zh_CN.GB18030}
+ if test $LOCALE_ZH_CN = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no transitional chinese locale is installed"
+   else
+     echo "Skipping test: no transitional chinese locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsinit.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsinit.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsinit.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsinit.sh	2012-03-30 07:19:33.739223700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific UTF-8 locale is installed.
+ : ${LOCALE_FR_UTF8=fr_FR.UTF-8}
+ if test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french Unicode locale is installed"
+   else
+     echo "Skipping test: no french Unicode locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsrtowcs1.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsrtowcs1.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsrtowcs1.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsrtowcs1.sh	2012-03-30 07:19:42.954223700 -0700
+@@ -3,7 +3,7 @@
+ # Test in an ISO-8859-1 or ISO-8859-15 locale.
+ : ${LOCALE_FR=fr_FR}
+ if test $LOCALE_FR = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no traditional french locale is installed"
+   else
+     echo "Skipping test: no traditional french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsrtowcs2.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsrtowcs2.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsrtowcs2.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsrtowcs2.sh	2012-03-30 07:19:49.145223700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific UTF-8 locale is installed.
+ : ${LOCALE_FR_UTF8=fr_FR.UTF-8}
+ if test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french Unicode locale is installed"
+   else
+     echo "Skipping test: no french Unicode locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsrtowcs3.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsrtowcs3.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsrtowcs3.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsrtowcs3.sh	2012-03-30 07:19:56.025723700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific EUC-JP locale is installed.
+ : ${LOCALE_JA=ja_JP}
+ if test $LOCALE_JA = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no traditional japanese locale is installed"
+   else
+     echo "Skipping test: no traditional japanese locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsrtowcs4.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsrtowcs4.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsrtowcs4.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsrtowcs4.sh	2012-03-30 07:20:01.930723700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific GB18030 locale is installed.
+ : ${LOCALE_ZH_CN=zh_CN.GB18030}
+ if test $LOCALE_ZH_CN = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no transitional chinese locale is installed"
+   else
+     echo "Skipping test: no transitional chinese locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsstr2.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsstr2.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsstr2.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsstr2.sh	2012-03-30 07:20:07.787223700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific UTF-8 locale is installed.
+ : ${LOCALE_FR_UTF8=fr_FR.UTF-8}
+ if test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french Unicode locale is installed"
+   else
+     echo "Skipping test: no french Unicode locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsstr3.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsstr3.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-mbsstr3.sh	2009-07-19 13:29:12.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-mbsstr3.sh	2012-03-30 07:20:16.506223700 -0700
+@@ -3,7 +3,7 @@
+ # Test whether a specific GB18030 locale is installed.
+ : ${LOCALE_ZH_CN=zh_CN.GB18030}
+ if test $LOCALE_ZH_CN = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no chinese GB18030 locale is installed"
+   else
+     echo "Skipping test: no chinese GB18030 locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-set-mode-acl.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-set-mode-acl.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-set-mode-acl.sh	2010-05-09 11:56:36.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-set-mode-acl.sh	2012-03-30 07:21:08.558723700 -0700
+@@ -179,7 +179,7 @@
+             { aclget tmpfile0 | sed -e 's/disabled$/enabled/'; echo "        permit --x u:$auid"; } | aclput tmpfile0
+             ;;
+           macosx)
+-            /bin/chmod +a "user:daemon allow execute" tmpfile0
++            @GENTOO_PORTAGE_EPREFIX@/bin/chmod +a "user:daemon allow execute" tmpfile0
+             ;;
+           irix)
+             /sbin/chacl user::rw-,group::---,other::---,user:$auid:--x tmpfile0
+diff -urN gettext-0.18.1.1.orig/gettext-tools/misc/autopoint.in gettext-0.18.1.1/gettext-tools/misc/autopoint.in
+--- gettext-0.18.1.1.orig/gettext-tools/misc/autopoint.in	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/misc/autopoint.in	2012-03-30 07:24:15.772723700 -0700
+@@ -71,7 +71,7 @@
+     *) # Need to look in the PATH.
+       if test "${PATH_SEPARATOR+set}" != set; then
+         func_tmpdir
+-        { echo "#! /bin/sh"; echo "exit 0"; } > "$tmp"/conf.sh
++        { echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh"; echo "exit 0"; } > "$tmp"/conf.sh
+         chmod +x "$tmp"/conf.sh
+         if (PATH="/nonexistent;$tmp"; conf.sh) >/dev/null 2>&1; then
+           PATH_SEPARATOR=';'
+diff -urN gettext-0.18.1.1.orig/gettext-tools/misc/cvsuser.c gettext-0.18.1.1/gettext-tools/misc/cvsuser.c
+--- gettext-0.18.1.1.orig/gettext-tools/misc/cvsuser.c	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/misc/cvsuser.c	2012-03-30 07:24:34.953723700 -0700
+@@ -34,7 +34,7 @@
+   pw.pw_gid = 100;
+   pw.pw_gecos = "";
+   pw.pw_dir = "/";
+-  pw.pw_shell = "/bin/sh";
++  pw.pw_shell = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+ 
+   return &pw;
+ }
+diff -urN gettext-0.18.1.1.orig/gettext-tools/misc/gettextize.in gettext-0.18.1.1/gettext-tools/misc/gettextize.in
+--- gettext-0.18.1.1.orig/gettext-tools/misc/gettextize.in	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/misc/gettextize.in	2012-03-30 07:24:55.050723700 -0700
+@@ -71,7 +71,7 @@
+     *) # Need to look in the PATH.
+       if test "${PATH_SEPARATOR+set}" != set; then
+         func_tmpdir
+-        { echo "#! /bin/sh"; echo "exit 0"; } > "$tmp"/conf.sh
++        { echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh"; echo "exit 0"; } > "$tmp"/conf.sh
+         chmod +x "$tmp"/conf.sh
+         if (PATH="/nonexistent;$tmp"; conf.sh) >/dev/null 2>&1; then
+           PATH_SEPARATOR=';'
+diff -urN gettext-0.18.1.1.orig/gettext-tools/po/Makefile.in.in gettext-0.18.1.1/gettext-tools/po/Makefile.in.in
+--- gettext-0.18.1.1.orig/gettext-tools/po/Makefile.in.in	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/po/Makefile.in.in	2012-03-30 07:25:20.858223700 -0700
+@@ -15,7 +15,7 @@
+ VERSION = @VERSION@
+ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+ 
+-SHELL = /bin/sh
++SHELL = @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ @SET_MAKE@
+ 
+ srcdir = @srcdir@
+@@ -432,7 +432,7 @@
+ # Recreate Makefile by invoking config.status. Explicitly invoke the shell,
+ # because execution permission bits may not work on the current file system.
+ # Use @SHELL@, which is the shell determined by autoconf for the use by its
+-# scripts, not $(SHELL) which is hardwired to /bin/sh and may be deficient.
++# scripts, not $(SHELL) which is hardwired to @GENTOO_PORTAGE_EPREFIX@/bin/sh and may be deficient.
+ Makefile: Makefile.in.in Makevars $(top_builddir)/config.status @POMAKEFILEDEPS@
+ 	cd $(top_builddir) \
+ 	  && @SHELL@ ./config.status $(subdir)/$@.in po-directories
+diff -urN gettext-0.18.1.1.orig/gettext-tools/projects/GNOME/trigger gettext-0.18.1.1/gettext-tools/projects/GNOME/trigger
+--- gettext-0.18.1.1.orig/gettext-tools/projects/GNOME/trigger	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/projects/GNOME/trigger	2012-03-30 07:26:39.049723700 -0700
+@@ -28,9 +28,9 @@
+       exit 1
+   esac
+   # Go to parent directory
+-  last=`/bin/pwd`
++  last=`@GENTOO_PORTAGE_EPREFIX@/bin/pwd`
+   cd ..
+-  curr=`/bin/pwd`
++  curr=`@GENTOO_PORTAGE_EPREFIX@/bin/pwd`
+   if test "$last" = "$curr"; then
+     # Oops, didn't find the top level directory.
+     exit 1
+diff -urN gettext-0.18.1.1.orig/gettext-tools/projects/KDE/trigger gettext-0.18.1.1/gettext-tools/projects/KDE/trigger
+--- gettext-0.18.1.1.orig/gettext-tools/projects/KDE/trigger	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/projects/KDE/trigger	2012-03-30 07:27:13.374223700 -0700
+@@ -30,9 +30,9 @@
+       exit 1
+   esac
+   # Go to parent directory
+-  last=`/bin/pwd`
++  last=`@GENTOO_PORTAGE_EPREFIX@/bin/pwd`
+   cd ..
+-  curr=`/bin/pwd`
++  curr=`@GENTOO_PORTAGE_EPREFIX@/bin/pwd`
+   if test "$last" = "$curr"; then
+     # Oops, didn't find the top level directory.
+     exit 1
+diff -urN gettext-0.18.1.1.orig/gettext-tools/projects/team-address gettext-0.18.1.1/gettext-tools/projects/team-address
+--- gettext-0.18.1.1.orig/gettext-tools/projects/team-address	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/projects/team-address	2012-03-30 07:27:34.685723700 -0700
+@@ -7,8 +7,8 @@
+ language="$4" # e.g. "pt"
+ 
+ for project in `cat "$projectsdir/index"`; do
+-  if /bin/sh "$projectsdir/$project/trigger"; then
+-    /bin/sh "$projectsdir/$project/team-address" "$projectsdir" "$progdir" "$catalog" "$language"
++  if @GENTOO_PORTAGE_EPREFIX@/bin/sh "$projectsdir/$project/trigger"; then
++    @GENTOO_PORTAGE_EPREFIX@/bin/sh "$projectsdir/$project/team-address" "$projectsdir" "$progdir" "$catalog" "$language"
+     exit $?
+   fi
+ done
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-awk.c gettext-0.18.1.1/gettext-tools/src/format-awk.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-awk.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-awk.c	2012-03-30 07:28:45.675723700 -0700
+@@ -656,7 +656,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-awk.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-awk.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-c.c gettext-0.18.1.1/gettext-tools/src/format-c.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-c.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-c.c	2012-03-30 07:29:06.906723700 -0700
+@@ -1133,7 +1133,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-c.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-c.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-csharp.c gettext-0.18.1.1/gettext-tools/src/format-csharp.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-csharp.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-csharp.c	2012-03-30 07:29:31.210723700 -0700
+@@ -286,7 +286,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-csharp.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-csharp.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-elisp.c gettext-0.18.1.1/gettext-tools/src/format-elisp.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-elisp.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-elisp.c	2012-03-30 07:29:46.521723700 -0700
+@@ -495,7 +495,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-elisp.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-elisp.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-gcc-internal.c gettext-0.18.1.1/gettext-tools/src/format-gcc-internal.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-gcc-internal.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-gcc-internal.c	2012-03-30 07:30:04.379723700 -0700
+@@ -845,7 +845,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-gcc-internal.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-gcc-internal.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-gfc-internal.c gettext-0.18.1.1/gettext-tools/src/format-gfc-internal.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-gfc-internal.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-gfc-internal.c	2012-03-30 07:30:49.579723700 -0700
+@@ -497,7 +497,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-gfc-internal.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-gfc-internal.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-java.c gettext-0.18.1.1/gettext-tools/src/format-java.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-java.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-java.c	2012-03-30 07:31:03.545723700 -0700
+@@ -886,7 +886,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-java.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-java.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-kde.c gettext-0.18.1.1/gettext-tools/src/format-kde.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-kde.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-kde.c	2012-03-30 07:31:15.536223700 -0700
+@@ -342,7 +342,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-kde.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-kde.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-librep.c gettext-0.18.1.1/gettext-tools/src/format-librep.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-librep.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-librep.c	2012-03-30 07:31:27.497223700 -0700
+@@ -456,7 +456,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-librep.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-librep.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-lisp.c gettext-0.18.1.1/gettext-tools/src/format-lisp.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-lisp.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-lisp.c	2012-03-30 07:31:46.346223700 -0700
+@@ -3649,7 +3649,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-lisp.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-lisp.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-pascal.c gettext-0.18.1.1/gettext-tools/src/format-pascal.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-pascal.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-pascal.c	2012-03-30 07:32:04.059223700 -0700
+@@ -541,7 +541,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-pascal.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-pascal.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-perl-brace.c gettext-0.18.1.1/gettext-tools/src/format-perl-brace.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-perl-brace.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-perl-brace.c	2012-03-30 07:32:19.562723700 -0700
+@@ -287,7 +287,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-perl-brace.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-perl-brace.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-perl.c gettext-0.18.1.1/gettext-tools/src/format-perl.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-perl.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-perl.c	2012-03-30 07:32:34.890723700 -0700
+@@ -761,7 +761,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-perl.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-perl.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-php.c gettext-0.18.1.1/gettext-tools/src/format-php.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-php.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-php.c	2012-03-30 07:32:46.155223700 -0700
+@@ -494,7 +494,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-php.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-php.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-python.c gettext-0.18.1.1/gettext-tools/src/format-python.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-python.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-python.c	2012-03-30 07:32:53.753223700 -0700
+@@ -688,7 +688,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-python.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-python.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-qt-plural.c gettext-0.18.1.1/gettext-tools/src/format-qt-plural.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-qt-plural.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-qt-plural.c	2012-03-30 07:33:12.892723700 -0700
+@@ -187,7 +187,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-qt-plural.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-qt-plural.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-qt.c gettext-0.18.1.1/gettext-tools/src/format-qt.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-qt.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-qt.c	2012-03-30 07:33:20.107723700 -0700
+@@ -259,7 +259,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-qt.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-qt.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-scheme.c gettext-0.18.1.1/gettext-tools/src/format-scheme.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-scheme.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-scheme.c	2012-03-30 07:33:35.582223700 -0700
+@@ -3572,7 +3572,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-scheme.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-scheme.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-sh.c gettext-0.18.1.1/gettext-tools/src/format-sh.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-sh.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-sh.c	2012-03-30 07:34:05.609223700 -0700
+@@ -396,7 +396,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-sh.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-sh.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-tcl.c gettext-0.18.1.1/gettext-tools/src/format-tcl.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-tcl.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-tcl.c	2012-03-30 07:33:47.336723700 -0700
+@@ -543,7 +543,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-tcl.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-tcl.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-ycp.c gettext-0.18.1.1/gettext-tools/src/format-ycp.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-ycp.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-ycp.c	2012-03-30 07:34:23.165223700 -0700
+@@ -243,7 +243,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-ycp.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-ycp.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/msginit.c gettext-0.18.1.1/gettext-tools/src/msginit.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/msginit.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/msginit.c	2012-03-30 07:34:53.951223700 -0700
+@@ -882,10 +882,10 @@
+   prog = xconcatenated_filename (gettextlibdir, "project-id", NULL);
+ 
+   /* Call the project-id shell script.  */
+-  argv[0] = "/bin/sh";
++  argv[0] = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+   argv[1] = prog;
+   argv[2] = NULL;
+-  child = create_pipe_in (prog, "/bin/sh", argv, DEV_NULL, false, true, false,
++  child = create_pipe_in (prog, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", argv, DEV_NULL, false, true, false,
+                           fd);
+   if (child == -1)
+     goto failed;
+@@ -956,11 +956,11 @@
+   prog = xconcatenated_filename (gettextlibdir, "project-id", NULL);
+ 
+   /* Call the project-id shell script.  */
+-  argv[0] = "/bin/sh";
++  argv[0] = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+   argv[1] = prog;
+   argv[2] = "yes";
+   argv[3] = NULL;
+-  child = create_pipe_in (prog, "/bin/sh", argv, DEV_NULL, false, true, false,
++  child = create_pipe_in (prog, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", argv, DEV_NULL, false, true, false,
+                           fd);
+   if (child == -1)
+     goto failed;
+@@ -1113,14 +1113,14 @@
+   int exitstatus;
+ 
+   /* Ask the user for his email address.  */
+-  argv[0] = "/bin/sh";
++  argv[0] = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+   argv[1] = (char *) prog;
+   argv[2] = (char *) _("\
+ The new message catalog should contain your email address, so that users can\n\
+ give you feedback about the translations, and so that maintainers can contact\n\
+ you in case of unexpected technical problems.\n");
+   argv[3] = NULL;
+-  child = create_pipe_in (prog, "/bin/sh", argv, DEV_NULL, false, true, false,
++  child = create_pipe_in (prog, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", argv, DEV_NULL, false, true, false,
+                           fd);
+   if (child == -1)
+     goto failed;
+@@ -1212,14 +1212,14 @@
+   int exitstatus;
+ 
+   /* Call the team-address shell script.  */
+-  argv[0] = "/bin/sh";
++  argv[0] = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+   argv[1] = (char *) prog;
+   argv[2] = (char *) relocate (PROJECTSDIR);
+   argv[3] = (char *) relocate (LIBDIR "/gettext");
+   argv[4] = (char *) catalogname;
+   argv[5] = (char *) language;
+   argv[6] = NULL;
+-  child = create_pipe_in (prog, "/bin/sh", argv, DEV_NULL, false, true, false,
++  child = create_pipe_in (prog, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", argv, DEV_NULL, false, true, false,
+                           fd);
+   if (child == -1)
+     goto failed;
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/project-id gettext-0.18.1.1/gettext-tools/src/project-id
+--- gettext-0.18.1.1.orig/gettext-tools/src/project-id	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/project-id	2012-03-30 07:35:19.947723700 -0700
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ # Prints a package's identification PACKAGE VERSION or PACKAGE.
+ #
+ # Copyright (C) 2001-2003, 2005 Free Software Foundation, Inc.
+@@ -71,9 +71,9 @@
+       ;;
+   esac
+   # Go to parent directory
+-  last=`/bin/pwd`
++  last=`@GENTOO_PORTAGE_EPREFIX@/bin/pwd`
+   cd ..
+-  curr=`/bin/pwd`
++  curr=`@GENTOO_PORTAGE_EPREFIX@/bin/pwd`
+   if test "$last" = "$curr"; then
+     # Oops, didn't find the package name.
+     if test -n "$want_version"; then
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/format-c-5 gettext-0.18.1.1/gettext-tools/tests/format-c-5
+--- gettext-0.18.1.1.orig/gettext-tools/tests/format-c-5	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/format-c-5	2012-03-30 07:37:08.857723700 -0700
+@@ -51,7 +51,7 @@
+ case $? in
+   0) ;;
+   77)
+-    if test -f /usr/bin/localedef; then
++    if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+       echo "Skipping test: locale fa_IR not installed"
+     else
+       echo "Skipping test: locale fa_IR not supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/gettext-4 gettext-0.18.1.1/gettext-tools/tests/gettext-4
+--- gettext-0.18.1.1.orig/gettext-tools/tests/gettext-4	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/gettext-4	2012-03-30 07:49:17.898223700 -0700
+@@ -13,7 +13,7 @@
+ # traditional german locale.
+ : ${LOCALE_FR=fr_FR}
+ { test $LOCALE_FR != none && LC_ALL=$LOCALE_FR ./testlocale; } || {
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no traditional french locale is installed"
+   else
+     echo "Skipping test: no traditional french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/gettext-5 gettext-0.18.1.1/gettext-tools/tests/gettext-5
+--- gettext-0.18.1.1.orig/gettext-tools/tests/gettext-5	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/gettext-5	2012-03-30 07:49:40.217723700 -0700
+@@ -16,7 +16,7 @@
+ # This test works only on systems that have a de_DE.ISO-8859-1 and
+ # de_DE.UTF-8 locale installed.
+ LC_ALL=de_DE.ISO-8859-1 ./testlocale || {
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: locale de_DE.ISO-8859-1 not installed"
+   else
+     echo "Skipping test: locale de_DE.ISO-8859-1 not supported"
+@@ -24,7 +24,7 @@
+   exit 77
+ }
+ LC_ALL=de_DE.UTF-8 ./testlocale || {
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: locale de_DE.UTF-8 not installed"
+   else
+     echo "Skipping test: locale de_DE.UTF-8 not supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/gettext-6 gettext-0.18.1.1/gettext-tools/tests/gettext-6
+--- gettext-0.18.1.1.orig/gettext-tools/tests/gettext-6	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/gettext-6	2012-03-30 07:50:00.668483200 -0700
+@@ -23,7 +23,7 @@
+ # This test works only on systems that have a de_DE and fr_FR locale installed.
+ missing_locale=`./gettext-6-prg 1`
+ if test -n "$missing_locale"; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: locale ${missing_locale} not installed"
+   else
+     echo "Skipping test: locale ${missing_locale} not supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/gettext-7 gettext-0.18.1.1/gettext-tools/tests/gettext-7
+--- gettext-0.18.1.1.orig/gettext-tools/tests/gettext-7	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/gettext-7	2012-03-30 07:50:16.640677000 -0700
+@@ -24,7 +24,7 @@
+ # de_DE.UTF-8 locale installed.
+ missing_locale=`./gettext-7-prg 1`
+ if test -n "$missing_locale"; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: locale ${missing_locale} not installed"
+   else
+     echo "Skipping test: locale ${missing_locale} not supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-bash gettext-0.18.1.1/gettext-tools/tests/lang-bash
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-bash	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-bash	2012-03-30 07:51:08.473541500 -0700
+@@ -14,7 +14,7 @@
+ 
+ tmpfiles="$tmpfiles prog.sh"
+ cat <<\EOF > prog.sh
+-#! /bin/bash
++#! @GENTOO_PORTAGE_EPREFIX@/bin/bash
+ 
+ n=$1
+ 
+@@ -119,7 +119,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-c gettext-0.18.1.1/gettext-tools/tests/lang-c
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-c	2012-03-30 07:51:17.869420300 -0700
+@@ -152,7 +152,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-c++ gettext-0.18.1.1/gettext-tools/tests/lang-c++
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-c++	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-c++	2012-03-30 07:51:30.222890500 -0700
+@@ -174,7 +174,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-clisp gettext-0.18.1.1/gettext-tools/tests/lang-clisp
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-clisp	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-clisp	2012-03-30 07:51:41.071559800 -0700
+@@ -124,7 +124,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-csharp gettext-0.18.1.1/gettext-tools/tests/lang-csharp
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-csharp	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-csharp	2012-03-30 07:51:59.077660300 -0700
+@@ -50,7 +50,7 @@
+ EOF
+ 
+ tmpfiles="$tmpfiles program.exe"
+-: ${CSHARPCOMP="/bin/sh ../csharpcomp.sh"}
++: ${CSHARPCOMP="@GENTOO_PORTAGE_EPREFIX@/bin/sh ../csharpcomp.sh"}
+ ${CSHARPCOMP} -o program.exe -L ../../gettext-runtime/intl-csharp -l GNU.Gettext program.cs || exit 1
+ 
+ tmpfiles="$tmpfiles prog.tmp prog.pot"
+@@ -163,7 +163,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+@@ -190,7 +190,7 @@
+ 
+ : ${LOCALE_FR=fr_FR}
+ : ${LOCALE_FR_UTF8=fr_FR.UTF-8}
+-: ${CSHARPEXEC="/bin/sh ../csharpexec.sh"}
++: ${CSHARPEXEC="@GENTOO_PORTAGE_EPREFIX@/bin/sh ../csharpexec.sh"}
+ if test $LOCALE_FR != none; then
+   LANGUAGE= LC_ALL=$LOCALE_FR ${CSHARPEXEC} -L ../../gettext-runtime/intl-csharp program.exe 2 > prog.out || exit 1
+   ${DIFF} prog.ok prog.out || exit 1
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-gawk gettext-0.18.1.1/gettext-tools/tests/lang-gawk
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-gawk	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-gawk	2012-03-30 07:52:12.950434300 -0700
+@@ -119,7 +119,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-guile gettext-0.18.1.1/gettext-tools/tests/lang-guile
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-guile	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-guile	2012-03-30 07:52:21.736691200 -0700
+@@ -118,7 +118,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-java gettext-0.18.1.1/gettext-tools/tests/lang-java
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-java	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-java	2012-03-30 07:52:36.668176900 -0700
+@@ -63,7 +63,7 @@
+ EOF
+ 
+ tmpfiles="$tmpfiles Program.class prog.err"
+-: ${JAVACOMP="/bin/sh ../javacomp.sh"}
++: ${JAVACOMP="@GENTOO_PORTAGE_EPREFIX@/bin/sh ../javacomp.sh"}
+ CLASSPATH=../../gettext-runtime/intl-java/libintl.jar ${JAVACOMP} -d . Program.java 2>prog.err \
+   || { cat prog.err 1>&2; exit 1; }
+ 
+@@ -176,7 +176,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+@@ -203,7 +203,7 @@
+ 
+ : ${LOCALE_FR=fr_FR}
+ : ${LOCALE_FR_UTF8=fr_FR.UTF-8}
+-: ${JAVAEXEC="/bin/sh ../javaexec.sh"}
++: ${JAVAEXEC="@GENTOO_PORTAGE_EPREFIX@/bin/sh ../javaexec.sh"}
+ if test $LOCALE_FR != none; then
+   LANGUAGE= LC_ALL=$LOCALE_FR CLASSPATH=.:../../gettext-runtime/intl-java/libintl.jar ${JAVAEXEC} Program 2 ISO-8859-1 > prog.out || exit 1
+   ${DIFF} prog.ok prog.out || exit 1
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-librep gettext-0.18.1.1/gettext-tools/tests/lang-librep
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-librep	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-librep	2012-03-30 07:52:46.335610000 -0700
+@@ -101,7 +101,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-objc gettext-0.18.1.1/gettext-tools/tests/lang-objc
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-objc	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-objc	2012-03-30 07:52:52.893421300 -0700
+@@ -168,7 +168,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-pascal gettext-0.18.1.1/gettext-tools/tests/lang-pascal
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-pascal	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-pascal	2012-03-30 07:53:02.896921600 -0700
+@@ -115,7 +115,7 @@
+     ${DIFF} prog.oku prog.out || exit 1
+   fi
+   if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-    if test -f /usr/bin/localedef; then
++    if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+       echo "Skipping test: no french locale is installed"
+     else
+       echo "Skipping test: no french locale is supported"
+@@ -124,7 +124,7 @@
+   fi
+ else
+   if test $LOCALE_FR = none; then
+-    if test -f /usr/bin/localedef; then
++    if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+       echo "Skipping test: no traditional french locale is installed"
+     else
+       echo "Skipping test: no traditional french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-perl-1 gettext-0.18.1.1/gettext-tools/tests/lang-perl-1
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-perl-1	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-perl-1	2012-03-30 07:53:12.225787000 -0700
+@@ -122,7 +122,7 @@
+   ${DIFF} prog.oku prog.out || exit 1
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-perl-2 gettext-0.18.1.1/gettext-tools/tests/lang-perl-2
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-perl-2	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-perl-2	2012-03-30 07:53:22.149271300 -0700
+@@ -121,7 +121,7 @@
+   ${DIFF} prog.oku prog.out || exit 1
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-php gettext-0.18.1.1/gettext-tools/tests/lang-php
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-php	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-php	2012-03-30 07:53:29.830807300 -0700
+@@ -104,7 +104,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-python-1 gettext-0.18.1.1/gettext-tools/tests/lang-python-1
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-python-1	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-python-1	2012-03-30 07:53:56.093058700 -0700
+@@ -105,7 +105,7 @@
+     ${DIFF} prog.oku prog.out || exit 1
+   fi
+   if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-    if test -f /usr/bin/localedef; then
++    if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+       echo "Skipping test: no french locale is installed"
+     else
+       echo "Skipping test: no french locale is supported"
+@@ -114,7 +114,7 @@
+   fi
+ else
+   if test $LOCALE_FR = none; then
+-    if test -f /usr/bin/localedef; then
++    if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+       echo "Skipping test: no traditional french locale is installed"
+     else
+       echo "Skipping test: no traditional french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-python-2 gettext-0.18.1.1/gettext-tools/tests/lang-python-2
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-python-2	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-python-2	2012-03-30 07:54:20.000339200 -0700
+@@ -126,7 +126,7 @@
+     ${DIFF} prog.oku prog.out || exit 1
+   fi
+   if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-    if test -f /usr/bin/localedef; then
++    if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+       echo "Skipping test: no french locale is installed"
+     else
+       echo "Skipping test: no french locale is supported"
+@@ -135,7 +135,7 @@
+   fi
+ else
+   if test $LOCALE_FR = none; then
+-    if test -f /usr/bin/localedef; then
++    if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+       echo "Skipping test: no traditional french locale is installed"
+     else
+       echo "Skipping test: no traditional french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-sh gettext-0.18.1.1/gettext-tools/tests/lang-sh
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-sh	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-sh	2012-03-30 07:54:37.652869000 -0700
+@@ -12,7 +12,7 @@
+ 
+ tmpfiles="$tmpfiles prog.sh"
+ cat <<\EOF > prog.sh
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ 
+ n=$1
+ 
+@@ -105,7 +105,7 @@
+   esac
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-smalltalk gettext-0.18.1.1/gettext-tools/tests/lang-smalltalk
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-smalltalk	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-smalltalk	2012-03-30 07:55:06.824702200 -0700
+@@ -144,7 +144,7 @@
+         { ${DIFF} prog.oku prog.out; exit 1; }
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/lang-tcl gettext-0.18.1.1/gettext-tools/tests/lang-tcl
+--- gettext-0.18.1.1.orig/gettext-tools/tests/lang-tcl	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/lang-tcl	2012-03-30 07:55:19.723781500 -0700
+@@ -16,7 +16,7 @@
+ 
+ tmpfiles="$tmpfiles program.tcl"
+ cat <<\EOF > program.tcl
+-#!/usr/bin/env tclsh
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/env tclsh
+ package require msgcat
+ ::msgcat::mcload [file join [file dirname [info script]] msgs]
+ proc _ {s} {return [::msgcat::mc $s]}
+@@ -113,7 +113,7 @@
+   ${DIFF} prog.oku prog.out || exit 1
+ fi
+ if test $LOCALE_FR = none && test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french locale is installed"
+   else
+     echo "Skipping test: no french locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/intl-java/Makefile.in gettext-0.18.1.1/gettext-runtime/intl-java/Makefile.in
+--- gettext-0.18.1.1.orig/gettext-runtime/intl-java/Makefile.in	2010-06-06 13:11:37.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/intl-java/Makefile.in	2012-03-30 10:43:45.386723700 -0700
+@@ -843,7 +843,7 @@
+ RM = rm -f
+ jardir = $(datadir)/gettext
+ JAVACOMP = $(SHELL) ../javacomp.sh
+-JAVADOC2 = test ! -d /usr/lib/jdk1.3.1 || env PATH=/usr/lib/jdk1.3.1/bin:$$PATH javadoc
++JAVADOC2 = test ! -d @GENTOO_PORTAGE_EPREFIX@/usr/lib/jdk1.3.1 || env PATH=@GENTOO_PORTAGE_EPREFIX@/usr/lib/jdk1.3.1/bin:$$PATH javadoc
+ JAVADOC2_FILES = \
+   javadoc2/index.html \
+   javadoc2/allclasses-frame.html \
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/Makefile.common gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/Makefile.common
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/Makefile.common	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/Makefile.common	2012-03-30 11:24:43.575532700 -0700
+@@ -4,7 +4,7 @@
+ 
+ ### All the real work is done by the shellscript cvs.sh
+ 
+-SHELL=/bin/sh
++SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ 
+ cvs dist cvs-clean configure.in configure.files subdirs package-messages package-merge:
+ 	@admindir=$(admindir); \
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/am_edit gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/am_edit
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/am_edit	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/am_edit	2012-03-30 10:51:11.468223700 -0700
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/perl -w
+ 
+ # Expands the specialised KDE tags in Makefile.in to (hopefully) valid
+ # make syntax.
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/conf.change.pl gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/conf.change.pl
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/conf.change.pl	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/conf.change.pl	2012-03-30 10:52:21.952223700 -0700
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/perl -w
+ 
+ # this script patches a config.status file, to use our own perl script
+ # in the main loop
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/config.pl gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/config.pl
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/config.pl	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/config.pl	2012-03-30 10:57:25.979223700 -0700
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/perl
+ # a script for use by autoconf to make the Makefiles
+ # from the Makefile.in's
+ #
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/cvs-clean.pl gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/cvs-clean.pl
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/cvs-clean.pl	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/cvs-clean.pl	2012-03-30 10:58:40.780723700 -0700
+@@ -1,4 +1,4 @@
+-#! /usr/bin/perl
++#! @GENTOO_PORTAGE_EPREFIX@/usr/bin/perl
+ 
+ #
+ # This script recursively (beginning with the current directory)
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/debianrules gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/debianrules
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/debianrules	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/debianrules	2012-03-30 10:59:20.442723700 -0700
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/perl -w
+ 
+ use Shell qw(mv cp mkdir rm) ;
+ use File::Find;
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/libtool.m4.in gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/libtool.m4.in
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/libtool.m4.in	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/libtool.m4.in	2012-03-30 11:24:25.875993500 -0700
+@@ -258,7 +258,7 @@
+ 	 [AC_DIVERT_PUSH(NOTICE)])
+ 
+ # Check that we are running under the correct shell.
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ case X$ECHO in
+ X*--fallback-echo)
+@@ -340,12 +340,12 @@
+        test "X$echo_testing_string" = "X$echo_test_string"; then
+       # This shell has a builtin print -r that does the trick.
+       echo='print -r'
+-    elif (test -f /bin/ksh || test -f /bin/ksh$ac_exeext) &&
+-	 test "X$CONFIG_SHELL" != X/bin/ksh; then
++    elif (test -f @GENTOO_PORTAGE_EPREFIX@/bin/ksh || test -f @GENTOO_PORTAGE_EPREFIX@/bin/ksh$ac_exeext) &&
++	 test "X$CONFIG_SHELL" != X@GENTOO_PORTAGE_EPREFIX@/bin/ksh; then
+       # If we have ksh, try running configure again with it.
+-      ORIGINAL_CONFIG_SHELL=${CONFIG_SHELL-/bin/sh}
++      ORIGINAL_CONFIG_SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+       export ORIGINAL_CONFIG_SHELL
+-      CONFIG_SHELL=/bin/ksh
++      CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/ksh
+       export CONFIG_SHELL
+       exec $CONFIG_SHELL "[$]0" --no-reexec ${1+"[$]@"}
+     else
+@@ -385,7 +385,7 @@
+ 	if test "$prev" != 'sed 50q "[$]0"'; then
+ 	  echo_test_string=`eval $prev`
+ 	  export echo_test_string
+-	  exec ${ORIGINAL_CONFIG_SHELL-${CONFIG_SHELL-/bin/sh}} "[$]0" ${1+"[$]@"}
++	  exec ${ORIGINAL_CONFIG_SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}} "[$]0" ${1+"[$]@"}
+ 	else
+ 	  # Oops.  We lost completely, so just stick with echo.
+ 	  echo=echo
+@@ -423,7 +423,7 @@
+   # Find out which ABI we are using.
+   echo 'int i;' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+     *ELF-32*)
+       HPUX_IA64_MODE="32"
+       ;;
+@@ -438,7 +438,7 @@
+   # Find out which ABI we are using.
+   echo '[#]line __oline__ "configure"' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+     *32-bit*)
+       LD="${LD-ld} -32"
+       ;;
+@@ -457,7 +457,7 @@
+   # Test if the compiler is 64bit
+   echo 'int i;' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+     *"ELF 32"*)
+       LINUX_64_MODE="32"
+       ;;
+@@ -1736,10 +1736,10 @@
+ # -------------
+ # find a file program which can recognise a shared library
+ AC_DEFUN([AC_PATH_MAGIC],
+-[AC_PATH_TOOL_PREFIX(${ac_tool_prefix}file, /usr/bin$PATH_SEPARATOR$PATH)
++[AC_PATH_TOOL_PREFIX(${ac_tool_prefix}file, @GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH)
+ if test -z "$lt_cv_path_MAGIC_CMD"; then
+   if test -n "$ac_tool_prefix"; then
+-    AC_PATH_TOOL_PREFIX(file, /usr/bin$PATH_SEPARATOR$PATH)
++    AC_PATH_TOOL_PREFIX(file, @GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH)
+   else
+     MAGIC_CMD=:
+   fi
+@@ -1891,7 +1891,7 @@
+ 
+ bsdi4*)
+   lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[ML]]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -1902,7 +1902,7 @@
+ 
+ darwin* | rhapsody*)
+   lt_cv_deplibs_check_method='file_magic Mach-O dynamically linked shared library'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   case "$host_os" in
+   rhapsody* | darwin1.[[012]])
+     lt_cv_file_magic_test_file=`/System/Library/Frameworks/System.framework/System`
+@@ -1920,7 +1920,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD)/i[[3-9]]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -1934,7 +1934,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   if test "$host_cpu" = ia64; then
+     lt_cv_deplibs_check_method='file_magic (s[[0-9]][[0-9]][[0-9]]|ELF-[[0-9]][[0-9]]) shared object file - IA64'
+     lt_cv_file_magic_test_file=/usr/lib/hpux32/libc.so
+@@ -1990,8 +1990,8 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[ML]]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
+-  lt_cv_file_magic_test_file=/usr/lib/libnls.so
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
++  lt_cv_file_magic_test_file=@GENTOO_PORTAGE_EPREFIX@/usr/lib/libnls.so
+   ;;
+ 
+ nto-qnx)
+@@ -1999,7 +1999,7 @@
+   ;;
+ 
+ openbsd*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+   if test -z "`echo __ELF__ | $CC -E - | grep __ELF__`" || test "$host_os-$host_cpu" = "openbsd2.8-powerpc"; then
+     lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[LM]]SB shared object'
+@@ -2034,11 +2034,11 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[LM]]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [[0-9]][[0-9]]*-bit [[LM]]SB dynamic lib"
+     lt_cv_file_magic_test_file=/lib/libc.so
+     ;;
+@@ -2066,7 +2066,7 @@
+   lt_cv_path_NM="$NM"
+ else
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  for ac_dir in $PATH /usr/ccs/bin /usr/ucb /bin; do
++  for ac_dir in $PATH /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+     tmp_nm="$ac_dir/${ac_tool_prefix}nm"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/missing gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/missing
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/missing	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/missing	2012-03-30 11:27:33.900590900 -0700
+@@ -174,7 +174,7 @@
+ 	touch $file
+     else
+ 	test -z "$file" || exec >$file
+-	echo "#! /bin/sh"
++	echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh"
+ 	echo "# Created by GNU Automake missing as a replacement of"
+ 	echo "#  $ $@"
+ 	echo "exit 0"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-lib/javaexec.c gettext-0.18.1.1/gettext-tools/gnulib-lib/javaexec.c
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-lib/javaexec.c	2010-05-24 02:42:38.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-lib/javaexec.c	2012-03-30 11:47:14.235110600 -0700
+@@ -172,11 +172,11 @@
+         if (verbose)
+           printf ("%s\n", command);
+ 
+-        argv[0] = "/bin/sh";
++        argv[0] = "@GENTOO_PORTAGE_EPREFIX@/bin/sh";
+         argv[1] = "-c";
+         argv[2] = command;
+         argv[3] = NULL;
+-        err = executer (java, "/bin/sh", argv, private_data);
++        err = executer (java, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", argv, private_data);
+ 
+         freea (command);
+ 
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-copy-acl.sh gettext-0.18.1.1/gettext-tools/gnulib-tests/test-copy-acl.sh
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-copy-acl.sh	2012-03-30 12:31:13.279723700 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-copy-acl.sh	2012-03-30 11:51:22.518757400 -0700
+@@ -151,16 +151,16 @@
+     macosx)
+       func_test_same_acls ()
+       {
+-        /bin/ls -le "$1" | sed -e "s/$1/FILENAME/g" > tmpaclout1
+-        /bin/ls -le "$2" | sed -e "s/$2/FILENAME/g" > tmpaclout2
++        @GENTOO_PORTAGE_EPREFIX@/bin/ls -le "$1" | sed -e "s/$1/FILENAME/g" > tmpaclout1
++        @GENTOO_PORTAGE_EPREFIX@/bin/ls -le "$2" | sed -e "s/$2/FILENAME/g" > tmpaclout2
+         cmp tmpaclout1 tmpaclout2 > /dev/null
+       }
+       ;;
+     irix)
+       func_test_same_acls ()
+       {
+-        /bin/ls -lD "$1" | sed -e "s/$1/FILENAME/g" > tmpaclout1
+-        /bin/ls -lD "$2" | sed -e "s/$2/FILENAME/g" > tmpaclout2
++        @GENTOO_PORTAGE_EPREFIX@/bin/ls -lD "$1" | sed -e "s/$1/FILENAME/g" > tmpaclout1
++        @GENTOO_PORTAGE_EPREFIX@/bin/ls -lD "$2" | sed -e "s/$2/FILENAME/g" > tmpaclout2
+         cmp tmpaclout1 tmpaclout2 > /dev/null
+       }
+       ;;
+@@ -456,12 +456,12 @@
+       macosx)
+ 
+         # Set an ACL for a user.
+-        /bin/chmod +a "user:daemon allow execute" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod +a "user:daemon allow execute" tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile2
+ 
+         # Set an ACL for a group.
+-        /bin/chmod +a "group:daemon allow read" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod +a "group:daemon allow read" tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile3
+ 
+@@ -471,24 +471,24 @@
+         func_test_copy tmpfile0 tmpfile4
+ 
+         # Remove the ACL for the user.
+-        /bin/chmod -a "user:daemon allow execute" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod -a "user:daemon allow execute" tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile5
+ 
+         # Remove the ACL for the group.
+-        /bin/chmod -a "group:daemon allow read" tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod -a "group:daemon allow read" tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile7
+ 
+         # Delete all optional ACLs.
+-        /bin/chmod -N tmpfile0
++        @GENTOO_PORTAGE_EPREFIX@/bin/chmod -N tmpfile0
+ 
+         func_test_copy tmpfile0 tmpfile8
+ 
+         # Copy ACLs from a file that has no ACLs.
+         echo > tmpfile9
+         chmod a+x tmpfile9
+-        { /bin/ls -le tmpfile9 | sed -n -e 's/^ [0-9][0-9]*: //p'; echo; } | /bin/chmod -E tmpfile0
++        { @GENTOO_PORTAGE_EPREFIX@/bin/ls -le tmpfile9 | sed -n -e 's/^ [0-9][0-9]*: //p'; echo; } | @GENTOO_PORTAGE_EPREFIX@/bin/chmod -E tmpfile0
+         rm -f tmpfile9
+ 
+         func_test_copy tmpfile0 tmpfile9
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-posix_spawn1.c gettext-0.18.1.1/gettext-tools/gnulib-tests/test-posix_spawn1.c
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-posix_spawn1.c	2012-03-30 12:31:18.542723700 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-posix_spawn1.c	2012-03-30 11:55:36.217987100 -0700
+@@ -75,7 +75,7 @@
+ int
+ main ()
+ {
+-  char *argv[3] = { "/bin/sh", CHILD_PROGRAM_FILENAME, NULL };
++  char *argv[3] = { "@GENTOO_PORTAGE_EPREFIX@/bin/sh", CHILD_PROGRAM_FILENAME, NULL };
+   int ifd[2];
+   sigset_t blocked_signals;
+   sigset_t fatal_signal_set;
+@@ -115,7 +115,7 @@
+           || (attrs_allocated = true,
+               (err = posix_spawnattr_setsigmask (&attrs, &blocked_signals)) != 0
+               || (err = posix_spawnattr_setflags (&attrs, POSIX_SPAWN_SETSIGMASK)) != 0)
+-          || (err = posix_spawnp (&child, "/bin/sh", &actions, &attrs, argv, environ)) != 0))
++          || (err = posix_spawnp (&child, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", &actions, &attrs, argv, environ)) != 0))
+     {
+       if (actions_allocated)
+         posix_spawn_file_actions_destroy (&actions);
+diff -urN gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-posix_spawn2.c gettext-0.18.1.1/gettext-tools/gnulib-tests/test-posix_spawn2.c
+--- gettext-0.18.1.1.orig/gettext-tools/gnulib-tests/test-posix_spawn2.c	2012-03-30 12:31:18.692723700 -0700
++++ gettext-0.18.1.1/gettext-tools/gnulib-tests/test-posix_spawn2.c	2012-03-30 11:55:51.838110500 -0700
+@@ -53,7 +53,7 @@
+ int
+ main ()
+ {
+-  char *argv[3] = { "/bin/sh", CHILD_PROGRAM_FILENAME, NULL };
++  char *argv[3] = { "@GENTOO_PORTAGE_EPREFIX@/bin/sh", CHILD_PROGRAM_FILENAME, NULL };
+   int ofd[2];
+   sigset_t blocked_signals;
+   sigset_t fatal_signal_set;
+@@ -92,7 +92,7 @@
+           || (attrs_allocated = true,
+               (err = posix_spawnattr_setsigmask (&attrs, &blocked_signals)) != 0
+               || (err = posix_spawnattr_setflags (&attrs, POSIX_SPAWN_SETSIGMASK)) != 0)
+-          || (err = posix_spawnp (&child, "/bin/sh", &actions, &attrs, argv, environ)) != 0))
++          || (err = posix_spawnp (&child, "@GENTOO_PORTAGE_EPREFIX@/bin/sh", &actions, &attrs, argv, environ)) != 0))
+     {
+       if (actions_allocated)
+         posix_spawn_file_actions_destroy (&actions);
+diff -urN gettext-0.18.1.1.orig/gettext-tools/man/help2man gettext-0.18.1.1/gettext-tools/man/help2man
+--- gettext-0.18.1.1.orig/gettext-tools/man/help2man	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/man/help2man	2012-03-30 11:56:52.809802400 -0700
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/perl -w
+ 
+ # Generate a short man page from --help and --version output.
+ # Copyright © 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/gettext-3 gettext-0.18.1.1/gettext-tools/tests/gettext-3
+--- gettext-0.18.1.1.orig/gettext-tools/tests/gettext-3	2012-03-30 12:31:32.838723700 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/gettext-3	2012-03-30 12:09:05.391789500 -0700
+@@ -15,7 +15,7 @@
+ 
+ # This test works only on systems that have a de_DE and fr_FR locale installed.
+ LC_ALL=de_DE ./testlocale || {
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: locale de_DE not installed"
+   else
+     echo "Skipping test: locale de_DE not supported"
+@@ -23,7 +23,7 @@
+   exit 77
+ }
+ LC_ALL=fr_FR ./testlocale || {
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: locale fr_FR not installed"
+   else
+     echo "Skipping test: locale fr_FR not supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/msgexec-1 gettext-0.18.1.1/gettext-tools/tests/msgexec-1
+--- gettext-0.18.1.1.orig/gettext-tools/tests/msgexec-1	2012-03-30 12:31:42.801223700 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/msgexec-1	2012-03-30 12:18:31.786723700 -0700
+@@ -59,7 +59,7 @@
+ 
+ tmpfiles="$tmpfiles mex-test1.sh"
+ cat <<\EOF > mex-test1.sh
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "========================= $MSGEXEC_LOCATION =========================" | LC_ALL=C tr -d '\r'
+ cat <<MEOF
+ $MSGEXEC_MSGID
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/msgexec-3 gettext-0.18.1.1/gettext-tools/tests/msgexec-3
+--- gettext-0.18.1.1.orig/gettext-tools/tests/msgexec-3	2012-03-30 12:31:42.952723700 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/msgexec-3	2012-03-30 12:18:52.475223700 -0700
+@@ -34,7 +34,7 @@
+ 
+ tmpfiles="$tmpfiles mex-test3.sh"
+ cat <<\EOF > mex-test3.sh
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "========================= $MSGEXEC_LOCATION =========================" | LC_ALL=C tr -d '\r'
+ cat <<MEOF
+ $MSGEXEC_MSGID
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/msgexec-4 gettext-0.18.1.1/gettext-tools/tests/msgexec-4
+--- gettext-0.18.1.1.orig/gettext-tools/tests/msgexec-4	2012-03-30 12:31:43.028223700 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/msgexec-4	2012-03-30 12:18:59.370223700 -0700
+@@ -66,7 +66,7 @@
+ 
+ tmpfiles="$tmpfiles mex-test4.sh"
+ cat <<\EOF > mex-test4.sh
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "========================= $MSGEXEC_LOCATION =========================" | LC_ALL=C tr -d '\r'
+ if test -n "${MSGEXEC_MSGCTXT+set}"; then
+   echo "context: $MSGEXEC_MSGCTXT" | LC_ALL=C tr -d '\r'
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/recode-sr-latin-1 gettext-0.18.1.1/gettext-tools/tests/recode-sr-latin-1
+--- gettext-0.18.1.1.orig/gettext-tools/tests/recode-sr-latin-1	2012-03-30 12:31:50.404723700 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/recode-sr-latin-1	2012-03-30 12:19:17.340723700 -0700
+@@ -16,7 +16,7 @@
+   esac
+ fi
+ if test $LOCALE_FR_UTF8 = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no french UTF-8 locale is installed"
+   else
+     echo "Skipping test: no french UTF-8 locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/recode-sr-latin-2 gettext-0.18.1.1/gettext-tools/tests/recode-sr-latin-2
+--- gettext-0.18.1.1.orig/gettext-tools/tests/recode-sr-latin-2	2012-03-30 12:31:50.478223700 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/recode-sr-latin-2	2012-03-30 12:19:25.546223700 -0700
+@@ -13,7 +13,7 @@
+ # Test whether a specific EUC-JP locale is installed.
+ : ${LOCALE_JA=ja_JP}
+ if test $LOCALE_JA = none; then
+-  if test -f /usr/bin/localedef; then
++  if test -f @GENTOO_PORTAGE_EPREFIX@/usr/bin/localedef; then
+     echo "Skipping test: no japanese EUC-JP locale is installed"
+   else
+     echo "Skipping test: no japanese EUC-JP locale is supported"
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/xgettext-python-3 gettext-0.18.1.1/gettext-tools/tests/xgettext-python-3
+--- gettext-0.18.1.1.orig/gettext-tools/tests/xgettext-python-3	2012-03-30 12:31:56.320223700 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/xgettext-python-3	2012-03-30 12:19:52.124723700 -0700
+@@ -7,14 +7,14 @@
+ 
+ tmpfiles="$tmpfiles xg-py-3a.py"
+ cat <<\EOF > xg-py-3a.py
+-#!/usr/bin/env python
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/env python
+ # TRANSLATORS: Franè´Æois Pinard is a hero.
+ print gettext.gettext("∆¸À‹∏Ï");
+ EOF
+ 
+ tmpfiles="$tmpfiles xg-py-3b.py"
+ cat <<\EOF > xg-py-3b.py
+-#!/usr/bin/env python
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/env python
+                        # Hey Emacs! -*- coding: euc-jp -*-
+ # TRANSLATORS: Franè´Æois Pinard is a hero.
+ print gettext.gettext("∆¸À‹∏Ï");
+@@ -95,7 +95,7 @@
+ 
+ tmpfiles="$tmpfiles xg-py-3d.py"
+ cat <<\EOF > xg-py-3d.py
+-#!/usr/bin/env python
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/env python
+                        # Hey Emacs! -*- coding: big5 -*-
+ print gettext.gettext(u"¨\u0021");
+ print gettext.gettext(u"¨\\u0021");
+diff -urN gettext-0.18.1.1.orig/gettext-tools/tests/xgettext-tcl-1 gettext-0.18.1.1/gettext-tools/tests/xgettext-tcl-1
+--- gettext-0.18.1.1.orig/gettext-tools/tests/xgettext-tcl-1	2012-03-30 12:31:57.377223700 -0700
++++ gettext-0.18.1.1/gettext-tools/tests/xgettext-tcl-1	2012-03-30 12:20:03.770723700 -0700
+@@ -7,7 +7,7 @@
+ 
+ tmpfiles="$tmpfiles xg-t-1.tcl"
+ cat <<\EOF > xg-t-1.tcl
+-#!/usr/bin/tclsh
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/tclsh
+ 
+ proc isValid {target} {
+ 	global viScreenId
+diff -urN gettext-0.18.1.1.orig/m4/libtool.m4 gettext-0.18.1.1/m4/libtool.m4
+--- gettext-0.18.1.1.orig/m4/libtool.m4	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/m4/libtool.m4	2012-03-30 12:22:56.940723700 -0700
+@@ -1056,7 +1056,7 @@
+ m4_defun([_LT_PROG_ECHO_BACKSLASH],
+ [_LT_SHELL_INIT([
+ # Check that we are running under the correct shell.
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ case X$lt_ECHO in
+ X*--fallback-echo)
+@@ -1137,12 +1137,12 @@
+          test "X$echo_testing_string" = "X$echo_test_string"; then
+         # This shell has a builtin print -r that does the trick.
+         ECHO='print -r'
+-      elif { test -f /bin/ksh || test -f /bin/ksh$ac_exeext; } &&
+-	   test "X$CONFIG_SHELL" != X/bin/ksh; then
++      elif { test -f @GENTOO_PORTAGE_EPREFIX@/bin/ksh || test -f @GENTOO_PORTAGE_EPREFIX@/bin/ksh$ac_exeext; } &&
++	   test "X$CONFIG_SHELL" != X@GENTOO_PORTAGE_EPREFIX@/bin/ksh; then
+         # If we have ksh, try running configure again with it.
+-        ORIGINAL_CONFIG_SHELL=${CONFIG_SHELL-/bin/sh}
++        ORIGINAL_CONFIG_SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+         export ORIGINAL_CONFIG_SHELL
+-        CONFIG_SHELL=/bin/ksh
++        CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/ksh
+         export CONFIG_SHELL
+         exec $CONFIG_SHELL "[$]0" --no-reexec ${1+"[$]@"}
+       else
+@@ -1182,7 +1182,7 @@
+ 	  if test "$prev" != 'sed 50q "[$]0"'; then
+ 	    echo_test_string=`eval $prev`
+ 	    export echo_test_string
+-	    exec ${ORIGINAL_CONFIG_SHELL-${CONFIG_SHELL-/bin/sh}} "[$]0" ${1+"[$]@"}
++	    exec ${ORIGINAL_CONFIG_SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}} "[$]0" ${1+"[$]@"}
+ 	  else
+ 	    # Oops.  We lost completely, so just stick with echo.
+ 	    ECHO=echo
+@@ -1223,7 +1223,7 @@
+   # Find out which ABI we are using.
+   echo 'int i;' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -1239,7 +1239,7 @@
+   echo '[#]line __oline__ "configure"' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -1251,7 +1251,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -1272,7 +1272,7 @@
+   # Find out which ABI we are using.
+   echo 'int i;' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -1333,7 +1333,7 @@
+   # Find out which ABI we are using.
+   echo 'int i;' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*) LD="${LD-ld} -m elf64_sparc" ;;
+@@ -1587,7 +1587,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -2293,8 +2293,8 @@
+ freebsd* | dragonfly*)
+   # DragonFly does not have aout.  When/if they implement a new
+   # versioning mechanism, adjust this.
+-  if test -x /usr/bin/objformat; then
+-    objformat=`/usr/bin/objformat`
++  if test -x @GENTOO_PORTAGE_EPREFIX@/usr/bin/objformat; then
++    objformat=`@GENTOO_PORTAGE_EPREFIX@/usr/bin/objformat`
+   else
+     case $host_os in
+     freebsd[[123]]*) objformat=aout ;;
+@@ -2801,10 +2801,10 @@
+ # --------------
+ # find a file program which can recognize a shared library
+ m4_defun([_LT_PATH_MAGIC],
+-[_LT_PATH_TOOL_PREFIX(${ac_tool_prefix}file, /usr/bin$PATH_SEPARATOR$PATH)
++[_LT_PATH_TOOL_PREFIX(${ac_tool_prefix}file, @GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH)
+ if test -z "$lt_cv_path_MAGIC_CMD"; then
+   if test -n "$ac_tool_prefix"; then
+-    _LT_PATH_TOOL_PREFIX(file, /usr/bin$PATH_SEPARATOR$PATH)
++    _LT_PATH_TOOL_PREFIX(file, @GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH)
+   else
+     MAGIC_CMD=:
+   fi
+@@ -2989,7 +2989,7 @@
+ 
+ bsdi[[45]]*)
+   lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[ML]]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -3029,7 +3029,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[[3-9]]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -3043,7 +3043,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[[0-9]][[0-9]][[0-9]]|ELF-[[0-9]][[0-9]]) shared object file - IA64'
+@@ -3090,8 +3090,8 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[ML]]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
+-  lt_cv_file_magic_test_file=/usr/lib/libnls.so
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
++  lt_cv_file_magic_test_file=@GENTOO_PORTAGE_EPREFIX@/usr/lib/libnls.so
+   ;;
+ 
+ *nto* | *qnx*)
+@@ -3136,9 +3136,9 @@
+     lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[LM]]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [[0-9]][[0-9]]*-bit [[LM]]SB dynamic lib"
+-    lt_cv_file_magic_test_file=/lib/libc.so
++    lt_cv_file_magic_test_file=@GENTOO_PORTAGE_EPREFIX@/lib/libc.so
+     ;;
+   siemens)
+     lt_cv_deplibs_check_method=pass_all
+@@ -3184,7 +3184,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+diff -urN gettext-0.18.1.1.orig/build-aux/ltmain.sh gettext-0.18.1.1/build-aux/ltmain.sh
+--- gettext-0.18.1.1.orig/build-aux/ltmain.sh	2012-03-30 15:40:46.333223700 -0700
++++ gettext-0.18.1.1/build-aux/ltmain.sh	2012-03-30 17:23:38.720555800 -0700
+@@ -116,16 +116,16 @@
+ 
+ : ${CP="cp -f"}
+ : ${ECHO="echo"}
+-: ${EGREP="/usr/bin/grep -E"}
+-: ${FGREP="/usr/bin/grep -F"}
+-: ${GREP="/usr/bin/grep"}
++: ${EGREP="@GENTOO_PORTAGE_EPREFIX@/usr/bin/grep -E"}
++: ${FGREP="@GENTOO_PORTAGE_EPREFIX@/usr/bin/grep -F"}
++: ${GREP="@GENTOO_PORTAGE_EPREFIX@/usr/bin/grep"}
+ : ${LN_S="ln -s"}
+ : ${MAKE="make"}
+ : ${MKDIR="mkdir"}
+ : ${MV="mv -f"}
+ : ${RM="rm -f"}
+-: ${SED="/opt/local/bin/gsed"}
+-: ${SHELL="${CONFIG_SHELL-/bin/sh}"}
++: ${SED="@GENTOO_PORTAGE_EPREFIX@/bin/sed"}
++: ${SHELL="${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}"}
+ : ${Xsed="$SED -e 1s/^X//"}
+ 
+ # Global variables:
+@@ -1465,7 +1465,7 @@
+ Remove files from the build directory.
+ 
+ RM is the name of the program to use to delete files associated with each FILE
+-(typically \`/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
++(typically \`@GENTOO_PORTAGE_EPREFIX@/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
+ to RM.
+ 
+ If FILE is a libtool library, object or program, all the files associated
+@@ -1611,7 +1611,7 @@
+ Remove libraries from an installation directory.
+ 
+ RM is the name of the program to use to delete files associated with each FILE
+-(typically \`/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
++(typically \`@GENTOO_PORTAGE_EPREFIX@/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
+ to RM.
+ 
+ If FILE is a libtool library, all the files associated with it are deleted.
+@@ -1850,7 +1850,7 @@
+     $opt_debug
+     # There may be an optional sh(1) argument at the beginning of
+     # install_prog (especially on Windows NT).
+-    if test "$nonopt" = "$SHELL" || test "$nonopt" = /bin/sh ||
++    if test "$nonopt" = "$SHELL" || test "$nonopt" = @GENTOO_PORTAGE_EPREFIX@/bin/sh ||
+        # Allow the use of GNU shtool's install command.
+        $ECHO "X$nonopt" | $GREP shtool >/dev/null; then
+       # Aesthetically quote it.
+@@ -2241,7 +2241,7 @@
+ 	  fi
+ 	fi
+ 
+-	# remove .exe since cygwin /usr/bin/install will append another
++	# remove .exe since cygwin @GENTOO_PORTAGE_EPREFIX@/usr/bin/install will append another
+ 	# one anyway
+ 	case $install_prog,$host in
+ 	*/usr/bin/install*,*cygwin*)
+@@ -5814,7 +5814,7 @@
+ 		  *-*-darwin* )
+ 		    # if the lib is a (non-dlopened) module then we can not
+ 		    # link against it, someone is ignoring the earlier warnings
+-		    if /usr/bin/file -L $add 2> /dev/null |
++		    if @GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L $add 2> /dev/null |
+ 			 $GREP ": [^:]* bundle" >/dev/null ; then
+ 		      if test "X$dlopenmodule" != "X$lib"; then
+ 			$ECHO "*** Warning: lib $linklib is a module, not a shared library"
+diff -urN gettext-0.18.1.1.orig/build-aux/relocatable.sh.in gettext-0.18.1.1/build-aux/relocatable.sh.in
+--- gettext-0.18.1.1.orig/build-aux/relocatable.sh.in	2012-03-30 15:40:46.892223700 -0700
++++ gettext-0.18.1.1/build-aux/relocatable.sh.in	2012-03-30 17:24:01.937198200 -0700
+@@ -63,7 +63,7 @@
+     *) # Need to look in the PATH.
+       if test "${PATH_SEPARATOR+set}" != set; then
+         func_tmpdir
+-        { echo "#! /bin/sh"; echo "exit 0"; } > "$tmp"/conf.sh
++        { echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh"; echo "exit 0"; } > "$tmp"/conf.sh
+         chmod +x "$tmp"/conf.sh
+         if (PATH="/nonexistent;$tmp"; conf.sh) >/dev/null 2>&1; then
+           PATH_SEPARATOR=';'
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/libasprintf/texi2html gettext-0.18.1.1/gettext-runtime/libasprintf/texi2html
+--- gettext-0.18.1.1.orig/gettext-runtime/libasprintf/texi2html	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/libasprintf/texi2html	2012-03-30 17:25:01.502108800 -0700
+@@ -1,4 +1,4 @@
+-#!/usr/local/bin/perl
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/perl
+ 'di ';
+ 'ig 00 ';
+ #+##############################################################################
+diff -urN gettext-0.18.1.1.orig/gettext-runtime/man/help2man gettext-0.18.1.1/gettext-runtime/man/help2man
+--- gettext-0.18.1.1.orig/gettext-runtime/man/help2man	2010-06-06 05:49:57.000000000 -0700
++++ gettext-0.18.1.1/gettext-runtime/man/help2man	2012-03-30 17:25:17.137735300 -0700
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl -w
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/perl -w
+ 
+ # Generate a short man page from --help and --version output.
+ # Copyright © 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/config.guess gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/config.guess
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/config.guess	2012-03-30 15:41:02.623723700 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/config.guess	2012-03-30 17:30:29.681731600 -0700
+@@ -837,7 +837,7 @@
+ 	  EV67)  UNAME_MACHINE=alphaev67 ;;
+ 	  EV68*) UNAME_MACHINE=alphaev68 ;;
+         esac
+-	objdump --private-headers /bin/sh | grep ld.so.1 >/dev/null
++	objdump --private-headers @GENTOO_PORTAGE_EPREFIX@/bin/sh | grep ld.so.1 >/dev/null
+ 	if test "$?" = 0 ; then LIBC="libc1" ; else LIBC="" ; fi
+ 	echo ${UNAME_MACHINE}-unknown-linux-gnu${LIBC}
+ 	exit 0 ;;
+@@ -941,7 +941,7 @@
+ 	fi
+ 	exit 0 ;;
+     i*86:*:5:[78]*)
+-	case `/bin/uname -X | grep "^Machine"` in
++	case `@GENTOO_PORTAGE_EPREFIX@/bin/uname -X | grep "^Machine"` in
+ 	    *486*)	     UNAME_MACHINE=i486 ;;
+ 	    *Pentium)	     UNAME_MACHINE=i586 ;;
+ 	    *Pent*|*Celeron) UNAME_MACHINE=i686 ;;
+@@ -952,14 +952,14 @@
+ 	if test -f /usr/options/cb.name; then
+ 		UNAME_REL=`sed -n 's/.*Version //p' </usr/options/cb.name`
+ 		echo ${UNAME_MACHINE}-pc-isc$UNAME_REL
+-	elif /bin/uname -X 2>/dev/null >/dev/null ; then
+-		UNAME_REL=`(/bin/uname -X|grep Release|sed -e 's/.*= //')`
+-		(/bin/uname -X|grep i80486 >/dev/null) && UNAME_MACHINE=i486
+-		(/bin/uname -X|grep '^Machine.*Pentium' >/dev/null) \
++	elif @GENTOO_PORTAGE_EPREFIX@/bin/uname -X 2>/dev/null >/dev/null ; then
++		UNAME_REL=`(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep Release|sed -e 's/.*= //')`
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep i80486 >/dev/null) && UNAME_MACHINE=i486
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pentium' >/dev/null) \
+ 			&& UNAME_MACHINE=i586
+-		(/bin/uname -X|grep '^Machine.*Pent *II' >/dev/null) \
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pent *II' >/dev/null) \
+ 			&& UNAME_MACHINE=i686
+-		(/bin/uname -X|grep '^Machine.*Pentium Pro' >/dev/null) \
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pentium Pro' >/dev/null) \
+ 			&& UNAME_MACHINE=i686
+ 		echo ${UNAME_MACHINE}-pc-sco$UNAME_REL
+ 	else
+@@ -1001,12 +1001,12 @@
+ 	OS_REL=''
+ 	test -r /etc/.relid \
+ 	&& OS_REL=.`sed -n 's/[^ ]* [^ ]* \([0-9][0-9]\).*/\1/p' < /etc/.relid`
+-	/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
++	@GENTOO_PORTAGE_EPREFIX@/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
+ 	  && echo i486-ncr-sysv4.3${OS_REL} && exit 0
+-	/bin/uname -p 2>/dev/null | /bin/grep entium >/dev/null \
++	@GENTOO_PORTAGE_EPREFIX@/bin/uname -p 2>/dev/null | @GENTOO_PORTAGE_EPREFIX@/bin/grep entium >/dev/null \
+ 	  && echo i586-ncr-sysv4.3${OS_REL} && exit 0 ;;
+     3[34]??:*:4.0:* | 3[34]??,*:*:4.0:*)
+-        /bin/uname -p 2>/dev/null | grep 86 >/dev/null \
++        @GENTOO_PORTAGE_EPREFIX@/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
+           && echo i486-ncr-sysv4 && exit 0 ;;
+     m68*:LynxOS:2.*:* | m68*:LynxOS:3.0*:*)
+ 	echo m68k-unknown-lynxos${UNAME_RELEASE}
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/libtool.m4.in gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/libtool.m4.in
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/libtool.m4.in	2012-03-30 15:42:49.912723700 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/libtool.m4.in	2012-03-30 17:31:52.944380800 -0700
+@@ -1157,7 +1157,7 @@
+   ;;
+ 
+ freebsd*)
+-  objformat=`test -x /usr/bin/objformat && /usr/bin/objformat || echo aout`
++  objformat=`test -x @GENTOO_PORTAGE_EPREFIX@/usr/bin/objformat && @GENTOO_PORTAGE_EPREFIX@/usr/bin/objformat || echo aout`
+   version_type=freebsd-$objformat
+   case $version_type in
+     freebsd-elf*)
+diff -urN gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/ltmain.sh gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/ltmain.sh
+--- gettext-0.18.1.1.orig/gettext-tools/examples/hello-c++-kde/admin/ltmain.sh	2012-03-30 15:41:03.691723700 -0700
++++ gettext-0.18.1.1/gettext-tools/examples/hello-c++-kde/admin/ltmain.sh	2012-03-30 17:32:52.912872100 -0700
+@@ -4514,7 +4514,7 @@
+ 
+     # There may be an optional sh(1) argument at the beginning of
+     # install_prog (especially on Windows NT).
+-    if test "$nonopt" = "$SHELL" || test "$nonopt" = /bin/sh ||
++    if test "$nonopt" = "$SHELL" || test "$nonopt" = @GENTOO_PORTAGE_EPREFIX@/bin/sh ||
+        # Allow the use of GNU shtool's install command.
+        $echo "X$nonopt" | $Xsed | grep shtool > /dev/null; then
+       # Aesthetically quote it.
+@@ -4899,7 +4899,7 @@
+ 	  fi
+ 	fi
+ 
+-	# remove .exe since cygwin /usr/bin/install will append another
++	# remove .exe since cygwin @GENTOO_PORTAGE_EPREFIX@/usr/bin/install will append another
+ 	# one anyways
+ 	case $install_prog,$host in
+ 	*/usr/bin/install*,*cygwin*)
+@@ -5394,7 +5394,7 @@
+ Remove files from the build directory.
+ 
+ RM is the name of the program to use to delete files associated with each FILE
+-(typically \`/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
++(typically \`@GENTOO_PORTAGE_EPREFIX@/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
+ to RM.
+ 
+ If FILE is a libtool library, object or program, all the files associated
+@@ -5527,7 +5527,7 @@
+ Remove libraries from an installation directory.
+ 
+ RM is the name of the program to use to delete files associated with each FILE
+-(typically \`/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
++(typically \`@GENTOO_PORTAGE_EPREFIX@/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
+ to RM.
+ 
+ If FILE is a libtool library, all the files associated with it are deleted.
+diff -urN gettext-0.18.1.1.orig/gettext-tools/src/format-boost.c gettext-0.18.1.1/gettext-tools/src/format-boost.c
+--- gettext-0.18.1.1.orig/gettext-tools/src/format-boost.c	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/gettext-tools/src/format-boost.c	2012-03-30 17:34:19.420670200 -0700
+@@ -764,7 +764,7 @@
+ /*
+  * For Emacs M-x compile
+  * Local Variables:
+- * compile-command: "/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-boost.c ../gnulib-lib/libgettextlib.la"
++ * compile-command: "@GENTOO_PORTAGE_EPREFIX@/bin/sh ../libtool --tag=CC --mode=link gcc -o a.out -static -O -g -Wall -I.. -I../gnulib-lib -I../intl -DHAVE_CONFIG_H -DTEST format-boost.c ../gnulib-lib/libgettextlib.la"
+  * End:
+  */
+ 
+diff -urN gettext-0.18.1.1.orig/m4/libtool.m4 gettext-0.18.1.1/m4/libtool.m4
+--- gettext-0.18.1.1.orig/m4/libtool.m4	2012-03-30 15:42:49.952223700 -0700
++++ gettext-0.18.1.1/m4/libtool.m4	2012-03-30 17:35:54.118105900 -0700
+@@ -3132,7 +3132,7 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[LM]]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+diff -urN gettext-0.18.1.1.orig/os2/configure.awk gettext-0.18.1.1/os2/configure.awk
+--- gettext-0.18.1.1.orig/os2/configure.awk	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/os2/configure.awk	2012-03-30 17:36:09.333148300 -0700
+@@ -1,4 +1,4 @@
+-#!/usr/bin/gawk -f
++#!@GENTOO_PORTAGE_EPREFIX@/usr/bin/gawk -f
+ # A script for emulating configure on OS/2 without having even a Unix-like
+ # shell. Designed specifically for compiling gettext with gcc+emx.
+ 
+diff -urN gettext-0.18.1.1.orig/windows/windres-options gettext-0.18.1.1/windows/windres-options
+--- gettext-0.18.1.1.orig/windows/windres-options	2010-06-06 05:49:58.000000000 -0700
++++ gettext-0.18.1.1/windows/windres-options	2012-03-30 17:36:23.398960900 -0700
+@@ -1,4 +1,4 @@
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ # Usage: windres-options [--escape] PACKAGE_VERSION
+ # Outputs a set of command-line options for 'windres', containing definitions
+ # for the preprocessor variables
