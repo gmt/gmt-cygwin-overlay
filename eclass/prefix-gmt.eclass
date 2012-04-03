@@ -3,8 +3,8 @@
 # $Header: $
 
 # Original Author: Greg Turner <gmturner007@ameritechREMOVEME.net>
-# Purpose: shebang prefixification for lazy people
 
+# bash shebang prefixification utility
 # arguments: a list of filenames (each positional argument is treated as its own file)
 # suspected to begin with bash shebangs in need of prefixification.  */sh and */bash are
 # replaced with ${EPREFIX}/bin/sh and ${EPREFIX}/bin/bash, respectively.
