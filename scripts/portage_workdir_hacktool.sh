@@ -92,7 +92,7 @@ sourceit() {
 		echo 'usage: sourceit [--cold]'
 		return 0
 	fi
-	source "${overlay_dir}"/portage_workdir_hacktool.sh
+	source "${overlay_dir}"/scripts/portage_workdir_hacktool.sh
 }
 
 files_equal () 
