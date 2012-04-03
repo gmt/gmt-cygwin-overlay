@@ -1,15 +1,13 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-#
-# Original Author: Greg Turner <gmturner007@ameritech.net>
+# Original Author: Greg Turner <gmturner007@ameritechREMOVEME.net>
 # Purpose: shebang prefixification for lazy people
-#
 
 # arguments: a list of filenames (each positional argument is treated as its own file)
 # suspected to begin with bash shebangs in need of prefixification.  */sh and */bash are
-# both replaced with ${EPREFIX}/bin/bash.
+# replaced with ${EPREFIX}/bin/sh and ${EPREFIX}/bin/bash, respectively.
 bash_shebang_prefixify() {
 	[[ "${EPREFIX}" ]] || return 0
 	local f before
@@ -20,13 +18,15 @@ bash_shebang_prefixify() {
 	for f in "${@}" ; do
 		[[ -f ${f} ]] || continue
 		before="$( head -n 1 ${f} )"
-		sed -e '1s&^\(#![[:space:]]*\).*/\(ba\)\?sh\([^[:graph:]]\|$\)&\1'"${EPREFIX%/}"'/bin/bash\3&' -i "${f}"
+		sed -e '1s&^\(#![[:space:]]*\).*/\(ba\)\?sh\([^[:graph:]]\|$\)&\1'"${EPREFIX%/}"'/bin/\2sh\3&' -i "${f}"
 		[[ "${before}" != "$( head -n 1 ${f} )" && $silent == no ]] && \
 			einfo "Prefixifying bash shebang in file: \"${f}\""
 	done
 }
 
+# recursively calls bash_shebang_prefixifiy on all regular files in the given directories
 # note: does not handle files beginning with "."
+# arguments: [-r|--recursive] list-of-directories
 bash_shebang_prefixify_dirs() {
 	[[ "${EPREFIX}" ]] || return 0
 	local recursive=no dir dirfile
@@ -50,6 +50,11 @@ bash_shebang_prefixify_dirs() {
 	return 0
 }
 
+# generates a prefixification patch by prefixifiying the given patch or
+# list of patches, and then applies the prefixified patch.  Intended to
+# replace patch+eprefixify with a one-step patch-and-prefixify solution
+# does not support EPATCH_SOURCE so if you need that you'll have to do it
+# the old fashioned way (patch + eprefixify).
 eprefixify_patch() {
 	# Let the rest of the code process one user arg at a time --
 	# each arg may expand into multiple patches, and each arg may
@@ -99,16 +104,16 @@ eprefixify_patch() {
 	einfo "Prefixifying patch: ${patchname} ..."
 
 	local PATCH_TARGET
-	PATCH_TARGET="${T}/prefix_${patchname}.patch"
+	PATCH_TARGET="${T}/prefix_${patchname}"
 	local STDERR_TARGET="${T}/prefix_${patchname}_err.out"
 	if [[ -e ${STDERR_TARGET} ]] ; then
 		STDERR_TARGET="${T}/prefix_${patchname}_err_$$.out"
 	fi
 
 	# FIXME: @#$%@#$!  How to make a regex that matches '+x+ foo' and '++x foo' but not '+++ foo'?
-	local PIPE_CMD_DISP="${PIPE_CMD} | sed -e /^+/s|@GENTOO_PORTAGE_EPREFIX@|${EPREFIX}|g"
+	local pipe_cmd_disp="${PIPE_CMD} | sed -e /^+/s|@GENTOO_PORTAGE_EPREFIX@|${EPREFIX}|g"
 
-	local errinfo="executing: ${PIPE_CMD_DISP} ${x} > ${PATCH_TARGET} >> ${STDERR_TARGET}"
+	local errinfo="executing: ${pipe_cmd_disp} ${x} > ${PATCH_TARGET} >> ${STDERR_TARGET}"
 
 	if ! ( ${PIPE_CMD} "${x}" | sed -e '/^+/s|@GENTOO_PORTAGE_EPREFIX@|'"${EPREFIX}"'|g' \
 		> "${PATCH_TARGET}" ) >> "${STDERR_TARGET}" 2>&1 ; then
