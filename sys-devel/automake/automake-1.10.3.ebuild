@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.10.3.ebuild,v 1.7 2010/03/13 19:31:12 armin76 Exp $
 
-inherit eutils
+inherit eutils prefix-gmt
 
 DESCRIPTION="Used to generate Makefile.in from Makefile.am"
 HOMEPAGE="http://sources.redhat.com/automake/"
@@ -40,6 +40,13 @@ src_unpack() {
 	# configure failure with bash. the patch has been reported upstream.
 	epatch "${FILESDIR}"/${PN}-1.10.2-depout.patch
 	epatch "${FILESDIR}"/${PN}-cygwin1.7-config-guess.patch
+	if use prefix ; then
+		bash_shebang_prefixify bootstrap configure lib/acinstall lib/compile \
+		lib/config.guess lib/config.sub lib/elisp-comp lib/install-sh lib/mdate-sh \
+		lib/missing lib/mkinstalldirs lib/py-compile lib/symlink-tree lib/ylwrap
+		bash_shebang_prefixify_dirs tests
+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
+	fi
 }
 
 src_compile() {

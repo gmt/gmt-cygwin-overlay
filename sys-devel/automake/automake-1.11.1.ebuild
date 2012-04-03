@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.11.1.ebuild,v 1.8 2010/05/31 19:20:31 josejx Exp $
 
-inherit eutils versionator
+inherit eutils versionator autotools prefix-gmt
 
 if [[ ${PV/_beta} == ${PV} ]]; then
 	MY_P=${P}
@@ -40,6 +40,19 @@ src_unpack() {
 	cd "${S}"
 	epatch "${FILESDIR}"/${PN}-cygwin1.7-config-guess.patch
 	chmod a+rx tests/*.test
+	export WANT_AUTOCONF=2.5
+	if use prefix ; then
+		bash_shebang_prefixify bootstrap lib/acinstall lib/compile \
+			lib/config.{guess,sub} lib/{install,mdate}-sh lib/missing \
+			lib/elisp-comp lib/gnupload lib/mkinstalldirs lib/py-compile \
+			lib/symlink-tree lib/ylwrap
+		bash_shebang_prefixify_dirs tests
+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
+		# FIXME: the above is triggering some maintainer-mode activity we really don't want
+		# For now, we just take our lumps...
+		eautoreconf
+		bash_shebang_prefixify configure
+	fi
 	sed -i \
 		-e "s|: (automake)| v${SLOT}: (automake${SLOT})|" \
 		doc/automake.texi || die "sed failed"
@@ -48,7 +61,6 @@ src_unpack() {
 		-e "s:automake.info:automake${SLOT}.info:" \
 		-e "s:automake.texi:automake${SLOT}.texi:" \
 		doc/Makefile.in || die "sed on Makefile.in failed"
-	export WANT_AUTOCONF=2.5
 }
 
 src_compile() {
@@ -77,4 +89,5 @@ src_install() {
 	for x in guess sub ; do
 		dosym ../gnuconfig/config.${x} /usr/share/${PN}-${SLOT}/config.${x}
 	done
+	use prefix && bash_shebang_prefixify "${ED}"/usr/share/${PN}-${SLOT}/depcomp
 }

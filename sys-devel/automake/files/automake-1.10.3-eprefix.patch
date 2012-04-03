@@ -1,0 +1,549 @@
+Binary files automake-1.10.3.orig/.configure.swp and automake-1.10.3/.configure.swp differ
+diff -urN automake-1.10.3.orig/configure automake-1.10.3/configure
+--- automake-1.10.3.orig/configure	2009-12-08 11:37:38.000000000 -0800
++++ automake-1.10.3/configure	2012-03-30 22:26:45.453723700 -0700
+@@ -76,8 +76,8 @@
+ # The user is always right.
+ if test "${PATH_SEPARATOR+set}" != set; then
+   PATH_SEPARATOR=:
+-  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
+-    (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
++  (PATH='@GENTOO_PORTAGE_EPREFIX@/bin;@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
++    (PATH='@GENTOO_PORTAGE_EPREFIX@/bin:@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
+       PATH_SEPARATOR=';'
+   }
+ fi
+@@ -184,7 +184,7 @@
+ else
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+ as_found=false
+-for as_dir in /bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
++for as_dir in @GENTOO_PORTAGE_EPREFIX@/bin$PATH_SEPARATOR@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH
+ do
+   IFS=$as_save_IFS
+   test -z "$as_dir" && as_dir=.
+@@ -240,7 +240,7 @@
+ fi
+ fi
+ fi
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ export SHELL
+ # Unset more variables known to interfere with behavior of common tools.
+ CLICOLOR_FORCE= GREP_OPTIONS=
+@@ -540,7 +540,7 @@
+ #
+ # Initializations.
+ #
+-ac_default_prefix=/usr/local
++ac_default_prefix=@GENTOO_PORTAGE_EPREFIX@/usr/local
+ ac_clean_files=
+ ac_config_libobj_dir=.
+ LIBOBJS=
+@@ -1786,7 +1786,7 @@
+     # Account for people who put trailing slashes in PATH elements.
+ case $as_dir/ in #((
+   ./ | .// | /[cC]/* | \
+-  /etc/* | /usr/sbin/* | /usr/etc/* | /sbin/* | /usr/afsws/bin/* | \
++  @GENTOO_PORTAGE_EPREFIX@/etc/* | @GENTOO_PORTAGE_EPREFIX@/usr/sbin/* | @GENTOO_PORTAGE_EPREFIX@/usr/etc/* | @GENTOO_PORTAGE_EPREFIX@/sbin/* | /usr/afsws/bin/* | \
+   ?:[\\/]os2[\\/]install[\\/]* | ?:[\\/]OS2[\\/]INSTALL[\\/]* | \
+   /usr/ucb/* ) ;;
+   *)
+@@ -2113,7 +2113,7 @@
+   $as_echo_n "(cached) " >&6
+ else
+   cat >conftest.make <<\_ACEOF
+-SHELL = /bin/sh
++SHELL = @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ all:
+ 	@echo '@@@%%%=$(MAKE)=@@@%%%'
+ _ACEOF
+@@ -2857,8 +2857,8 @@
+ # The user is always right.
+ if test "${PATH_SEPARATOR+set}" != set; then
+   PATH_SEPARATOR=:
+-  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
+-    (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
++  (PATH='@GENTOO_PORTAGE_EPREFIX@/bin;@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
++    (PATH='@GENTOO_PORTAGE_EPREFIX@/bin:@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
+       PATH_SEPARATOR=';'
+   }
+ fi
+diff -urN automake-1.10.3.orig/lib/INSTALL automake-1.10.3/lib/INSTALL
+--- automake-1.10.3.orig/lib/INSTALL	2009-12-08 11:36:30.000000000 -0800
++++ automake-1.10.3/lib/INSTALL	2012-03-30 22:33:12.041723700 -0700
+@@ -142,7 +142,8 @@
+ ==================
+ 
+    By default, `make install' installs the package's commands under
+-`/usr/local/bin', include files under `/usr/local/include', etc.  You
++`@GENTOO_PORTAGE_EPREFIX@/usr/local/bin', include files under 
++``@GENTOO_PORTAGE_EPREFIX@/usr/local/include', etc.  You
+ can specify an installation prefix other than `/usr/local' by giving
+ `configure' the option `--prefix=PREFIX', where PREFIX must be an
+ absolute file name.
+diff -urN automake-1.10.3.orig/lib/config-ml.in automake-1.10.3/lib/config-ml.in
+--- automake-1.10.3.orig/lib/config-ml.in	2009-12-08 10:04:46.000000000 -0800
++++ automake-1.10.3/lib/config-ml.in	2012-03-30 22:28:50.203723700 -0700
+@@ -100,7 +100,7 @@
+ # configured for a particular host.
+ 
+ Makefile=${ac_file-Makefile}
+-ml_config_shell=${CONFIG_SHELL-/bin/sh}
++ml_config_shell=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ ml_realsrcdir=${srcdir}
+ 
+ # Scan all the arguments and set all the ones we need.
+diff -urN automake-1.10.3.orig/lib/config.guess automake-1.10.3/lib/config.guess
+--- automake-1.10.3.orig/lib/config.guess	2012-03-30 22:06:41.564723700 -0700
++++ automake-1.10.3/lib/config.guess	2012-03-30 22:30:44.908723700 -0700
+@@ -874,7 +874,7 @@
+ 	  EV67)  UNAME_MACHINE=alphaev67 ;;
+ 	  EV68*) UNAME_MACHINE=alphaev68 ;;
+         esac
+-	objdump --private-headers /bin/sh | grep -q ld.so.1
++	objdump --private-headers @GENTOO_PORTAGE_EPREFIX@/bin/sh | grep -q ld.so.1
+ 	if test "$?" = 0 ; then LIBC="libc1" ; else LIBC="" ; fi
+ 	echo ${UNAME_MACHINE}-unknown-linux-gnu${LIBC}
+ 	exit ;;
+@@ -1038,14 +1038,14 @@
+ 	if test -f /usr/options/cb.name; then
+ 		UNAME_REL=`sed -n 's/.*Version //p' </usr/options/cb.name`
+ 		echo ${UNAME_MACHINE}-pc-isc$UNAME_REL
+-	elif /bin/uname -X 2>/dev/null >/dev/null ; then
+-		UNAME_REL=`(/bin/uname -X|grep Release|sed -e 's/.*= //')`
+-		(/bin/uname -X|grep i80486 >/dev/null) && UNAME_MACHINE=i486
+-		(/bin/uname -X|grep '^Machine.*Pentium' >/dev/null) \
++	elif @GENTOO_PORTAGE_EPREFIX@/bin/uname -X 2>/dev/null >/dev/null ; then
++		UNAME_REL=`(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep Release|sed -e 's/.*= //')`
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep i80486 >/dev/null) && UNAME_MACHINE=i486
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pentium' >/dev/null) \
+ 			&& UNAME_MACHINE=i586
+-		(/bin/uname -X|grep '^Machine.*Pent *II' >/dev/null) \
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pent *II' >/dev/null) \
+ 			&& UNAME_MACHINE=i686
+-		(/bin/uname -X|grep '^Machine.*Pentium Pro' >/dev/null) \
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pentium Pro' >/dev/null) \
+ 			&& UNAME_MACHINE=i686
+ 		echo ${UNAME_MACHINE}-pc-sco$UNAME_REL
+ 	else
+@@ -1090,12 +1090,12 @@
+ 	OS_REL=''
+ 	test -r /etc/.relid \
+ 	&& OS_REL=.`sed -n 's/[^ ]* [^ ]* \([0-9][0-9]\).*/\1/p' < /etc/.relid`
+-	/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
++	@GENTOO_PORTAGE_EPREFIX@/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
+ 	  && { echo i486-ncr-sysv4.3${OS_REL}; exit; }
+-	/bin/uname -p 2>/dev/null | /bin/grep entium >/dev/null \
++	@GENTOO_PORTAGE_EPREFIX@/bin/uname -p 2>/dev/null | @GENTOO_PORTAGE_EPREFIX@/bin/grep entium >/dev/null \
+ 	  && { echo i586-ncr-sysv4.3${OS_REL}; exit; } ;;
+     3[34]??:*:4.0:* | 3[34]??,*:*:4.0:*)
+-        /bin/uname -p 2>/dev/null | grep 86 >/dev/null \
++        @GENTOO_PORTAGE_EPREFIX@/bin/uname -p 2>/dev/null | grep 86 >/dev/null \
+           && { echo i486-ncr-sysv4; exit; } ;;
+     NCR*:*:4.2:* | MPRAS*:*:4.2:*)
+ 	OS_REL='.3'
+diff -urN automake-1.10.3.orig/lib/missing automake-1.10.3/lib/missing
+--- automake-1.10.3.orig/lib/missing	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/lib/missing	2012-03-30 22:34:05.744723700 -0700
+@@ -211,7 +211,7 @@
+ 	touch $file
+     else
+ 	test -z "$file" || exec >$file
+-	echo "#! /bin/sh"
++	echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh"
+ 	echo "# Created by GNU Automake missing as a replacement of"
+ 	echo "#  $ $@"
+ 	echo "exit 0"
+diff -urN automake-1.10.3.orig/m4/depend.m4 automake-1.10.3/m4/depend.m4
+--- automake-1.10.3.orig/m4/depend.m4	2009-12-08 10:04:46.000000000 -0800
++++ automake-1.10.3/m4/depend.m4	2012-03-30 22:35:10.457723700 -0700
+@@ -85,7 +85,7 @@
+     for i in 1 2 3 4 5 6; do
+       echo '#include "conftst'$i'.h"' >> sub/conftest.c
+       # Using `: > sub/conftst$i.h' creates only sub/conftst1.h with
+-      # Solaris 8's {/usr,}/bin/sh.
++      # Solaris 8's @GENTOO_PORTAGE_EPREFIX@{/usr,}/bin/sh.
+       touch sub/conftst$i.h
+     done
+     echo "${am__include} ${am__quote}sub/conftest.Po${am__quote}" > confmf
+diff -urN automake-1.10.3.orig/tests/ccnoco3.test automake-1.10.3/tests/ccnoco3.test
+--- automake-1.10.3.orig/tests/ccnoco3.test	2009-12-08 11:36:29.000000000 -0800
++++ automake-1.10.3/tests/ccnoco3.test	2012-03-30 22:36:26.186223700 -0700
+@@ -45,7 +45,7 @@
+ END
+ 
+ cat > Mycomp << 'END'
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ 
+ case " "$* in
+  *\ -c*\ -o* | *\ -o*\ -c*)
+diff -urN automake-1.10.3.orig/tests/check10.test automake-1.10.3/tests/check10.test
+--- automake-1.10.3.orig/tests/check10.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/check10.test	2012-03-30 22:36:57.150223700 -0700
+@@ -30,15 +30,15 @@
+ END
+ 
+ cat >>pass <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 0
+ END
+ cat >>fail <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 1
+ END
+ cat >>skip <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 77
+ END
+ chmod a+x pass fail skip
+diff -urN automake-1.10.3.orig/tests/check2.test automake-1.10.3/tests/check2.test
+--- automake-1.10.3.orig/tests/check2.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/check2.test	2012-03-30 22:37:13.934840900 -0700
+@@ -36,7 +36,7 @@
+ TESTS = \
+   subrun.sh
+ subrun.sh:
+-	(echo '#! /bin/sh'; echo 'dir/echo.sh') > $@
++	(echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh'; echo 'dir/echo.sh') > $@
+ 	chmod +x $@
+ CLEANFILES = subrun.sh
+ END
+@@ -44,7 +44,7 @@
+ cat > dir/Makefile.am << 'END'
+ check_SCRIPTS = echo.sh
+ echo.sh:
+-	(echo '#! /bin/sh'; echo 'echo Hello') > $@
++	(echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh'; echo 'echo Hello') > $@
+ 	chmod +x $@
+ CLEANFILES = echo.sh
+ END
+diff -urN automake-1.10.3.orig/tests/check3.test automake-1.10.3/tests/check3.test
+--- automake-1.10.3.orig/tests/check3.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/check3.test	2012-03-30 22:37:52.758604100 -0700
+@@ -37,7 +37,7 @@
+ SUBDIRS = dir
+ TESTS = subrun.sh
+ subrun.sh:
+-	(echo '#! /bin/sh'; cat command1.inc) > $@
++	(echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh'; cat command1.inc) > $@
+ 	chmod +x $@
+ command1.inc:
+ 	echo 'dir/echo.sh' > $@
+@@ -51,7 +51,7 @@
+ ## The next line ensures that command1.inc has been built before
+ ## recurring into the subdir.
+ 	test -f ../command1.inc
+-	(echo '#! /bin/sh'; cat command2.inc) > $@
++	(echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh'; cat command2.inc) > $@
+ 	chmod +x $@
+ command2.inc:
+ 	echo 'echo Hello' > $@
+diff -urN automake-1.10.3.orig/tests/check4.test automake-1.10.3/tests/check4.test
+--- automake-1.10.3.orig/tests/check4.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/check4.test	2012-03-30 22:38:17.033958200 -0700
+@@ -39,12 +39,12 @@
+ echo TESTS = fail.sh >dir/Makefile.am
+ 
+ cat >ok.sh <<'END'
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ :
+ END
+ 
+ cat >dir/fail.sh <<'END'
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 1
+ END
+ 
+diff -urN automake-1.10.3.orig/tests/check6.test automake-1.10.3/tests/check6.test
+--- automake-1.10.3.orig/tests/check6.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/check6.test	2012-03-30 22:38:43.391728700 -0700
+@@ -36,7 +36,7 @@
+ END
+ 
+ cat >>a <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 1
+ END
+ 
+diff -urN automake-1.10.3.orig/tests/check7.test automake-1.10.3/tests/check7.test
+--- automake-1.10.3.orig/tests/check7.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/check7.test	2012-03-30 22:38:52.735597100 -0700
+@@ -40,7 +40,7 @@
+ END
+ 
+ cat >>b <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 1
+ END
+ chmod a+x b
+diff -urN automake-1.10.3.orig/tests/check8.test automake-1.10.3/tests/check8.test
+--- automake-1.10.3.orig/tests/check8.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/check8.test	2012-03-30 22:39:00.883226300 -0700
+@@ -36,11 +36,11 @@
+ mkdir sub
+ 
+ cat >>foo <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ test -f "$srcdir/Makefile.am"
+ END
+ cat >>sub/foo <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ test -f "$srcdir/Makefile.am"
+ END
+ chmod a+x foo sub/foo
+diff -urN automake-1.10.3.orig/tests/check9.test automake-1.10.3/tests/check9.test
+--- automake-1.10.3.orig/tests/check9.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/check9.test	2012-03-30 22:39:17.992647500 -0700
+@@ -38,11 +38,11 @@
+ END
+ 
+ cat >>pass-script.test <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 0
+ END
+ cat >>xfail-script.test <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 1
+ END
+ chmod a+x pass-script.test xfail-script.test
+diff -urN automake-1.10.3.orig/tests/compile2.test automake-1.10.3/tests/compile2.test
+--- automake-1.10.3.orig/tests/compile2.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/compile2.test	2012-03-30 22:39:47.502048200 -0700
+@@ -67,8 +67,8 @@
+ # Do not actually run this test on anything that could be w32.
+ test -d "C:\\" && exit 77
+ # This test is taken from Autoconf's _AS_PATH_SEPARATOR_PREPARE.
+-(PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
+-  (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
++(PATH='@GENTOO_PORTAGE_EPREFIX@/bin;@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
++  (PATH='@GENTOO_PORTAGE_EPREFIX@/bin:@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
+     exit 77
+ }
+ 
+diff -urN automake-1.10.3.orig/tests/cond14.test automake-1.10.3/tests/cond14.test
+--- automake-1.10.3.orig/tests/cond14.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/cond14.test	2012-03-30 22:40:08.335714100 -0700
+@@ -39,7 +39,7 @@
+ bin_SCRIPTS = helldl
+ helldl$(EXEEXT):
+ 	rm -f $@
+-	echo '#! /bin/sh' > $@
++	echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh' > $@
+ 	echo '-dlopen is unsupported' >> $@
+ 	chmod +x $@
+ endif
+diff -urN automake-1.10.3.orig/tests/cond15.test automake-1.10.3/tests/cond15.test
+--- automake-1.10.3.orig/tests/cond15.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/cond15.test	2012-03-30 22:40:24.081862700 -0700
+@@ -35,7 +35,7 @@
+ bin_SCRIPTS = helldl
+ helldl$(EXEEXT):
+ 	rm -f $@
+-	echo '#! /bin/sh' > $@
++	echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh' > $@
+ 	echo '-dlopen is unsupported' >> $@
+ 	chmod +x $@
+ endif
+@@ -45,7 +45,7 @@
+ bin_SCRIPTS = helldl
+ helldl$(EXEEXT):
+ 	rm -f $@
+-	echo '#! /bin/sh' > $@
++	echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh' > $@
+ 	echo '-dlopen is unsupported' >> $@
+ 	chmod +x $@
+ endif
+diff -urN automake-1.10.3.orig/tests/dejagnu3.test automake-1.10.3/tests/dejagnu3.test
+--- automake-1.10.3.orig/tests/dejagnu3.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/dejagnu3.test	2012-03-30 22:41:01.787402300 -0700
+@@ -26,7 +26,7 @@
+ set -e
+ 
+ cat > hammer << 'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "Everything looks like a nail to me!"
+ END
+ 
+diff -urN automake-1.10.3.orig/tests/dejagnu4.test automake-1.10.3/tests/dejagnu4.test
+--- automake-1.10.3.orig/tests/dejagnu4.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/dejagnu4.test	2012-03-31 21:26:23.583379900 -0700
+@@ -27,14 +27,14 @@
+ set -e
+ 
+ cat > hammer << 'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "Everything looks like a nail to me!"
+ END
+ 
+ chmod +x hammer
+ 
+ cat > spanner << 'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "I'm a right spanner!"
+ END
+ 
+diff -urN automake-1.10.3.orig/tests/dejagnu5.test automake-1.10.3/tests/dejagnu5.test
+--- automake-1.10.3.orig/tests/dejagnu5.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/dejagnu5.test	2012-03-31 21:26:44.507194300 -0700
+@@ -30,7 +30,7 @@
+ package=`$FGREP AC_INIT configure.in | sed -e 's:^[^[]*\[\([^]]*\)\].*$:\1:'`
+ 
+ cat > $package << 'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "Ah, we have been expecting you, Mr. Blond."
+ END
+ 
+diff -urN automake-1.10.3.orig/tests/dejagnu6.test automake-1.10.3/tests/dejagnu6.test
+--- automake-1.10.3.orig/tests/dejagnu6.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/dejagnu6.test	2012-03-31 21:26:53.260443300 -0700
+@@ -26,7 +26,7 @@
+ set -e
+ 
+ cat > faildeja << 'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo whatever
+ END
+ 
+diff -urN automake-1.10.3.orig/tests/dejagnu7.test automake-1.10.3/tests/dejagnu7.test
+--- automake-1.10.3.orig/tests/dejagnu7.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/dejagnu7.test	2012-03-31 21:27:00.887917500 -0700
+@@ -28,7 +28,7 @@
+ runtest --help | $FGREP -e --status || exit 77
+ 
+ cat > failtcl << 'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo whatever
+ END
+ 
+diff -urN automake-1.10.3.orig/tests/gnits2.test automake-1.10.3/tests/gnits2.test
+--- automake-1.10.3.orig/tests/gnits2.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/gnits2.test	2012-03-31 21:28:03.898812800 -0700
+@@ -67,14 +67,14 @@
+ mkdir sub
+ 
+ cat >sub/scriptok.sh <<EOF
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "Which version? Which usage?"
+ EOF
+ 
+ # Not only does this script not support --help/--version, but
+ # it will also hang when run without input.
+ cat >sub/scriptnok.sh <<EOF
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ cat
+ EOF
+ 
+diff -urN automake-1.10.3.orig/tests/gnits3.test automake-1.10.3/tests/gnits3.test
+--- automake-1.10.3.orig/tests/gnits3.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/gnits3.test	2012-03-31 21:28:12.249142400 -0700
+@@ -55,7 +55,7 @@
+ mkdir sub
+ 
+ cat >nok.sh <<EOF
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo "Which version? Which usage?"
+ exit 1
+ EOF
+diff -urN automake-1.10.3.orig/tests/man4.test automake-1.10.3/tests/man4.test
+--- automake-1.10.3.orig/tests/man4.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/man4.test	2012-03-31 21:29:07.261637700 -0700
+@@ -53,7 +53,7 @@
+ END
+ 
+ cat > foo <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ while test $# -gt 0; do
+   case $1 in
+     -h | --help) echo "usage: $0 [OPTIONS]..."; exit 0;;
+@@ -66,7 +66,7 @@
+ cp foo bar
+ 
+ cat > help2man <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ # fake help2man script that lets `missing' think it is not installed
+ exit 127
+ END
+diff -urN automake-1.10.3.orig/tests/missing5.test automake-1.10.3/tests/missing5.test
+--- automake-1.10.3.orig/tests/missing5.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/missing5.test	2012-03-31 21:29:32.840021000 -0700
+@@ -40,7 +40,7 @@
+ 
+ for tool in $needed_tools; do
+   cat >$tool.in <<EOF
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exec @$tool@ "\$@"
+ EOF
+ done
+diff -urN automake-1.10.3.orig/tests/mkinst3.test automake-1.10.3/tests/mkinst3.test
+--- automake-1.10.3.orig/tests/mkinst3.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/mkinst3.test	2012-03-31 21:29:53.044979200 -0700
+@@ -41,7 +41,7 @@
+ 
+ mkdir bin
+ cat >bin/mkdir <<'EOF'
+-#!/bin/sh
++#!@GENTOO_PORTAGE_EPREFIX@/bin/sh
+ for arg
+ do
+   case $arg in
+diff -urN automake-1.10.3.orig/tests/multlib.test automake-1.10.3/tests/multlib.test
+--- automake-1.10.3.orig/tests/multlib.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/multlib.test	2012-03-31 21:30:12.978991600 -0700
+@@ -38,7 +38,7 @@
+ END
+ 
+ cat >mycc <<'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ case ${1+"$@"} in
+  *-print-multi-lib*)
+   echo ".;"
+diff -urN automake-1.10.3.orig/tests/pr287.test automake-1.10.3/tests/pr287.test
+--- automake-1.10.3.orig/tests/pr287.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/pr287.test	2012-03-31 21:30:53.353915000 -0700
+@@ -36,7 +36,7 @@
+ END
+ 
+ cat > foo << 'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo Maude
+ END
+ 
+diff -urN automake-1.10.3.orig/tests/strip.test automake-1.10.3/tests/strip.test
+--- automake-1.10.3.orig/tests/strip.test	2009-12-08 11:35:33.000000000 -0800
++++ automake-1.10.3/tests/strip.test	2012-03-31 21:31:27.715541300 -0700
+@@ -36,7 +36,7 @@
+ END
+ 
+ cat > foo << 'END'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ echo Maude
+ END
+ 
