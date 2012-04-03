@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit eutils
+inherit eutils prefix-gmt
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://git.savannah.gnu.org/autoconf.git"
@@ -36,7 +36,13 @@ src_prepare() {
 	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch
 	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
 
-	if [[ ${PV} == "9999" ]] ; then
+	if use prefix ; then
+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-prefix.patch
+		bash_shebang_prefixify build-aux/{config.{guess,sub},elisp-comp,gendocs.sh} \
+			build-aux/{git-version-gen,gnupload,install-sh,mdate-sh,missing} \
+			configure tests/mktests.sh
+		autoreconf -f -i || die
+	elif [[ ${PV} == "9999" ]] ; then
 		autoreconf -f -i || die
 	fi
 }
