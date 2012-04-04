@@ -1,1 +1,8 @@
-gmt_cygwin_overlay_profile_active="yes"
+# Copyright 2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+# for now we are activating "ultra-prefixification" until some better solution can be found
+# this has some pretty gruesome ramifications but not doing it, unfortunately, ends up
+# being even worse
+USE="ultra-prefixify"
