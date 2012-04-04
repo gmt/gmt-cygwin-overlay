@@ -118,7 +118,7 @@ dirs=( )
 while read dir ; do
 	dirs[${#dirs[*]}]="${dir}"
 done < <( cd ${_overlay} ; find . -maxdepth 2 \( -name '.git' -prune \) -o \( -type d -regextype posix-extended \
-	  -regex '\./([[:alnum:]_]*-[[:alnum:]_]*/[^/]*|profiles|eclass)' -print \) | \
+	  -regex '\./([[:alnum:]_]*-[[:alnum:]_]*/[^/]*|eclass)' -print \) | \
 	  sed 's/^..//' )
 
 my_file() {
