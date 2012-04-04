@@ -109,8 +109,12 @@
 <--8<--
 --("sys-devel/autoconf/autoconf-2.68.ebuild")-->8-->
 --- usr/portage/sys-devel/autoconf/autoconf-2.68.ebuild	2010-11-10 12:01:46.000000000 -0800
-+++ overlay/sys-devel/autoconf/autoconf-2.68.ebuild	2012-04-03 12:09:30.058723700 -0700
-@@ -4,7 +4,7 @@
++++ overlay/sys-devel/autoconf/autoconf-2.68.ebuild	2012-04-04 06:43:19.811002700 -0700
+@@ -1,10 +1,10 @@
+ # Copyright 1999-2010 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.68.ebuild,v 1.2 2010/10/03 07:17:37 vapier Exp $
++# $Header: $
  
  EAPI="2"
  
@@ -119,6 +123,15 @@
  
  if [[ ${PV} == "9999" ]] ; then
  	EGIT_REPO_URI="git://git.savannah.gnu.org/autoconf.git"
+@@ -22,7 +22,7 @@
+ 
+ LICENSE="GPL-3"
+ SLOT="2.5"
+-IUSE="emacs"
++IUSE="emacs ultra-prefixify"
+ 
+ DEPEND=">=sys-apps/texinfo-4.3
+ 	>=sys-devel/m4-1.4.6
 @@ -34,8 +34,15 @@
  src_prepare() {
  	# usr/bin/libtool is provided by binutils-apple
@@ -126,8 +139,8 @@
 +	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
  
 -	if [[ ${PV} == "9999" ]] ; then
-+	if use prefix ; then
-+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-prefix.patch
++	if use ultra-prefixify; then
++		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-prefixification.patch
 +		bash_shebang_prefixify build-aux/{config.{guess,sub},elisp-comp,gendocs.sh} \
 +			build-aux/{git-version-gen,gnupload,install-sh,mdate-sh,missing} \
 +			configure tests/mktests.sh
@@ -141,5 +154,5 @@
 
 *** The following files appear only in the overlay ***
 overlay/sys-devel/autoconf/files/autoconf-2.68-config-guess-cygwin1.7-support.patch: unified diff output, ASCII text
-overlay/sys-devel/autoconf/files/autoconf-2.68-prefix.patch: unified diff output, ASCII text
+overlay/sys-devel/autoconf/files/autoconf-2.68-ultra-prefixification.patch: unified diff output, ASCII text
 

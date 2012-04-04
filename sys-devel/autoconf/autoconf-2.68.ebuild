@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.68.ebuild,v 1.2 2010/10/03 07:17:37 vapier Exp $
+# $Header: $
 
 EAPI="2"
 
@@ -22,7 +22,7 @@ HOMEPAGE="http://www.gnu.org/software/autoconf/autoconf.html"
 
 LICENSE="GPL-3"
 SLOT="2.5"
-IUSE="emacs"
+IUSE="emacs ultra-prefixify"
 
 DEPEND=">=sys-apps/texinfo-4.3
 	>=sys-devel/m4-1.4.6
@@ -36,8 +36,8 @@ src_prepare() {
 	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch
 	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
 
-	if use prefix ; then
-		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-prefix.patch
+	if use ultra-prefixify; then
+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-prefixification.patch
 		bash_shebang_prefixify build-aux/{config.{guess,sub},elisp-comp,gendocs.sh} \
 			build-aux/{git-version-gen,gnupload,install-sh,mdate-sh,missing} \
 			configure tests/mktests.sh
