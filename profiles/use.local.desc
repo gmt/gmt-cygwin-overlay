@@ -1,0 +1,56 @@
+# Copyright 2012 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+# This file contains descriptions of local USE flags and the ebuilds which
+# contain them
+
+app-arch/gzip:pic - disable optimized assembly code that is not PIC friendly
+app-arch/unzip:natspec - Use dev-libs/libnatspec to correctly decode non-ascii file names archived in Windows.
+app-shells/bash:bashlogger - Log ALL commands typed into bash; should ONLY be used in restricted environments such as honeypots
+app-shells/bash:mem-scramble - Build with custom malloc/free overwriting allocated/freed memory
+app-shells/bash:net - Enable /dev/tcp/host/port redirection
+app-shells/bash:plugins - Add support for loading builtins at runtime via 'enable'
+dev-lang/perl:ithreads - Enable Perl threads, has some compatibility problems
+dev-lang/perl:perlsuid - Enable Perl SUID install. Has some risks associated.
+dev-lang/python:threads - Enable threading support. (DON'T DISABLE THIS UNLESS YOU KNOW WHAT YOU'RE DOING)
+dev-lang/python:wide-unicode - Enable wide Unicode implementation which uses 4-byte Unicode characters. Switching of this USE flag changes ABI of Python and requires reinstallation of many Python modules. (DON'T DISABLE THIS UNLESS YOU KNOW WHAT YOU'RE DOING)
+dev-lang/python:wininst - Install Windows executables required to create an executable installer for MS Windows.
+dev-libs/apr:older-kernels-compatibility - Enable binary compatibility with older kernels
+dev-libs/apr:urandom - Use /dev/urandom instead of /dev/random
+dev-libs/apr:uuid - Enable UUID support
+dev-libs/glib:introspection - Use dev-libs/gobject-introspection for introspection
+dev-libs/glib:systemtap - Build support for profiling and tracing using dev-util/systemtap
+dev-libs/glib:utils - Install gtester-report utility to generate test report files for your software.
+dev-vcs/subversion:ctypes-python - Build and install Ctypes Python bindings
+dev-vcs/subversion:dso - Enable runtime module search
+dev-vcs/subversion:extras - Install extra scripts (examples, tools, hooks)
+dev-vcs/subversion:webdav-neon - Enable WebDAV support using net-libs/neon
+dev-vcs/subversion:webdav-serf - Enable WebDAV support using net-libs/serf
+sys-apps/baselayout-prefix:prefix-chaining - install in a chained Prefix environment
+sys-apps/portage:cygdll-protect - Apply experimental cygdll-protect portage patch for stable emerges in cygwin
+sys-apps/portage:epydoc - Build html API documentation with epydoc.
+sys-apps/portage:ipc - Use inter-process communication between portage and running ebuilds.
+sys-apps/portage:less - Pull in sys-apps/less as default pager for etc-update.
+sys-apps/portage:prefix-chaining - mduft's experimental prefix chaining facilities
+sys-devel/binutils:multislot - Allow for multiple versions of binutils to be emerged at once for same CTARGET
+sys-devel/binutils:multitarget - Adds support to binutils for cross compiling (does not work with gas)
+sys-devel/gcc:d - Enable support for the D programming language
+sys-devel/gcc:fixed-point - Enable fixed-point arithmetic support for MIPS targets in gcc (Warning: significantly increases compile time!)
+sys-devel/gcc:go - Build the GCC Go language frontend.
+sys-devel/gcc:graphite - Add support for the framework for loop optimizations based on a polyhedral intermediate representation
+sys-devel/gcc:ip28 - Enable building a compiler capable of building a kernel for SGI Indigo2 Impact R10000 (IP28)
+sys-devel/gcc:ip32r10k - Enable building a compiler capable of building an experimental kernel for SGI O2 w/ R1x000 CPUs (IP32)
+sys-devel/gcc:libffi - Build the portable foreign function interface library
+sys-devel/gcc:lto - Add support for link-time optimizations (unsupported, use at your own risk).
+sys-devel/gcc:mudflap - Add support for mudflap, a pointer use checking library
+sys-devel/gcc:multislot - Allow for SLOTs to include minor version (3.3.4 instead of just 3.3)
+sys-devel/gcc:n32 - Enable n32 ABI support on mips
+sys-devel/gcc:n64 - Enable n64 ABI support on mips
+sys-devel/gcc:nopie - Disable PIE support (NOT FOR GENERAL USE)
+sys-devel/gcc:nossp - Disable SSP support (NOT FOR GENERAL USE)
+sys-devel/gcc:objc - Build support for the Objective C code language
+sys-devel/gcc:objc++ - Build support for the Objective C++ language
+sys-devel/gcc:objc-gc - Build support for the Objective C code language Garbage Collector
+sys-devel/gettext:git - When running `autopoint`, use git to store the internal development files; this requires git at runtime, but will be faster/smaller than raw archives
+sys-libs/ncurses:ada - Add bindings for the ADA programming language
+sys-libs/ncurses:trace - Enable test trace() support in ncurses calls

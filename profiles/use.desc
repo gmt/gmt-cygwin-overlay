@@ -1,0 +1,6 @@
+# Copyright 2012 Gentoo Foundation.
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+# This file contains descriptions of global USE flags
+
+ultra-prefixify - Paths in source code are prefixed with extreme prejudice.  Only useful on violently broken systems.  Likely to cause unexpected and unpleasant side effects.

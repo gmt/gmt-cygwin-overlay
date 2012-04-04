@@ -1,0 +1,14 @@
+DEFINED_PHASES=configure install postinst preinst prepare setup
+DEPEND=virtual/libiconv dev-libs/libxml2 !x86-winnt? ( sys-libs/ncurses ) dev-libs/expat acl? ( virtual/acl ) java? ( >=virtual/jdk-1.4 ) java? ( !x86-winnt? ( >=dev-java/java-config-2.1.9-r1 ) ) || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=GNU locale utilities
+EAPI=2
+HOMEPAGE=http://www.gnu.org/software/gettext/
+IUSE=acl doc emacs +git java nls nocxx openmp elibc_glibc elibc_FreeBSD java
+KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt
+LICENSE=GPL-3 LGPL-2
+PDEPEND=emacs? ( app-emacs/po-mode )
+RDEPEND=virtual/libiconv dev-libs/libxml2 !x86-winnt? ( sys-libs/ncurses ) dev-libs/expat acl? ( virtual/acl ) java? ( >=virtual/jdk-1.4 ) git? ( dev-vcs/git ) java? ( >=virtual/jre-1.4 ) java? ( !x86-winnt? ( >=dev-java/java-config-2.1.9-r1 ) )
+SLOT=0
+SRC_URI=mirror://gnu/gettext/gettext-0.18.1.1.tar.gz
+_eclasses_=autotools	44549e9bf38e512354112caafb24edc9	eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	flag-o-matic	9b838b2a8419c3187a574a46b19c5613	java-pkg-opt-2	131dd2a697d663c0e33247611b9a1cd7	java-utils-2	baf18054f343a0d9a75e33190fb6403f	libtool	3bc75448a5aa60eb4709b1e7b7750de2	mono	203a4295c06155d318bdff9c6b2d5e1c	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	prefix-gmt	5ffcf4fcffb353f2e590d3ac6f8eb17f	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89	versionator	6601b4c5b3f019a993db59a50e1854e4
+_md5_=707618e4fd35f0188328ddbb670ac747

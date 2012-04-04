@@ -1,0 +1,11 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=>=sys-libs/ncurses-5.2-r2 >=app-shells/bash-2.05b-r2 || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Another cute console display library
+HOMEPAGE=http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-3
+RDEPEND=>=sys-libs/ncurses-5.2-r2
+SLOT=0
+SRC_URI=mirror://gnu/readline/readline-6.2.tar.gz ftp://ftp.cwru.edu/pub/bash/readline-6.2-patches/readline62-001 mirror://gnu/readline/readline-6.2-patches/readline62-001
+_eclasses_=autotools	44549e9bf38e512354112caafb24edc9	eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	flag-o-matic	9b838b2a8419c3187a574a46b19c5613	libtool	3bc75448a5aa60eb4709b1e7b7750de2	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
+_md5_=43ad1318f8ea30a89824c1100a141e4e

@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile install unpack
+DEPEND=>=sys-apps/texinfo-4.3 >=sys-devel/m4-1.4.6 dev-lang/perl
+DESCRIPTION=Used to create autoconfiguration files
+HOMEPAGE=http://www.gnu.org/software/autoconf/autoconf.html
+IUSE=emacs
+KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-3
+PDEPEND=emacs? ( app-emacs/autoconf-mode )
+RDEPEND=>=sys-apps/texinfo-4.3 >=sys-devel/m4-1.4.6 dev-lang/perl >=sys-devel/autoconf-wrapper-8
+SLOT=2.5
+SRC_URI=mirror://gnu/autoconf/autoconf-2.65.tar.bz2 ftp://alpha.gnu.org/pub/gnu/autoconf/autoconf-2.65.tar.bz2
+_eclasses_=eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
+_md5_=4823c479ccd6371af4467eb17503a9de

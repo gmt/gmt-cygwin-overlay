@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup test
+DEPEND=>=sys-devel/autoconf-2.65 >=app-admin/eselect-python-20091230 >=sys-libs/zlib-1.1.3 virtual/libffi virtual/libintl !build? ( gdbm? ( sys-libs/gdbm ) ncurses? ( >=sys-libs/ncurses-5.2 readline? ( >=sys-libs/readline-4.1 ) ) sqlite? ( >=dev-db/sqlite-3.3.8:3[extensions] ) ssl? ( dev-libs/openssl ) tk? ( >=dev-lang/tk-8.0 dev-tcltk/blt ) xml? ( >=dev-libs/expat-2 ) ) app-arch/xz-utils dev-util/pkgconfig !sys-devel/gcc[libffi] >=sys-devel/autoconf-2.68 sys-devel/libtool >=app-admin/eselect-python-20091230
+DESCRIPTION=Python is an interpreted, interactive, object-oriented programming language.
+EAPI=3
+HOMEPAGE=http://www.python.org/
+IUSE=aqua build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml
+LICENSE=PSF-2.2
+PDEPEND=app-admin/python-updater
+RDEPEND=>=app-admin/eselect-python-20091230 >=sys-libs/zlib-1.1.3 virtual/libffi virtual/libintl !build? ( gdbm? ( sys-libs/gdbm ) ncurses? ( >=sys-libs/ncurses-5.2 readline? ( >=sys-libs/readline-4.1 ) ) sqlite? ( >=dev-db/sqlite-3.3.8:3[extensions] ) ssl? ( dev-libs/openssl ) tk? ( >=dev-lang/tk-8.0 dev-tcltk/blt ) xml? ( >=dev-libs/expat-2 ) ) !build? ( app-misc/mime-types ) doc? ( dev-python/python-docs:3.2 ) >=app-admin/eselect-python-20091230
+SLOT=3.2
+SRC_URI=http://www.python.org/ftp/python/3.2/Python-3.2.tar.xz mirror://gentoo/python-gentoo-patches-3.2.tar.bz2
+_eclasses_=autotools	44549e9bf38e512354112caafb24edc9	eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	flag-o-matic	9b838b2a8419c3187a574a46b19c5613	libtool	3bc75448a5aa60eb4709b1e7b7750de2	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	python	06dff99bcab2fd584bd6d2aa6019ee19	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
+_md5_=e743510a93f1911e725fb898c2aed663

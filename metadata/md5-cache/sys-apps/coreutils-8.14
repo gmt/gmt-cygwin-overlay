@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install postinst prepare test
+DEPEND=caps? ( sys-libs/libcap ) gmp? ( dev-libs/gmp ) selinux? ( sys-libs/libselinux ) acl? ( sys-apps/acl ) xattr? ( sys-apps/attr ) nls? ( >=sys-devel/gettext-0.15 ) !<sys-apps/util-linux-2.13 !sys-apps/stat !net-mail/base64 !sys-apps/mktemp !<app-forensics/tct-1.18-r1 !<net-fs/netatalk-2.0.3-r4 !<sci-chemistry/ccp4-6.1.1 app-arch/xz-utils dev-util/gperf || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.68 sys-devel/libtool
+DESCRIPTION=Standard GNU file utilities (chmod, cp, dd, dir, ls...), text utilities (sort, tr, head, wc..), and shell utilities (whoami, who,...)
+EAPI=3
+HOMEPAGE=http://www.gnu.org/software/coreutils/
+IUSE=acl caps gmp nls selinux static unicode vanilla xattr
+KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-3
+RDEPEND=caps? ( sys-libs/libcap ) gmp? ( dev-libs/gmp ) selinux? ( sys-libs/libselinux ) acl? ( sys-apps/acl ) xattr? ( sys-apps/attr ) nls? ( >=sys-devel/gettext-0.15 ) !<sys-apps/util-linux-2.13 !sys-apps/stat !net-mail/base64 !sys-apps/mktemp !<app-forensics/tct-1.18-r1 !<net-fs/netatalk-2.0.3-r4 !<sci-chemistry/ccp4-6.1.1
+SLOT=0
+SRC_URI=ftp://alpha.gnu.org/gnu/coreutils/coreutils-8.14.tar.xz mirror://gnu/coreutils/coreutils-8.14.tar.xz mirror://gentoo/coreutils-8.14.tar.xz mirror://gentoo/coreutils-8.14-patches-1.tar.xz http://dev.gentoo.org/~vapier/dist/coreutils-8.14-patches-1.tar.xz
+_eclasses_=autotools	44549e9bf38e512354112caafb24edc9	eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	flag-o-matic	9b838b2a8419c3187a574a46b19c5613	libtool	3bc75448a5aa60eb4709b1e7b7750de2	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
+_md5_=eeb297fcd4e6eb7fe40b28294c04c1f6
