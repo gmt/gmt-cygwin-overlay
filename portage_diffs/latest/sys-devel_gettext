@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/gettext" =====
 --("sys-devel/gettext/gettext-0.18.1.1-r2.ebuild")-->8-->
 --- usr/portage/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild	2011-07-28 11:01:31.000000000 -0700
-+++ overlay/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild	2012-03-30 17:57:15.948223700 -0700
++++ overlay/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild	2012-04-04 04:02:46.851705600 -0700
 @@ -4,7 +4,7 @@
  
  EAPI="2"
@@ -11,6 +11,15 @@
  
  DESCRIPTION="GNU locale utilities"
  HOMEPAGE="http://www.gnu.org/software/gettext/"
+@@ -13,7 +13,7 @@
+ LICENSE="GPL-3 LGPL-2"
+ SLOT="0"
+ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+-IUSE="acl doc emacs +git java nls nocxx openmp elibc_glibc"
++IUSE="acl doc emacs +git java nls nocxx openmp elibc_glibc ultra-prefixify"
+ 
+ DEPEND="virtual/libiconv
+ 	dev-libs/libxml2
 @@ -28,7 +28,7 @@
  
  src_prepare() {
@@ -20,21 +29,26 @@
  		export AT_NO_RECURSIVE=yes
  		cd "${S}"/gettext-runtime || die
  		AT_M4DIR="m4 gnulib-m4" eautoreconf
-@@ -36,7 +36,7 @@
+@@ -36,8 +36,13 @@
  		AT_M4DIR="../../m4 ../m4" eautoreconf
  	fi
  	# this script uses syntax that Solaris /bin/sh doesn't grok
--	sed -i -e '1c\#!/usr/bin/env sh' \
++	if use ultra-prefixify ; then
 +	sed -i -e '1c\#!'"${EPREFIX}"'/usr/bin/env sh' \
++		"${S}"/gettext-tools/misc/convert-archive.in || die
++	else
+ 	sed -i -e '1c\#!/usr/bin/env sh' \
  		"${S}"/gettext-tools/misc/convert-archive.in || die
++	fi
  
  	# work around problem in gnulib on OSX Lion
-@@ -48,7 +48,79 @@
+ 	if [[ ${CHOST} == *-darwin11 ]] ; then
+@@ -48,7 +53,79 @@
  	fi
  
  	epunt_cxx
 +
-+	if use prefix ; then
++	if use ultra-prefixify ; then
 +		cd "${S}"
 +		# Note: Some of the below may get wiped out during reconfig.  You are welcome to sort that shit
 +		# out for me if you like, patches welcome. in the meanwhile we err on the side of caution :) -gmt
@@ -46,7 +60,7 @@
 +			./gnulib-local/tests/test-term-ostream-xterm
 +		bash_shebang_prefixify_dirs -r gettext-tools/gnulib-tests gettext-tools/projects \
 +			gettext-tools/tests build-aux gettext-tools/examples
-+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
++		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-eprefixification.patch
 +	fi
 +
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
@@ -59,7 +73,7 @@
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygwin1.7-hostglob.patch
 +	fi
 +
-+	if [[ ${CHOST} == *-cygwin* ]] || use prefix ; then
++	if [[ ${CHOST} == *-cygwin* ]] || use ultra-prefixify ; then
 +		einfo "running elibtoolize --force in ."
 +		elibtoolize --force || die
 +
@@ -109,7 +123,7 @@
  }
  
  src_configure() {
-@@ -61,6 +133,14 @@
+@@ -61,6 +138,14 @@
  	fi
  	use nocxx && export CXX=$(tc-getCC)
  
@@ -135,9 +149,8 @@ overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-02-locale.patch: unifie
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-03-locale-tests.patch: unified diff output, ASCII text
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport.patch: unified diff output, ASCII text
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygwin1.7-hostglob.patch: unified diff output, ASCII text
-overlay/sys-devel/gettext/files/gettext-0.18.1.1-eprefix.patch: unified diff output, Non-ISO extended-ASCII text
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-ultra-eprefixification.patch: unified diff output, Non-ISO extended-ASCII text
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-woe-is-us.patch: unified diff output, ASCII text
-overlay/sys-devel/gettext/files/old: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
 usr/portage/sys-devel/gettext/gettext-0.16.1-r1.ebuild: ASCII English text

@@ -13,7 +13,7 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
 LICENSE="GPL-3 LGPL-2"
 SLOT="0"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
-IUSE="acl doc emacs +git java nls nocxx openmp elibc_glibc"
+IUSE="acl doc emacs +git java nls nocxx openmp elibc_glibc ultra-prefixify"
 
 DEPEND="virtual/libiconv
 	dev-libs/libxml2
@@ -36,8 +36,13 @@ src_prepare() {
 		AT_M4DIR="../../m4 ../m4" eautoreconf
 	fi
 	# this script uses syntax that Solaris /bin/sh doesn't grok
+	if use ultra-prefixify ; then
 	sed -i -e '1c\#!'"${EPREFIX}"'/usr/bin/env sh' \
 		"${S}"/gettext-tools/misc/convert-archive.in || die
+	else
+	sed -i -e '1c\#!/usr/bin/env sh' \
+		"${S}"/gettext-tools/misc/convert-archive.in || die
+	fi
 
 	# work around problem in gnulib on OSX Lion
 	if [[ ${CHOST} == *-darwin11 ]] ; then
@@ -49,7 +54,7 @@ src_prepare() {
 
 	epunt_cxx
 
-	if use prefix ; then
+	if use ultra-prefixify ; then
 		cd "${S}"
 		# Note: Some of the below may get wiped out during reconfig.  You are welcome to sort that shit
 		# out for me if you like, patches welcome. in the meanwhile we err on the side of caution :) -gmt
@@ -61,7 +66,7 @@ src_prepare() {
 			./gnulib-local/tests/test-term-ostream-xterm
 		bash_shebang_prefixify_dirs -r gettext-tools/gnulib-tests gettext-tools/projects \
 			gettext-tools/tests build-aux gettext-tools/examples
-		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-eprefixification.patch
 	fi
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
@@ -74,7 +79,7 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-${PV}-cygwin1.7-hostglob.patch
 	fi
 
-	if [[ ${CHOST} == *-cygwin* ]] || use prefix ; then
+	if [[ ${CHOST} == *-cygwin* ]] || use ultra-prefixify ; then
 		einfo "running elibtoolize --force in ."
 		elibtoolize --force || die
 
