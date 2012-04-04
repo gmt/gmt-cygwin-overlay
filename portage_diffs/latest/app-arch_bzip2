@@ -62,154 +62,156 @@
 <--8<--
 --("app-arch/bzip2/bzip2-1.0.6-r1.ebuild")-->8-->
 --- usr/portage/app-arch/bzip2/bzip2-1.0.6-r1.ebuild	2011-05-23 07:01:24.000000000 -0700
-+++ overlay/app-arch/bzip2/bzip2-1.0.6-r1.ebuild	2012-02-21 04:01:52.583800500 -0800
-@@ -2,7 +2,9 @@
++++ overlay/app-arch/bzip2/bzip2-1.0.6-r1.ebuild	2012-03-28 21:50:12.784759700 -0700
+@@ -1,6 +1,6 @@
+ # Copyright 1999-2010 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
- # $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r1.ebuild,v 1.1 2010/09/23 09:19:49 vapier Exp $
+-# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r1.ebuild,v 1.1 2010/09/23 09:19:49 vapier Exp $
++# $Header: $
  
--inherit eutils multilib toolchain-funcs flag-o-matic prefix
-+EAPI=2
-+
-+inherit eutils multilib toolchain-funcs flag-o-matic prefix autotools
+ inherit eutils multilib toolchain-funcs flag-o-matic prefix
  
- DESCRIPTION="A high-quality data compressor used extensively by Gentoo Linux"
- HOMEPAGE="http://www.bzip.org/"
-@@ -24,19 +26,14 @@
- 	epatch "${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
- 	epatch "${FILESDIR}"/${PN}-1.0.5-checkenv.patch # for AIX, Darwin?
- 	epatch "${FILESDIR}"/${PN}-1.0.4-prefix.patch
-+	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		epatch "${FILESDIR}"/${PN}-1.0.6-cygport.patch
-+		epatch "${FILESDIR}"/${PN}-1.0.6-cygport-autotools.patch
-+	fi
- 	eprefixify bz{diff,grep,more}
- 	# this a makefile for Darwin, which already "includes" saneso
- 	cp "${FILESDIR}"/${P}-Makefile-libbz2_dylib Makefile-libbz2_dylib || die
- 
--	# - Use right man path
--	# - Generate symlinks instead of hardlinks
--	# - pass custom variables to control libdir
--	sed -i \
--		-e 's:\$(PREFIX)/man:\$(PREFIX)/share/man:g' \
--		-e 's:ln -s -f $(PREFIX)/bin/:ln -s :' \
--		-e 's:$(PREFIX)/lib:$(PREFIX)/$(LIBDIR):g' \
--		Makefile || die
--
- 	if [[ ${CHOST} == *-hpux* ]] ; then
- 		sed -i -e 's,-soname,+h,' Makefile-libbz2_so || die "cannot replace -soname with +h"
- 		if [[ ${CHOST} == hppa*-hpux* && ${CHOST} != hppa64*-hpux* ]] ; then
-@@ -46,6 +43,9 @@
+@@ -46,6 +46,10 @@
  	elif [[ ${CHOST} == *-interix* ]] ; then
  		sed -i -e 's,-soname,-h,' Makefile-libbz2_so || die "cannot replace -soname with -h"
  		sed -i -e 's,-fpic,,' -e 's,-fPIC,,' Makefile-libbz2_so || die "cannot replace pic options"
 +	elif [[ ${CHOST} == *-cygwin* ]] ; then
-+		rm Makefile
-+		eautoreconf
++		epatch "${FILESDIR}"/${PN}-1.0.6-cygport.patch
++		cp "${FILESDIR}"/${PN}-1.0.6-Makefile-cygwin Makefile-cygwin
++		cp "${FILESDIR}"/${PN}-1.0.6-cygwin-libbz2.def.in libbz2.def.in
  	fi
  }
  
-@@ -56,8 +56,27 @@
- 		RANLIB="$(tc-getRANLIB)" \
- 		"$@" || die
- }
-+
-+src_configure() {
-+	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		econf --enable-shared
-+	else
-+		einfo "No configure script required, hurray!"
-+	fi
-+
-+        # - Use right man path
-+        # - Generate symlinks instead of hardlinks
-+        # - pass custom variables to control libdir
-+        sed -i \
-+                -e 's:\$(PREFIX)/man:\$(PREFIX)/share/man:g' \
-+                -e 's:ln -s -f $(PREFIX)/bin/:ln -s :' \
-+                -e 's:$(PREFIX)/lib:$(PREFIX)/$(LIBDIR):g' \
-+                Makefile || die
-+}
-+
- src_compile() {
- 	local checkopts=
-+
- 	case "${CHOST}" in
- 		*-darwin*)
- 			bemake PREFIX="${EPREFIX}"/usr -f Makefile-libbz2_dylib || die
-@@ -61,24 +80,31 @@
- 	case "${CHOST}" in
- 		*-darwin*)
- 			bemake PREFIX="${EPREFIX}"/usr -f Makefile-libbz2_dylib || die
-+			use static && append-flags -static
-+			bemake all || die
- 		;;
- 		*-mint*)
+@@ -66,16 +70,26 @@
  			# do nothing, no shared libraries
  			:
-+			use static && append-flags -static
-+			bemake all || die
-+		;;
-+		*-cygwin*)
-+			emake || die
  		;;
++		*-cygwin*)
++			use static && append-flags -static
++			bemake -f Makefile-cygwin all || die
++		;;
  		*)
  			bemake -f Makefile-libbz2_so all || die
--		;;
--	esac
+ 		;;
+ 	esac
++	if [[ ${CHOST} != *-cygwin* ]] ; then
  	use static && append-flags -static
  	bemake all || die
-+		;;
-+	esac
++	fi
  }
  
  src_install() {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++	make DESTDIR="${D}" -f Makefile-cygwin install || die
++	else
  	make PREFIX="${D}${EPREFIX}"/usr LIBDIR="$(get_libdir)" install || die
++	fi
  	dodoc README* CHANGES bzip2.txt manual.*
  
--	if [[ $(get_libname) != ".irrelevant" ]] ; then
-+	if [[ ${CHOST} != *-cygwin* && $(get_libname) != ".irrelevant" ]] ; then
- 
- 	# Install the shared lib manually.  We install:
+ 	if [[ $(get_libname) != ".irrelevant" ]] ; then
+@@ -84,15 +98,22 @@
  	#  .x.x.x - standard shared lib behavior
-@@ -99,9 +125,29 @@
- 
- 	# move "important" bzip2 binaries to /bin and use the shared libbz2.so
- 	dodir /bin
-+	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		for exe in bzip2 ; do
-+			einfo "Moving \"/usr/bin/${exe}.exe\" to \"/bin/\""
-+			mv "${ED}"usr/bin/${exe}.exe "${ED}"bin/
-+		done
-+		for exe in bunzip2 bzcat ; do
-+			einfo "Replacing \"/usr/bin/${exe}.exe\" with symlink in \"/bin/\""
-+			rm -v "${ED}"usr/bin/${exe}.exe
-+			dosym bzip2.exe /bin/${exe}.exe
-+		done
-+		# replace foo symlinks with foo.exe symlinks
-+		for f in /bin/{bunzip2,bzcat} ; do
-+			if [[ -L "${ED}"usr${f} ]] ; then
-+				einfo "fixing up symlink for \"${f}.exe\""
-+				rm -v "${ED}"usr${f}
-+				dosym bzip2.exe ${f}.exe
-+			fi
-+		done
-+	else
- 	mv "${ED}"/usr/bin/b{zip2,zcat,unzip2} "${ED}"/bin/ || die
- 	dosym bzip2 /bin/bzcat || die
- 	dosym bzip2 /bin/bunzip2 || die
+ 	#  .x.x   - SONAME some distros use #338321
+ 	#  .x     - SONAME Gentoo uses
++	if [[ ${CHOST} != *-cygwin* ]] ; then
+ 	dolib.so libbz2$(get_libname ${PV}) || die
+ 	local s
+ 	for v in libbz2$(get_libname) libbz2$(get_libname ${PV%%.*}) libbz2$(get_libname ${PV%.*}) ; do
+ 		dosym libbz2$(get_libname ${PV}) /usr/$(get_libdir)/${v} || die
+ 	done
 +	fi
++
+ 	gen_usr_ldscript -a bz2
  
- 	if [[ ${CHOST} == *-winnt* ]]; then
- 		dolib.so libbz2$(get_libname ${PV}).dll || die "dolib shared"
+-	if ! use static ; then
++	if ! use static && [[ ${CHOST} != *-cygwin* ]] ; then
+ 		newbin bzip2-shared bzip2 || die
++	elif ! use static ; then
++		# cygwin always installs static so fix it
++		rm "${ED}"/usr/$(get_libdir)/libbz2.a || \
++			die "expected \"${ED}/usr/$(get_libdir)/libbz2.a\""
+ 	fi
+ 
+ 	fi
+<--8<--
+--("app-arch/bzip2/bzip2-1.0.6-r3.ebuild")-->8-->
+--- usr/portage/app-arch/bzip2/bzip2-1.0.6-r3.ebuild	2011-12-06 12:31:32.000000000 -0800
++++ overlay/app-arch/bzip2/bzip2-1.0.6-r3.ebuild	2012-03-28 21:50:12.795261800 -0700
+@@ -1,6 +1,6 @@
+-# Copyright 1999-2011 Gentoo Foundation
++# Copyright 1999-2012 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r3.ebuild,v 1.7 2011/11/02 03:28:17 mattst88 Exp $
++# $Header: $
+ 
+ # XXX: atm, libbz2.a is always PIC :(, so it is always built quickly
+ #      (since we're building shared libs) ...
+@@ -49,6 +49,10 @@
+ 	elif [[ ${CHOST} == *-interix* ]] ; then
+ 		sed -i -e 's,-soname,-h,' Makefile-libbz2_so || die "cannot replace -soname with -h"
+ 		sed -i -e 's,-fpic,,' -e 's,-fPIC,,' Makefile-libbz2_so || die "cannot replace pic options"
++	elif [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-1.0.6-cygport.patch
++		cp "${FILESDIR}"/${PN}-1.0.6-Makefile-cygwin Makefile-cygwin
++		cp "${FILESDIR}"/${PN}-1.0.6-cygwin-libbz2.def.in libbz2.def.in
+ 	fi
+ }
+ 
+@@ -69,16 +73,26 @@
+ 			# do nothing, no shared libraries
+ 			:
+ 		;;
++		*-cygwin*)
++			use static && append-flags -static
++			bemake -f Makefile-cygwin all || die
++		;;
+ 		*)
+ 			bemake -f Makefile-libbz2_so all || die
+ 		;;
+ 	esac
++	if [[ ${CHOST} != *-cygwin* ]] ; then
+ 	use static && append-flags -static
+ 	bemake all || die
++	fi
+ }
+ 
+ src_install() {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++	make DESTDIR="${D}" -f Makefile-cygwin install || die
++	else
+ 	make PREFIX="${D}${EPREFIX}"/usr LIBDIR="$(get_libdir)" install || die
++	fi
+ 	dodoc README* CHANGES bzip2.txt manual.*
+ 
+ 	if [[ $(get_libname) != ".irrelevant" ]] ; then
+@@ -87,14 +101,18 @@
+ 	#  .x.x.x - standard shared lib behavior
+ 	#  .x.x   - SONAME some distros use #338321
+ 	#  .x     - SONAME Gentoo uses
++	if [[ ${CHOST} != *-cygwin* ]] ; then
+ 	dolib.so libbz2$(get_libname ${PV}) || die
+ 	local s
+ 	for v in libbz2$(get_libname) libbz2$(get_libname ${PV%%.*}) libbz2$(get_libname ${PV%.*}) ; do
+ 		dosym libbz2$(get_libname ${PV}) /usr/$(get_libdir)/${v} || die
+ 	done
++	fi
++
+ 	gen_usr_ldscript -a bz2
+ 
+-	if ! use static ; then
++	# static doesn't generate dual exe's on cygwin
++	if ! use static && [[ ${CHOST} != *-cygwin* ]] ; then
+ 		newbin bzip2-shared bzip2 || die
+ 	fi
+ 	if ! use static-libs ; then
 <--8<--
 ===== mutual sub-directory: "app-arch/bzip2/files" =====
 
 *** The following files appear only in the overlay ***
-overlay/app-arch/bzip2/files/bzip2-1.0.6-cygport-autotools.patch: unified diff output, ASCII text, with CRLF, LF line terminators
+overlay/app-arch/bzip2/files/bzip2-1.0.6-Makefile-cygwin: ASCII English text
 overlay/app-arch/bzip2/files/bzip2-1.0.6-cygport.patch: unified diff output, ASCII text
+overlay/app-arch/bzip2/files/bzip2-1.0.6-cygwin-libbz2.def.in: ASCII text, with CRLF line terminators
 
 *** The following files appear only in portage ***
 usr/portage/app-arch/bzip2/bzip2-1.0.5-r1.ebuild: ASCII English text
-usr/portage/app-arch/bzip2/bzip2-1.0.6-r3.ebuild: ASCII English text
-usr/portage/app-arch/bzip2/files/bzip2-1.0.6-progress.patch: unified diff output, ASCII text
 

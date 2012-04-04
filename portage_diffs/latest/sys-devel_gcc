@@ -323,6 +323,7 @@
 ===== mutual sub-directory: "sys-devel/gcc/files/stubs" =====
 
 *** The following files appear only in the overlay ***
+overlay/sys-devel/gcc/.gcc-4.5.3-r1.ebuild.swp: Vim swap file, version 7.3
 overlay/sys-devel/gcc/delme.patch: unified diff output, ASCII text
 overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak000: ASCII English text
 overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild.bak001: ASCII English text

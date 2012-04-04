@@ -21,9 +21,20 @@
    01 Mar 2012; Fabian Groffen <grobian@gentoo.org> +portage-2.2.01.20271.ebuild,
    -portage-2.2.01.20062.ebuild, files/portage-2.2.01.20239-ebuildshell.patch:
 <--8<--
+--("sys-apps/portage/metadata.xml")-->8-->
+--- usr/portage/sys-apps/portage/metadata.xml	2011-06-14 10:01:37.000000000 -0700
++++ overlay/sys-apps/portage/metadata.xml	2012-03-28 21:50:13.060814900 -0700
+@@ -9,5 +9,6 @@
+ 		<flag name="ipc">Use inter-process communication between portage and running ebuilds.</flag>
+ 		<flag name="less">Pull in sys-apps/less as default pager for etc-update.</flag>
+ 		<flag name="prefix-chaining">mduft's experimental prefix chaining facilities</flag>
++		<flag name="cygdll-protect">Apply experimental cygdll-protect portage patch for stable emerges in cygwin</flag>
+ 	</use>
+ </pkgmetadata>
+<--8<--
 --("sys-apps/portage/portage-2.2.01.20271.ebuild")-->8-->
 --- usr/portage/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-01 13:01:30.000000000 -0800
-+++ overlay/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-09 13:04:33.900440800 -0800
++++ overlay/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-30 19:15:41.086223700 -0700
 @@ -1,6 +1,6 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -41,7 +52,7 @@
  
  python_dep=">=dev-lang/python-2.7 <dev-lang/python-3.0"
  
-@@ -92,6 +92,22 @@
+@@ -92,6 +92,29 @@
  	fi
  
  	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
@@ -49,6 +60,8 @@
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
 +		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
++		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-dosym-exe-hack.patch
++		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-unc-prevention.patch
 +	else
 +		use cygdll-protect && {
 +			ewarn "cygdll-protect outside of cygwin?  Hope you"
@@ -57,8 +70,13 @@
 +	fi
 +
 +	# WIP, not working yet
-+	use cygdll-protect && \
++	use cygdll-protect && { \
 +		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygdll_protect.patch
++		for f in "bin/cygdll-update" ; do
++			einfo "setting executable bits for ${f} since patch doesn't"
++			chmod a+x "${S}"/${f}
++		done
++	}
 +
 +	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
  }
@@ -70,8 +88,10 @@
 *** The following files appear only in the overlay ***
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cyg_whitelist.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygdll_protect.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-dosym-exe-hack.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-lib-qa-fix.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-locking-nightmare.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-unc-prevention.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
 usr/portage/sys-apps/portage/portage-2.2.01.20153.ebuild: ASCII English text

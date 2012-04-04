@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/libtool" =====
 --("sys-devel/libtool/libtool-2.4-r4.ebuild")-->8-->
 --- usr/portage/sys-devel/libtool/libtool-2.4-r4.ebuild	2011-11-07 10:01:35.000000000 -0800
-+++ overlay/sys-devel/libtool/libtool-2.4-r4.ebuild	2012-02-23 13:57:36.845015400 -0800
++++ overlay/sys-devel/libtool/libtool-2.4-r4.ebuild	2012-04-03 12:16:16.541723700 -0700
 @@ -55,6 +56,14 @@
  	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-mint.patch
  	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-irix.patch

@@ -32,7 +32,6 @@ overlay/dev-libs/popt/files/popt-1.6.4-cygwin.patch: unified diff output, ASCII 
 
 *** The following files appear only in portage ***
 usr/portage/dev-libs/popt/ChangeLog: UTF-8 Unicode English text
-usr/portage/dev-libs/popt/metadata.xml: XML document text
 usr/portage/dev-libs/popt/popt-1.15.ebuild: ASCII English text
 usr/portage/dev-libs/popt/popt-1.16.ebuild: ASCII English text
 

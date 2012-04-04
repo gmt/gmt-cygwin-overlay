@@ -1,13 +1,13 @@
 ===== mutual sub-directory: "app-arch/gzip" =====
 --("app-arch/gzip/gzip-1.4.ebuild")-->8-->
 --- usr/portage/app-arch/gzip/gzip-1.4.ebuild	2011-04-06 10:01:25.000000000 -0700
-+++ overlay/app-arch/gzip/gzip-1.4.ebuild	2012-02-21 01:39:04.186210700 -0800
++++ overlay/app-arch/gzip/gzip-1.4.ebuild	2012-03-30 19:15:39.857723700 -0700
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  # $Header: /var/cvsroot/gentoo-x86/app-arch/gzip/gzip-1.4.ebuild,v 1.8 2011/04/03 11:15:56 ulm Exp $
  
 -inherit eutils flag-o-matic prefix
-+inherit eutils flag-o-matic prefix shebangfix
++inherit eutils flag-o-matic prefix-gmt
  
  DESCRIPTION="Standard GNU compressor"
  HOMEPAGE="http://www.gnu.org/software/gzip/"

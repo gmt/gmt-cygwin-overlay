@@ -1,37 +1,12 @@
 ===== mutual sub-directory: "sys-devel/gnuconfig" =====
---("sys-devel/gnuconfig/ChangeLog")-->8-->
---- usr/portage/sys-devel/gnuconfig/ChangeLog	2012-03-03 14:33:08.000000000 -0800
-+++ overlay/sys-devel/gnuconfig/ChangeLog	2011-09-21 02:02:46.000000000 -0700
-@@ -1,17 +1,6 @@
- # ChangeLog for sys-devel/gnuconfig
--# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/ChangeLog,v 1.61 2012/03/03 22:24:58 vapier Exp $
--
--*gnuconfig-20120116 (03 Mar 2012)
--
--  03 Mar 2012; Mike Frysinger <vapier@gentoo.org>
--  files/99999999/0001-add-uClibc-guess-support.patch,
--  files/99999999/0002-add-ps2-targets-to-config.sub.patch,
--  +gnuconfig-20120116.ebuild:
--  Version bump.
--
--  03 Mar 2012; Mike Frysinger <vapier@gentoo.org> gnuconfig-20110814.ebuild:
--  Stabilize for all.
-+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/ChangeLog,v 1.59 2011/09/21 08:39:50 mgorny Exp $
- 
-   21 Sep 2011; Michał Górny <mgorny@gentoo.org> gnuconfig-99999999.ebuild:
-   Migrate to git-2.
-<--8<--
 --("sys-devel/gnuconfig/gnuconfig-20110814.ebuild")-->8-->
 --- usr/portage/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2012-03-03 14:33:08.000000000 -0800
-+++ overlay/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2012-02-23 15:25:30.540515400 -0800
++++ overlay/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2012-03-28 21:50:13.117326200 -0700
 @@ -1,6 +1,6 @@
--# Copyright 1999-2012 Gentoo Foundation
-+# Copyright 1999-2011 Gentoo Foundation
+ # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
 -# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/gnuconfig-20110814.ebuild,v 1.2 2012/03/03 22:23:19 vapier Exp $
-+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/gnuconfig-20110814.ebuild,v 1.1 2011/08/15 03:27:27 vapier Exp $
++# $Header: $
  
  EAPI="2"
  
@@ -44,12 +19,31 @@
  fi
  
  DESCRIPTION="Updated config.sub and config.guess file from GNU"
-@@ -46,7 +46,7 @@
- }
+@@ -47,6 +47,7 @@
  
  src_prepare() {
--	epatch "${WORKDIR}"/*.patch
-+	epatch "${FILESDIR}"/${PV}/*.patch
+ 	epatch "${WORKDIR}"/*.patch
++	epatch "${FILESDIR}"/${PV}/0003-add-cygwin1.7-guess-support.patch
+ 	use elibc_uclibc && sed -i 's:linux-gnu:linux-uclibc:' testsuite/config-guess.data #180637
+ }
+ 
+<--8<--
+--("sys-devel/gnuconfig/gnuconfig-20120116.ebuild")-->8-->
+--- usr/portage/sys-devel/gnuconfig/gnuconfig-20120116.ebuild	2012-03-03 14:24:58.000000000 -0800
++++ overlay/sys-devel/gnuconfig/gnuconfig-20120116.ebuild	2012-03-28 21:50:13.124327600 -0700
+@@ -1,6 +1,6 @@
+ # Copyright 1999-2012 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gnuconfig/gnuconfig-20120116.ebuild,v 1.1 2012/03/03 22:24:58 vapier Exp $
++# $Header: $
+ 
+ EAPI="2"
+ 
+@@ -49,6 +49,7 @@
+ 
+ src_prepare() {
+ 	epatch "${WORKDIR}"/*.patch
++	epatch "${FILESDIR}"/20110814/0003-add-cygwin1.7-guess-support.patch
  	use elibc_uclibc && sed -i 's:linux-gnu:linux-uclibc:' testsuite/config-guess.data #180637
  }
  
@@ -62,7 +56,6 @@ overlay/sys-devel/gnuconfig/files/20110814: directory
 *** The following files appear only in portage ***
 usr/portage/sys-devel/gnuconfig/gnuconfig-20100924.ebuild: ASCII English text
 usr/portage/sys-devel/gnuconfig/gnuconfig-20110202.ebuild: ASCII English text
-usr/portage/sys-devel/gnuconfig/gnuconfig-20120116.ebuild: ASCII English text
 usr/portage/sys-devel/gnuconfig/gnuconfig-99999999.ebuild: ASCII English text
 usr/portage/sys-devel/gnuconfig/files/99999999: directory
 

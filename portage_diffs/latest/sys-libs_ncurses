@@ -91,7 +91,6 @@
 overlay/sys-libs/ncurses/ncurses-5.7.20091227.ebuild: ASCII English text
 overlay/sys-libs/ncurses/files/ncurses-5.7-20091227.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-cygwin-misc.patch: unified diff output, ASCII text
-overlay/sys-libs/ncurses/files/ncurses-5.7-cygwin-pthreads-delme.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-cygwin-pthreads.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-ldflags-with-libtool-refresh.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-mint-refresh.patch: unified diff output, ASCII text
