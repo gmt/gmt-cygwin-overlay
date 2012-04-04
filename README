@@ -109,10 +109,6 @@ o create ${EPREFIX}/etc/portage/repos.conf as follows:
 	[DEFAULT]
 	eclass-overrides = gmt_cygwin_overlay
 
-o add the following to ${EPREFIX}/etc/make.conf (or equivalent):
-
-	PORTAGE_RSYNC_EXTRA_OPTS="--exclude=/metadata/cache"
-
 o invoke eselect as follows:
 
 	PORTDIR=${EPREFIX}/overlay eselect profile set 1
