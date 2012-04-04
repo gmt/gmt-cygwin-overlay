@@ -11,7 +11,7 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
 LICENSE="GPL-2"
 SLOT="${PV:0:4}"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE=""
+IUSE="ultra-prefixify"
 
 RDEPEND="dev-lang/perl
 	>=sys-devel/automake-wrapper-2
@@ -40,12 +40,12 @@ src_unpack() {
 	# configure failure with bash. the patch has been reported upstream.
 	epatch "${FILESDIR}"/${PN}-1.10.2-depout.patch
 	epatch "${FILESDIR}"/${PN}-cygwin1.7-config-guess.patch
-	if use prefix ; then
+	if use ultra-prefixify ; then
 		bash_shebang_prefixify bootstrap configure lib/acinstall lib/compile \
 		lib/config.guess lib/config.sub lib/elisp-comp lib/install-sh lib/mdate-sh \
 		lib/missing lib/mkinstalldirs lib/py-compile lib/symlink-tree lib/ylwrap
 		bash_shebang_prefixify_dirs tests
-		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-prefixification.patch
 	fi
 }
 

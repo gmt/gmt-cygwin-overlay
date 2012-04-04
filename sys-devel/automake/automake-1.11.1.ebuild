@@ -25,7 +25,7 @@ HOMEPAGE="http://sources.redhat.com/automake/"
 
 LICENSE="GPL-2"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE=""
+IUSE="ultra-prefixify"
 
 RDEPEND="dev-lang/perl
 	>=sys-devel/automake-wrapper-3-r2
@@ -41,15 +41,14 @@ src_unpack() {
 	epatch "${FILESDIR}"/${PN}-cygwin1.7-config-guess.patch
 	chmod a+rx tests/*.test
 	export WANT_AUTOCONF=2.5
-	if use prefix ; then
+	if use ultra-prefixify ; then
 		bash_shebang_prefixify bootstrap lib/acinstall lib/compile \
 			lib/config.{guess,sub} lib/{install,mdate}-sh lib/missing \
 			lib/elisp-comp lib/gnupload lib/mkinstalldirs lib/py-compile \
 			lib/symlink-tree lib/ylwrap
 		bash_shebang_prefixify_dirs tests
-		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
-		# FIXME: the above is triggering some maintainer-mode activity we really don't want
-		# For now, we just take our lumps...
+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-prefixification.patch
+		# FIXME: the above is triggering maintainer-mode
 		eautoreconf
 		bash_shebang_prefixify configure
 	fi

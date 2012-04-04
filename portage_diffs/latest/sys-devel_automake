@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/automake" =====
 --("sys-devel/automake/automake-1.10.3.ebuild")-->8-->
 --- usr/portage/sys-devel/automake/automake-1.10.3.ebuild	2010-06-21 10:01:41.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.10.3.ebuild	2012-04-03 12:09:30.062723700 -0700
++++ overlay/sys-devel/automake/automake-1.10.3.ebuild	2012-04-04 06:24:25.362502700 -0700
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  # $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.10.3.ebuild,v 1.7 2010/03/13 19:31:12 armin76 Exp $
@@ -11,17 +11,26 @@
  
  DESCRIPTION="Used to generate Makefile.in from Makefile.am"
  HOMEPAGE="http://sources.redhat.com/automake/"
+@@ -11,7 +11,7 @@
+ LICENSE="GPL-2"
+ SLOT="${PV:0:4}"
+ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+-IUSE=""
++IUSE="ultra-prefixify"
+ 
+ RDEPEND="dev-lang/perl
+ 	>=sys-devel/automake-wrapper-2
 @@ -39,6 +39,14 @@
  	# the symptom was a "shift: nothing to shift" with ksh and a silent
  	# configure failure with bash. the patch has been reported upstream.
  	epatch "${FILESDIR}"/${PN}-1.10.2-depout.patch
 +	epatch "${FILESDIR}"/${PN}-cygwin1.7-config-guess.patch
-+	if use prefix ; then
++	if use ultra-prefixify ; then
 +		bash_shebang_prefixify bootstrap configure lib/acinstall lib/compile \
 +		lib/config.guess lib/config.sub lib/elisp-comp lib/install-sh lib/mdate-sh \
 +		lib/missing lib/mkinstalldirs lib/py-compile lib/symlink-tree lib/ylwrap
 +		bash_shebang_prefixify_dirs tests
-+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
++		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-prefixification.patch
 +	fi
  }
  
@@ -29,7 +38,7 @@
 <--8<--
 --("sys-devel/automake/automake-1.11.1.ebuild")-->8-->
 --- usr/portage/sys-devel/automake/automake-1.11.1.ebuild	2011-05-02 02:01:25.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.11.1.ebuild	2012-04-03 12:09:30.064223700 -0700
++++ overlay/sys-devel/automake/automake-1.11.1.ebuild	2012-04-04 06:27:55.970502700 -0700
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  # $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.11.1.ebuild,v 1.8 2010/05/31 19:20:31 josejx Exp $
@@ -39,29 +48,37 @@
  
  if [[ ${PV/_beta} == ${PV} ]]; then
  	MY_P=${P}
-@@ -38,7 +38,21 @@
+@@ -25,7 +25,7 @@
+ 
+ LICENSE="GPL-2"
+ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+-IUSE=""
++IUSE="ultra-prefixify"
+ 
+ RDEPEND="dev-lang/perl
+ 	>=sys-devel/automake-wrapper-3-r2
+@@ -38,7 +38,20 @@
  src_unpack() {
  	unpack ${A}
  	cd "${S}"
 +	epatch "${FILESDIR}"/${PN}-cygwin1.7-config-guess.patch
  	chmod a+rx tests/*.test
 +	export WANT_AUTOCONF=2.5
-+	if use prefix ; then
++	if use ultra-prefixify ; then
 +		bash_shebang_prefixify bootstrap lib/acinstall lib/compile \
 +			lib/config.{guess,sub} lib/{install,mdate}-sh lib/missing \
 +			lib/elisp-comp lib/gnupload lib/mkinstalldirs lib/py-compile \
 +			lib/symlink-tree lib/ylwrap
 +		bash_shebang_prefixify_dirs tests
-+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-eprefix.patch
-+		# FIXME: the above is triggering some maintainer-mode activity we really don't want
-+		# For now, we just take our lumps...
++		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-prefixification.patch
++		# FIXME: the above is triggering maintainer-mode
 +		eautoreconf
 +		bash_shebang_prefixify configure
 +	fi
  	sed -i \
  		-e "s|: (automake)| v${SLOT}: (automake${SLOT})|" \
  		doc/automake.texi || die "sed failed"
-@@ -47,7 +61,6 @@
+@@ -47,7 +60,6 @@
  		-e "s:automake.info:automake${SLOT}.info:" \
  		-e "s:automake.texi:automake${SLOT}.texi:" \
  		doc/Makefile.in || die "sed on Makefile.in failed"
@@ -69,7 +86,7 @@
  }
  
  src_compile() {
-@@ -76,4 +89,5 @@
+@@ -76,4 +88,5 @@
  	for x in guess sub ; do
  		dosym ../gnuconfig/config.${x} /usr/share/${PN}-${SLOT}/config.${x}
  	done
@@ -151,8 +168,8 @@
 ===== mutual sub-directory: "sys-devel/automake/files" =====
 
 *** The following files appear only in the overlay ***
-overlay/sys-devel/automake/files/automake-1.10.3-eprefix.patch: unified diff output, ASCII text
-overlay/sys-devel/automake/files/automake-1.11.1-eprefix.patch: data
+overlay/sys-devel/automake/files/automake-1.10.3-ultra-prefixification.patch: unified diff output, ASCII text
+overlay/sys-devel/automake/files/automake-1.11.1-ultra-prefixification.patch: data
 overlay/sys-devel/automake/files/automake-1.4-cygwin1.7-config-guess.patch: unified diff output, ASCII text
 overlay/sys-devel/automake/files/automake-1.5-cygwin1.7-config-guess.patch: unified diff output, ASCII text
 overlay/sys-devel/automake/files/automake-1.7.9-cygwin1.7-config-guess.patch: unified diff output, ASCII text
