@@ -16,7 +16,7 @@ diff -u a/config.guess b/config.guess
  	echo ${UNAME_MACHINE}-pc-uwin
  	exit ;;
 +
-+    amd64:CYGWIN*:*:* | x86_64:CYGWIN*:1.7*:*)
++    amd64:CYGWIN*:1.7*:* | x86_64:CYGWIN*:1.7*:*)
 +	echo x86_64-unknown-cygwin1.7
 +	exit ;;
      amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
