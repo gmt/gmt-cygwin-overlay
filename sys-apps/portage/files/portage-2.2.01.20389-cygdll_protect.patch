@@ -1,0 +1,3086 @@
+diff -urN prefix-portage-2.2.01.20389.orig/bin/Makefile.in prefix-portage-2.2.01.20389/bin/Makefile.in
+--- prefix-portage-2.2.01.20389.orig/bin/Makefile.in	2012-04-03 11:12:06.000000000 -0700
++++ prefix-portage-2.2.01.20389/bin/Makefile.in	2012-04-06 04:48:47.342006800 -0700
+@@ -27,6 +27,7 @@
+ 
+ usr_sbinprogs = \
+ 	archive-conf \
++	cygdll-update \
+ 	dispatch-conf \
+ 	emaint \
+ 	env-update \
+diff -urN prefix-portage-2.2.01.20389.orig/bin/cygdll-update prefix-portage-2.2.01.20389/bin/cygdll-update
+--- prefix-portage-2.2.01.20389.orig/bin/cygdll-update	1969-12-31 16:00:00.000000000 -0800
++++ prefix-portage-2.2.01.20389/bin/cygdll-update	2012-04-06 04:48:47.345006800 -0700
+@@ -0,0 +1,165 @@
++#!@PORTAGE_BASH@
++# Copyright 1999-2012 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++
++# Greg Turner <gmt@REMOVEMEmalth.us>
++#
++# Previous version (from which I've borrowed a few bits) by:
++# Jochem Kossen <j.kossen@home.nl>
++# Leo Lipelis <aeoo@gentoo.org>
++# Karl Trygve Kalleberg <karltk@gentoo.org>
++# Author Brandon Low <lostlogic@gentoo.org>
++
++cd /
++
++if type -P gsed >/dev/null ; then
++	sed() { gsed "$@"; }
++fi
++
++done=( )
++
++# bashes below version 4 don't have readarray.
++# since the sort/unique is not all that important
++# just skip it rather than fucking up somebodys day
++if (( BASH_VERSINFO[0] > 3 )) ; then
++
++done_add() {
++	readarray -t done < <(
++		{
++			for f in "${done[@]}" ; do
++				echo "${f}"
++			done
++			echo "$@"
++		} | sort -u
++	)
++}
++
++else
++
++done_add() {
++	done=( "${done[@]}" "$*" )
++}
++
++fi
++
++load_db() {
++	extra_protection="$( portageq cygdll_protect_list ${EROOT} )"
++	[[ "$extra_protection" ]] && CYGDLL_PROTECT="${CYGDLL_PROTECT}${CYGDLL_PROTECT:+ }${extra_protection}"
++
++	# clear out any dups
++	CYGDLL_PROTECT="$( echo $(
++		{
++			for f in ${CYGDLL_PROTECT}; do
++				echo "${f}"
++			done
++		} | sort -u
++	) )"
++}
++
++scan() {
++	echo "Scanning files..."
++	local find_opts
++	local my_basename
++
++	for path in ${CYGDLL_PROTECT} ; do
++		origpath="${path}"
++		path="${EROOT%/}/${path#/}"
++		my_basename="${path##*/}"
++		path="${path%/*}"
++		find_opts="-maxdepth 1 -name _cygdll_protect_${my_basename}"
++
++		ofile=""
++		# The below set -f turns off file name globbing in the ${find_opts} expansion.
++		for file in $( set -f ; find ${path}/ ${find_opts} -print | \
++			   sed -e "s:\(^.*/\)\(_cygdll_protect_\)\(.*$\):\1\2\3\%\1%\2\%\3:" | \
++			   sort -t'%' -k2,2 -k4,4 -k3,3 | LANG=POSIX LC_ALL=POSIX cut -f1 -d'%' ); do
++			rpath=$( echo "${file/\/\///}" | sed -e "s:/[^/]*$::" )
++			rfile=$( echo "${file/\/\///}" | sed -e "s:^.*/::" )
++			if [[ "${ofile:16}" != "${rfile:16}" ]] ||
++			   [[ ${opath} != ${rpath} ]]; then
++				echo "Merging in-limbo update: ${rpath}/${rfile:16}"
++				mv ${rpath}/${rfile} ${rpath}/${rfile:16} || die "filesystem trouble" $?
++				continue
++			fi
++		done
++		done_add "${origpath}"
++	done
++}
++
++die() {
++	trap SIGTERM
++	trap SIGINT
++	trap EXIT
++
++	if [[ $2 == 0 ]] ; then
++		echo "Exiting: ${1}"
++	else
++		echo "ERROR: ${1}"
++	fi
++
++	echo -n "Cleaning up...."
++
++	portageq master_lock_release
++	if (( ${#done[*]} > 0 )) ; then
++		portageq cygdll_protect_clear "${EROOT}" "${done[@]}"
++	fi
++
++	echo
++
++	exit ${2}
++}
++
++usage() {
++	cat <<-EOF
++	cygdll-update: Handle configuration file updates
++
++	Usage: cygdll-update
++
++	Options:
++	  -d, --debug    Enable shell debugging
++	  -h, --help     Show help and run away
++	  -V, --version  Show version and trundle away
++	EOF
++
++	[[ -n ${*:2} ]] && printf "\nError: %s\n" "${*:2}" 1>&2
++
++	exit ${1:-0}
++}
++
++#
++# Run the script
++#
++
++SET_X=false
++while [[ -n $1 ]] ; do
++	case $1 in
++		-d|--debug)   SET_X=true;;
++		-h|--help)    usage;;
++		-V|--version) emerge --version ; exit 0;;
++		*)            usage 1 "Invalid option '$1'";;
++	esac
++	shift
++done
++${SET_X} && set -x
++
++type portageq > /dev/null || exit $?
++eval $( portageq envvar -v CYGDLL_PROTECT PORTAGE_HOSTNAME \
++	PORTAGE_CONFIGROOT PORTAGE_INST_GID PORTAGE_INST_UID \
++	PORTAGE_TMPDIR EROOT USERLAND )
++export PORTAGE_TMPDIR
++
++trap "die suprise-termination 1" EXIT
++trap "die terminated 1" SIGTERM
++trap "die interrupted 1" SIGINT
++
++portageq master_lock_acquire || exit $?
++
++rm_opts="-i"
++cp_opts="-i"
++mv_opts="-i"
++
++load_db
++scan
++
++die "Nothing left to do; exiting. :)" 0
++# vim: syntax=sh
+diff -urN prefix-portage-2.2.01.20389.orig/bin/portageq prefix-portage-2.2.01.20389/bin/portageq
+--- prefix-portage-2.2.01.20389.orig/bin/portageq	2012-03-31 12:33:28.000000000 -0700
++++ prefix-portage-2.2.01.20389/bin/portageq	2012-04-06 04:48:47.360506800 -0700
+@@ -55,6 +55,7 @@
+ 	'_emerge.RootConfig:RootConfig',
+ 	'portage.dbapi._expand_new_virt:expand_new_virt',
+ 	'portage._sets.base:InternalPackageSet',
++	'portage.master_lock:acquire_master_lock,release_master_lock'
+ )
+ 
+ def eval_atom_use(atom):
+@@ -765,6 +766,105 @@
+ 	return rValue
+ list_preserved_libs.uses_root = True
+ 
++def cygdll_protect_list(argv):
++	"""<eroot> [--md5]
++	Print a list of files in cygwin-dll-protection-limbo.
++	Returns 1 if no such files can be found, and 0 otherwise.
++	Listed files are stripped of their prefix, so they are in
++	a format suitable for stuffing into the CYGDLL_PROTECT
++	portage variable.
++
++	If the --md5 argument is provided, prints the expected md5
++	value for each file as well.
++	"""
++
++	printmd5 = False
++	if len(argv) == 2:
++		if argv[1] != '--md5':
++			print("ERROR: '%s' is not '--md5'." % argv[1])
++			sys.exit(2)
++		printmd5 = True
++	elif len(argv) != 1:
++		print("ERROR: wrong number of arguments")
++		sys.exit(2)
++	myfiles = portage.db[argv[0]]["vartree"].dbapi._cygdllprotect.limbodb_list()
++	msg = [ "%s\n" % ("%s %s" % (f, f_md5) if printmd5 else f) \
++		for (f, f_md5) in myfiles ]
++	if msg:
++		writemsg_stdout(''.join(msg), noiselevel=-1)
++		return 0
++	else:
++		return 1
++cygdll_protect_list.uses_root = True
++
++def cygdll_protect_clear(argv):
++	"""<eroot> <cygdll_in-limbo_file>+
++	If applicable, removes the specified files from the
++	cygwin-dll-protection in-limbo database.
++
++	Each cygdllprotfile argument is in the same format as returned
++	by list_cygdll_protections, so, for example,
++
++	portageq cygdll_protect_clear /foo \\
++	  $( portageq cygdll_protect_list /foo )
++
++	would empty out the cygdll protections database in
++	/foo/var/lib/portage/cygdll completely.
++	"""
++	if len(argv) < 2:
++		print("ERROR: wrong number of arguments")
++		sys.exit(2)
++	return portage.db[argv[0]]["vartree"].dbapi._cygdllprotect.limbodb_drop(argv[1:])
++cygdll_protect_clear.uses_root = True
++
++def master_lock_acquire(argv):
++	"""[--as-portage]
++	Acquire the portage master lock.  If the --as-portage parameter
++	is provided, we will acquire the lock as a 'portage' process;
++	otherwise, as a 'non-portage' process.  The difference is that
++	portage processes (including 'emerge') can all run at the same
++	time, but only one non-portage process can run at a time.  Portage
++	and non-portage processes cannot run simultaneously.
++
++	Once a non-portage process starts waiting for the master lock,
++	it will block indefinitely and all attempts to acquire the lock
++	will immediately fail until the non-portage process acquires the
++	lock and then releases it.
++	"""
++	if len(argv) > 1:
++		print("ERROR: expected 1 parameter at most, got %d!" % len(argv))
++		return 2
++
++	if argv and argv[0] != '--as-portage':
++		print("ERROR: parameter %s is invalid!" % argv[0])
++		return 2
++
++	as_portage = False
++	if argv:
++		as_portage = True
++	
++	return acquire_master_lock(as_portage, direct=False)
++
++def master_lock_release(argv):
++	"""[--as-portage]
++	Release the portage master lock, either as a portage or a non-portage
++	process.
++	"""
++	if len(argv) > 1:
++		print("ERROR: expected 1 parameter at most, got %d!" % len(argv))
++		return 2
++
++	if argv and argv[0] != '--as-portage':
++		print("ERROR: parameter %s is invalid!" % argv[0])
++		return 2
++
++	as_portage = False
++	if argv:
++		as_portage = True
++	
++	release_master_lock(as_portage, direct=False)
++	return 0
++
+ #-----------------------------------------------------------------------------
+ #
+ # DO NOT CHANGE CODE BEYOND THIS POINT - IT'S NOT NEEDED!
+@@ -775,7 +875,8 @@
+ 
+ non_commands = frozenset(['elog', 'eval_atom_use',
+ 	'exithandler', 'expand_new_virt', 'main',
+-	'usage', 'writemsg', 'writemsg_stdout'])
++	'usage', 'writemsg', 'writemsg_stdout',
++	'acquire_master_lock', 'release_master_lock'])
+ commands = sorted(k for k, v in globals().items() \
+ 	if k not in non_commands and isinstance(v, types.FunctionType))
+ 
+@@ -897,3 +998,4 @@
+ main()
+ 
+ #-----------------------------------------------------------------------------
++# vim: syntax=python
+diff -urN prefix-portage-2.2.01.20389.orig/cnf/make.conf prefix-portage-2.2.01.20389/cnf/make.conf
+--- prefix-portage-2.2.01.20389.orig/cnf/make.conf	2011-12-23 02:30:05.000000000 -0800
++++ prefix-portage-2.2.01.20389/cnf/make.conf	2012-04-06 04:48:47.368506800 -0700
+@@ -356,3 +356,25 @@
+ #                               ${PACKAGE} - see description of PORTAGE_ELOG_COMMAND
+ #                               ${HOST} - FQDN of the host portage is running on
+ #PORTAGE_ELOG_MAILSUBJECT="[portage] ebuild log for \${PACKAGE} on \${HOST}"
++
++# PORTAGE_HOSTNAME: this variable is used by portage internally to keep track of
++#                   different machines sharing the same portage database.  This
++#                   is only neccesary if you are running a cluster of machines
++#                   which share the same filesystem (i.e., over nfs), /and/ more
++#                   than one of those machines runs portage.  At the moment, it
++#                   is only used by the "portage master-lock" feature, which,
++#                   in turn, is only so far used by the cygwin dll protection
++#                   feature.  Therefore, in practice, almost everyone can safely
++#                   completely ignore this for now.  However, if you share a
++#                   cygwin gentoo prefix across multiple hosts, more than one of
++#                   which is allowed to run emerges, you will need to set this
++#                   variable to something other than the default.
++#
++#                   The variable can be empty, in which case portage will
++#                   automatically guess the hostname of the local machine using
++#                   the python socket.getfqdn() API; alternatively, you can
++#                   set this explicitly to anything reasonable -- it only needs
++#                   to be unique for each machine in the cluster that might
++#                   run portage.  By default, it is defined to "localhost" in
++#                   make.globals.
++#PORTAGE_HOSTNAME=""
+diff -urN prefix-portage-2.2.01.20389.orig/cnf/make.globals prefix-portage-2.2.01.20389/cnf/make.globals
+--- prefix-portage-2.2.01.20389.orig/cnf/make.globals	2012-02-09 00:02:33.000000000 -0800
++++ prefix-portage-2.2.01.20389/cnf/make.globals	2012-04-06 04:48:47.372506800 -0700
+@@ -8,7 +8,8 @@
+ # **** CHANGES TO make.conf *OVERRIDE* THIS FILE ****
+ # ***************************************************
+ # ** Incremental Variables Accumulate Across Files **
+-# **  USE, CONFIG_*, and FEATURES are incremental  **
++# **  USE, CONFIG_*, CYGDLL_PROTECT, and FEATURES  **
++# **  are incremental                              **
+ # ***************************************************
+ 
+ # When compiler flags are unset, many packages will substitute their own
+@@ -113,6 +114,10 @@
+ CONFIG_PROTECT="/etc"
+ CONFIG_PROTECT_MASK="/etc/env.d"
+ 
++# Nothing is included in CYGDLL_PROTECT by default
++# These are typically added at the profile level or higher.
++CYGDLL_PROTECT=""
++
+ # Disable auto-use
+ USE_ORDER="env:pkg:conf:defaults:pkginternal:repo:env.d"
+ 
+@@ -125,6 +130,17 @@
+ PORTAGE_INST_UID="@rootuid@"
+ PORTAGE_INST_GID="@rootgid@"
+ 
++# Systems in a cluster sharing var/lib/portage need to
++# set this in make.conf.  portage will automatically drop
++# stale PID's from
++# ${EROOT}/var/lib/portage/masterlock/${PORTAGE_HOSTNAME}, but
++# can only do so correctly if those pids come only from the
++# local machine.  Emptying the variable will activate
++# automatic hostname detection.  Alternatively, a hard-coded
++# value may be used -- it does not affect networking behavior
++# and should not be used in ebuilds.
++PORTAGE_HOSTNAME="localhost"
++
+ # Default PATH for ebuild env
+ DEFAULT_PATH="@DEFAULT_PATH@"
+ # Any extra PATHs to add to the ebuild environment's PATH (if any)
+diff -urN prefix-portage-2.2.01.20389.orig/man/Makefile.am prefix-portage-2.2.01.20389/man/Makefile.am
+--- prefix-portage-2.2.01.20389.orig/man/Makefile.am	2012-04-03 11:17:23.000000000 -0700
++++ prefix-portage-2.2.01.20389/man/Makefile.am	2012-04-06 04:48:47.375006800 -0700
+@@ -2,6 +2,7 @@
+ 
+ man_MANS = \
+ 	color.map.5 \
++	cygdll-update.1 \
+ 	dispatch-conf.1 \
+ 	ebuild.1 \
+ 	ebuild.5 \
+diff -urN prefix-portage-2.2.01.20389.orig/man/Makefile.in prefix-portage-2.2.01.20389/man/Makefile.in
+--- prefix-portage-2.2.01.20389.orig/man/Makefile.in	2012-04-03 11:17:26.000000000 -0700
++++ prefix-portage-2.2.01.20389/man/Makefile.in	2012-04-06 04:48:47.382506800 -0700
+@@ -194,6 +194,7 @@
+ top_srcdir = @top_srcdir@
+ man_MANS = \
+ 	color.map.5 \
++	cygdll-update.1 \
+ 	dispatch-conf.1 \
+ 	ebuild.1 \
+ 	ebuild.5 \
+diff -urN prefix-portage-2.2.01.20389.orig/man/cygdll-update.1 prefix-portage-2.2.01.20389/man/cygdll-update.1
+--- prefix-portage-2.2.01.20389.orig/man/cygdll-update.1	1969-12-31 16:00:00.000000000 -0800
++++ prefix-portage-2.2.01.20389/man/cygdll-update.1	2012-04-06 04:48:47.385506800 -0700
+@@ -0,0 +1,52 @@
++.TH "CYGDLL-UPDATE" "1" "Mar 2012" "Portage 2.2.01.20271-prefix" "Portage"
++.SH NAME
++cygdll-update \- handle configuration file updates
++.SH SYNOPSIS
++.B cygdll-update
++.SH DESCRIPTION
++.I cygdll-update
++should be run after merging a new package if
++there are file updates stuck in
++cygwin-dll-protection-limbo (See \fBemerge\fR(1)).
++.PP
++.I cygdll-update
++will check all files in the \fICYGDLL_PROTECT\fR variable, and also any
++files marked as in-limbo by the portage cygdll database. When in-limbo files are
++discovered, \fBcygdll-update\fR automatically updates them and removes them from the cygdll
++database.  See \fBmake.conf\fR(5) for more information.
++.PP
++.I cygdll-update
++will not run simultaneously with portage programs such as \fBemerge\fR(1) and
++\fBebuild\fR(1).  This is a feature, not a flaw -- otherwise, the purpose of
++cygdll-protection would be defeated.  If such programs are found to be running at the moment
++\fBcygdll-update\fR is invoked, it will wait (indefinitely) for all such
++programs to terminate before continuing.  Furthermore, while \fBcygdll-update\fR
++is running (even if it is just waiting for other portage programs to complete)
++additional portage programs will be automatically prevented from starting.
++Although this may at times be inconvenient, it ensures that in the absence of
++a malfunction, cygdll-update will eventually be able to complete its task.  To
++reverse this prohibition, as you may so wish to do if, for example, you
++started cygdll-update during a lengthy emerge, and later decided to run an
++additional, parallel emerge while \fBcygdll-update\fR was still waiting for
++the first emerge to complete, it would be necessary to terminate the waiting
++\fBcygdll-update\fR process.  It should be safe to terminate a waiting 
++\fBcygdll-update\fR process by pressing Ctrl-C or sending it
++a reasonable signal (not SIGKILL!  SIGINT should do the trick) with the
++\fBkill\fR(5) command.
++.SH OPTIONS
++.TP
++None.
++.SH "REPORTING BUGS"
++Please report bugs via http://bugs.gentoo.org/
++.SH AUTHORS
++.nf
++Jochem Kossen and Leo Lipelis
++Karl Trygve Kalleberg <karltk@gentoo.org>
++Mike Frysinger <vapier@gentoo.org>
++Greg Turner <gmt@REMOVEMEmalth.us>
++.fi
++.SH "FILES"
++.TP
++None.
++.SH "SEE ALSO"
++.BR make.conf (5)
+diff -urN prefix-portage-2.2.01.20389.orig/man/emerge.1 prefix-portage-2.2.01.20389/man/emerge.1
+--- prefix-portage-2.2.01.20389.orig/man/emerge.1	2012-04-03 11:17:23.000000000 -0700
++++ prefix-portage-2.2.01.20389/man/emerge.1	2012-04-06 04:48:47.391506800 -0700
+@@ -1010,6 +1010,88 @@
+ offset by Portage before they are considered.  Hence, these paths never
+ contain the offset prefix, and the variables can be defined in
+ offset-unaware locations, such as the profiles. 
++.SH "CYGWIN DLL PROTECTION"
++Portage for cygwin includes a feature called "cygwin dll protection", which
++roughly mirrors the functionality of the "configuration file protection"
++feature (see \fBCONFIGURATION FILES\fR above). The purpose of this feature
++is to prevent new package installs from crashing portage when replacing
++files such as .dll's which are currently in use by portage.
++.LP
++This is necessary due to a rather inconvenient limitation of the cygwin
++environment, which is necessary, in turn, due to yet another rather inconvenient
++limitation of Microsoft Windows. A full explanation is beyond the scope of
++this document, but the problem has to do with the way cygwin's implementation of
++the UNIX fork() API works, and idiocyncracies of the Windows platform's mapping
++of executable code into the so\-called 'virtual memory address space.'
++Regardless of the etiology, the symptomoatology is brutally noticeable and
++readily explained:
++.LP
++If a cygwin program (such as python.exe, and hence, cygwin portage) is
++running, and we replace any execuable (again, including .dll files) which that
++program may be using, then although nothing may happen right away, as soon as
++that program attempts to call the fork() API, the program will almost certainly
++crash. This is normally not a problem in cygwin because cygwin includes an
++installation utility, 'setup.exe,' which is not itself a cygwin program (it
++is instead just a regular Windows GUI program).
++.LP
++Note that there is a second problem in cygwin which will cause crashes with
++errors about address space mapping, immediately upon program invocation.
++Although this problem is very closely related to the problem with
++replacing executables while a program is running, it is
++technically distinct and arises from different causes. The "cygwin dll
++protection" feature is only intended to solve the replacement problem (a full
++solution to the rebasing problem is still under development, but see the
++cygwin overlay's \fBprofile.bashrc\fR file for its interim pseudo\-solution).
++.LP
++When Portage installs a file that it determines to require protection (more on
++how this determination is made follows) existing files will not be overwritten.
++If a file of the same name already exists, Portage will change the name of the
++to\-be\-installed file from 'foo' to '_cygdll_protect_foo'. If '_cygdll_protect_foo'
++already exists, it will be overwritten. The files will later have to
++be moved to their final destination 'foo' if they are to be used. When in this
++state, the files can be said to be in 'cygwin\-dll\-protection\-limbo'.
++.LP
++Files can be explicitly protected using the \fICYGDLL_PROTECT\fR variable,
++normally defined in make.globals. Note that any file can be protected in this way,
++but it only really makes sense to protect .dll or .exe files (unless a program is
++loading files with other names into its address\-space, but this is very unusual).
++The \fICYGDLL_PROTECT\fR variable, like the \fICONFIG_PROTECT\fR variable,
++is relative to the \fIEPREFIX\fR in offset (prefix) portage installations, and
++is cumulative, so that the filenames found in the various locations portage
++searches for it (the same places it looks for \fICONFIG_PROTECT\fR, including the
++environment, profile, and so on) are aggregated. Unlike \fICONFIG_PROTECT\fR,
++which can contain files and directories (and usually only contains the latter),
++\fICYGDLL_PROTECT\fR only contains file\-names. Placing directory names into it
++has not been tested as of this writing and is therefore very likely to cause
++problems or trigger bugs.
++.LP
++Unfortunately, unlike \fICONFIG_PROTECT\fR, \fICYGDLL_PROTECT\fR lacks any means
++to "deactivate" the protections (in other words, there is no
++\fICYGDLL_PROTECT_MASK\fR variable). The lack of such a means, combined with
++the facts that there is no way to turn off cygwin dll protection globally,
++and that protections are aggregated across various files, means that effectively,
++deactivating the feature is all but impossible. This is simply a bug; there
++are perfectly legitimate reasons to want to not use this feature (i.e., when
++targeting a chained prefix). In the future, something will need to be done about
++this, but for now, we can only offer our apologies. You will need to find all
++the \fICYGDLL_PROTECT\fR usages across your various portage configuration files
++and empty them out to deactivate the feature.
++.LP
++In addition to deferring the overwriting of protected files, Portage should not
++delete any protected files when a package is unmerged. The exact handling of
++this scenario has not yet been worked out. At the moment, Portage leaves the
++files around(?), but in the future, something more sophisticated will need to be
++done. Most likely, the behavior will be to create an empty '_cygdll_protect_foo'
++file which will serve as a hint to the administrator (or cygdll\-update)
++that the file should be removed.
++.LP
++A tool, \fBcygdll\-update\fR is available to aid in the merging of files in
++cygwin\-dll\-protection\-limbo. The tool will wait (forever, if need be)
++for all running portage instances to terminate, and then automagically
++find all in\-limbo files and move them to their final destinations. In the
++future, some means may be provided to do this automatically, but don't hold
++your breath.  If portage were to invoke cygdll\-update itself, it would
++trigger the very conditions cygwin dll protection is designed to avoid.
+ .SH "REPORTING BUGS"
+ Please report any bugs you encounter through our website:
+ .LP
+diff -urN prefix-portage-2.2.01.20389.orig/man/make.conf.5 prefix-portage-2.2.01.20389/man/make.conf.5
+--- prefix-portage-2.2.01.20389.orig/man/make.conf.5	2012-04-06 04:47:35.869506800 -0700
++++ prefix-portage-2.2.01.20389/man/make.conf.5	2012-04-06 04:48:47.397006800 -0700
+@@ -151,6 +151,14 @@
+ This variable is passed by the \fIebuild scripts\fR to the \fIconfigure\fR
+ as \fI\-\-target=${CTARGET}\fR only if it is defined.
+ .TP
++\fBCYGDLL_PROTECT\fR = \fI[space delimited list of files]\fR
++All files defined here will have "cygwin dll protection"
++enabled for them. See the \fBCYGWIN DLL PROTECTION\fR section
++of \fBemerge\fR(1) for more information.
++Note that if an offset prefix (\fBEPREFIX\fR) is activated, all paths defined
++in \fBCYGDLL_PROTECT\fR are prefixed by Portage with the offset before
++they are used.
++.TP
+ \fBDISTDIR\fR = \fI[path]\fR
+ Defines the location of your local source file repository. After packages
+ are built, it is safe to remove any and all files from this directory since
+@@ -743,6 +751,28 @@
+ The command used by \fBrepoman\fR(1) to sign manifests when \fBsign\fR is
+ in \fBFEATURES\fR.
+ .TP
++.B PORTAGE_HOSTNAME
++In order to prevent portage from running at the same time as certain
++programs (to date, \fBcygdll\-update\fR(1) is the only one), it is
++necessary to distinguish between different machines which may share
++the same portage database.  To do so, portage can attempt to use the
++fully qualified domain name as detected by the python
++socket.getfqdn() API.  In certain cases, this will not have
++the intended result (in the case of a machine with a dynamic IP, for
++example, it could result in a buildup of crufty little files in
++\\${EROOT}/var/lib/portage/masterlock, which might, in turn, cause portage
++to take a long time to start up).  By setting this to something that
++uniquely identifies the machine (it is not important for it to be a real
++DNS name), this automatic detection can be overridden.
++.br
++If you are sure that your filesystem will never be shared, it is safe
++(and arguably prefereable) to use "localhost".  Since this is by
++far the most common scenario, it has been made the default.  To
++override it, either add a fixed PORTAGE_HOSTNAME, or,
++to activate the automatic detection feature, an empty PORTAGE_HOSTNAME
++to make.conf.  Unless you run portage on a "cluster" of machines with a
++shared filesystem, the default should be fine.
++.TP
+ \fBPORTAGE_IONICE_COMMAND\fR = \fI[ionice command string]\fR
+ This variable should contain a command for portage to call in order
+ to adjust the io priority of portage and it's subprocesses. The command
+diff -urN prefix-portage-2.2.01.20389.orig/pym/_emerge/actions.py prefix-portage-2.2.01.20389/pym/_emerge/actions.py
+--- prefix-portage-2.2.01.20389.orig/pym/_emerge/actions.py	2012-03-31 12:33:29.000000000 -0700
++++ prefix-portage-2.2.01.20389/pym/_emerge/actions.py	2012-04-06 04:52:19.034506800 -0700
+@@ -48,6 +48,7 @@
+ from portage._sets.base import InternalPackageSet
+ from portage.util import cmp_sort_key, writemsg, \
+ 	writemsg_level, writemsg_stdout
++from portage.util.cygdll_protection import find_updated_cygdll_files
+ from portage.util.digraph import digraph
+ from portage._global_updates import _global_updates
+ 
+@@ -1467,7 +1468,7 @@
+ 		myvars = list(settings)
+ 	else:
+ 		myvars = ['GENTOO_MIRRORS', 'CONFIG_PROTECT', 'CONFIG_PROTECT_MASK',
+-		          'PORTDIR', 'DISTDIR', 'PKGDIR', 'PORTAGE_TMPDIR',
++		          'PORTDIR', 'DISTDIR', 'PKGDIR', 'PORTAGE_TMPDIR', 'CYGDLL_PROTECT',
+ 		          'PORTDIR_OVERLAY', 'PORTAGE_BUNZIP2_COMMAND',
+ 		          'PORTAGE_BZIP2_COMMAND',
+ 		          'USE', 'CHOST', 'CFLAGS', 'CXXFLAGS',
+@@ -2544,6 +2545,9 @@
+ 	chk_updated_cfg_files(settings["EROOT"],
+ 		portage.util.shlex_split(settings.get("CONFIG_PROTECT", "")))
+ 
++	chk_updated_cygdll_files(settings["EROOT"],
++		portage.util.shlex_split(settings.get("CYGDLL_PROTECT", "")))
++
+ 	if myaction != "metadata":
+ 		postsync = os.path.join(settings["PORTAGE_CONFIGROOT"],
+ 			portage.USER_CONFIG_PATH, "bin", "post_sync")
+@@ -3087,6 +3091,23 @@
+ 		print(" "+yellow("*")+ " " + _("man page to learn how to update config files."))
+ 
+ 
++def chk_updated_cygdll_files(eroot, cygdll_protect):
++	result = find_updated_cygdll_files(eroot, cygdll_protect)
++
++	for x in result:
++		writemsg_level("\n %s " % (colorize("WARN", "* " + _("IMPORTANT:"))),
++			level=logging.INFO, noiselevel=-1)
++		writemsg_level( _("file '%s' is in cygwin-dll-protection-limbo.\n") % x,
++			level=logging.INFO, noiselevel=-1)
++	if result:
++		print(" "+yellow("*")+" " + _("Run") + " '" + bold("cygdll-update") + \
++					"' " + _("to fully merge files held in 'cygwin-dll-protection-limbo'"))
++		print(" "+yellow("*")+" " + _("To learn why you suffer"
++					" from this affliction, read the"))
++		print(" "+yellow("*")+" " + colorize("INFORM", _("CYGWIN DLL PROTECTION")) + \
++					" " + _("section of the") + " " + bold("emerge") + " " + \
++					_("man page") + ".")
++
+ def display_news_notification(root_config, myopts):
+ 	if "news" not in root_config.settings.features:
+ 		return
+diff -urN prefix-portage-2.2.01.20389.orig/pym/_emerge/main.py prefix-portage-2.2.01.20389/pym/_emerge/main.py
+--- prefix-portage-2.2.01.20389.orig/pym/_emerge/main.py	2012-03-31 12:33:29.000000000 -0700
++++ prefix-portage-2.2.01.20389/pym/_emerge/main.py	2012-04-06 05:05:37.365006800 -0700
+@@ -31,6 +31,7 @@
+ import portage.exception
+ from portage.const import EPREFIX, EPREFIX_LSTRIP
+ from portage.data import secpass
++from portage.master_lock import acquire_master_lock, release_master_lock
+ from portage.dbapi.dep_expand import dep_expand
+ from portage.util import normalize_path as normpath
+ from portage.util import (shlex_split, varexpand,
+@@ -40,8 +41,9 @@
+ 
+ from _emerge.actions import action_config, action_sync, action_metadata, \
+ 	action_regen, action_search, action_uninstall, action_info, action_build, \
+-	adjust_configs, chk_updated_cfg_files, display_missing_pkg_set, \
+-	display_news_notification, getportageversion, load_emerge_config
++	adjust_configs, chk_updated_cfg_files, chk_updated_cygdll_files, \
++	display_missing_pkg_set, display_news_notification, getportageversion, \
++	load_emerge_config
+ import _emerge
+ from _emerge.emergelog import emergelog
+ from _emerge._flush_elog_mod_echo import _flush_elog_mod_echo
+@@ -358,6 +360,8 @@
+ 	settings.lock()
+ 
+ 	config_protect = shlex_split(settings.get("CONFIG_PROTECT", ""))
++	cygdll_protect = shlex_split(settings.get("CYGDLL_PROTECT", ""))
++
+ 	infodirs = settings.get("INFOPATH","").split(":") + \
+ 		settings.get("INFODIR","").split(":")
+ 
+@@ -394,6 +398,7 @@
+ 				vardbapi.unlock()
+ 
+ 	chk_updated_cfg_files(settings['EROOT'], config_protect)
++	chk_updated_cygdll_files(settings['EROOT'], cygdll_protect)
+ 
+ 	display_news_notification(root_config, myopts)
+ 	if retval in (None, os.EX_OK) or (not "--pretend" in myopts):
+@@ -1625,410 +1630,421 @@
+ 	tmpcmdline.extend(args)
+ 	myaction, myopts, myfiles = parse_opts(tmpcmdline)
+ 
+-	# skip global updates prior to sync, since it's called after sync
++	acquired_portage_master_lock = False
+ 	if myaction not in ('help', 'info', 'sync', 'version') and \
+-		myopts.get('--package-moves') != 'n' and \
+-		_global_updates(trees, mtimedb["updates"], quiet=("--quiet" in myopts)):
+-		mtimedb.commit()
+-		# Reload the whole config from scratch.
+-		settings, trees, mtimedb = load_emerge_config(trees=trees)
+-		portdb = trees[settings['EROOT']]['porttree'].dbapi
+-
+-	xterm_titles = "notitles" not in settings.features
+-	if xterm_titles:
+-		xtermTitle("emerge")
+-
+-	if "--digest" in myopts:
+-		os.environ["FEATURES"] = os.environ.get("FEATURES","") + " digest"
+-		# Reload the whole config from scratch so that the portdbapi internal
+-		# config is updated with new FEATURES.
+-		settings, trees, mtimedb = load_emerge_config(trees=trees)
+-		portdb = trees[settings['EROOT']]['porttree'].dbapi
+-
+-	# NOTE: adjust_configs() can map options to FEATURES, so any relevant
+-	# options adjustments should be made prior to calling adjust_configs().
+-	if "--buildpkgonly" in myopts:
+-		myopts["--buildpkg"] = True
+-
+-	adjust_configs(myopts, trees)
+-	apply_priorities(settings)
+-
+-	if myaction == 'version':
+-		writemsg_stdout(getportageversion(
+-			settings["PORTDIR"], None,
+-			settings.profile_path, settings["CHOST"],
+-			trees[settings['EROOT']]['vartree'].dbapi) + '\n', noiselevel=-1)
+-		return 0
+-	elif myaction == 'help':
+-		_emerge.help.help()
+-		return 0
+-
+-	spinner = stdout_spinner()
+-	if "candy" in settings.features:
+-		spinner.update = spinner.update_scroll
+-
+-	if "--quiet" not in myopts:
+-		portage.deprecated_profile_check(settings=settings)
+-		if portage.const._ENABLE_REPO_NAME_WARN:
+-			# Bug #248603 - Disable warnings about missing
+-			# repo_name entries for stable branch.
+-			repo_name_check(trees)
+-		repo_name_duplicate_check(trees)
+-		config_protect_check(trees)
+-	check_procfs()
+-
+-	if "getbinpkg" in settings.features:
+-		myopts["--getbinpkg"] = True
+-
+-	if "--getbinpkgonly" in myopts:
+-		myopts["--getbinpkg"] = True
+-
+-	if "--getbinpkgonly" in myopts:
+-		myopts["--usepkgonly"] = True
+-
+-	if "--getbinpkg" in myopts:
+-		myopts["--usepkg"] = True
+-
+-	if "--usepkgonly" in myopts:
+-		myopts["--usepkg"] = True
+-
+-	if "--buildpkgonly" in myopts:
+-		# --buildpkgonly will not merge anything, so
+-		# it cancels all binary package options.
+-		for opt in ("--getbinpkg", "--getbinpkgonly",
+-			"--usepkg", "--usepkgonly"):
+-			myopts.pop(opt, None)
+-
+-	for mytrees in trees.values():
+-		mydb = mytrees["porttree"].dbapi
+-		# Freeze the portdbapi for performance (memoize all xmatch results).
+-		mydb.freeze()
+-
+-		if myaction in ('search', None) and \
+-			"--usepkg" in myopts:
+-			# Populate the bintree with current --getbinpkg setting.
+-			# This needs to happen before expand_set_arguments(), in case
+-			# any sets use the bintree.
+-			mytrees["bintree"].populate(
+-				getbinpkgs="--getbinpkg" in myopts)
+-
+-	del mytrees, mydb
+-
+-	if "moo" in myfiles:
+-		print(COWSAY_MOO % platform.system())
+-		msg = ("The above `emerge moo` display is deprecated. "
+-			"Please use `emerge --moo` instead.")
+-		for line in textwrap.wrap(msg, 50):
+-			print(" %s %s" % (colorize("WARN", "*"), line))
+-
+-	for x in myfiles:
+-		ext = os.path.splitext(x)[1]
+-		if (ext == ".ebuild" or ext == ".tbz2") and os.path.exists(os.path.abspath(x)):
+-			print(colorize("BAD", "\n*** emerging by path is broken and may not always work!!!\n"))
+-			break
+-
+-	root_config = trees[settings['EROOT']]['root_config']
+-	if myaction == "moo":
+-		print(COWSAY_MOO % platform.system())
+-		return os.EX_OK
+-	elif myaction == "list-sets":
+-		writemsg_stdout("".join("%s\n" % s for s in sorted(root_config.sets)))
+-		return os.EX_OK
+-	elif myaction == "check-news":
+-		news_counts = count_unread_news(
+-			root_config.trees["porttree"].dbapi,
+-			root_config.trees["vartree"].dbapi)
+-		if any(news_counts.values()):
+-			display_news_notifications(news_counts)
+-		elif "--quiet" not in myopts:
+-			print("", colorize("GOOD", "*"), "No news items were found.")
+-		return os.EX_OK
+-
+-	ensure_required_sets(trees)
+-
+-	# only expand sets for actions taking package arguments
+-	oldargs = myfiles[:]
+-	if myaction in ("clean", "config", "depclean", "info", "prune", "unmerge", None):
+-		myfiles, retval = expand_set_arguments(myfiles, myaction, root_config)
+-		if retval != os.EX_OK:
+-			return retval
+-
+-		# Need to handle empty sets specially, otherwise emerge will react 
+-		# with the help message for empty argument lists
+-		if oldargs and not myfiles:
+-			print("emerge: no targets left after set expansion")
+-			return 0
+-
+-	if ("--tree" in myopts) and ("--columns" in myopts):
+-		print("emerge: can't specify both of \"--tree\" and \"--columns\".")
+-		return 1
+-
+-	if '--emptytree' in myopts and '--noreplace' in myopts:
+-		writemsg_level("emerge: can't specify both of " + \
+-			"\"--emptytree\" and \"--noreplace\".\n",
+-			level=logging.ERROR, noiselevel=-1)
+-		return 1
+-
+-	if ("--quiet" in myopts):
+-		spinner.update = spinner.update_quiet
+-		portage.util.noiselimit = -1
+-
+-	if "--fetch-all-uri" in myopts:
+-		myopts["--fetchonly"] = True
+-
+-	if "--skipfirst" in myopts and "--resume" not in myopts:
+-		myopts["--resume"] = True
+-
+-	# Allow -p to remove --ask
+-	if "--pretend" in myopts:
+-		myopts.pop("--ask", None)
+-
+-	# forbid --ask when not in a terminal
+-	# note: this breaks `emerge --ask | tee logfile`, but that doesn't work anyway.
+-	if ("--ask" in myopts) and (not sys.stdin.isatty()):
+-		portage.writemsg("!!! \"--ask\" should only be used in a terminal. Exiting.\n",
+-			noiselevel=-1)
+-		return 1
+-
+-	if settings.get("PORTAGE_DEBUG", "") == "1":
+-		spinner.update = spinner.update_quiet
+-		portage.util.noiselimit = 0
+-		if "python-trace" in settings.features:
+-			import portage.debug as portage_debug
+-			portage_debug.set_trace(True)
+-
+-	if not ("--quiet" in myopts):
+-		if '--nospinner' in myopts or \
+-			settings.get('TERM') == 'dumb' or \
+-			not sys.stdout.isatty():
+-			spinner.update = spinner.update_basic
+-
+-	if "--debug" in myopts:
+-		print("myaction", myaction)
+-		print("myopts", myopts)
+-
+-	if not myaction and not myfiles and "--resume" not in myopts:
+-		_emerge.help.help()
+-		return 1
+-
+-	pretend = "--pretend" in myopts
+-	fetchonly = "--fetchonly" in myopts or "--fetch-all-uri" in myopts
+-	buildpkgonly = "--buildpkgonly" in myopts
+-
+-	# check if root user is the current user for the actions where emerge needs this
+-	if portage.secpass < 2:
+-		# We've already allowed "--version" and "--help" above.
+-		if "--pretend" not in myopts and myaction not in ("search","info"):
+-			need_superuser = myaction in ('clean', 'depclean', 'deselect',
+-				'prune', 'unmerge') or not \
+-				(fetchonly or \
+-				(buildpkgonly and secpass >= 1) or \
+-				myaction in ("metadata", "regen", "sync"))
+-			if portage.secpass < 1 or \
+-				need_superuser:
+-				if need_superuser:
+-					access_desc = "superuser"
+-				else:
+-					access_desc = "portage group"
+-				# Always show portage_group_warning() when only portage group
+-				# access is required but the user is not in the portage group.
+-				from portage.data import portage_group_warning
+-				if "--ask" in myopts:
+-					writemsg_stdout("This action requires %s access...\n" % \
+-						(access_desc,), noiselevel=-1)
+-					if portage.secpass < 1 and not need_superuser:
+-						portage_group_warning()
+-					if userquery("Would you like to add --pretend to options?",
+-						"--ask-enter-invalid" in myopts) == "No":
+-						return 128 + signal.SIGINT
+-					myopts["--pretend"] = True
+-					del myopts["--ask"]
+-				else:
+-					sys.stderr.write(("emerge: %s access is required\n") \
+-						% access_desc)
+-					if portage.secpass < 1 and not need_superuser:
+-						portage_group_warning()
+-					return 1
+-
+-	# Disable emergelog for everything except build or unmerge operations.
+-	# This helps minimize parallel emerge.log entries that can confuse log
+-	# parsers like genlop.
+-	disable_emergelog = False
+-	for x in ("--pretend", "--fetchonly", "--fetch-all-uri"):
+-		if x in myopts:
+-			disable_emergelog = True
+-			break
+-	if disable_emergelog:
+-		pass
+-	elif myaction in ("search", "info"):
+-		disable_emergelog = True
+-	elif portage.data.secpass < 1:
+-		disable_emergelog = True
+-
+-	_emerge.emergelog._disable = disable_emergelog
+-
+-	if not disable_emergelog:
+-		if 'EMERGE_LOG_DIR' in settings:
+-			try:
+-				# At least the parent needs to exist for the lock file.
+-				portage.util.ensure_dirs(settings['EMERGE_LOG_DIR'])
+-			except portage.exception.PortageException as e:
+-				writemsg_level("!!! Error creating directory for " + \
+-					"EMERGE_LOG_DIR='%s':\n!!! %s\n" % \
+-					(settings['EMERGE_LOG_DIR'], e),
+-					noiselevel=-1, level=logging.ERROR)
+-				portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
+-			else:
+-				_emerge.emergelog._emerge_log_dir = settings["EMERGE_LOG_DIR"]
+-		else:
+-			_emerge.emergelog._emerge_log_dir = os.path.join(os.sep,
+-				settings["EPREFIX"].lstrip(os.sep), "var", "log")
+-			portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
+-
+-	if not "--pretend" in myopts:
+-		emergelog(xterm_titles, "Started emerge on: "+\
+-			_unicode_decode(
+-				time.strftime("%b %d, %Y %H:%M:%S", time.localtime()),
+-				encoding=_encodings['content'], errors='replace'))
+-		myelogstr=""
+-		if myopts:
+-			opt_list = []
+-			for opt, arg in myopts.items():
+-				if arg is True:
+-					opt_list.append(opt)
+-				elif isinstance(arg, list):
+-					# arguments like --exclude that use 'append' action
+-					for x in arg:
+-						opt_list.append("%s=%s" % (opt, x))
+-				else:
+-					opt_list.append("%s=%s" % (opt, arg))
+-			myelogstr=" ".join(opt_list)
+-		if myaction:
+-			myelogstr += " --" + myaction
+-		if myfiles:
+-			myelogstr += " " + " ".join(oldargs)
+-		emergelog(xterm_titles, " *** emerge " + myelogstr)
+-	del oldargs
+-
+-	def emergeexitsig(signum, frame):
+-		signal.signal(signal.SIGINT, signal.SIG_IGN)
+-		signal.signal(signal.SIGTERM, signal.SIG_IGN)
+-		portage.util.writemsg("\n\nExiting on signal %(signal)s\n" % {"signal":signum})
+-		sys.exit(128 + signum)
+-	signal.signal(signal.SIGINT, emergeexitsig)
+-	signal.signal(signal.SIGTERM, emergeexitsig)
+-
+-	def emergeexit():
+-		"""This gets out final log message in before we quit."""
+-		if "--pretend" not in myopts:
+-			emergelog(xterm_titles, " *** terminating.")
+-		if xterm_titles:
+-			xtermTitleReset()
+-	portage.atexit_register(emergeexit)
+-
+-	if myaction in ("config", "metadata", "regen", "sync"):
+-		if "--pretend" in myopts:
+-			sys.stderr.write(("emerge: The '%s' action does " + \
+-				"not support '--pretend'.\n") % myaction)
++		'--pretend' not in myopts:
++		if acquire_master_lock(True, settings=settings) != os.EX_OK:
+ 			return 1
++		acquired_portage_master_lock = True
++	try:
++		# skip global updates prior to sync, since it's called after sync
++		if myaction not in ('help', 'info', 'sync', 'version') and \
++			myopts.get('--package-moves') != 'n' and \
++			_global_updates(trees, mtimedb["updates"], quiet=("--quiet" in myopts)):
++			mtimedb.commit()
++			# Reload the whole config from scratch.
++			settings, trees, mtimedb = load_emerge_config(trees=trees)
++			portdb = trees[settings['EROOT']]['porttree'].dbapi
+ 
+-	if "sync" == myaction:
+-		return action_sync(settings, trees, mtimedb, myopts, myaction)
+-	elif "metadata" == myaction:
+-		action_metadata(settings, portdb, myopts)
+-	elif myaction=="regen":
+-		validate_ebuild_environment(trees)
+-		return action_regen(settings, portdb, myopts.get("--jobs"),
+-			myopts.get("--load-average"))
+-	# HELP action
+-	elif "config"==myaction:
+-		validate_ebuild_environment(trees)
+-		action_config(settings, trees, myopts, myfiles)
+-
+-	# SEARCH action
+-	elif "search"==myaction:
+-		validate_ebuild_environment(trees)
+-		action_search(trees[settings['EROOT']]['root_config'],
+-			myopts, myfiles, spinner)
+-
+-	elif myaction in ('clean', 'depclean', 'deselect', 'prune', 'unmerge'):
+-		validate_ebuild_environment(trees)
+-		rval = action_uninstall(settings, trees, mtimedb["ldpath"],
+-			myopts, myaction, myfiles, spinner)
+-		if not (myaction == 'deselect' or buildpkgonly or fetchonly or pretend):
+-			post_emerge(myaction, myopts, myfiles, settings['EROOT'],
+-				trees, mtimedb, rval)
+-		return rval
+-
+-	elif myaction == 'info':
+-
+-		# Ensure atoms are valid before calling unmerge().
+-		vardb = trees[settings['EROOT']]['vartree'].dbapi
+-		portdb = trees[settings['EROOT']]['porttree'].dbapi
+-		bindb = trees[settings['EROOT']]["bintree"].dbapi
+-		valid_atoms = []
++		xterm_titles = "notitles" not in settings.features
++		if xterm_titles:
++			xtermTitle("emerge")
++	
++		if "--digest" in myopts:
++			os.environ["FEATURES"] = os.environ.get("FEATURES","") + " digest"
++			# Reload the whole config from scratch so that the portdbapi internal
++			# config is updated with new FEATURES.
++			settings, trees, mtimedb = load_emerge_config(trees=trees)
++			portdb = trees[settings['EROOT']]['porttree'].dbapi
++	
++		# NOTE: adjust_configs() can map options to FEATURES, so any relevant
++		# options adjustments should be made prior to calling adjust_configs().
++		if "--buildpkgonly" in myopts:
++			myopts["--buildpkg"] = True
++	
++		adjust_configs(myopts, trees)
++		apply_priorities(settings)
++	
++		if myaction == 'version':
++			writemsg_stdout(getportageversion(
++				settings["PORTDIR"], None,
++				settings.profile_path, settings["CHOST"],
++				trees[settings['EROOT']]['vartree'].dbapi) + '\n', noiselevel=-1)
++			return 0
++		elif myaction == 'help':
++			_emerge.help.help()
++			return 0
++	
++		spinner = stdout_spinner()
++		if "candy" in settings.features:
++			spinner.update = spinner.update_scroll
++	
++		if "--quiet" not in myopts:
++			portage.deprecated_profile_check(settings=settings)
++			if portage.const._ENABLE_REPO_NAME_WARN:
++				# Bug #248603 - Disable warnings about missing
++				# repo_name entries for stable branch.
++				repo_name_check(trees)
++			repo_name_duplicate_check(trees)
++			config_protect_check(trees)
++		check_procfs()
++	
++		if "getbinpkg" in settings.features:
++			myopts["--getbinpkg"] = True
++	
++		if "--getbinpkgonly" in myopts:
++			myopts["--getbinpkg"] = True
++	
++		if "--getbinpkgonly" in myopts:
++			myopts["--usepkgonly"] = True
++	
++		if "--getbinpkg" in myopts:
++			myopts["--usepkg"] = True
++	
++		if "--usepkgonly" in myopts:
++			myopts["--usepkg"] = True
++	
++		if "--buildpkgonly" in myopts:
++			# --buildpkgonly will not merge anything, so
++			# it cancels all binary package options.
++			for opt in ("--getbinpkg", "--getbinpkgonly",
++				"--usepkg", "--usepkgonly"):
++				myopts.pop(opt, None)
++	
++		for mytrees in trees.values():
++			mydb = mytrees["porttree"].dbapi
++			# Freeze the portdbapi for performance (memoize all xmatch results).
++			mydb.freeze()
++	
++			if myaction in ('search', None) and \
++				"--usepkg" in myopts:
++				# Populate the bintree with current --getbinpkg setting.
++				# This needs to happen before expand_set_arguments(), in case
++				# any sets use the bintree.
++				mytrees["bintree"].populate(
++					getbinpkgs="--getbinpkg" in myopts)
++	
++		del mytrees, mydb
++	
++		if "moo" in myfiles:
++			print(COWSAY_MOO % platform.system())
++			msg = ("The above `emerge moo` display is deprecated. "
++				"Please use `emerge --moo` instead.")
++			for line in textwrap.wrap(msg, 50):
++				print(" %s %s" % (colorize("WARN", "*"), line))
++	
+ 		for x in myfiles:
+-			if is_valid_package_atom(x, allow_repo=True):
+-				try:
+-					#look at the installed files first, if there is no match
+-					#look at the ebuilds, since EAPI 4 allows running pkg_info
+-					#on non-installed packages
+-					valid_atom = dep_expand(x, mydb=vardb, settings=settings)
+-					if valid_atom.cp.split("/")[0] == "null":
+-						valid_atom = dep_expand(x, mydb=portdb, settings=settings)
+-					if valid_atom.cp.split("/")[0] == "null" and "--usepkg" in myopts:
+-						valid_atom = dep_expand(x, mydb=bindb, settings=settings)
+-					valid_atoms.append(valid_atom)
+-				except portage.exception.AmbiguousPackageName as e:
+-					msg = "The short ebuild name \"" + x + \
+-						"\" is ambiguous.  Please specify " + \
+-						"one of the following " + \
+-						"fully-qualified ebuild names instead:"
+-					for line in textwrap.wrap(msg, 70):
+-						writemsg_level("!!! %s\n" % (line,),
+-							level=logging.ERROR, noiselevel=-1)
+-					for i in e.args[0]:
+-						writemsg_level("    %s\n" % colorize("INFORM", i),
+-							level=logging.ERROR, noiselevel=-1)
+-					writemsg_level("\n", level=logging.ERROR, noiselevel=-1)
+-					return 1
+-				continue
+-			msg = []
+-			msg.append("'%s' is not a valid package atom." % (x,))
+-			msg.append("Please check ebuild(5) for full details.")
+-			writemsg_level("".join("!!! %s\n" % line for line in msg),
+-				level=logging.ERROR, noiselevel=-1)
++			ext = os.path.splitext(x)[1]
++			if (ext == ".ebuild" or ext == ".tbz2") and os.path.exists(os.path.abspath(x)):
++				print(colorize("BAD", "\n*** emerging by path is broken and may not always work!!!\n"))
++				break
++	
++		root_config = trees[settings['EROOT']]['root_config']
++		if myaction == "moo":
++			print(COWSAY_MOO % platform.system())
++			return os.EX_OK
++		elif myaction == "list-sets":
++			writemsg_stdout("".join("%s\n" % s for s in sorted(root_config.sets)))
++			return os.EX_OK
++		elif myaction == "check-news":
++			news_counts = count_unread_news(
++				root_config.trees["porttree"].dbapi,
++				root_config.trees["vartree"].dbapi)
++			if any(news_counts.values()):
++				display_news_notifications(news_counts)
++			elif "--quiet" not in myopts:
++				print("", colorize("GOOD", "*"), "No news items were found.")
++			return os.EX_OK
++	
++		ensure_required_sets(trees)
++	
++		# only expand sets for actions taking package arguments
++		oldargs = myfiles[:]
++		if myaction in ("clean", "config", "depclean", "info", "prune", "unmerge", None):
++			myfiles, retval = expand_set_arguments(myfiles, myaction, root_config)
++			if retval != os.EX_OK:
++				return retval
++	
++			# Need to handle empty sets specially, otherwise emerge will react 
++			# with the help message for empty argument lists
++			if oldargs and not myfiles:
++				print("emerge: no targets left after set expansion")
++				return 0
++	
++		if ("--tree" in myopts) and ("--columns" in myopts):
++			print("emerge: can't specify both of \"--tree\" and \"--columns\".")
+ 			return 1
+-
+-		return action_info(settings, trees, myopts, valid_atoms)
+-
+-	# "update", "system", or just process files:
+-	else:
+-		validate_ebuild_environment(trees)
+-
+-		for x in myfiles:
+-			if x.startswith(SETPREFIX) or \
+-				is_valid_package_atom(x, allow_repo=True):
+-				continue
+-			if x[:1] == os.sep:
+-				continue
+-			try:
+-				os.lstat(x)
+-				continue
+-			except OSError:
+-				pass
+-			msg = []
+-			msg.append("'%s' is not a valid package atom." % (x,))
+-			msg.append("Please check ebuild(5) for full details.")
+-			writemsg_level("".join("!!! %s\n" % line for line in msg),
++	
++		if '--emptytree' in myopts and '--noreplace' in myopts:
++			writemsg_level("emerge: can't specify both of " + \
++				"\"--emptytree\" and \"--noreplace\".\n",
+ 				level=logging.ERROR, noiselevel=-1)
+ 			return 1
++	
++		if ("--quiet" in myopts):
++			spinner.update = spinner.update_quiet
++			portage.util.noiselimit = -1
++	
++		if "--fetch-all-uri" in myopts:
++			myopts["--fetchonly"] = True
++	
++		if "--skipfirst" in myopts and "--resume" not in myopts:
++			myopts["--resume"] = True
++	
++		# Allow -p to remove --ask
++		if "--pretend" in myopts:
++			myopts.pop("--ask", None)
++	
++		# forbid --ask when not in a terminal
++		# note: this breaks `emerge --ask | tee logfile`, but that doesn't work anyway.
++		if ("--ask" in myopts) and (not sys.stdin.isatty()):
++			portage.writemsg("!!! \"--ask\" should only be used in a terminal. Exiting.\n",
++				noiselevel=-1)
++			return 1
++	
++		if settings.get("PORTAGE_DEBUG", "") == "1":
++			spinner.update = spinner.update_quiet
++			portage.util.noiselimit = 0
++			if "python-trace" in settings.features:
++				import portage.debug as portage_debug
++				portage_debug.set_trace(True)
++	
++		if not ("--quiet" in myopts):
++			if '--nospinner' in myopts or \
++				settings.get('TERM') == 'dumb' or \
++				not sys.stdout.isatty():
++				spinner.update = spinner.update_basic
++	
++		if "--debug" in myopts:
++			print("myaction", myaction)
++			print("myopts", myopts)
++	
++		if not myaction and not myfiles and "--resume" not in myopts:
++			_emerge.help.help()
++			return 1
++	
++		pretend = "--pretend" in myopts
++		fetchonly = "--fetchonly" in myopts or "--fetch-all-uri" in myopts
++		buildpkgonly = "--buildpkgonly" in myopts
++	
++		# check if root user is the current user for the actions where emerge needs this
++		if portage.secpass < 2:
++			# We've already allowed "--version" and "--help" above.
++			if "--pretend" not in myopts and myaction not in ("search","info"):
++				need_superuser = myaction in ('clean', 'depclean', 'deselect',
++					'prune', 'unmerge') or not \
++					(fetchonly or \
++					(buildpkgonly and secpass >= 1) or \
++					myaction in ("metadata", "regen", "sync"))
++				if portage.secpass < 1 or \
++					need_superuser:
++					if need_superuser:
++						access_desc = "superuser"
++					else:
++						access_desc = "portage group"
++					# Always show portage_group_warning() when only portage group
++					# access is required but the user is not in the portage group.
++					from portage.data import portage_group_warning
++					if "--ask" in myopts:
++						writemsg_stdout("This action requires %s access...\n" % \
++							(access_desc,), noiselevel=-1)
++						if portage.secpass < 1 and not need_superuser:
++							portage_group_warning()
++						if userquery("Would you like to add --pretend to options?",
++							"--ask-enter-invalid" in myopts) == "No":
++							return 128 + signal.SIGINT
++						myopts["--pretend"] = True
++						del myopts["--ask"]
++					else:
++						sys.stderr.write(("emerge: %s access is required\n") \
++							% access_desc)
++						if portage.secpass < 1 and not need_superuser:
++							portage_group_warning()
++						return 1
++	
++		# Disable emergelog for everything except build or unmerge operations.
++		# This helps minimize parallel emerge.log entries that can confuse log
++		# parsers like genlop.
++		disable_emergelog = False
++		for x in ("--pretend", "--fetchonly", "--fetch-all-uri"):
++			if x in myopts:
++				disable_emergelog = True
++				break
++		if disable_emergelog:
++			pass
++		elif myaction in ("search", "info"):
++			disable_emergelog = True
++		elif portage.data.secpass < 1:
++			disable_emergelog = True
++	
++		_emerge.emergelog._disable = disable_emergelog
++	
++		if not disable_emergelog:
++			if 'EMERGE_LOG_DIR' in settings:
++				try:
++					# At least the parent needs to exist for the lock file.
++					portage.util.ensure_dirs(settings['EMERGE_LOG_DIR'])
++				except portage.exception.PortageException as e:
++					writemsg_level("!!! Error creating directory for " + \
++						"EMERGE_LOG_DIR='%s':\n!!! %s\n" % \
++						(settings['EMERGE_LOG_DIR'], e),
++						noiselevel=-1, level=logging.ERROR)
++					portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
++				else:
++					_emerge.emergelog._emerge_log_dir = settings["EMERGE_LOG_DIR"]
++			else:
++				_emerge.emergelog._emerge_log_dir = os.path.join(os.sep,
++					settings["EPREFIX"].lstrip(os.sep), "var", "log")
++				portage.util.ensure_dirs(_emerge.emergelog._emerge_log_dir)
++	
++		if not "--pretend" in myopts:
++			emergelog(xterm_titles, "Started emerge on: "+\
++				_unicode_decode(
++					time.strftime("%b %d, %Y %H:%M:%S", time.localtime()),
++					encoding=_encodings['content'], errors='replace'))
++			myelogstr=""
++			if myopts:
++				opt_list = []
++				for opt, arg in myopts.items():
++					if arg is True:
++						opt_list.append(opt)
++					elif isinstance(arg, list):
++						# arguments like --exclude that use 'append' action
++						for x in arg:
++							opt_list.append("%s=%s" % (opt, x))
++					else:
++						opt_list.append("%s=%s" % (opt, arg))
++				myelogstr=" ".join(opt_list)
++			if myaction:
++				myelogstr += " --" + myaction
++			if myfiles:
++				myelogstr += " " + " ".join(oldargs)
++			emergelog(xterm_titles, " *** emerge " + myelogstr)
++		del oldargs
++	
++		def emergeexitsig(signum, frame):
++			signal.signal(signal.SIGINT, signal.SIG_IGN)
++			signal.signal(signal.SIGTERM, signal.SIG_IGN)
++			portage.util.writemsg("\n\nExiting on signal %(signal)s\n" % {"signal":signum})
++			sys.exit(128 + signum)
++		signal.signal(signal.SIGINT, emergeexitsig)
++		signal.signal(signal.SIGTERM, emergeexitsig)
++	
++		def emergeexit():
++			"""This gets out final log message in before we quit."""
++			if "--pretend" not in myopts:
++				emergelog(xterm_titles, " *** terminating.")
++			if xterm_titles:
++				xtermTitleReset()
++		portage.atexit_register(emergeexit)
++	
++		if myaction in ("config", "metadata", "regen", "sync"):
++			if "--pretend" in myopts:
++				sys.stderr.write(("emerge: The '%s' action does " + \
++					"not support '--pretend'.\n") % myaction)
++				return 1
++	
++		if "sync" == myaction:
++			return action_sync(settings, trees, mtimedb, myopts, myaction)
++		elif "metadata" == myaction:
++			action_metadata(settings, portdb, myopts)
++		elif myaction=="regen":
++			validate_ebuild_environment(trees)
++			return action_regen(settings, portdb, myopts.get("--jobs"),
++				myopts.get("--load-average"))
++		# HELP action
++		elif "config"==myaction:
++			validate_ebuild_environment(trees)
++			action_config(settings, trees, myopts, myfiles)
++	
++		# SEARCH action
++		elif "search"==myaction:
++			validate_ebuild_environment(trees)
++			action_search(trees[settings['EROOT']]['root_config'],
++				myopts, myfiles, spinner)
++	
++		elif myaction in ('clean', 'depclean', 'deselect', 'prune', 'unmerge'):
++			validate_ebuild_environment(trees)
++			rval = action_uninstall(settings, trees, mtimedb["ldpath"],
++				myopts, myaction, myfiles, spinner)
++			if not (myaction == 'deselect' or buildpkgonly or fetchonly or pretend):
++				post_emerge(myaction, myopts, myfiles, settings['EROOT'],
++					trees, mtimedb, rval)
++			return rval
++	
++		elif myaction == 'info':
++	
++			# Ensure atoms are valid before calling unmerge().
++			vardb = trees[settings['EROOT']]['vartree'].dbapi
++			portdb = trees[settings['EROOT']]['porttree'].dbapi
++			bindb = trees[settings['EROOT']]["bintree"].dbapi
++			valid_atoms = []
++			for x in myfiles:
++				if is_valid_package_atom(x, allow_repo=True):
++					try:
++						#look at the installed files first, if there is no match
++						#look at the ebuilds, since EAPI 4 allows running pkg_info
++						#on non-installed packages
++						valid_atom = dep_expand(x, mydb=vardb, settings=settings)
++						if valid_atom.cp.split("/")[0] == "null":
++							valid_atom = dep_expand(x, mydb=portdb, settings=settings)
++						if valid_atom.cp.split("/")[0] == "null" and "--usepkg" in myopts:
++							valid_atom = dep_expand(x, mydb=bindb, settings=settings)
++						valid_atoms.append(valid_atom)
++					except portage.exception.AmbiguousPackageName as e:
++						msg = "The short ebuild name \"" + x + \
++							"\" is ambiguous.  Please specify " + \
++							"one of the following " + \
++							"fully-qualified ebuild names instead:"
++						for line in textwrap.wrap(msg, 70):
++							writemsg_level("!!! %s\n" % (line,),
++								level=logging.ERROR, noiselevel=-1)
++						for i in e.args[0]:
++							writemsg_level("    %s\n" % colorize("INFORM", i),
++								level=logging.ERROR, noiselevel=-1)
++						writemsg_level("\n", level=logging.ERROR, noiselevel=-1)
++						return 1
++					continue
++				msg = []
++				msg.append("'%s' is not a valid package atom." % (x,))
++				msg.append("Please check ebuild(5) for full details.")
++				writemsg_level("".join("!!! %s\n" % line for line in msg),
++					level=logging.ERROR, noiselevel=-1)
++				return 1
++	
++			return action_info(settings, trees, myopts, valid_atoms)
++	
++		# "update", "system", or just process files:
++		else:
++			validate_ebuild_environment(trees)
++	
++			for x in myfiles:
++				if x.startswith(SETPREFIX) or \
++					is_valid_package_atom(x, allow_repo=True):
++					continue
++				if x[:1] == os.sep:
++					continue
++				try:
++					os.lstat(x)
++					continue
++				except OSError:
++					pass
++				msg = []
++				msg.append("'%s' is not a valid package atom." % (x,))
++				msg.append("Please check ebuild(5) for full details.")
++				writemsg_level("".join("!!! %s\n" % line for line in msg),
++					level=logging.ERROR, noiselevel=-1)
++				return 1
++	
++			if "--pretend" not in myopts:
++				display_news_notification(root_config, myopts)
++			retval = action_build(settings, trees, mtimedb,
++				myopts, myaction, myfiles, spinner)
++			post_emerge(myaction, myopts, myfiles, settings['EROOT'],
++				trees, mtimedb, retval)
++	
++			return retval
+ 
+-		if "--pretend" not in myopts:
+-			display_news_notification(root_config, myopts)
+-		retval = action_build(settings, trees, mtimedb,
+-			myopts, myaction, myfiles, spinner)
+-		post_emerge(myaction, myopts, myfiles, settings['EROOT'],
+-			trees, mtimedb, retval)
+-
+-		return retval
++	finally:
++		if acquired_portage_master_lock:
++			release_master_lock(True, settings=settings)
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/__init__.py prefix-portage-2.2.01.20389/pym/portage/__init__.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/__init__.py	2012-04-03 11:17:23.000000000 -0700
++++ prefix-portage-2.2.01.20389/pym/portage/__init__.py	2012-04-06 04:48:51.468006800 -0700
+@@ -130,7 +130,7 @@
+ 		EBUILD_SH_BINARY, SANDBOX_BINARY, BASH_BINARY, \
+ 		MOVE_BINARY, PRELINK_BINARY, WORLD_FILE, MAKE_CONF_FILE, MAKE_DEFAULTS_FILE, \
+ 		DEPRECATED_PROFILE_FILE, USER_VIRTUALS_FILE, EBUILD_SH_ENV_FILE, \
+-		INVALID_ENV_FILE, CUSTOM_MIRRORS_FILE, CONFIG_MEMORY_FILE,\
++		INVALID_ENV_FILE, CUSTOM_MIRRORS_FILE, CONFIG_MEMORY_FILE, CYGDLL_MEMORY_FILE, \
+ 		INCREMENTALS, EAPI, MISC_SH_BINARY, REPO_NAME_LOC, REPO_NAME_FILE, \
+ 		EPREFIX, EPREFIX_LSTRIP, rootuid
+ 
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/const.py prefix-portage-2.2.01.20389/pym/portage/const.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/const.py	2012-02-09 00:02:34.000000000 -0800
++++ prefix-portage-2.2.01.20389/pym/portage/const.py	2012-04-06 04:48:51.474006800 -0700
+@@ -55,6 +55,8 @@
+ WORLD_FILE               = PRIVATE_PATH + "/world"
+ WORLD_SETS_FILE          = PRIVATE_PATH + "/world_sets"
+ CONFIG_MEMORY_FILE       = PRIVATE_PATH + "/config"
++CYGDLL_MEMORY_FILE       = PRIVATE_PATH + "/cygdll"
++PORTAGE_MASTER_LOCKDIR   = PRIVATE_PATH + "/masterlock"
+ NEWS_LIB_PATH            = "var/lib/gentoo"
+ 
+ # these variables get EPREFIX prepended automagically when they are
+@@ -114,6 +116,7 @@
+ INCREMENTALS             = ("USE", "USE_EXPAND", "USE_EXPAND_HIDDEN",
+                            "FEATURES", "ACCEPT_KEYWORDS",
+                            "CONFIG_PROTECT_MASK", "CONFIG_PROTECT",
++                           "CYGDLL_PROTECT",
+                            "PRELINK_PATH", "PRELINK_PATH_MASK",
+                            "PROFILE_ONLY_VARIABLES")
+ EBUILD_PHASES            = ("pretend", "setup", "unpack", "prepare", "configure",
+@@ -203,6 +206,7 @@
+ _ENABLE_PRESERVE_LIBS   = True
+ _ENABLE_REPO_NAME_WARN  = True
+ _ENABLE_SET_CONFIG      = True
++# FIXME: add an _ENABLE_CYGDLL_PROTECT here
+ 
+ 
+ # The definitions above will differ between branches, so it's useful to have
+@@ -213,5 +217,7 @@
+ 	SUPPORTED_FEATURES.remove("preserve-libs")
+ 	SUPPORTED_FEATURES = frozenset(SUPPORTED_FEATURES)
+ 
++# FIXME: a cygdll-protect feature would be nice here like preserve-libs
++
+ if not _ENABLE_SET_CONFIG:
+ 	WORLD_SETS_FILE = '/dev/null'
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/dbapi/bintree.py prefix-portage-2.2.01.20389/pym/portage/dbapi/bintree.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/dbapi/bintree.py	2012-03-31 12:33:29.000000000 -0700
++++ prefix-portage-2.2.01.20389/pym/portage/dbapi/bintree.py	2012-04-06 04:48:51.487506800 -0700
+@@ -299,7 +299,7 @@
+ 			self._pkgindex_header_keys = set([
+ 				"ACCEPT_KEYWORDS", "ACCEPT_LICENSE",
+ 				"ACCEPT_PROPERTIES", "CBUILD",
+-				"CONFIG_PROTECT", "CONFIG_PROTECT_MASK", "FEATURES",
++				"CONFIG_PROTECT", "CONFIG_PROTECT_MASK", "CYGDLL_PROTECT", "FEATURES",
+ 				"GENTOO_MIRRORS", "INSTALL_MASK", "SYNC", "USE", "EPREFIX"])
+ 			self._pkgindex_default_pkg_data = {
+ 				"BUILD_TIME"         : "",
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20389/pym/portage/dbapi/vartree.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/dbapi/vartree.py	2012-04-06 04:47:36.222006800 -0700
++++ prefix-portage-2.2.01.20389/pym/portage/dbapi/vartree.py	2012-04-06 04:48:51.540006800 -0700
+@@ -24,6 +24,7 @@
+ 	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
+ 		'writemsg,writemsg_level,write_atomic,atomic_ofstream,writedict,' + \
+ 		'grabdict,normalize_path,new_protect_filename',
++	'portage.util.cygdll_protection:CygwinDLLProtection,cygdllprotect_filename',
+ 	'portage.util.digraph:digraph',
+ 	'portage.util.env_update:env_update',
+ 	'portage.util.listdir:dircache,listdir',
+@@ -39,7 +40,7 @@
+ 	'tarfile',
+ )
+ 
+-from portage.const import CACHE_PATH, CONFIG_MEMORY_FILE, \
++from portage.const import CACHE_PATH, CONFIG_MEMORY_FILE, CYGDLL_MEMORY_FILE, \
+ 	PORTAGE_PACKAGE_ATOM, PRIVATE_PATH, VDB_PATH, EPREFIX, EPREFIX_LSTRIP, BASH_BINARY
+ from portage.const import _ENABLE_DYN_LINK_MAP, _ENABLE_PRESERVE_LIBS
+ from portage.dbapi import dbapi
+@@ -193,6 +194,17 @@
+ 		self._cached_counter = None
+ 
+ 	@property
++	def _cygdllprotect(self):
++		if not getattr(self, '_cygdllprotect_obj', False):
++			eprefix = EPREFIX
++			if self.settings['EPREFIX']:
++				eprefix = self.settings['EPREFIX']
++			hostname = self.settings['PORTAGE_HOSTNAME']
++			self._cygdllprotect_obj = CygwinDLLProtection(self._eroot, eprefix, hostname,
++				portage.util.shlex_split(self.settings.get("CYGDLL_PROTECT", "")))
++		return self._cygdllprotect_obj
++
++	@property
+ 	def root(self):
+ 		warnings.warn("The root attribute of "
+ 			"portage.dbapi.vartree.vardbapi"
+@@ -1492,6 +1504,9 @@
+ 	def isprotected(self, obj):
+ 		return self._get_protect_obj().isprotected(obj)
+ 
++	def _is_cygdll_protected(self, obj):
++		return self.vartree.dbapi._cygdllprotect.is_cygdll_protected(obj)
++
+ 	def updateprotect(self):
+ 		self._get_protect_obj().updateprotect()
+ 
+@@ -2051,7 +2066,10 @@
+ 					vartree=self.vartree, treetype="vartree", pipe=self._pipe))
+ 
+ 		cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
++		cygdlldict = grabdict(self.vartree.dbapi._cygdllprotect.limbodb_file)
++
+ 		stale_confmem = []
++		stale_cygdllmem = []
+ 		protected_symlinks = {}
+ 
+ 		unmerge_orphans = "unmerge-orphans" in self.settings.features
+@@ -2212,8 +2230,11 @@
+ 					if is_owned:
+ 						show_unmerge("---", unmerge_desc["replaced"], file_type, obj)
+ 						continue
+-					elif relative_path in cfgfiledict:
+-						stale_confmem.append(relative_path)
++					else:
++						if relative_path in cfgfiledict:
++							stale_confmem.append(relative_path)
++						if relative_path in cygdlldict:
++							stale_cygdllmem.append(relative_path)
+ 				# next line includes a tweak to protect modules from being unmerged,
+ 				# but we don't protect modules from being overwritten if they are
+ 				# upgraded. We effectively only want one half of the config protection
+@@ -2380,6 +2401,12 @@
+ 				del cfgfiledict[filename]
+ 			writedict(cfgfiledict, self.vartree.dbapi._conf_mem_file)
+ 
++		# Remove stale entries from cygdll memory.
++		if stale_cygdllmem:
++			for filename in stale_cygdllmem:
++				del cygdlldict[filename]
++			writedict(cygdlldict, self.vartree.dbapi._cygdllprotect.limbodb_file)
++
+ 		#remove self from vartree database so that our own virtual gets zapped if we're the last node
+ 		self.vartree.zap(self.mycpv)
+ 
+@@ -3858,6 +3885,7 @@
+ 		self.vartree.dbapi._fs_lock()
+ 		try:
+ 			cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
++			cygdlldict = grabdict(self.vartree.dbapi._cygdllprotect.limbodb_file)
+ 			if "NOCONFMEM" in self.settings:
+ 				cfgfiledict["IGNORE"]=1
+ 			else:
+@@ -3872,7 +3900,7 @@
+ 					cfgfiledict["IGNORE"] = 1
+ 					break
+ 
+-			rval = self._merge_contents(srcroot, destroot, cfgfiledict)
++			rval = self._merge_contents(srcroot, destroot, cfgfiledict, cygdlldict)
+ 			if rval != os.EX_OK:
+ 				return rval
+ 		finally:
+@@ -4119,7 +4147,7 @@
+ 
+ 		return backup_p
+ 
+-	def _merge_contents(self, srcroot, destroot, cfgfiledict):
++	def _merge_contents(self, srcroot, destroot, cfgfiledict, cygdlldict):
+ 
+ 		cfgfiledict_orig = cfgfiledict.copy()
+ 
+@@ -4146,7 +4174,7 @@
+ 		# we do a first merge; this will recurse through all files in our srcroot but also build up a
+ 		# "second hand" of symlinks to merge later
+ 		if self.mergeme(srcroot, destroot, outfile, secondhand,
+-			self.settings["EPREFIX"].lstrip(os.sep), cfgfiledict, mymtime):
++			self.settings["EPREFIX"].lstrip(os.sep), cfgfiledict, mymtime, cygdlldict):
+ 			return 1
+ 
+ 		# now, it's time for dealing our second hand; we'll loop until we can't merge anymore.	The rest are
+@@ -4158,7 +4186,7 @@
+ 
+ 			thirdhand = []
+ 			if self.mergeme(srcroot, destroot, outfile, thirdhand,
+-				secondhand, cfgfiledict, mymtime):
++				secondhand, cfgfiledict, mymtime, cygdlldict):
+ 				return 1
+ 
+ 			#swap hands
+@@ -4172,7 +4200,7 @@
+ 		if len(secondhand):
+ 			# force merge of remaining symlinks (broken or circular; oh well)
+ 			if self.mergeme(srcroot, destroot, outfile, None,
+-				secondhand, cfgfiledict, mymtime):
++				secondhand, cfgfiledict, mymtime, cygdlldict):
+ 				return 1
+ 
+ 		#restore umask
+@@ -4193,7 +4221,7 @@
+ 
+ 		return os.EX_OK
+ 
+-	def mergeme(self, srcroot, destroot, outfile, secondhand, stufftomerge, cfgfiledict, thismtime):
++	def mergeme(self, srcroot, destroot, outfile, secondhand, stufftomerge, cfgfiledict, thismtime, cygdlldict):
+ 		"""
+ 		
+ 		This function handles actual merging of the package contents to the livefs.
+@@ -4214,6 +4242,8 @@
+ 		@type cfgfiledict: Dictionary
+ 		@param thismtime: The current time (typically long(time.time())
+ 		@type thismtime: Long
++		@param cygdlldict: { File: [ md5 ] } mappings for cygdll_protected files
++		@type cygdlldict: Dictionary
+ 		@rtype: None or Boolean
+ 		@return:
+ 		1. True on failure
+@@ -4231,6 +4261,8 @@
+ 		destroot = normalize_path(destroot).rstrip(sep) + sep
+ 		calc_prelink = "prelink-checksums" in self.settings.features
+ 
++		orig_cygdlldict = cygdlldict.copy()
++
+ 		protect_if_modified = \
+ 			"config-protect-if-modified" in self.settings.features and \
+ 			self._installed_instance is not None
+@@ -4443,7 +4475,7 @@
+ 				outfile.write("dir "+myrealdest+"\n")
+ 				# recurse and merge this directory
+ 				if self.mergeme(srcroot, destroot, outfile, secondhand,
+-					join(offset, x), cfgfiledict, thismtime):
++					join(offset, x), cfgfiledict, thismtime, cygdlldict):
+ 					return 1
+ 			elif stat.S_ISREG(mymode):
+ 				# we are merging a regular file
+@@ -4454,6 +4486,7 @@
+ 				zing = "!!!"
+ 				mymtime = None
+ 				protected = self.isprotected(mydest)
++				cygdllprotected = self._is_cygdll_protected(mydest)
+ 				if mydmode != None:
+ 					# destination file exists
+ 					
+@@ -4486,6 +4519,7 @@
+ 										protected = False
+ 
+ 						if protected:
++							cygdllprotected = False
+ 							# we have a protection path; enable config file management.
+ 							cfgprot = 0
+ 							if mymd5 == destmd5:
+@@ -4514,6 +4548,49 @@
+ 
+ 							if cfgprot:
+ 								mydest = new_protect_filename(mydest, newmd5=mymd5)
++						elif cygdllprotected:
++							# note that we don't have anything like "protect_if_modified"
++							# but we could really use something like calc_prelink (TODO)
++							# to handle rebasing.
++							cygprot = 0
++							destmd5 = perform_md5(mydest, calc_prelink=calc_prelink)
++							if mymd5 == destmd5:
++								# file already in place; simply update mtimes of destination
++								moveme = 1
++							else:
++								if mymd5 == cygdlldict.get(myrealdest, [None])[0]:
++									# An identical update is already in limbo: skip it
++									moveme = 0
++									cygprot = 0
++									mymtime = mystat[stat.ST_MTIME]
++								else:
++									moveme = 1
++									cygprot = 1
++							if moveme:
++								# merging a new cygdll so update confmem.
++								cygdlldict[myrealdest] = [mymd5]
++
++
++							elif destmd5 == cygdlldict.get(myrealdest, [None])[0]:
++								# A previously in-limbo update was merged, so
++								# remove that entry from the cygdll protection db
++								del cygdlldict[myrealdest]
++
++							if cygprot:
++								mydest = cygdllprotect_filename(mydest)
++
++				# once we introduce the "currently loaded dlls" heuristic
++				# CYGDLL_PROTECT offers no easy way (except, perhaps,
++				# "find / -name '_cygdll_protect_*', but that's too slow) to
++				# find the CYGDLL_PROTECT'ed files.  for this reason we ought
++				# not to be as cavalier as we are with conffiledict. let's save
++				# our changes now, *before* anything gets merged to the fs)
++				if cygdlldict != orig_cygdlldict:
++					try:
++						writedict(cygdlldict, self.vartree.dbapi._cygdllprotect.limbodb_file)
++					except InvalidLocation:
++						self.settings._init_dirs()
++						writedict(cygdlldict, self.vartree.dbapi._cygdllprotect.limbodb_file)
+ 
+ 				# whether config protection or not, we merge the new file the
+ 				# same way.  Unless moveme=0 (blocking directory)
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/exception.py prefix-portage-2.2.01.20389/pym/portage/exception.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/exception.py	2011-12-10 03:29:22.000000000 -0800
++++ prefix-portage-2.2.01.20389/pym/portage/exception.py	2012-04-06 04:48:51.543006800 -0700
+@@ -188,3 +188,14 @@
+ class UntrustedSignature(SignatureException):
+ 	"""Signature was not certified to the desired security level"""
+ 
++class InvalidHostname(PortageException):
++	"""Invalid hostname provided"""
++
++class DuplicateMasterLockAcquisition(PortageException):
++	"""Attempt to acquire master lock we already hold"""
++
++class SuperfluousMasterLockRelease(PortageException):
++	"""Attempt to release master lock but not held by us"""
++
++class IllegalMasterLockOperation(PortageException):
++	"""Attempt to use internal MasterLock API incorrectly"""
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/master_lock.py prefix-portage-2.2.01.20389/pym/portage/master_lock.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/master_lock.py	1969-12-31 16:00:00.000000000 -0800
++++ prefix-portage-2.2.01.20389/pym/portage/master_lock.py	2012-04-06 04:48:51.554506800 -0700
+@@ -0,0 +1,788 @@
++# portage: master_lock
++# Copyright 2012 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++
++__all__ = [ "acquire_master_lock", "release_master_lock", "enumerate_portagen" ]
++
++import errno
++import logging
++import platform
++import sys
++import textwrap
++import time
++
++try:
++	import threading
++except ImportError:
++	import dummy_threading as threading
++
++import portage
++from portage import os
++from portage.const import PORTAGE_MASTER_LOCKDIR
++from portage.localization import _
++portage.proxy.lazyimport.lazyimport(globals(),
++	'portage.exception:DirectoryNotFound,DuplicateMasterLockAcquisition,IllegalMasterLockOperation,'
++		'InvalidDataType,InvalidHostname,SuperfluousMasterLockRelease',
++	'portage.locks:lockdir,unlockdir,lockfile,unlockfile',
++	'portage.output:colorize',
++	'portage.package.ebuild.config:validate_portage_hostname',
++	'portage.util:grablines,writemsg_level,write_atomic'
++)
++
++# This used to be a dict descendant, hence the excessive complexity.
++# We could try to simplify it by getting rid of most of the dict-isms
++# but it works fine as is, and if it ain't broke....
++class _MasterLockHostDB(object):
++	"""
++	Internal class for accessing the contents of per-host masterlock
++	database files.
++	"""
++	__slots__ = ['portagen', 'nonportage', 'waiting']
++
++	def __init__(self):
++		self.clear()
++
++	def clear(self):
++		self.portagen = []
++		self.nonportage = None
++		self.waiting = None
++
++	def __len__(self):
++		return 3
++
++	def __contains__(self, item):
++		return item in ['portagen', 'nonportage', 'waiting']
++
++	def __getitem__(self, key):
++		if key == 'portagen':
++			return self.portagen
++		elif key == 'nonportage':
++			return self.nonportage
++		elif key == 'waiting':
++			return self.waiting
++		else:
++			raise KeyError(_("_MasterLockHostDB supports keys: \"portagen\", \"nonportage\" and \"waiting\" only."))
++
++	def __setitem__(self, key, value):
++		if key == 'portagen':
++			self.portagen = value
++		elif key == 'nonportage':
++			self.nonportage = value
++		elif key == 'waiting':
++			self.waiting = value
++		else:
++			raise KeyError(_("Unsupported key \"%s\" set in _MasterLockHostDB.") % key)
++
++	# don't actually del them -- just void them out
++	def __delitem__(self, key):
++		if key == 'portagen':
++			self.portagen = []
++		elif key == 'nonportage':
++			self.nonportage = None
++		elif key == 'waiting':
++			self.waitinig = None
++
++	def __eq__(self, other):
++		return (self.portagen == other.portagen) and (self.nonportage == other.nonportage) and (self.waiting == other.waiting)
++
++	def __ne__(self, other):
++		return not self.__eq__(other)
++
++	def __nonzero__(self):
++		return self.anyportagen() or self.anynonportage()
++
++	# once they start blinking, stop chasing ghosts and resume eating dots....
++	def __repr__(self):
++		return "{'portagen': %r, 'nonportage': %r, 'waiting': %r}" % ( self.portagen, self.nonportage, self.waiting )
++
++	__str__ = __repr__
++
++	def __iter__(self):
++		yield 'portagen'
++		yield 'nonportage'
++		yield 'waiting'
++
++	def values(self):
++		# ironically, this is lazy in both senses of the term
++		return [ x for x in self.__iter__() ]
++
++	def iteritems(self):
++		yield ( 'portagen', self.portagen )
++		yield ( 'nonportage', self.nonportage )
++		yield ( 'waiting', self.waiting )
++
++	def items(self):
++		# ironically, this is lazy in both senses of the term
++		return [ x for x in self.iteritems() ]
++
++	def __del__(self):
++		self.clear()
++
++	def anyportagen(self):
++		return len(self.portagen) > 0
++
++	def anynonportage(self):
++		# technically, if somehow PID 0 were used, testing these directly would be wrong; so:
++		return self.nonportage is not None or self.waiting is not None
++
++	def _pidactive(self, pid):
++		"""Check whether pid exists in the current process table."""
++		if pid < 0:
++			return False
++		try:
++			os.kill(pid, 0)
++		except OSError, e:
++			return e.errno != errno.ESRCH
++		else:
++			return True
++
++	def _validpid(self, pid, mypid, ignore_mypid):
++		"""
++		Convenience function: assumes global _mypid represents the current user
++		And then returns True iff the PID is live in the process table, unless
++		ignore_mypid is true and pid == mypid, in which case, it returns False
++		if pid is None, returns None
++		"""
++		if mypid >= 0 and pid == mypid:
++			return (not ignore_mypid)
++		return self._pidactive(pid)
++
++	def clean_pids(self, mypid=-1, ignore_mypid=True):
++		"""
++		Assume that self is the host db for the local host, and clean out any pids not
++		found in the operating system (on the assumption that they crashed, forgot to
++		release the lock before exiting, had the plug pulled on them, etc).  Note:
++		mypid is treated it as if it were /not/ a live OS PID,
++		if the provided argument is true.  This could cause us to fail to detect a
++		coding error where the same process manages to acquire the logical lock twice
++		without triggering any of the various sanity checks, however, it avoids a worse,
++		and more plausible possibility: that in fact a crash of some kind may have occured
++		and there was a PID collision (i.e.: perhaps due to portage automatically being
++		invoked at boot time on a non-pid-randomizing host).
++		@return: Returns self, the _MasterLockHostDB upon which it is invoked.
++		@rtype: _MasterLockHostDB
++		"""
++		if (mypid == -1) and (not ignore_mypid):
++			raise MissingParameter("Either ignore mypid or provide it as an argument please")
++		self.portagen = [ x for x in self.portagen if self._validpid(x, mypid, ignore_mypid) ]
++		self.nonportage = None if self.nonportage is None \
++			or not self._validpid(self.nonportage, mypid, ignore_mypid) else self.nonportage
++		self.waiting = None if self.waiting is None \
++			or not self._validpid(self.waiting, mypid, ignore_mypid) else self.waiting
++		return self
++
++	# I can't figure out __deepcopy__, or I suppose, I'm just too lazy to do so.
++	# So here's a method to return a deep clone of self which is correct for all
++	# valid _MasterLockHostDB's, (and doesn't require a PhD in python)
++	def deepclone(self):
++		"""
++		Returns a quick-and-dirty deep clone from a given _MasterLockHostDB
++		"""
++		result = _MasterLockHostDB()
++		result.portagen = self.portagen[:]
++		result.nonportage = self.nonportage
++		result.waiting = self.waiting
++		return result
++
++	def saveto(self, myfilename):
++		"""
++		Save contents to text file
++		"""
++		# not all access to load/save is protected by the physlock -- specifically,
++		# enumerate_portagen() provides a "back-door" for unprotected read-only hostdb
++		# access.  Although we use write_atomic here, I wasn't sure whether this would
++		# be really atomic in a race with grablines() -- I'm guessing, not.
++		# Therefore, we protect each load/save operation with a separate lock. -gmt
++		file_lock = lockfile(myfilename, wantnewlockfile=1)
++		try:
++			content = "portagen %s\n" % " ".join([ str(pid) for pid in self.portagen ]) + \
++			           "nonportage %s\n" % self.nonportage + \
++				   "waiting %s\n" % self.waiting
++			write_atomic(myfilename, content)
++		finally:
++			unlockfile(file_lock)
++
++	def loadfrom(self, myfilename):
++		"""
++		Load contents from text file -- analogous to portage.util.grabdict()
++		"""
++		# not all access to load/save is protected by the physlock -- specifically,
++		# enumerate_portagen() provides a "back-door" for unprotected read-only hostdb
++		# access.  Therefore, we protect each load/save operation with a separate lock.
++		try:
++			filelock = lockfile(myfilename, wantnewlockfile=1)
++			for x in grablines(myfilename):
++				if x[0] == "#":
++					continue
++				myline=x.split()
++				mylinetemp = []
++				if len(myline) == 0:
++					continue
++				if myline[0][:1] == "#":
++					continue
++				if len(myline) == 1:
++					if myline[0] == 'portagen':
++						self.portagen = []
++					else:
++						self[myline[0]] = None
++					continue
++				else:
++					mykey=myline[0]
++					if mykey == 'portagen':
++						try:
++							self.portagen = [ int(x) for x in myline[1:] ]
++							continue
++						except ValueError:
++							writemsg_level(colorize("BAD", "!!!") + " " + \
++									_("Cannot load _MasterLockHostDB from corrupt file %s, ignoring.") + \
++									" \n" % myfilename,
++								level=logging.ERROR, noiselevel=-1)
++							self.clear()
++							break
++					else:
++						if len(myline) > 2:
++							writemsg_level(colorize("BAD", "!!!") + " " + \
++									_("Cannot load _MasterLockHostDB from corrupt file %s, ignoring.") + \
++									" \n" % myfilename,
++								level=logging.ERROR, noiselevel=-1)
++							self.clear()
++							break
++					if myline[1] == 'None':
++						mylinetemp = None
++					else:
++						try:
++							mylinetemp = int(myline[1])
++						except ValueError:
++							writemsg_level(colorize("BAD", "!!!") + " " + \
++									_("Cannot load _MasterLockHostDB from corrupt file %s, ignoring.") + \
++									" \n" % myfilename,
++								level=logging.ERROR, noiselevel=-1)
++							self.clear()
++							break
++					self[mykey] = mylinetemp
++		finally:
++			unlockfile(filelock)
++		return self
++
++# note: it is A-OK to destroy these things while holding the logical master lock.  Just create
++# a new one later and call release().  In fact this is the recommended approach.
++#
++# FIXME: The current implementation goes out of its way to ensure that duplicate acquire/release
++# cycles do not occur.  However, the value of this is questionable.  To see why, note that non-direct
++# instances of this class can actually acquire and release to their hearts content -- the operations
++# always succed so long as other lock-holders don't show up to make us either wait for the lock
++# or fail to acquire it.  This has the rather misleading result that the latest acquire or release
++# operation controls the current state of the database.  For direct lock holders, the in-process
++# sanity checks prevent such malfeasance, but there's no compelling reason for this assymetry
++# Clearly, the emperor's new clothes are a few textiles short of a kimono...
++# Two possibilties exist to fix this:
++#
++# (a) since we are already most of the way to an RLock-style reentrant capability,
++#     we could go ahead and finish the job; this could be as simple as saving the
++#     pid to the list multiple times or saving (pid, lockcount) tuples instead of just pids.
++#
++# (b) Fix it to be non-reentrant fully by testing our expectations before acting on them.
++#     This is arguably preferable until somebody comes up with a compelling reason to
++#     support reentrant locking in this framework.
++#
++# either way, the current oh-so-clever reliance on side-effects of pid-filtering's
++# assumption that instances of _my_pid() in the database are in fact pid collisions
++# will need to be replaced.  This shouldn't be a big deal but so far I've been too lazy to
++# get it done.
++class _MasterLockDB(dict):
++	"""
++	Manages the logical master lock synchronization mechanism.  This is
++	a shared mutex-type thingy with two classes of lock-holders: portage and
++	non-portage.
++
++	At any moment any number of portage customers may hold the lock or a single
++	non-portage customer may hold it, but never both.
++
++	When the lock is held by a portage customer, non-portage customers attempting
++	to acquire the lock block forever, until all portage customers release it.
++
++	As soon as a non-portage customer grabs the lock or even starts waiting
++	for it, any further attempts to grab the lock fail without blocking, regardless
++	of customer type.
++
++	Although one may instantiate this class to one's heart's
++	content, there is only one logical mutex that is portage-database-global.
++
++	Atomicity is enforced by means of creative use of lockdir() and a database of
++	lock status data indexed by PORTAGE_HOSTNAME and PID.  It should be fine to
++	share the lock database over nfs with multiple hosts; however, in corner cases
++	where a lock-holder fails to explicitly release the lock before terminating,
++	there is the potential for deadlock if the lock acquirer is on a different
++	machine than the (zombie) lock-holder.  If this occurs, some text will at least
++	be dumped to the console/logs explaining how to rectify the problem.
++
++	This is an internal class; import acquire_master_lock and release_master_lock
++	to access master lock functionality from without the master_lock module.
++	"""
++	__slots__ = ['_loaded_local_MasterLockHostDB', '_settings', '_direct']
++
++	_MASTERLOCK_POLL_LATENCY = 3 # seconds
++	_MASTERLOCK_SILENT_SPIN_COUNT = 2 # * _MASTERLOCK_POLL_LATENCY = six seconds
++
++	_portage_master_lockdir_cache = None
++	_portage_hostname_cache = None
++
++	# lockdir() tuple used to synchronize access to the logical lock database across all hosts
++	# sharing _portage_master_lockdir -- this lockdir does NOT represent the logical lock,
++	# it is only used to avoid race conditions during database reads and writes.
++	_phys_lock_tuple = None
++	_phys_lock_pid = None
++
++	# set to true once we successfully acquire the logical lock.
++	# only useful/safe when we have the phys_lock
++	_acquired_master_lock = False
++
++	# this globally shared threadlock protects against some subtle inter-thread
++	# race conditions that could maybe occur between one or more _MasterLockDB instances
++	# racing each other.  In reality this is not a particularly important concern, but
++	# it shouldn't hurt (or, if it does hurt, it will have uncovered some kind of thinko
++	# worth fixing anyhow)
++	_master_lock_threadlock = threading.Lock()
++
++	# this is only used for the fork detection heuristic
++	_master_lock_threadlock_locked = False
++
++	def __init__(self, direct=True, settings=None):
++		if settings is None:
++			# FIXME: are we supposed to be calling _get_legacy_global here?
++			self._settings = portage.settings
++		else:
++			self._settings = settings
++
++		self._direct = direct
++
++		if not os.path.exists(self._portage_master_lockdir()):
++			# we don't take responsibility for creating it (config does)
++			# but if it doesn't exist, we can't possibly do our job, so...
++			raise DirectoryNotFound(self._portage_master_lockdir())
++
++		# when we load the DB, we store a copy of the original state of the _MasterLockHostDB
++		# of the local host at load time.  This way, when we save, all we have to do is compare
++		# the two to decide if we have anything to do.  Note that at load time, we always create
++		# an implicit empty _MasterLockHostDB for the local host, even if none is present on the
++		# filesystem -- so if, for whatever reason, we chose not to add any items to this empty
++		# db, and saved our changes, this would qualify as not having changed, and no new file
++		# would be created.  It would be harmless to do so, but pointlessly crufty.
++		# This is also used as a sanity check -- currently there is no reason to do multiple
++		# load or save operations within a given lock cycle so if we detect that we can spew
++		# warnings (this we do by checking if it is None).
++		self._loaded_local_MasterLockHostDB = None
++
++		dict.__init__(self)
++
++	def clear(self):
++		self._loaded_local_MasterLockHostDB = None
++		dict.clear(self)
++
++	def __del__(self):
++		self.clear()
++
++	def _get_pid(self):
++		if self._direct:
++			return os.getpid()
++		else:
++			return os.getppid()
++
++	def _portage_hostname(self):
++		"""
++		Returns the PORTAGE_HOSTNAME portage configuration value for the active EROOT,
++		converted to lower case so as to avoid random stupid misbehaviors that might
++		otherwise crop up as a result.
++		"""
++		if _MasterLockDB._portage_hostname_cache is None:
++			_MasterLockDB._portage_hostname_cache = self._settings['PORTAGE_HOSTNAME'].lower()
++			if not validate_portage_hostname(_MasterLockDB._portage_hostname_cache):
++				_MasterLockDB._portage_hostname_cache = None
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("Cannot create _MasterLockDB object due to illegal hostname") + \
++						" \"%s\"\n" % _MasterLockDB._portage_hostname_cache,
++					level=logging.ERROR, noiselevel=-1)
++				raise InvalidHostname("_MasterLockDB._portage_hostname(\"%s\")" % _MasterLockDB._portage_hostname_cache)
++		return _MasterLockDB._portage_hostname_cache
++
++	def _portage_master_lockdir(self):
++		if _MasterLockDB._portage_master_lockdir_cache is None:
++			_MasterLockDB._portage_master_lockdir_cache = \
++				os.path.join(self._settings['EROOT'], PORTAGE_MASTER_LOCKDIR)
++		return _MasterLockDB._portage_master_lockdir_cache
++
++
++	def _master_lock_threadlock_acquire(self):
++		if _MasterLockDB._master_lock_threadlock_locked and _MasterLockDB._phys_lock_pid != os.getpid():
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++					_("Detected reaquisition of master lock after fork") + "\n",
++ 				level=logging.WARN, noiselevel=-1)
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++					_("Activating heuristic to reset master-lock in forkee") + "\n",
++ 				level=logging.WARN, noiselevel=-1)
++			_MasterLockDB._acquired_master_lock = False
++			_MasterLockDB._phys_lock_pid = None
++			_MasterLockDB._phys_lock_tuple = None
++			_MasterLockDB._master_lock_threadlock_locked = False
++			_MasterLockDB._master_lock_threadlock = threading.Lock()
++		_MasterLockDB._master_lock_threadlock.acquire()
++		_MasterLockDB._master_lock_threadlock_locked = True
++		_MasterLockDB._phys_lock_pid = os.getpid()
++
++	def _master_lock_threadlock_release(self):
++		_MasterLockDB._phys_lock_pid = None
++		_MasterLockDB._master_lock_threadlock_locked = False
++		_MasterLockDB._master_lock_threadlock.release()
++
++	# Note that although nonportage processes busy-wait, they release the lock.  So always blocking
++	# during physical lock acquisition -- it shouldn't take long -- is correct, even though we busy wait
++	# for the logical lock.  The threadlock, a third locking construct, mirrors the behavior
++	# of the physlock and is used to protect against races during setup/teardown of the
++	# resources associated with the physlock
++	def _phys_lock_acquire(self):
++		self._master_lock_threadlock_acquire()
++
++		if not _MasterLockDB._phys_lock_tuple is None:
++			# this is just a sanity check -- it should be impossible for this
++			# to happen because anyone that grabbed the physlock would have first
++			# acquired the threadlock -- therefore, we would have blocked above until
++			# that other thread released it during _phys_lock_release
++			raise IllegalMasterLockOperation('_phys_lock_acquire: duplicate acquisition')
++
++		_MasterLockDB._phys_lock_tuple = lockdir(self._portage_master_lockdir())
++
++	def _phys_lock_release(self):
++		if _MasterLockDB._phys_lock_tuple is None:
++			raise IllegalMasterLockOperation('_phys_lock_release: superfluous release')
++
++		unlockdir(_MasterLockDB._phys_lock_tuple)
++		_MasterLockDB._phys_lock_tuple = None
++
++		self._master_lock_threadlock_release()
++
++	def _holding_lock(self):
++		"""
++		Test whether we already hold the lock.  This is only used internally, as a way to guard
++		against duplicate lock acquisition/release, not as an informational API; it is also
++		only used by "direct" locking applications such as emerge.
++
++		This does not use the database, but the class variable _acquired_master_lock.
++		What we are testing is whether anyone sharing our same global address space has
++		acquired the lock.  However, as a safeguard against forkees of processes holding the
++		lock getting bogus results, we also check that we still have the same pid as
++		the process that acquired the lock, and "forget" about our lock ownership if there
++		is a mismatch.
++		"""
++		# heuristic to guard against misinformed attempts to use this as an informational
++		# API.
++		if not _MasterLockDB._master_lock_threadlock_locked:
++			raise IllegalMasterLockOperation('_holding_lock query without required threadlock')
++
++		if os.getpid() != _MasterLockDB._phys_lock_pid:
++			# assume fork() is the culprit
++			_MasterLockDB._acquired_master_lock = False
++			_MasterLockDB._phys_lock_tuple = None
++			_MasterLockDB._phys_lock_pid = None
++			return False
++
++		return _MasterLockDB._acquired_master_lock
++
++	def _anyportagen(self):
++		"""
++		Returns true iff one or more of the loaded _MasterLockHostDBs reflects
++		that a portage process is holding the lock.  A second return argument
++		will contain a list of (hostname, pid-list) tuples representing the full
++		compliment of current portage lock-holders
++		"""
++		holders = [ (hostname, hostdb.portagen[:]) \
++				for (hostname, hostdb) in self.iteritems() \
++				if hostdb.anyportagen() ]
++		return ( len(holders) > 0, holders )
++
++	def _anynonportage(self):
++		"""
++		Returns true iff one or more of the loaded _MasterLockHostDBs reflects
++		that a non-portage process either holds or is waiting for the lock.  A second return
++		argument will contain the (hostname, pid) of the non-portage process.  A third will
++		be true iff the nonportage process in question holds the master lock (if the
++		first argument is true and the third is false, then they are waiting for the lock)
++		If no nonportage processes are contending for or holding the lock, returns
++		(False, (None, None), None)
++		"""
++		for (hostname, hostdb) in self.iteritems():
++			if hostdb.nonportage is not None:
++				return (True, (hostname, hostdb.nonportage), True)
++			elif hostdb.waiting is not None:
++				return (True, (hostname, hostdb.waiting), False)
++		return (False, (None, None), None)
++
++	def _load_db_from_fs(self):
++		"""
++		Assumes the physlock is acquired and loads the db from the fs.  Note that we go ahead and clean
++		stale PIDS as we load.  We could make it a separate step but for now there is no benefit.
++		Notably, this also treats as "stale" any pid (on the local host) equal to mypid.  The
++		acquire/release code relies on side effects of this quite heavily so be mindful of that if
++		you are a developer considering changing that behavior.
++		"""
++		if self._loaded_local_MasterLockHostDB is not None:
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++					_("_MasterLockDB: Multiple contiguous _load_db_from_fs operations") + "\n",
++ 				level=logging.WARN, noiselevel=-1)
++		self.clear()
++		for f in os.listdir(self._portage_master_lockdir()):
++			# we ignore non-lowercase names because this framework should never create them -- obviously,
++			# something is wrong, or they came from without, so messing with them is asking for trouble.
++			# It is possible that somewhere somebody needs to run portage on a filesystem that automagically
++			# capitalizes filenames; for such a system, the islower() below would need to be removed.
++			if validate_portage_hostname(f, False) and f.islower():
++				hdb = _MasterLockHostDB()
++				hdb.loadfrom(os.path.join(self._portage_master_lockdir(), f))
++				self[f] = hdb
++				if f == self._portage_hostname():
++					# we save this before cleaning pids to avoid incorrectly deciding that we
++					# didn't change the database, and therefore failing to save.
++					self._loaded_local_MasterLockHostDB = hdb.deepclone()
++					# we only clean pids on our own box. This weakens our prohibitions against
++					# duplicate lock acquisition but the class variable _master_lock_acquired
++					# guards against it, which should be enough).
++					hdb.clean_pids(self._get_pid())
++
++		if self._loaded_local_MasterLockHostDB is None:
++			# then so far, a MasterLockHostDB for the local host has not been created.
++			# we go ahead and create one now -- it will not be saved unless we actually
++			# decide to put something in there.
++			self._loaded_local_MasterLockHostDB = _MasterLockHostDB()
++			# a deep clone of an empty _MasterLockHostDB is... another empty _MasterLockHostDB!
++			self[self._portage_hostname()] = _MasterLockHostDB()
++
++	def _save_db_to_fs(self):
++		"""
++		Assumes the physlock is acquired and saves the in-memory db to the FS.  Afterward, we clear
++		out the in-memory representation to avoid any confusion about how things are "supposed" to
++		work (specifically, saving this should always be part of the three stage teardown: save ->
++		unlock fs physlock -> release threadlock (even if logically we just grabbed the master lock!)
++		Therefore, to get meaningful data back in self, our caller would need to re-acquire the
++		thread and physlocks, and then reload.
++		"""
++		if self._loaded_local_MasterLockHostDB is None:
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++					_("_MasterLockDB: _save_db_from_fs seemingly without prior load") + "\n",
++ 				level=logging.WARN, noiselevel=-1)
++
++		# to see why this is correct consider that we held the physlock throughout the critical section,
++		# which we are still in.  During that time only we had permission to change anything, and the
++		# only _MasterLockHostDB that it makes sense for us to be mucking around with is our own.
++		myhostdb = self[self._portage_hostname()]
++		if myhostdb != self._loaded_local_MasterLockHostDB:
++			myhostdbpath = os.path.join(self._portage_master_lockdir(), self._portage_hostname())
++			if not myhostdb and os.path.exists(myhostdbpath):
++				os.unlink(myhostdbpath)
++			else:
++				myhostdb.saveto(myhostdbpath)
++
++		self.clear()
++
++	def acquire(self, asportage):
++		relinquished_phys_lock = False
++		self._phys_lock_acquire()
++		try:
++			if self._holding_lock():
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("attempt to acquire master while already held") + "\n",
++		 			level=logging.ERROR, noiselevel=-1)
++				raise DuplicateMasterLockAcquisition('duplicate _MasterLockDB.acquire')
++			self._load_db_from_fs()
++			# if any non portage is holding/waiting, we always immediately fail
++			result, (hostname, pid), holding = self._anynonportage()
++			if result:
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("unable to acquire master lock: a non-portage process %s is %s") % \
++						( _("with pid %s") % pid if hostname == self._portage_hostname() else \
++											_("(pid %s on host %s)") % (pid, hostname),
++						  _("holding the master lock") if holding else _("waiting on the master lock") ) + ".\n",
++		 			level=logging.ERROR, noiselevel=-1)
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("To resolve this problem, simply wait for the process to complete or terminate it.") + "\n",
++		 			level=logging.ERROR, noiselevel=-1)
++				if hostname != self._portage_hostname():
++					writemsg_level(colorize("BAD", "!!!") + " " + \
++							_("Or, if you are sure that the process is no longer running, remove the file %s") % \
++							( os.path.join(self._portage_master_lockdir(), hostname) ) + "\n",
++			 			level=logging.ERROR, noiselevel=-1)
++				return 1
++			if asportage:
++				# our pid will never be in the list because it would have been filtered out at loadtime
++				# however, if that default ever changes, we should check if our pid is already in the list first!
++				self[self._portage_hostname()].portagen.append(self._get_pid())
++				self._save_db_to_fs()
++				_MasterLockDB._acquired_master_lock = True
++				return os.EX_OK
++
++			# if we made it here, we are the only non portage lock contender.  We either
++			# take the lock now or wait for all the portagen to finish.
++			spincount = 0
++			result, lockholders = self._anyportagen()
++			while result:
++				if spincount == _MasterLockDB._MASTERLOCK_SILENT_SPIN_COUNT:
++					# obviously, this warning message is not thorough enough (just kidding)
++					msg = _( "Waiting for portage master lock.  This program can not "
++						 "continue until the following processes terminate:" )
++					writemsg_level("\n" + "".join(colorize("BAD", "!!!") + \
++							" %s\n" % s for s in textwrap.wrap(msg, 70)),
++						level=logging.WARN, noiselevel=-1)
++
++					writemsg_level(colorize("BAD", "!!!") + "\n", level=logging.WARN, noiselevel=-1)
++
++					msg = ""
++					for (hostname, pidlist) in lockholders:
++						pidstrlist = [ "pid %s" % pid for pid in pidlist ]
++						if len(pidstrlist) > 1:
++							# fancy footwork eh?
++							pidstrlist[-2:]=[ (" " + _("and") + " ").join(pidstrlist[-2:]) ]
++						# not sure how to localize a comma so if you speak space-robot or something, tough shit
++						line = colorize("BAD", "!!!") + "      " + ", ".join(pidstrlist)
++						# if there is only one host involved, and that host is us
++						# (which in practice is almost always going to be the case),
++						# then it seems less confusing to not even acknowledge the
++						# possibility that some other host might be involved
++						if hostname != self._portage_hostname() or len(lockholders) > 1:
++							line = line + " " + _("on") + " "
++						if hostname == self._portage_hostname():
++							if len(lockholders) > 1:
++								line = line + _("the local host")
++							line = line + "\n"
++							# seems nice for local pids to always come first
++							msg = line + msg
++						else:
++							line = line + hostname + ".\n"
++							msg = msg + line
++
++					if len(msg) > 0:
++						writemsg_level(msg, level=logging.WARN, noiselevel=-1)
++
++					writemsg_level(colorize("BAD", "!!!") + "\n", level=logging.WARN, noiselevel=-1)
++
++					msg = _( "If you think you have received this message in error (this is possible "
++						 "if one of the above processes is in fact a zombie, or "
++						 "a remote host crashed while running portage, or some other kind "
++						 "of corruption has crept into the master lock database). "
++						 "You should terminate this program (i.e., press Ctrl-C), "
++						 "terminate all of the above-listed portage processes, "
++						 "and (only!) then correct the master-lock database files in %s (i.e., by "
++						 "removing files which only contain pids which no longer exist). "
++						 "Then try running this program again." ) % self._portage_master_lockdir()
++					writemsg_level("".join(colorize("BAD", "!!!") + \
++							" %s\n" % s for s in textwrap.wrap(msg, 70)) + "\n",
++						level=logging.WARN, noiselevel=-1)
++
++				self[self._portage_hostname()].waiting = self._get_pid()
++				self._save_db_to_fs()
++				relinquished_phys_lock = True;
++				self._phys_lock_release()
++
++				time.sleep(_MasterLockDB._MASTERLOCK_POLL_LATENCY)
++
++				relinquished_phys_lock = False;
++				self._phys_lock_acquire()
++				self._load_db_from_fs()
++				result, lockholders = self._anyportagen()
++				spincount = spincount + 1
++
++			self[self._portage_hostname()].nonportage = self._get_pid()
++			self._save_db_to_fs()
++			_MasterLockDB._acquired_master_lock = True
++			return os.EX_OK
++
++		finally:
++			if not relinquished_phys_lock:
++				self._phys_lock_release()
++
++	def release(self, asportage):
++		self._phys_lock_acquire()
++		try:
++			# we cannot rely on this test when direct is false -- it tests that the releasing process
++			# is the same as the acquiring process, which is exactly the opposite of what direct means!
++			if self._direct and not self._holding_lock():
++				writemsg_level(colorize("BAD", "!!!") + " " + \
++						_("Attempt detected to release master lock not held by us") + "\n",
++		 			level=logging.ERROR, noiselevel=-1)
++				raise SuperfluousMasterLockRelease('superfluous _MasterLockDB.release')
++			# this is kinda tricky.  Since we filter out selfpid while loading,
++			# our job is already done.
++			self._load_db_from_fs()
++			self._save_db_to_fs()
++			_MasterLockDB._acquired_master_lock = False
++		finally:
++			self._phys_lock_release()
++
++def acquire_master_lock(asportage=False, direct=None, settings=None):
++	"""
++	Acquire the master lock.
++
++        @param asportage: Whether to acquire the master lock as a portage
++	process or a non-portage process.
++	
++	This parameter significantly alters the dynamics of lock acquisition.
++	asportage acquisitions either fail or succeed immediately (there may
++	be some short delay; failure will result in a return value other than
++	os.EX_OK), whereas, the first non-asportage process that attempts
++	master lock acquisition will block until all portage lock-holders
++	relinquish their locks, and then will always succeed.  Once any single
++	non-portage acquirer begins waiting for the lock, subsequent attempts
++	to acquire the lock always fail immediately, by both classes of acquirers.
++	The same is true for non-portage lock holders (that are not waiting but
++	have actually acquired the lock).
++
++	This argument is optional and defaults to False.
++	@type asportage: Boolean
++
++	@param direct: This controls how to get the pid of the lock acquirer
++	which will go into the database.  It also controls whether certain
++	sanity checks -- namely those enforcing a rule that the lock
++	acquirer be the same process as the lock releaser -- are performed.
++	If False, the pid of the lock acquirer is the pid of the parent
++	process of the current process.  If True, the pid of the lock acquirer
++	is considered to be the pid of the current process.  The reason for this
++	difference is to accomodate non-portage processes which are not
++	python-based, but simply invoke python to acquire the lock as a subprocess.
++	This parameter is optional; when not provided the default will be
++	equal to the value (which may itself be a default value) of the asportage
++	parameter.
++	@type direct: Boolean
++
++	@param settings: When provided, this object will be used to determine
++	various defaults for portage, notably including the PORTAGE_HOSTNAME
++	When omitted, the portage.settings global variable will be used instead.
++	@type portage.package.ebuild.config
++
++        @rtype: int
++        @return: returns os.EX_OK when successful, otherwise, a nonzero
++	value suitable for the caller to return as a failure exit code.
++	"""
++	if direct is None:
++		direct = asportage
++	return _MasterLockDB(direct, settings).acquire(asportage)
++
++def release_master_lock(asportage=False, direct=None, settings=None):
++	"""
++	Releases the previously acquired master lock; see acquire_master_lock
++	for a detailed description of the arguments.  This function always succeeds
++	unless an exception of some kind is raised.
++	"""
++	if direct is None:
++		direct = asportage
++	_MasterLockDB(direct, settings).release(asportage)
++
++def enumerate_portagen(filename):
++	"""
++	Enumerate the PIDs of all portage processes holding the master_lock according
++	to the given master-lock host database file.  Can be called without acquiring the
++	lock.  With or without the master lock, as soon as these results are returned, they
++	become stale and not strictly reliable.  The results can only be treated as heuristic
++	in nature.
++	@param filename: The full filepath of the per-host portage master-lock database file
++	from which to enumerate PIDs.
++	@return: The requested list of PIDs.
++	@rtype: List
++	"""
++	return _MasterLockHostDB().loadfrom(filename).clean_pids(ignore_mypid=True).portagen
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/package/ebuild/_config/special_env_vars.py prefix-portage-2.2.01.20389/pym/portage/package/ebuild/_config/special_env_vars.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/package/ebuild/_config/special_env_vars.py	2012-04-06 04:47:36.558506800 -0700
++++ prefix-portage-2.2.01.20389/pym/portage/package/ebuild/_config/special_env_vars.py	2012-04-06 04:48:51.557006800 -0700
+@@ -150,7 +150,7 @@
+ # portage config variables and variables set directly by portage
+ environ_filter += [
+ 	"ACCEPT_CHOSTS", "ACCEPT_KEYWORDS", "ACCEPT_PROPERTIES", "AUTOCLEAN",
+-	"CLEAN_DELAY", "COLLISION_IGNORE", "CONFIG_PROTECT",
++	"CLEAN_DELAY", "COLLISION_IGNORE", "CONFIG_PROTECT", "CYGDLL_PROTECT",
+ 	"CONFIG_PROTECT_MASK", "EGENCACHE_DEFAULT_OPTS", "EMERGE_DEFAULT_OPTS",
+ 	"EMERGE_LOG_DIR",
+ 	"EMERGE_WARNING_DELAY",
+@@ -167,6 +167,7 @@
+ 	"PORTAGE_FETCH_CHECKSUM_TRY_MIRRORS", "PORTAGE_FETCH_RESUME_MIN_SIZE",
+ 	"PORTAGE_GPG_DIR",
+ 	"PORTAGE_GPG_KEY", "PORTAGE_GPG_SIGNING_COMMAND",
++	"PORTAGE_HOSTNAME",
+ 	"PORTAGE_IONICE_COMMAND",
+ 	"PORTAGE_PACKAGE_EMPTY_ABORT",
+ 	"PORTAGE_REPO_DUPLICATE_WARN",
+@@ -187,6 +188,7 @@
+ # settings.
+ global_only_vars = frozenset([
+ 	"CONFIG_PROTECT",
++	"PORTAGE_HOSTNAME",
+ ])
+ 
+ default_globals = {
+@@ -199,4 +201,4 @@
+ 
+ # To enhance usability, make some vars case insensitive
+ # by forcing them to lower case.
+-case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR',)
++case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR', 'PORTAGE_HOSTNAME')
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/package/ebuild/config.py prefix-portage-2.2.01.20389/pym/portage/package/ebuild/config.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/package/ebuild/config.py	2012-04-03 11:12:06.000000000 -0700
++++ prefix-portage-2.2.01.20389/pym/portage/package/ebuild/config.py	2012-04-06 04:48:51.588506800 -0700
+@@ -2,7 +2,7 @@
+ # Distributed under the terms of the GNU General Public License v2
+ 
+ __all__ = [
+-	'autouse', 'best_from_dict', 'check_config_instance', 'config',
++	'autouse', 'best_from_dict', 'check_config_instance', 'config', 'validate_portage_hostname'
+ ]
+ 
+ import copy
+@@ -14,6 +14,8 @@
+ import re
+ import sys
+ import warnings
++import textwrap
++from socket import getfqdn
+ 
+ from _emerge.Package import Package
+ import portage
+@@ -24,7 +26,7 @@
+ 	load_mod, os, selinux, _unicode_decode
+ from portage.const import CACHE_PATH, \
+ 	DEPCACHE_PATH, INCREMENTALS, MAKE_CONF_FILE, \
+-	MODULES_FILE_PATH, \
++	MODULES_FILE_PATH, PORTAGE_MASTER_LOCKDIR, \
+ 	PRIVATE_PATH, PROFILE_PATH, USER_CONFIG_PATH, \
+ 	USER_VIRTUALS_FILE
+ from portage.dbapi import dbapi
+@@ -93,6 +95,59 @@
+ 	regex = regex.replace("\\.\\*", ".*")
+ 	return regex
+ 
++# more-or-less ripped off from:
++# http://stackoverflow.com/questions/2532053/validate-hostname-string-in-python
++_hostname_regex = re.compile('(?!-)[a-zA-Z0-9-]{1,63}(?<!-)$')
++
++# enforces most of the DNS hostname rules, except the one about pure-numeric
++# names.  The fundamental purpose for this is somewhat non-obvious: our ultimate
++# objective is to ensure that there can be no conflicts between
++# settings['PORTAGE_HOSTNAME'] and the cruft-filtering that goes on in
++# portage.config.MasterLockDB during database loading.  Specifically, this
++# means the most important rules are that they be valid, nonempty file-names
++# that don't start with a '.'
++#
++# Beyond that, it is not currently important that it be a truly valid DNS host
++# name (however, if this ever went upstream, it could obviously serve other purposes
++# than just servicing the master_lock module, so... what-have-you)
++def validate_portage_hostname(hostname, warn=True):
++	"""
++	Dump some warning text if the provided hostname is not valid.
++	Validity, in this context, means, nonempty and starts with an
++	alphanumeric character; however some additional DNS conventions,
++	such as not ending in '-', are also enforced.  Specifically, does
++	not reject pure-numeric strings.  Returns True/False for,
++	respectively, Valid/Invalid.
++	"""
++
++	# (fixme?): is unicode ever not defined here? does it matter?
++	if type(hostname) not in [str, unicode]:
++		raise InvalidDataType(_("validate_portage_hostanme: hostname: \"%s\" is not a string type") % \
++		type(hostname).__name__)
++
++	valid = True
++
++	# strip exactly one dot from the right, if present
++	if hostname[-1:] == ".":
++		hostname = hostname[:-1]
++
++	if len(hostname) == 0 or len(hostname) > 255:
++		valid = False
++	elif not all(_hostname_regex.match(x) for x in hostname.split(".")):
++		valid = False
++
++	if warn and not valid:
++		msg = _( ("PORTAGE_HOSTNAME=\"%s\" is not valid."
++		      " Automatic detection may be used instead."
++		      " If you quickly get an error about the master lock,"
++		      " this may be the underlying problem.") ) % hostname
++		writemsg_level("\n" + "".join(colorize("BAD", "!!!") + \
++				" %s\n" % s for s in textwrap.wrap(msg, 70)) + "\n",
++ 			level=logging.WARN, noiselevel=-1)
++
++	return valid
++
++
+ class _iuse_implicit_match_cache(object):
+ 
+ 	def __init__(self, settings):
+@@ -397,6 +452,15 @@
+ 						pass
+ 				del k, v
+ 
++			# env_blacklist is too strong (semantically speaking)
++			# for PORTAGE_HOSTNAME... perhaps there ought to be a
++			# distinction between env_blacklist and, i.e., 'envvar_blacklist'?
++			# or, perhaps I'm missing some feature that handles stuff that
++			# we don't want coming from env but do from make.conf or even env.d
++			# -gmt, confusedly, 3.19.12
++			if "PORTAGE_HOSTNAME" in self.backupenv:
++				del self.backupenv["PORTAGE_HOSTNAME"]
++
+ 			self.configdict["env"] = LazyItemsDict(self.backupenv)
+ 
+ 			self.configlist.append(make_globals)
+@@ -726,6 +790,11 @@
+ 					self["USERLAND"] = "GNU"
+ 				self.backup_changes("USERLAND")
+ 
++			if "PORTAGE_HOSTNAME" not in self or self["PORTAGE_HOSTNAME"] == "" or \
++				not validate_portage_hostname(self["PORTAGE_HOSTNAME"]):
++				self["PORTAGE_HOSTNAME"] = getfqdn()
++				self.backup_changes("PORTAGE_HOSTNAME")
++
+ 			default_inst_ids = {
+ 				"PORTAGE_INST_GID": "0",
+ 				"PORTAGE_INST_UID": "0",
+@@ -853,6 +922,8 @@
+ 			"tmp"             : (         -1, 0o1777,  0,  True),
+ 			"var/tmp"         : (         -1, 0o1777,  0,  True),
+ 			PRIVATE_PATH      : (portage_gid, 0o2750, 0o2, False),
++			PORTAGE_MASTER_LOCKDIR \
++			                  : (portage_gid, 0o2750, 0o2, False),
+ 			CACHE_PATH        : (portage_gid,  0o755, 0o2, False)
+ 		}
+ 
+@@ -961,6 +1032,8 @@
+ 				writemsg(_("!!! See https://bugs.pypy.org/issue833 for details.\n"),
+ 					noiselevel=-1)
+ 
++		validate_portage_hostname(self['PORTAGE_HOSTNAME'])
++
+ 	def load_best_module(self,property_string):
+ 		best_mod = best_from_dict(property_string,self.modules,self.module_priority)
+ 		mod = None
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/util/cygdll_protection.py prefix-portage-2.2.01.20389/pym/portage/util/cygdll_protection.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/util/cygdll_protection.py	1969-12-31 16:00:00.000000000 -0800
++++ prefix-portage-2.2.01.20389/pym/portage/util/cygdll_protection.py	2012-04-06 04:48:51.600006800 -0700
+@@ -0,0 +1,274 @@
++# Copyright 2012 Gentoo Foundation
++# Distributed under the terms of the GNU General Public License v2
++
++import errno
++import logging
++import stat
++from subprocess import Popen, PIPE
++import sys
++import portage
++from portage import os, normalize_path
++from portage.const import CYGDLL_MEMORY_FILE, PORTAGE_MASTER_LOCKDIR
++from portage.localization import _
++from portage import _unicode_decode
++from portage import _encodings
++portage.proxy.lazyimport.lazyimport(globals(),
++	'portage.exception:IncorrectParameter',
++	'portage.util:grabdict,writedict',
++	'portage.master_lock:enumerate_portagen')
++
++if sys.hexversion >= 0x3000000:
++	basestring = str
++
++__all__ = [ 'CygwinDLLProtection', 'cygdllprotect_filename', 'find_updated_cygdll_files' ]
++
++class CygwinDLLProtection(object):
++	"""
++	This class manages the Cygwin DLL protection feature
++	"""
++	__slots__ = [ '_cygdll_memory_file_path', '_master_lock_file_path', '_eprefix',
++		      '_cygdllprotect_list', '_cygdllprotect_cruft_accumulator', '_pldd_path' ]
++
++	def __init__(self, eroot, eprefix, hostname, cygdll_protect):
++		"""
++		Constructor for CygwinDLLProtection object
++		@param eroot: A portage EROOT where we store our database
++		@type eroot: String
++		@param eprefix: EPREFIX value;is prepended to CyginDllProtection
++		database entries (the CygwinDLLProtection API prefers to think in
++		terms of un-prefixed file paths such as '/bin/bash'.  Should begin
++		with a slash; a trailing slash is optional.
++		@type eprefix: String
++		@param cygdll_protect: A list of cygwin dll protection specifiers
++		as are to be found in the CYGDLL_PROTECT portage variable (no prefixes).
++		@type cygdll_protect: List
++		"""
++		self._pldd_path = None
++		if not (isinstance(eprefix, basestring) and isinstance(eprefix, basestring)):
++			raise IncorrectParameter(_("Parameter is not a string"))
++		if len(eprefix) == 0:
++			raise IncorrectParameter(_("eprefix parameter cannot be empty"))
++		if len(eroot) == 0:
++			raise IncorrectParameter(_("eroot paramater cannot be empty"))
++		if not eroot[0] == os.sep:
++			raise IncorrectParameter(_("eroot must start with '%s'") % os.sep)
++		if not eprefix[0] == os.sep:
++			raise IncorrectParameter(_("eprefix must start with '%s'") % os.sep)
++		eprefix = eprefix.rstrip(os.sep)
++		eroot = eroot.rstrip(os.sep)
++		self._cygdll_memory_file_path = os.path.join(eroot, CYGDLL_MEMORY_FILE)
++		# We have to convert the hostname to lowercase to be consistient with how 
++		# _MasterLockDB works -- here, we bypass _MasterLockDB, so we have to "cheat".
++		# FIXME: perhaps it would be more elegant to do this is config?
++		self._master_lock_file_path = os.path.join(eroot, PORTAGE_MASTER_LOCKDIR,
++			hostname.lower()) 
++		self._eprefix = eprefix
++
++		# The idea here is to build up a nice, big, ugly list of files:
++		# in addition to stuff mentioned explicitly in cygdll_protect, we
++		# also throw in all the .exe and .dll files loaded by portage, plus
++		# anything in the limbodb.  Additional heuristic detection mechanisms
++		# may be added in the future.  This is performed by
++		# _run_cygdllprotect_cruft_accumulator_heuristics().  The cruft accumulator
++		# only gets bigger, never smaller (hence the name, but it's a bit
++		# tongue-in-cheek.  "Cruft" only "accumulates" on a per-object-instance and
++		# per-process basis, and only for "pretty good" reasons.  Therefore,
++		# according-to-Hoyle cruftiness is actually fairly limited here, but it is a
++		# bit of a performance issue due to the heuristics.
++		self._cygdllprotect_cruft_accumulator = set([
++			_unicode_decode(x, encoding=_encodings['fs'], errors='strict') \
++			for x in cygdll_protect \
++		])
++
++		# The _cygdllprotect_list is a cache of cruft accumulator files which exist
++		# in the filesystem; it is used by is_cygdll_protected to make its decisions.
++		self._update_cygdllprotect_list()
++
++	def _accumulate_cygdllprotect_cruft(self, filename):
++		if not isinstance(filename, basestring):
++			raise IncorrectParameter(_("Parameter is not a string"))
++		if len(filename) == 0:
++			return
++		if filename[0] != os.path.sep:
++			# note, if we ever start accepting partial pathnames,
++			# we will probably want to keep them in a different
++			# place than _cygdllprotect_cruft_accumulator, because
++			# this would defeat the purpose (code brevity/performance)
++			# of making it a set.
++			raise IncorrectParameter(_("Parameter should start with %s" % os.path.sep))
++		filename = _unicode_decode(filename, encoding=_encodings['fs'], errors='strict')
++		self._cygdllprotect_cruft_accumulator = \
++			self._cygdllprotect_cruft_accumulator.union([filename])
++
++	@property
++	def _pldd_program_path(self):
++		if self._pldd_path is not None:
++			return self._pldd_path
++		if os.path.exists(self._eprefix + '/usr/bin/pldd.exe'):
++			self._pldd_path = self._eprefix + '/usr/bin/pldd.exe'
++		elif os.path.exists('/bin/pldd.exe'):
++			self._pldd_path = '/bin/pldd.exe'
++		elif os.path.exists('/usr/bin/pldd.exe'):
++			self._pldd_path = '/usr/bin/pldd.exe'
++		else:
++			self._pldd_path = ''
++		return self._pldd_path
++
++	def _run_cygdllprotect_cruft_accumulator_heuristics(self):
++		"""
++		Runs expensive heuristics to accumulate cygdllprotect cruft.
++		Notably, this includes a testing all running portage instances
++		listed in the local hosts' master lock database for loaded
++		libraries.  Note that calling this function by itself will not
++		actually affect is_cygdll_protected -- to acheive this, call
++		_update_cygdllprotect_list() instead, which will also call
++		_run_cygdllprotect_cruft_accumulator_heuristics.
++		"""
++		for (filename, f_md5) in self.limbodb_list():
++			self._accumulate_cygdllprotect_cruft(filename)
++
++		if self._pldd_program_path == '':
++			writemsg_level("\n" + colorize("BAD", "!!!") + " " + \
++				_("Error: unable to find pldd executable.") + "\n",
++				level=logging.WARN, noiselevel=-1)
++			writemsg_level(colorize("BAD", "!!!") + " " + \
++				_("Cygwin DLL protection heuristics will be disabled.") + "\n\n",
++				level=logging.WARN, noiselevel=-1)
++		else:
++			for pid in enumerate_portagen(self._master_lock_file_path):
++				args = [self._pldd_program_path, "%d" % pid]
++				try:
++					proc = Popen(args, stdout=PIPE)
++				except EnvironmentError as e:
++					if e.errno != errno.ENOENT:
++						raise
++					raise CommandNotFound(args[0])
++				else:
++					# skip first line
++					first_line = True
++					for l in proc.stdout:
++						try:
++							if first_line:
++								first_line = False
++								continue
++							l = _unicode_decode(l,
++								encoding=_encodings['content'], errors='strict')
++						except UnicodeDecodeError:
++							l = _unicode_decode(l,
++								encoding=_encodings['content'], errors='replace')
++							writemsg_level(_("\nError decoding characters " \
++								"returned from pldd: %s\n\n") % (l,),
++								level=logging.ERROR, noiselevel=-1)
++						l = l.rstrip("\n")
++						if not l:
++							continue
++						if l.startswith(self._eprefix):
++							self._accumulate_cygdllprotect_cruft(
++								os.sep + os.path.relpath(l, self._eprefix))
++
++	def _update_cygdllprotect_list(self):
++		self._run_cygdllprotect_cruft_accumulator_heuristics()
++		new_list = []
++		for x in self._cygdllprotect_cruft_accumulator:
++			ppath = normalize_path(
++				os.path.join(self._eprefix, x.lstrip(os.path.sep)))
++			try:
++				if stat.S_ISREG(os.stat(ppath).st_mode):
++					new_list.append(
++						_unicode_decode(ppath, encoding=_encodings['fs'],
++							errors='strict'))
++			except OSError:
++				# if it doesn't exist (or it exists but is not a regular file),
++				# there's no need to protect it.
++				pass
++		# since, for the moment, at least, a simple string-membership test is used by
++		# is_cygdll_protected, using frozenset (vs., i.e., a list) will optimize lookups.
++		self._cygdllprotect_list = frozenset(new_list)
++
++	def is_cygdll_protected(self, filename):
++		"""Returns True if obj is cygdll_protected, False otherwise.  The caller must
++		ensure that obj is normalized with a single leading slash."""
++		return (_unicode_decode(filename, encoding=_encodings['fs'], errors='strict') \
++			in self._cygdllprotect_list)
++
++	def limbodb_list(self):
++		"""
++		Creates a list of (filename, md5) tuples corresponding to the current
++		contents of the cygdll protection database.  Although the filenames in the
++		physical database begin with EPREFIX, this API returns them without it,
++		starting with a file path separator (in other words, a '/').
++		@returns: A list of (filename, md5) tuples
++		@rtype: List
++		"""
++		filesdict = grabdict(self._cygdll_memory_file_path)
++		result = [ ( os.sep + os.path.relpath(filename, self._eprefix), f_md5[0]) \
++				for (filename, f_md5) in filesdict.iteritems() ]
++		return result
++
++	def limbodb_drop(self, file_list):
++		"""
++		Accepts a list of un-prefixed file names beginning with '/' and removes any
++		matching entries from the cygwin dll protection in-limbo files database.
++		are remove
++		@param: file_list
++		@type: List
++		"""
++		oldfilesdict = self.limbodb_list()
++		newfilesdict = dict([ (filename, filemd5) \
++			for (filename, filemd5) in oldfilesdict \
++			if filename not in file_list ])
++		if newfilesdict != oldfilesdict:
++			prefixed_dict = dict([ (os.path.join(self._eprefix, os.path.relpath(filename, os.sep)), [f_md5]) \
++						for (filename, f_md5) in newfilesdict.iteritems() ])
++			writedict(prefixed_dict, self._cygdll_memory_file_path)
++			return os.EX_OK
++		else:
++			return 1
++
++	def __nonzero__(self):
++		return True
++
++	@property
++	def limbodb_file(self):
++		return self._cygdll_memory_file_path
++
++def cygdllprotect_filename(mydest, force=False):
++	"""
++	Resolves a cygdll-protect filename for merging.  If force is provided
++	(and true), generates a cygwin dll protection filename even if mydest
++	does not exist; otherwise, returns the original filename.  unlike config
++	protection, cygdll protection has no need to support multiple layers of
++	pending changes, so no numbers are used.  Currently the protection
++	filename format simply prepends "_cygdll_protect_" to the original.
++	"""
++
++	old_pfile = False
++
++	if not force and not os.path.exists(mydest):
++		return mydest
++
++	real_filename = os.path.basename(mydest)
++	real_dirname  = os.path.dirname(mydest)
++	return normalize_path(os.path.join(real_dirname, "_cygdll_protect_" + real_filename))
++
++def find_updated_cygdll_files(target_root, cygdll_protect):
++	"""
++	Given a root (prefix), and a list of unprefixed paths (such as are to be found in
++	CYGDLL_PROTECT), looks for dlls with pending cygdll_protected updates not yet merged
++	into the filesystem.  It will check everything in cygdll_protect manually and also
++	everything in the eprefix + '/var/lib/portage/cygdll' database.  Returns a regular
++	list (unlike, confusingly, find_updated_config_files) of fully-qualified paths.
++	FIXME: effectively assumes EPREFIX==EROOT (because I aped the same bug in
++	find_updated_config_files -- fix that too!)
++	"""
++	candidates = [ os.path.join(target_root, os.path.relpath(x, os.sep)) \
++		       for x in cygdll_protect ]
++
++	cygdll_mem_file = os.path.join(target_root, CYGDLL_MEMORY_FILE);
++	cygdll_dict = grabdict(cygdll_mem_file)
++	candidates.extend(cygdll_dict.keys())
++
++	return [x for (x,p) in [(x,cygdllprotect_filename(x, True)) \
++				for x in candidates] \
++		if os.path.exists(p)]
++
+diff -urN prefix-portage-2.2.01.20389.orig/pym/portage/util/env_update.py prefix-portage-2.2.01.20389/pym/portage/util/env_update.py
+--- prefix-portage-2.2.01.20389.orig/pym/portage/util/env_update.py	2012-01-10 09:47:58.000000000 -0800
++++ prefix-portage-2.2.01.20389/pym/portage/util/env_update.py	2012-04-06 04:48:51.604006800 -0700
+@@ -104,7 +104,7 @@
+ 	fns = templist
+ 	del templist
+ 
+-	space_separated = set(["CONFIG_PROTECT", "CONFIG_PROTECT_MASK"])
++	space_separated = set(["CONFIG_PROTECT", "CONFIG_PROTECT_MASK", "CYGDLL_PROTECT"])
+ 	colon_separated = set(["ADA_INCLUDE_PATH", "ADA_OBJECTS_PATH",
+ 		"CLASSPATH", "INFODIR", "INFOPATH", "KDEDIRS", "LDPATH", "MANPATH",
+ 		  "PATH", "PKG_CONFIG_PATH", "PRELINK_PATH", "PRELINK_PATH_MASK",

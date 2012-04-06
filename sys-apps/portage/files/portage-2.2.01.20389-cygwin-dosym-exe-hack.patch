@@ -1,0 +1,36 @@
+diff -urN prefix-portage-2.2.01.20389.orig/bin/ebuild-helpers/dosym prefix-portage-2.2.01.20389/bin/ebuild-helpers/dosym
+--- prefix-portage-2.2.01.20389.orig/bin/ebuild-helpers/dosym	2012-03-31 12:33:28.000000000 -0700
++++ prefix-portage-2.2.01.20389/bin/ebuild-helpers/dosym	2012-04-06 04:45:37.889506800 -0700
+@@ -23,7 +23,31 @@
+ # when absolute, prefix with offset for Gentoo Prefix
+ target="${1}"
+ [[ ${target:0:1} == "/" ]] && target="${EPREFIX}${target}"
+-ln -snf "${target}" "${ED}${2}"
++# on cygwin: test if ${target} is aka ${target.exe}.
++# if so, go ahead and see if we can't create the link
++# as foo.exe -> bar.exe instead of foo -> bar.
++#
++# The insane conditional below says: if we're on cywin, creating a link both
++# to and from files ("foo" and "bar", respectively) that don't include ".exe"
++# at the end, and if bar and bar.exe both exist and have he same inode, and
++# are both executables, and if either (a) neither foo nor foo.exe exist or (b)
++# foo and foo.exe both exist and have the same inode, then we (i) remove any
++# existing foo and (ii) make a foo.exe -> bar.exe symlink; otherwise, just
++# create the normal symlink.  Or something like that :)
++if [[ ${CHOST} == *-cygwin* && ${target} != *.exe && "${ED}"${2} != *.exe && \
++      ( (-e "${target}" && -e "${target}.exe" ) || \
++        (-h "${target}" && -h "${target}.exe" ) ) && \
++      -x "${target}" && -x "${target}.exe" && \
++      $( ls -i "${target}" ).exe == $( ls -i "${target}.exe" ) && \
++      ( ( ( ! -e "${ED}${2}" ) && ( ! -e "${ED}${2}.exe" ) ) || \
++        ( ( -e "${ED}${2}" && -e "${ED}${2}.exe" ) || \
++         ( -h "${ED}${2}" && -h "${ED}${2}.exe" ) ) && \
++       $( ls -i "${ED}${2}" ).exe == $( ls -i "${ED}${2}.exe" ) ) ]] ; then
++       [[ -e "${ED}{2}" || -h "${ED}${2}" ]] && rm -f "${ED}${2}"
++       ln -snf "${target}.exe" "${ED}${2}.exe"
++else
++	ln -snf "${target}" "${ED}${2}"
++fi
+ 
+ ret=$?
+ [[ $ret -ne 0 ]] && helpers_die "${0##*/} failed"
