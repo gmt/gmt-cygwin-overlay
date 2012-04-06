@@ -230,6 +230,10 @@ compare_regular_file() {
 	local file="${1}"
 	# ignore Manifest files
 	echo "$file" | egrep "^[^-/]*-[^-/]*\/[^/]*\/Manifest$" > /dev/null && return 0
+	# ignore vim .swp files.
+	[[ $file == *.swp ]] && return 0
+	# ignore cygwin coredumpish thingys
+	[[ $file == *.exe.stackdump ]] && return 0
 	# if the files have the exact same contents then we just do nothing
 	raw_files_equal "${_overlay}/${file}" "${_portage}/${file}" && return 0
 	# the files differ.
