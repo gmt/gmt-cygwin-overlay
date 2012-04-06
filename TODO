@@ -32,3 +32,15 @@ o Some thought will eventually need to be put into just how big the cygdll
   much more frequently than the configdb and potentially could get large if
   someone is running big emerges (but wouldn't this cause breakage anyhow
   due to bad BDEPs?)... something to keep an eye on anyhow.
+
+o Somehow we want to get rid of ultra-prefixify, it is a horrible abomination.
+  One approach would be to build our own cygwin DLL and launcher utility
+  (to ensure that no other cygwin DLL gets pulled in).  Armed with
+  a cygwin1.dll ebuild (+ whatever else is in cygwin base package),
+  we could put in some prefixification patches to avoid i.e. /bin/sh and
+  redirect to EPREFIX.
+
+o libtool patches for fork/subshell avoidance
+
+o fix libtool-2.4.2.ebuild to be merely horrible instead of satanically,
+  rediculously, unspeakably gross.
