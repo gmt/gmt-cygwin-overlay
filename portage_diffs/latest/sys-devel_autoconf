@@ -109,7 +109,7 @@
 <--8<--
 --("sys-devel/autoconf/autoconf-2.68.ebuild")-->8-->
 --- usr/portage/sys-devel/autoconf/autoconf-2.68.ebuild	2010-11-10 12:01:46.000000000 -0800
-+++ overlay/sys-devel/autoconf/autoconf-2.68.ebuild	2012-04-04 06:43:19.811002700 -0700
++++ overlay/sys-devel/autoconf/autoconf-2.68.ebuild	2012-04-04 06:57:41.170002700 -0700
 @@ -1,10 +1,10 @@
  # Copyright 1999-2010 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2

@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/automake" =====
 --("sys-devel/automake/automake-1.10.3.ebuild")-->8-->
 --- usr/portage/sys-devel/automake/automake-1.10.3.ebuild	2010-06-21 10:01:41.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.10.3.ebuild	2012-04-04 06:24:25.362502700 -0700
++++ overlay/sys-devel/automake/automake-1.10.3.ebuild	2012-04-04 06:57:41.174502700 -0700
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  # $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.10.3.ebuild,v 1.7 2010/03/13 19:31:12 armin76 Exp $
@@ -38,7 +38,7 @@
 <--8<--
 --("sys-devel/automake/automake-1.11.1.ebuild")-->8-->
 --- usr/portage/sys-devel/automake/automake-1.11.1.ebuild	2011-05-02 02:01:25.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.11.1.ebuild	2012-04-04 06:27:55.970502700 -0700
++++ overlay/sys-devel/automake/automake-1.11.1.ebuild	2012-04-04 06:57:41.175502700 -0700
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  # $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.11.1.ebuild,v 1.8 2010/05/31 19:20:31 josejx Exp $

@@ -1,0 +1,103 @@
+diff -urN libtool-2.4.2.orig/libltdl/config/install-sh libtool-2.4.2/libltdl/config/install-sh
+--- libtool-2.4.2.orig/libltdl/config/install-sh	2011-10-17 02:49:28.000000000 -0700
++++ libtool-2.4.2/libltdl/config/install-sh	2012-04-04 21:19:59.748496300 -0700
+@@ -68,6 +68,16 @@
+ rmprog=${RMPROG-rm}
+ stripprog=${STRIPPROG-strip}
+ 
++chgrpprog=` echo "${chgrpprog}" | tr -s '/' `
++chmodprog=` echo "${chmodprog}" | tr -s '/' `
++chownprog=` echo "${chownprog}" | tr -s '/' `
++cmpprog=` echo "${cmpprog}" | tr -s '/' `
++cpprog=` echo "${cpprog}" | tr -s '/' `
++mkdirprog=` echo "${mkdirprog}" | tr -s '/' `
++mvprog=` echo "${mvprog}" | tr -s '/' `
++rmprog=` echo "${rmprog}" | tr -s '/' `
++stripprog=` echo ${stripprog} | tr -s '/' `
++
+ posix_glob='?'
+ initialize_posix_glob='
+   test "$posix_glob" != "?" || {
+@@ -160,6 +170,7 @@
+ 	case $dst_arg in
+ 	  -* | [=\(\)!]) dst_arg=./$dst_arg;;
+ 	esac
++	dst_arg=` echo "${dst_arg}" | tr -s '/' `
+ 	shift;;
+ 
+     -T) no_target_directory=true;;
+@@ -245,9 +256,11 @@
+     -* | [=\(\)!]) src=./$src;;
+   esac
+ 
++  src=` echo "$src" | tr -s '/' `
++
+   if test -n "$dir_arg"; then
+     dst=$src
+-    dstdir=$dst
++    dstdir=` echo "$dst" | tr -s '/' `
+     test -d "$dstdir"
+     dstdir_status=$?
+   else
+@@ -266,6 +279,8 @@
+     fi
+     dst=$dst_arg
+ 
++    dst=` echo "$dst" | tr -s '/' `
++
+     # If destination is a directory, append the input filename; won't work
+     # if double slashes aren't ignored.
+     if test -d "$dst"; then
+@@ -275,6 +290,7 @@
+       fi
+       dstdir=$dst
+       dst=$dstdir/`basename "$src"`
++      dst=` echo "$dst" | tr -s '/' `
+       dstdir_status=0
+     else
+       # Prefer dirname, but fall back on a substitute if dirname fails.
+@@ -303,6 +319,7 @@
+ 		 }
+ 		 s/.*/./; q'
+       `
++      dstdir=` echo "$dstdir" | tr -s '/' `
+ 
+       test -d "$dstdir"
+       dstdir_status=$?
+@@ -346,6 +363,7 @@
+ 	    ;;
+ 	  *)
+ 	    tmpdir=${TMPDIR-/tmp}/ins$RANDOM-$$
++	    tmpdir=` echo "$tmpdir" | tr -s '/' `
+ 	    trap 'ret=$?; rmdir "$tmpdir/d" "$tmpdir" 2>/dev/null; exit $ret' 0
+ 
+ 	    if (umask $mkdir_umask &&
+@@ -412,7 +430,7 @@
+       do
+ 	test X"$d" = X && continue
+ 
+-	prefix=$prefix$d
++	prefix=` echo "${prefix}${d}" | tr -s '/' `
+ 	if test -d "$prefix"; then
+ 	  prefixes=
+ 	else
+@@ -429,7 +447,7 @@
+ 	    prefixes="$prefixes '$qprefix'"
+ 	  fi
+ 	fi
+-	prefix=$prefix/
++	prefix=` echo "${prefix}/" | tr -s '/' `
+       done
+ 
+       if test -n "$prefixes"; then
+@@ -450,8 +468,8 @@
+   else
+ 
+     # Make a couple of temp file names in the proper directory.
+-    dsttmp=$dstdir/_inst.$$_
+-    rmtmp=$dstdir/_rm.$$_
++    dsttmp=` echo "${dstdir}/_inst.$$_" | tr -s '/' `
++    rmtmp=` echo "${dstdir}/_rm.$$_" | tr -s '/' `
+ 
+     # Trap to clean up those temp files at exit.
+     trap 'ret=$?; rm -f "$dsttmp" "$rmtmp" && exit $ret' 0

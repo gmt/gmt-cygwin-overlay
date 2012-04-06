@@ -1,0 +1,2538 @@
+diff -urN libtool-2.4.2.orig/INSTALL libtool-2.4.2/INSTALL
+--- libtool-2.4.2.orig/INSTALL	2011-10-17 02:49:28.000000000 -0700
++++ libtool-2.4.2/INSTALL	2012-04-05 18:33:40.312006800 -0700
+@@ -142,7 +142,8 @@
+ ==================
+ 
+    By default, `make install' installs the package's commands under
+-`/usr/local/bin', include files under `/usr/local/include', etc.  You
++`@GENTOO_PORTAGE_EPREFIX@/usr/local/bin', include files under
++`@GENTOO_PORTAGE_EPREFIX@/usr/local/include', etc.  You
+ can specify an installation prefix other than `/usr/local' by giving
+ `configure' the option `--prefix=PREFIX', where PREFIX must be an
+ absolute file name.
+@@ -244,8 +245,8 @@
+ 
+    On Solaris, don't put `/usr/ucb' early in your `PATH'.  This
+ directory contains several dysfunctional programs; working variants of
+-these programs are available in `/usr/bin'.  So, if you need `/usr/ucb'
+-in your `PATH', put it _after_ `/usr/bin'.
++these programs are available in `@GENTOO_PORTAGE_EPREFIX@/usr/bin'.  So, if you need `/usr/ucb'
++in your `PATH', put it _after_ `@GENTOO_PORTAGE_EPREFIX@/usr/bin'.
+ 
+    On Haiku, software installed for all users goes in `/boot/common',
+ not `/usr/local'.  It is recommended to use the following options:
+@@ -311,7 +312,9 @@
+ Unfortunately, this technique does not work for `CONFIG_SHELL' due to
+ an Autoconf bug.  Until the bug is fixed you can use this workaround:
+ 
+-     CONFIG_SHELL=/bin/bash /bin/bash ./configure CONFIG_SHELL=/bin/bash
++     CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/bash \
++     	@GENTOO_PORTAGE_EPREFIX@/bin/bash \
++	./configure CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/bash
+ 
+ `configure' Invocation
+ ======================
+diff -urN libtool-2.4.2.orig/doc/libtool.texi libtool-2.4.2/doc/libtool.texi
+--- libtool-2.4.2.orig/doc/libtool.texi	2011-10-17 03:17:05.000000000 -0700
++++ libtool-2.4.2/doc/libtool.texi	2012-04-05 18:33:40.336506800 -0700
+@@ -1766,7 +1766,7 @@
+ @dfn{Uninstall} mode deletes installed libraries, executables and objects.
+ 
+ The first @var{mode-arg} is the name of the program to use to delete
+-files (typically @command{/bin/rm}).
++files (typically @command{@GENTOO_PORTAGE_EPREFIX@/bin/rm}).
+ 
+ The remaining @var{mode-args} are either flags for the deletion program
+ (beginning with a @samp{-}), or the names of files to delete.
+@@ -1780,7 +1780,7 @@
+ and libtool's temporary files associated with them.
+ 
+ The first @var{mode-arg} is the name of the program to use to delete
+-files (typically @command{/bin/rm}).
++files (typically @command{@GENTOO_PORTAGE_EPREFIX@/bin/rm}).
+ 
+ The remaining @var{mode-args} are either flags for the deletion program
+ (beginning with a @samp{-}), or the names of files to delete.
+diff -urN libtool-2.4.2.orig/doc/notes.texi libtool-2.4.2/doc/notes.texi
+--- libtool-2.4.2.orig/doc/notes.texi	2011-10-17 03:17:05.000000000 -0700
++++ libtool-2.4.2/doc/notes.texi	2012-04-05 18:33:40.339006800 -0700
+@@ -17,7 +17,7 @@
+ On AIX, the @command{/bin/sh} is very slow due to its inefficient handling
+ of here-documents.  A modern shell is preferable:
+ @example
+-CONFIG_SHELL=/bin/bash; export $CONFIG_SHELL
++CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/bash; export $CONFIG_SHELL
+ $CONFIG_SHELL ./configure [...]
+ @end example
+ 
+diff -urN libtool-2.4.2.orig/libltdl/config/config.guess libtool-2.4.2/libltdl/config/config.guess
+--- libtool-2.4.2.orig/libltdl/config/config.guess	2011-10-17 02:49:28.000000000 -0700
++++ libtool-2.4.2/libltdl/config/config.guess	2012-04-05 18:34:37.157006800 -0700
+@@ -870,7 +870,7 @@
+ 	  EV67)  UNAME_MACHINE=alphaev67 ;;
+ 	  EV68*) UNAME_MACHINE=alphaev68 ;;
+ 	esac
+-	objdump --private-headers /bin/sh | grep -q ld.so.1
++	objdump --private-headers @GENTOO_PORTAGE_EPREFIX@/bin/sh | grep -q ld.so.1
+ 	if test "$?" = 0 ; then LIBC="libc1" ; else LIBC="" ; fi
+ 	echo ${UNAME_MACHINE}-unknown-linux-gnu${LIBC}
+ 	exit ;;
+@@ -1046,14 +1046,14 @@
+ 	if test -f /usr/options/cb.name; then
+ 		UNAME_REL=`sed -n 's/.*Version //p' </usr/options/cb.name`
+ 		echo ${UNAME_MACHINE}-pc-isc$UNAME_REL
+-	elif /bin/uname -X 2>/dev/null >/dev/null ; then
+-		UNAME_REL=`(/bin/uname -X|grep Release|sed -e 's/.*= //')`
+-		(/bin/uname -X|grep i80486 >/dev/null) && UNAME_MACHINE=i486
+-		(/bin/uname -X|grep '^Machine.*Pentium' >/dev/null) \
++	elif @GENTOO_PORTAGE_EPREFIX@/bin/uname -X 2>/dev/null >/dev/null ; then
++		UNAME_REL=`(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep Release|sed -e 's/.*= //')`
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep i80486 >/dev/null) && UNAME_MACHINE=i486
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pentium' >/dev/null) \
+ 			&& UNAME_MACHINE=i586
+-		(/bin/uname -X|grep '^Machine.*Pent *II' >/dev/null) \
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pent *II' >/dev/null) \
+ 			&& UNAME_MACHINE=i686
+-		(/bin/uname -X|grep '^Machine.*Pentium Pro' >/dev/null) \
++		(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X|grep '^Machine.*Pentium Pro' >/dev/null) \
+ 			&& UNAME_MACHINE=i686
+ 		echo ${UNAME_MACHINE}-pc-sco$UNAME_REL
+ 	else
+@@ -1493,8 +1493,8 @@
+ uname -s = `(uname -s) 2>/dev/null || echo unknown`
+ uname -v = `(uname -v) 2>/dev/null || echo unknown`
+ 
+-/usr/bin/uname -p = `(/usr/bin/uname -p) 2>/dev/null`
+-/bin/uname -X     = `(/bin/uname -X) 2>/dev/null`
++@GENTOO_PORTAGE_EPREFIX@/usr/bin/uname -p = `(@GENTOO_PORTAGE_EPREFIX@/usr/bin/uname -p) 2>/dev/null`
++@GENTOO_PORTAGE_EPREFIX@/bin/uname -X     = `(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X) 2>/dev/null`
+ 
+ hostinfo               = `(hostinfo) 2>/dev/null`
+ /bin/universe          = `(/bin/universe) 2>/dev/null`
+diff -urN libtool-2.4.2.orig/libltdl/config/general.m4sh libtool-2.4.2/libltdl/config/general.m4sh
+--- libtool-2.4.2.orig/libltdl/config/general.m4sh	2011-10-17 03:17:05.000000000 -0700
++++ libtool-2.4.2/libltdl/config/general.m4sh	2012-04-05 18:33:40.365506800 -0700
+@@ -54,7 +54,7 @@
+ : ${MV="mv -f"}
+ : ${RM="rm -f"}
+ : ${SED="@SED@"}
+-: ${SHELL="${CONFIG_SHELL-/bin/sh}"}
++: ${SHELL="${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}"}
+ : ${Xsed="$SED -e 1s/^X//"}
+ 
+ # Global variables:
+diff -urN libtool-2.4.2.orig/libltdl/config/ltmain.m4sh libtool-2.4.2/libltdl/config/ltmain.m4sh
+--- libtool-2.4.2.orig/libltdl/config/ltmain.m4sh	2012-04-05 18:12:19.520506800 -0700
++++ libtool-2.4.2/libltdl/config/ltmain.m4sh	2012-04-05 18:33:40.380006800 -0700
+@@ -1524,7 +1524,7 @@
+ Remove files from the build directory.
+ 
+ RM is the name of the program to use to delete files associated with each FILE
+-(typically \`/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
++(typically \`@GENTOO_PORTAGE_EPREFIX@/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
+ to RM.
+ 
+ If FILE is a libtool library, object or program, all the files associated
+@@ -1678,7 +1678,7 @@
+ Remove libraries from an installation directory.
+ 
+ RM is the name of the program to use to delete files associated with each FILE
+-(typically \`/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
++(typically \`@GENTOO_PORTAGE_EPREFIX@/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
+ to RM.
+ 
+ If FILE is a libtool library, all the files associated with it are deleted.
+@@ -1984,7 +1984,7 @@
+     $opt_debug
+     # There may be an optional sh(1) argument at the beginning of
+     # install_prog (especially on Windows NT).
+-    if test "$nonopt" = "$SHELL" || test "$nonopt" = /bin/sh ||
++    if test "$nonopt" = "$SHELL" || test "$nonopt" = @GENTOO_PORTAGE_EPREFIX@/bin/sh ||
+        # Allow the use of GNU shtool's install command.
+        case $nonopt in *shtool*) :;; *) false;; esac; then
+       # Aesthetically quote it.
+@@ -2383,7 +2383,7 @@
+ 	  fi
+ 	fi
+ 
+-	# remove .exe since cygwin /usr/bin/install will append another
++	# remove .exe since cygwin @GENTOO_PORTAGE_EPREFIX@/usr/bin/install will append another
+ 	# one anyway
+ 	case $install_prog,$host in
+ 	*/usr/bin/install*,*cygwin*)
+diff -urN libtool-2.4.2.orig/libltdl/config/ltmain.sh libtool-2.4.2/libltdl/config/ltmain.sh
+--- libtool-2.4.2.orig/libltdl/config/ltmain.sh	2012-04-05 18:12:18.454006800 -0700
++++ libtool-2.4.2/libltdl/config/ltmain.sh	2012-04-05 18:36:00.100006800 -0700
+@@ -141,7 +141,7 @@
+ : ${MKDIR="mkdir"}
+ : ${MV="mv -f"}
+ : ${RM="rm -f"}
+-: ${SHELL="${CONFIG_SHELL-/bin/sh}"}
++: ${SHELL="${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}"}
+ : ${Xsed="$SED -e 1s/^X//"}
+ 
+ # Global variables:
+@@ -2311,7 +2311,7 @@
+ Remove files from the build directory.
+ 
+ RM is the name of the program to use to delete files associated with each FILE
+-(typically \`/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
++(typically \`@GENTOO_PORTAGE_EPREFIX@/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
+ to RM.
+ 
+ If FILE is a libtool library, object or program, all the files associated
+@@ -2465,7 +2465,7 @@
+ Remove libraries from an installation directory.
+ 
+ RM is the name of the program to use to delete files associated with each FILE
+-(typically \`/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
++(typically \`@GENTOO_PORTAGE_EPREFIX@/bin/rm').  RM-OPTIONS are options (such as \`-f') to be passed
+ to RM.
+ 
+ If FILE is a libtool library, all the files associated with it are deleted.
+@@ -2771,7 +2771,7 @@
+     $opt_debug
+     # There may be an optional sh(1) argument at the beginning of
+     # install_prog (especially on Windows NT).
+-    if test "$nonopt" = "$SHELL" || test "$nonopt" = /bin/sh ||
++    if test "$nonopt" = "$SHELL" || test "$nonopt" = @GENTOO_PORTAGE_EPREFIX@/bin/sh ||
+        # Allow the use of GNU shtool's install command.
+        case $nonopt in *shtool*) :;; *) false;; esac; then
+       # Aesthetically quote it.
+@@ -3170,7 +3170,7 @@
+ 	  fi
+ 	fi
+ 
+-	# remove .exe since cygwin /usr/bin/install will append another
++	# remove .exe since cygwin @GENTOO_PORTAGE_EPREFIX@/usr/bin/install will append another
+ 	# one anyway
+ 	case $install_prog,$host in
+ 	*/usr/bin/install*,*cygwin*)
+diff -urN libtool-2.4.2.orig/libltdl/config/missing libtool-2.4.2/libltdl/config/missing
+--- libtool-2.4.2.orig/libltdl/config/missing	2011-10-17 02:46:40.000000000 -0700
++++ libtool-2.4.2/libltdl/config/missing	2012-04-05 18:33:40.401506800 -0700
+@@ -209,7 +209,7 @@
+ 	touch $file
+     else
+ 	test -z "$file" || exec >$file
+-	echo "#! /bin/sh"
++	echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh"
+ 	echo "# Created by GNU Automake missing as a replacement of"
+ 	echo "#  $ $@"
+ 	echo "exit 0"
+diff -urN libtool-2.4.2.orig/libltdl/configure libtool-2.4.2/libltdl/configure
+--- libtool-2.4.2.orig/libltdl/configure	2012-04-05 18:15:37.930506800 -0700
++++ libtool-2.4.2/libltdl/configure	2012-04-05 18:33:40.451506800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -4334,7 +4334,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -4643,7 +4643,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -4981,7 +4981,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -5023,7 +5023,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -5041,7 +5041,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -5088,7 +5088,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -5130,11 +5130,11 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [0-9][0-9]*-bit [LM]SB dynamic lib"
+     lt_cv_file_magic_test_file=/lib/libc.so
+     ;;
+@@ -6105,7 +6105,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -6125,7 +6125,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -6137,7 +6137,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -6162,7 +6162,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -6261,7 +6261,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -7899,7 +7899,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -7965,7 +7965,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/libltdl/m4/libtool.m4 libtool-2.4.2/libltdl/m4/libtool.m4
+--- libtool-2.4.2.orig/libltdl/m4/libtool.m4	2012-04-05 18:15:23.646506800 -0700
++++ libtool-2.4.2/libltdl/m4/libtool.m4	2012-04-05 18:33:40.464006800 -0700
+@@ -85,7 +85,7 @@
+ AC_REQUIRE([LTOBSOLETE_VERSION])dnl
+ m4_require([_LT_PROG_LTMAIN])dnl
+ 
+-_LT_SHELL_INIT([SHELL=${CONFIG_SHELL-/bin/sh}])
++_LT_SHELL_INIT([SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}])
+ 
+ dnl Parse OPTIONS
+ _LT_SET_OPTIONS([$0], [$1])
+@@ -1268,7 +1268,7 @@
+   # Find out which ABI we are using.
+   echo 'int i;' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -1284,7 +1284,7 @@
+   echo '[#]line '$LINENO' "configure"' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -1296,7 +1296,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -1317,7 +1317,7 @@
+   # Find out which ABI we are using.
+   echo 'int i;' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -1378,7 +1378,7 @@
+   # Find out which ABI we are using.
+   echo 'int i;' > conftest.$ac_ext
+   if AC_TRY_EVAL(ac_compile); then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -1702,7 +1702,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -3016,10 +3016,10 @@
+ # --------------
+ # find a file program which can recognize a shared library
+ m4_defun([_LT_PATH_MAGIC],
+-[_LT_PATH_TOOL_PREFIX(${ac_tool_prefix}file, /usr/bin$PATH_SEPARATOR$PATH)
++[_LT_PATH_TOOL_PREFIX(${ac_tool_prefix}file, @GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH)
+ if test -z "$lt_cv_path_MAGIC_CMD"; then
+   if test -n "$ac_tool_prefix"; then
+-    _LT_PATH_TOOL_PREFIX(file, /usr/bin$PATH_SEPARATOR$PATH)
++    _LT_PATH_TOOL_PREFIX(file, @GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH)
+   else
+     MAGIC_CMD=:
+   fi
+@@ -3210,7 +3210,7 @@
+ 
+ bsdi[[45]]*)
+   lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[ML]]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -3252,7 +3252,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[[3-9]]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -3270,7 +3270,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[[0-9]][[0-9]][[0-9]]|ELF-[[0-9]][[0-9]]) shared object file - IA64'
+@@ -3317,7 +3317,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[ML]]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -3359,11 +3359,11 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [[0-9]][[0-9]]*-bit [[LM]]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [[0-9]][[0-9]]*-bit [[LM]]SB dynamic lib"
+     lt_cv_file_magic_test_file=/lib/libc.so
+     ;;
+@@ -3427,7 +3427,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+diff -urN libtool-2.4.2.orig/libtoolize.in libtool-2.4.2/libtoolize.in
+--- libtool-2.4.2.orig/libtoolize.in	2011-10-17 03:19:37.000000000 -0700
++++ libtool-2.4.2/libtoolize.in	2012-04-05 18:33:40.472506800 -0700
+@@ -143,8 +143,8 @@
+ # The user is always right.
+ if test "${PATH_SEPARATOR+set}" != set; then
+   PATH_SEPARATOR=:
+-  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
+-    (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
++  (PATH='@GENTOO_PORTAGE_EPREFIX@/bin;@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
++    (PATH='@GENTOO_PORTAGE_EPREFIX@/bin:@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
+       PATH_SEPARATOR=';'
+   }
+ fi
+@@ -248,7 +248,7 @@
+ else
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+ as_found=false
+-for as_dir in /bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
++for as_dir in @GENTOO_PORTAGE_EPREFIX@/bin$PATH_SEPARATOR@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH
+ do
+   IFS=$as_save_IFS
+   test -z "$as_dir" && as_dir=.
+@@ -308,7 +308,7 @@
+ fi
+ fi
+ fi
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ export SHELL
+ # Unset more variables known to interfere with behavior of common tools.
+ CLICOLOR_FORCE= GREP_OPTIONS=
+@@ -343,7 +343,7 @@
+ : ${MV="mv -f"}
+ : ${RM="rm -f"}
+ : ${SED="@SED@"}
+-: ${SHELL="${CONFIG_SHELL-/bin/sh}"}
++: ${SHELL="${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}"}
+ : ${Xsed="$SED -e 1s/^X//"}
+ 
+ # Global variables:
+diff -urN libtool-2.4.2.orig/tests/cdemo/configure libtool-2.4.2/tests/cdemo/configure
+--- libtool-2.4.2.orig/tests/cdemo/configure	2012-04-05 18:12:38.515506800 -0700
++++ libtool-2.4.2/tests/cdemo/configure	2012-04-05 18:33:40.518506800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -4208,7 +4208,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -4517,7 +4517,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -4858,7 +4858,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -4900,7 +4900,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -4918,7 +4918,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -4965,7 +4965,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -5007,11 +5007,11 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [0-9][0-9]*-bit [LM]SB dynamic lib"
+     lt_cv_file_magic_test_file=/lib/libc.so
+     ;;
+@@ -5985,7 +5985,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -6005,7 +6005,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -6017,7 +6017,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -6042,7 +6042,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -6141,7 +6141,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -7482,7 +7482,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -7548,7 +7548,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/darwin.at libtool-2.4.2/tests/darwin.at
+--- libtool-2.4.2.orig/tests/darwin.at	2011-10-17 03:17:05.000000000 -0700
++++ libtool-2.4.2/tests/darwin.at	2012-04-05 18:33:40.524506800 -0700
+@@ -66,7 +66,7 @@
+ 
+ mkdir bin
+ AT_DATA([bin/basename],[[
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ 
+ usage="usage: $0 argument"
+ if test $# != 1; then
+diff -urN libtool-2.4.2.orig/tests/defs.in libtool-2.4.2/tests/defs.in
+--- libtool-2.4.2.orig/tests/defs.in	2011-10-17 03:19:53.000000000 -0700
++++ libtool-2.4.2/tests/defs.in	2012-04-05 18:33:40.541006800 -0700
+@@ -98,8 +98,8 @@
+ # The user is always right.
+ if test "${PATH_SEPARATOR+set}" != set; then
+   PATH_SEPARATOR=:
+-  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
+-    (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
++  (PATH='@GENTOO_PORTAGE_EPREFIX@/bin;@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
++    (PATH='@GENTOO_PORTAGE_EPREFIX@/bin:@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
+       PATH_SEPARATOR=';'
+   }
+ fi
+@@ -203,7 +203,7 @@
+ else
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+ as_found=false
+-for as_dir in /bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
++for as_dir in @GENTOO_PORTAGE_EPREFIX@/bin$PATH_SEPARATOR@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH
+ do
+   IFS=$as_save_IFS
+   test -z "$as_dir" && as_dir=.
+@@ -263,7 +263,7 @@
+ fi
+ fi
+ fi
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ export SHELL
+ # Unset more variables known to interfere with behavior of common tools.
+ CLICOLOR_FORCE= GREP_OPTIONS=
+@@ -298,7 +298,7 @@
+ : ${MV="mv -f"}
+ : ${RM="rm -f"}
+ : ${SED="@SED@"}
+-: ${SHELL="${CONFIG_SHELL-/bin/sh}"}
++: ${SHELL="${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}"}
+ : ${Xsed="$SED -e 1s/^X//"}
+ 
+ # Global variables:
+diff -urN libtool-2.4.2.orig/tests/demo/Makefile.am libtool-2.4.2/tests/demo/Makefile.am
+--- libtool-2.4.2.orig/tests/demo/Makefile.am	2011-10-17 03:17:05.000000000 -0700
++++ libtool-2.4.2/tests/demo/Makefile.am	2012-04-05 18:33:40.544006800 -0700
+@@ -65,7 +65,7 @@
+ # create a script that says that -dlopen is not supported
+ helldl helldl$(EXEEXT):
+ 	rm -f $@
+-	echo '#! /bin/sh' > $@
++	echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh' > $@
+ 	echo '-dlopen is unsupported' >> $@
+ 	chmod +x $@
+ endif
+diff -urN libtool-2.4.2.orig/tests/demo/Makefile.in libtool-2.4.2/tests/demo/Makefile.in
+--- libtool-2.4.2.orig/tests/demo/Makefile.in	2012-04-05 18:13:02.205506800 -0700
++++ libtool-2.4.2/tests/demo/Makefile.in	2012-04-05 18:33:40.553506800 -0700
+@@ -897,7 +897,7 @@
+ # create a script that says that -dlopen is not supported
+ @BINARY_HELLDL_FALSE@helldl helldl$(EXEEXT):
+ @BINARY_HELLDL_FALSE@	rm -f $@
+-@BINARY_HELLDL_FALSE@	echo '#! /bin/sh' > $@
++@BINARY_HELLDL_FALSE@	echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh' > $@
+ @BINARY_HELLDL_FALSE@	echo '-dlopen is unsupported' >> $@
+ @BINARY_HELLDL_FALSE@	chmod +x $@
+ 
+diff -urN libtool-2.4.2.orig/tests/demo/configure libtool-2.4.2/tests/demo/configure
+--- libtool-2.4.2.orig/tests/demo/configure	2012-04-05 18:12:57.181506800 -0700
++++ libtool-2.4.2/tests/demo/configure	2012-04-05 18:33:40.601006800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -4212,7 +4212,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -4521,7 +4521,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -4859,7 +4859,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -4901,7 +4901,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -4919,7 +4919,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -4966,7 +4966,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -5008,11 +5008,11 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [0-9][0-9]*-bit [LM]SB dynamic lib"
+     lt_cv_file_magic_test_file=/lib/libc.so
+     ;;
+@@ -5983,7 +5983,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -6003,7 +6003,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -6015,7 +6015,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -6040,7 +6040,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -6139,7 +6139,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -7777,7 +7777,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -7843,7 +7843,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/depdemo/configure libtool-2.4.2/tests/depdemo/configure
+--- libtool-2.4.2.orig/tests/depdemo/configure	2012-04-05 18:13:15.855006800 -0700
++++ libtool-2.4.2/tests/depdemo/configure	2012-04-05 18:33:40.647006800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -4209,7 +4209,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -4518,7 +4518,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -4856,7 +4856,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -4898,7 +4898,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -4916,7 +4916,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -4963,7 +4963,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -5005,11 +5005,11 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [0-9][0-9]*-bit [LM]SB dynamic lib"
+     lt_cv_file_magic_test_file=/lib/libc.so
+     ;;
+@@ -5980,7 +5980,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -6000,7 +6000,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -6012,7 +6012,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -6037,7 +6037,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -6136,7 +6136,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -7775,7 +7775,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -7841,7 +7841,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/deplibs-mingw.at libtool-2.4.2/tests/deplibs-mingw.at
+--- libtool-2.4.2.orig/tests/deplibs-mingw.at	2011-10-09 14:45:19.000000000 -0700
++++ libtool-2.4.2/tests/deplibs-mingw.at	2012-04-05 18:33:40.650006800 -0700
+@@ -68,7 +68,7 @@
+       mkdir bin new-libtool
+ 
+       cat >bin/file <<\EOF
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 1
+ EOF
+       chmod +x bin/file
+diff -urN libtool-2.4.2.orig/tests/early-libtool.at libtool-2.4.2/tests/early-libtool.at
+--- libtool-2.4.2.orig/tests/early-libtool.at	2011-10-09 14:45:19.000000000 -0700
++++ libtool-2.4.2/tests/early-libtool.at	2012-04-05 18:33:40.652506800 -0700
+@@ -100,7 +100,7 @@
+ ]])
+ 
+ cat > missing <<_EOF
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 0
+ _EOF
+ chmod a+x missing
+@@ -207,7 +207,7 @@
+ ]])
+ 
+ cat > missing <<_EOF
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 0
+ _EOF
+ chmod a+x missing
+diff -urN libtool-2.4.2.orig/tests/execute-mode.at libtool-2.4.2/tests/execute-mode.at
+--- libtool-2.4.2.orig/tests/execute-mode.at	2011-10-09 14:45:19.000000000 -0700
++++ libtool-2.4.2/tests/execute-mode.at	2012-04-05 18:33:40.655506800 -0700
+@@ -28,7 +28,7 @@
+ eval `$LIBTOOL --config | $EGREP '^(FGREP)='`
+ 
+ AT_DATA([foo],
+-[[#! /bin/sh
++[[#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ if test $# -gt 0; then
+   for arg
+   do
+@@ -40,7 +40,7 @@
+ ]])
+ 
+ AT_DATA([lt-wrapper],
+-[[#! /bin/sh
++[[#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ # Generated by GNU libtool.
+ # fake wrapper script.
+ program=lt-real
+@@ -54,7 +54,7 @@
+ ]])
+ 
+ AT_DATA([lt-real],
+-[[#! /bin/sh
++[[#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ for arg
+ do
+   printf %s\\n "$arg"
+diff -urN libtool-2.4.2.orig/tests/f77demo/configure libtool-2.4.2/tests/f77demo/configure
+--- libtool-2.4.2.orig/tests/f77demo/configure	2012-04-05 18:13:35.339006800 -0700
++++ libtool-2.4.2/tests/f77demo/configure	2012-04-05 18:33:40.709506800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -5181,7 +5181,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -5490,7 +5490,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -5831,7 +5831,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -5873,7 +5873,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -5891,7 +5891,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -5938,7 +5938,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -5980,11 +5980,11 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [0-9][0-9]*-bit [LM]SB dynamic lib"
+     lt_cv_file_magic_test_file=/lib/libc.so
+     ;;
+@@ -6965,7 +6965,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -6985,7 +6985,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -6997,7 +6997,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -7022,7 +7022,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -7129,7 +7129,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -8486,7 +8486,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -8552,7 +8552,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/fcdemo/configure libtool-2.4.2/tests/fcdemo/configure
+--- libtool-2.4.2.orig/tests/fcdemo/configure	2012-04-05 18:13:55.898506800 -0700
++++ libtool-2.4.2/tests/fcdemo/configure	2012-04-05 18:33:40.762506800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -5280,7 +5280,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -5589,7 +5589,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -5930,7 +5930,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -5972,7 +5972,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -5990,7 +5990,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -6037,7 +6037,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -6079,11 +6079,11 @@
+     lt_cv_deplibs_check_method=pass_all
+     ;;
+   sequent)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )'
+     ;;
+   sni)
+-    lt_cv_file_magic_cmd='/bin/file'
++    lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/bin/file'
+     lt_cv_deplibs_check_method="file_magic ELF [0-9][0-9]*-bit [LM]SB dynamic lib"
+     lt_cv_file_magic_test_file=/lib/libc.so
+     ;;
+@@ -7064,7 +7064,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -7084,7 +7084,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -7096,7 +7096,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -7121,7 +7121,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -7228,7 +7228,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -8595,7 +8595,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -8661,7 +8661,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/mdemo/configure libtool-2.4.2/tests/mdemo/configure
+--- libtool-2.4.2.orig/tests/mdemo/configure	2012-04-05 18:14:17.441006800 -0700
++++ libtool-2.4.2/tests/mdemo/configure	2012-04-05 18:33:40.807006800 -0700
+@@ -546,7 +546,7 @@
+ 
+ lt_ltdl_dir='../../libltdl'
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -4241,7 +4241,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -4550,7 +4550,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -4888,7 +4888,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -4930,7 +4930,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -4948,7 +4948,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -4995,7 +4995,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -6012,7 +6012,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -6032,7 +6032,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -6044,7 +6044,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -6069,7 +6069,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -6168,7 +6168,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -7806,7 +7806,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -7872,7 +7872,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/mdemo2/configure libtool-2.4.2/tests/mdemo2/configure
+--- libtool-2.4.2.orig/tests/mdemo2/configure	2012-04-05 18:14:38.233506800 -0700
++++ libtool-2.4.2/tests/mdemo2/configure	2012-04-05 18:33:40.851006800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -4208,7 +4208,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -4517,7 +4517,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -4858,7 +4858,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -4900,7 +4900,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -4918,7 +4918,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -4965,7 +4965,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -5985,7 +5985,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -6005,7 +6005,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -6017,7 +6017,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -6042,7 +6042,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -6141,7 +6141,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -7481,7 +7481,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -7547,7 +7547,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/pdemo/Makefile.am libtool-2.4.2/tests/pdemo/Makefile.am
+--- libtool-2.4.2.orig/tests/pdemo/Makefile.am	2011-10-17 03:17:05.000000000 -0700
++++ libtool-2.4.2/tests/pdemo/Makefile.am	2012-04-05 18:33:40.856006800 -0700
+@@ -65,7 +65,7 @@
+ # create a script that says that -dlopen is not supported
+ helldl helldl$(EXEEXT):
+ 	rm -f $@
+-	echo '#! /bin/sh' > $@
++	echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh' > $@
+ 	echo '-dlopen is unsupported' >> $@
+ 	chmod +x $@
+ endif
+diff -urN libtool-2.4.2.orig/tests/pdemo/Makefile.in libtool-2.4.2/tests/pdemo/Makefile.in
+--- libtool-2.4.2.orig/tests/pdemo/Makefile.in	2012-04-05 18:15:02.380506800 -0700
++++ libtool-2.4.2/tests/pdemo/Makefile.in	2012-04-05 18:33:40.865506800 -0700
+@@ -899,7 +899,7 @@
+ # create a script that says that -dlopen is not supported
+ @BINARY_HELLDL_FALSE@helldl helldl$(EXEEXT):
+ @BINARY_HELLDL_FALSE@	rm -f $@
+-@BINARY_HELLDL_FALSE@	echo '#! /bin/sh' > $@
++@BINARY_HELLDL_FALSE@	echo '#! @GENTOO_PORTAGE_EPREFIX@/bin/sh' > $@
+ @BINARY_HELLDL_FALSE@	echo '-dlopen is unsupported' >> $@
+ @BINARY_HELLDL_FALSE@	chmod +x $@
+ 
+diff -urN libtool-2.4.2.orig/tests/pdemo/configure libtool-2.4.2/tests/pdemo/configure
+--- libtool-2.4.2.orig/tests/pdemo/configure	2012-04-05 18:14:57.131006800 -0700
++++ libtool-2.4.2/tests/pdemo/configure	2012-04-05 18:33:40.910506800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -4211,7 +4211,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -4520,7 +4520,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -4861,7 +4861,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -4903,7 +4903,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -4921,7 +4921,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -4968,7 +4968,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -5988,7 +5988,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -6008,7 +6008,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -6020,7 +6020,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -6045,7 +6045,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -6144,7 +6144,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -7484,7 +7484,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -7550,7 +7550,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/static.at libtool-2.4.2/tests/static.at
+--- libtool-2.4.2.orig/tests/static.at	2011-10-09 14:45:20.000000000 -0700
++++ libtool-2.4.2/tests/static.at	2012-04-05 18:33:40.915506800 -0700
+@@ -358,7 +358,7 @@
+ AT_SETUP([ccache -all-static])
+ 
+ AT_DATA([ccache],
+-[[#! /bin/sh
++[[#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ # poor man's ccache clone
+ case $1 in
+ -*) echo "bogus argument: $1" >&2; exit 1 ;;
+diff -urN libtool-2.4.2.orig/tests/tagdemo/configure libtool-2.4.2/tests/tagdemo/configure
+--- libtool-2.4.2.orig/tests/tagdemo/configure	2012-04-05 18:15:16.781006800 -0700
++++ libtool-2.4.2/tests/tagdemo/configure	2012-04-05 18:33:40.969006800 -0700
+@@ -544,7 +544,7 @@
+ # Sed expression to map a string onto a valid variable name.
+ as_tr_sh="eval sed 'y%*+%pp%;s%[^_$as_cr_alnum]%_%g'"
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ 
+ test -n "$DJDIR" || exec 7<&0 </dev/null
+@@ -5228,7 +5228,7 @@
+   fi
+   for lt_tmp_nm in $lt_nm_to_check; do
+     lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb /bin; do
++    for ac_dir in $PATH /usr/ccs/bin/elf /usr/ccs/bin /usr/ucb @GENTOO_PORTAGE_EPREFIX@/bin; do
+       IFS="$lt_save_ifs"
+       test -z "$ac_dir" && ac_dir=.
+       tmp_nm="$ac_dir/$lt_tmp_nm"
+@@ -5537,7 +5537,7 @@
+       for i in 1 2 3 4 5 6 7 8 ; do
+         teststring=$teststring$teststring
+       done
+-      SHELL=${SHELL-${CONFIG_SHELL-/bin/sh}}
++      SHELL=${SHELL-${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}}
+       # If test is not a shell built-in, we'll probably end up computing a
+       # maximum length that is only half of the actual maximum length, but
+       # we can't tell.
+@@ -5878,7 +5878,7 @@
+ 
+ bsdi[45]*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (shared object|dynamic lib)'
+-  lt_cv_file_magic_cmd='/usr/bin/file -L'
++  lt_cv_file_magic_cmd='@GENTOO_PORTAGE_EPREFIX@/usr/bin/file -L'
+   lt_cv_file_magic_test_file=/shlib/libc.so
+   ;;
+ 
+@@ -5920,7 +5920,7 @@
+       # Not sure whether the presence of OpenBSD here was a mistake.
+       # Let's accept both of them until this is cleared up.
+       lt_cv_deplibs_check_method='file_magic (FreeBSD|OpenBSD|DragonFly)/i[3-9]86 (compact )?demand paged shared library'
+-      lt_cv_file_magic_cmd=/usr/bin/file
++      lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+       lt_cv_file_magic_test_file=`echo /usr/lib/libc.so.*`
+       ;;
+     esac
+@@ -5938,7 +5938,7 @@
+   ;;
+ 
+ hpux10.20* | hpux11*)
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   case $host_cpu in
+   ia64*)
+     lt_cv_deplibs_check_method='file_magic (s[0-9][0-9][0-9]|ELF-[0-9][0-9]) shared object file - IA64'
+@@ -5985,7 +5985,7 @@
+ 
+ newos6*)
+   lt_cv_deplibs_check_method='file_magic ELF [0-9][0-9]*-bit [ML]SB (executable|dynamic lib)'
+-  lt_cv_file_magic_cmd=/usr/bin/file
++  lt_cv_file_magic_cmd=@GENTOO_PORTAGE_EPREFIX@/usr/bin/file
+   lt_cv_file_magic_test_file=/usr/lib/libnls.so
+   ;;
+ 
+@@ -7005,7 +7005,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.$ac_objext` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+       *ELF-32*)
+ 	HPUX_IA64_MODE="32"
+ 	;;
+@@ -7025,7 +7025,7 @@
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+     if test "$lt_cv_prog_gnu_ld" = yes; then
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -melf32bsmip"
+ 	  ;;
+@@ -7037,7 +7037,7 @@
+ 	;;
+       esac
+     else
+-      case `/usr/bin/file conftest.$ac_objext` in
++      case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.$ac_objext` in
+ 	*32-bit*)
+ 	  LD="${LD-ld} -32"
+ 	  ;;
+@@ -7062,7 +7062,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+       *32-bit*)
+ 	case $host in
+ 	  x86_64-*kfreebsd*-gnu)
+@@ -7161,7 +7161,7 @@
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-    case `/usr/bin/file conftest.o` in
++    case `@GENTOO_PORTAGE_EPREFIX@/usr/bin/file conftest.o` in
+     *64-bit*)
+       case $lt_cv_prog_gnu_ld in
+       yes*)
+@@ -8375,7 +8375,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+@@ -8441,7 +8441,7 @@
+ *)
+   lt_save_MAGIC_CMD="$MAGIC_CMD"
+   lt_save_ifs="$IFS"; IFS=$PATH_SEPARATOR
+-  ac_dummy="/usr/bin$PATH_SEPARATOR$PATH"
++  ac_dummy="@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH"
+   for ac_dir in $ac_dummy; do
+     IFS="$lt_save_ifs"
+     test -z "$ac_dir" && ac_dir=.
+diff -urN libtool-2.4.2.orig/tests/testsuite libtool-2.4.2/tests/testsuite
+--- libtool-2.4.2.orig/tests/testsuite	2011-10-17 03:19:52.000000000 -0700
++++ libtool-2.4.2/tests/testsuite	2012-04-05 18:33:41.049506800 -0700
+@@ -69,8 +69,8 @@
+ # The user is always right.
+ if test "${PATH_SEPARATOR+set}" != set; then
+   PATH_SEPARATOR=:
+-  (PATH='/bin;/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
+-    (PATH='/bin:/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
++  (PATH='@GENTOO_PORTAGE_EPREFIX@/bin;@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 && {
++    (PATH='@GENTOO_PORTAGE_EPREFIX@/bin:@GENTOO_PORTAGE_EPREFIX@/bin'; FPATH=$PATH; sh -c :) >/dev/null 2>&1 ||
+       PATH_SEPARATOR=';'
+   }
+ fi
+@@ -178,7 +178,7 @@
+ else
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+ as_found=false
+-for as_dir in /bin$PATH_SEPARATOR/usr/bin$PATH_SEPARATOR$PATH
++for as_dir in @GENTOO_PORTAGE_EPREFIX@/bin$PATH_SEPARATOR@GENTOO_PORTAGE_EPREFIX@/usr/bin$PATH_SEPARATOR$PATH
+ do
+   IFS=$as_save_IFS
+   test -z "$as_dir" && as_dir=.
+@@ -240,7 +240,7 @@
+ fi
+ fi
+ fi
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ export SHELL
+ # Unset more variables known to interfere with behavior of common tools.
+ CLICOLOR_FORCE= GREP_OPTIONS=
+@@ -532,7 +532,7 @@
+ 
+ 
+ 
+-SHELL=${CONFIG_SHELL-/bin/sh}
++SHELL=${CONFIG_SHELL-@GENTOO_PORTAGE_EPREFIX@/bin/sh}
+ 
+ # How were we run?
+ at_cli_args="$@"
+@@ -1348,8 +1348,8 @@
+ uname -s = `(uname -s) 2>/dev/null || echo unknown`
+ uname -v = `(uname -v) 2>/dev/null || echo unknown`
+ 
+-/usr/bin/uname -p = `(/usr/bin/uname -p) 2>/dev/null || echo unknown`
+-/bin/uname -X     = `(/bin/uname -X) 2>/dev/null     || echo unknown`
++@GENTOO_PORTAGE_EPREFIX@/usr/bin/uname -p = `(@GENTOO_PORTAGE_EPREFIX@/usr/bin/uname -p) 2>/dev/null || echo unknown`
++@GENTOO_PORTAGE_EPREFIX@/bin/uname -X     = `(@GENTOO_PORTAGE_EPREFIX@/bin/uname -X) 2>/dev/null     || echo unknown`
+ 
+ /bin/arch              = `(/bin/arch) 2>/dev/null              || echo unknown`
+ /usr/bin/arch -k       = `(/usr/bin/arch -k) 2>/dev/null       || echo unknown`
+@@ -1576,7 +1576,7 @@
+ at_fn_create_debugging_script ()
+ {
+   {
+-    echo "#! /bin/sh" &&
++    echo "#! @GENTOO_PORTAGE_EPREFIX@/bin/sh" &&
+     echo 'test "${ZSH_VERSION+set}" = set && alias -g '\''${1+"$@"}'\''='\''"$@"'\''' &&
+     $as_echo "cd '$at_dir'" &&
+     $as_echo "exec \${CONFIG_SHELL-$SHELL} \"$at_myself\" -v -d $at_debug_args $at_group \${1+\"\$@\"}" &&
+@@ -8361,7 +8361,7 @@
+ 
+ 
+ cat >script <<'_ATEOF'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 0
+ _ATEOF
+ 
+@@ -9462,7 +9462,7 @@
+ 
+ 
+ cat >ccache <<'_ATEOF'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ # poor man's ccache clone
+ case $1 in
+ -*) echo "bogus argument: $1" >&2; exit 1 ;;
+@@ -10508,7 +10508,7 @@
+ eval `$LIBTOOL --config | $EGREP '^(FGREP)='`
+ 
+ cat >foo <<'_ATEOF'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ if test $# -gt 0; then
+   for arg
+   do
+@@ -10521,7 +10521,7 @@
+ 
+ 
+ cat >lt-wrapper <<'_ATEOF'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ # Generated by GNU libtool.
+ # fake wrapper script.
+ program=lt-real
+@@ -10536,7 +10536,7 @@
+ 
+ 
+ cat >lt-real <<'_ATEOF'
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ for arg
+ do
+   printf %s\\n "$arg"
+@@ -14748,9 +14748,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/old-m4-iface.at:90: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/old-m4-iface.at:90: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "old-m4-iface.at:90"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -15028,9 +15028,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/old-m4-iface.at:160: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --with-included-ltdl"
++$as_echo "$at_srcdir/old-m4-iface.at:160: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --with-included-ltdl"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "old-m4-iface.at:160"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --with-included-ltdl
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --with-included-ltdl
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -15208,9 +15208,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/am-subdir.at:78: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/am-subdir.at:78: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "am-subdir.at:78"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -15450,9 +15450,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/am-subdir.at:146: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/am-subdir.at:146: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "am-subdir.at:146"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -19093,9 +19093,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/standalone.at:34: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/standalone.at:34: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "standalone.at:34"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -19171,9 +19171,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/standalone.at:49: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/standalone.at:49: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "standalone.at:49"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -19251,9 +19251,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/standalone.at:66: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
++$as_echo "$at_srcdir/standalone.at:66: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "standalone.at:66"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -19586,9 +19586,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/subproject.at:61: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/subproject.at:61: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "subproject.at:61"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -19742,9 +19742,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/subproject.at:77: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/subproject.at:77: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "subproject.at:77"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -19900,9 +19900,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/subproject.at:95: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
++$as_echo "$at_srcdir/subproject.at:95: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "subproject.at:95"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -20277,9 +20277,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/nonrecursive.at:90: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/nonrecursive.at:90: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "nonrecursive.at:90"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -20489,9 +20489,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/nonrecursive.at:114: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/nonrecursive.at:114: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "nonrecursive.at:114"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -20703,9 +20703,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/nonrecursive.at:140: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
++$as_echo "$at_srcdir/nonrecursive.at:140: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "nonrecursive.at:140"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -20854,9 +20854,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/recursive.at:68: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/recursive.at:68: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "recursive.at:68"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -20991,9 +20991,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/recursive.at:88: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/recursive.at:88: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "recursive.at:88"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -21130,9 +21130,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/recursive.at:110: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
++$as_echo "$at_srcdir/recursive.at:110: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "recursive.at:110"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -22713,7 +22713,7 @@
+ 
+ 
+ cat > missing <<_EOF
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 0
+ _EOF
+ chmod a+x missing
+@@ -22754,9 +22754,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/early-libtool.at:111: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/early-libtool.at:111: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "early-libtool.at:111"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -22929,7 +22929,7 @@
+ 
+ 
+ cat > missing <<_EOF
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 0
+ _EOF
+ chmod a+x missing
+@@ -22970,9 +22970,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/early-libtool.at:218: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/early-libtool.at:218: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "early-libtool.at:218"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -23378,9 +23378,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/no-executables.at:76: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/no-executables.at:76: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "no-executables.at:76"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -23392,9 +23392,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/no-executables.at:77: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options test_ac_libtool_dlopen=:"
++$as_echo "$at_srcdir/no-executables.at:77: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options test_ac_libtool_dlopen=:"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "no-executables.at:77"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options test_ac_libtool_dlopen=:
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options test_ac_libtool_dlopen=:
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -23757,9 +23757,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/configure-iface.at:144: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --with-included-ltdl --prefix=\$prefix"
++$as_echo "$at_srcdir/configure-iface.at:144: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --with-included-ltdl --prefix=\$prefix"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "configure-iface.at:144"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --with-included-ltdl --prefix=$prefix
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --with-included-ltdl --prefix=$prefix
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -23861,9 +23861,9 @@
+ 
+ (cd ltdl
+ { set +x
+-$as_echo "$at_srcdir/configure-iface.at:171: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
++$as_echo "$at_srcdir/configure-iface.at:171: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --enable-ltdl-install --prefix=\$prefix"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "configure-iface.at:171"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --enable-ltdl-install --prefix=$prefix
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -24126,9 +24126,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/configure-iface.at:227: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --with-ltdl-lib=\$prefix/lib --with-ltdl-include=\$prefix/include"
++$as_echo "$at_srcdir/configure-iface.at:227: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --with-ltdl-lib=\$prefix/lib --with-ltdl-include=\$prefix/include"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "configure-iface.at:227"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --with-ltdl-lib=$prefix/lib --with-ltdl-include=$prefix/include
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --with-ltdl-lib=$prefix/lib --with-ltdl-include=$prefix/include
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -24389,9 +24389,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/configure-iface.at:282: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --with-included-ltdl"
++$as_echo "$at_srcdir/configure-iface.at:282: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options --with-included-ltdl"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "configure-iface.at:282"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --with-included-ltdl
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options --with-included-ltdl
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -24542,9 +24542,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/configure-iface.at:321: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/configure-iface.at:321: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "configure-iface.at:321"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -25114,9 +25114,9 @@
+ $at_traceon; }
+ 
+ { set +x
+-$as_echo "$at_srcdir/pic_flag.at:48: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL \"\$abs_top_srcdir\"/configure \$configure_options lt_cv_prog_compiler_pic=\"\$C_pic_flag\" 		lt_cv_prog_compiler_pic_CXX=\"\$CXX_pic_flag\""
++$as_echo "$at_srcdir/pic_flag.at:48: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL \"\$abs_top_srcdir\"/configure \$configure_options lt_cv_prog_compiler_pic=\"\$C_pic_flag\" 		lt_cv_prog_compiler_pic_CXX=\"\$CXX_pic_flag\""
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "pic_flag.at:48"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL "$abs_top_srcdir"/configure $configure_options lt_cv_prog_compiler_pic="$C_pic_flag" 		lt_cv_prog_compiler_pic_CXX="$CXX_pic_flag"
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL "$abs_top_srcdir"/configure $configure_options lt_cv_prog_compiler_pic="$C_pic_flag" 		lt_cv_prog_compiler_pic_CXX="$CXX_pic_flag"
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -25233,7 +25233,7 @@
+ mkdir bin
+ cat >bin/basename <<'_ATEOF'
+ 
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ 
+ usage="usage: $0 argument"
+ if test $# != 1; then
+@@ -26501,7 +26501,7 @@
+       mkdir bin new-libtool
+ 
+       cat >bin/file <<\EOF
+-#! /bin/sh
++#! @GENTOO_PORTAGE_EPREFIX@/bin/sh
+ exit 1
+ EOF
+       chmod +x bin/file
+@@ -26510,9 +26510,9 @@
+       # configure might fail due to in-tree build of toplevel, or
+       # missing configure flags and other reasons.
+       { set +x
+-$as_echo "$at_srcdir/deplibs-mingw.at:79: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL \"\$abs_top_srcdir\"/configure \$configure_options || exit 77"
++$as_echo "$at_srcdir/deplibs-mingw.at:79: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL \"\$abs_top_srcdir\"/configure \$configure_options || exit 77"
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "deplibs-mingw.at:79"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL "$abs_top_srcdir"/configure $configure_options || exit 77
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL "$abs_top_srcdir"/configure $configure_options || exit 77
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -26794,9 +26794,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:203: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:203: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:203"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -26971,9 +26971,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:203: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:203: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:203"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -27147,9 +27147,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:203: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:203: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:203"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -27510,9 +27510,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:204: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:204: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:204"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -27687,9 +27687,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:204: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:204: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:204"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -27863,9 +27863,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:204: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:204: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:204"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -28226,9 +28226,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:205: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:205: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:205"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -28403,9 +28403,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:205: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:205: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:205"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+@@ -28579,9 +28579,9 @@
+ 
+ 
+ { set +x
+-$as_echo "$at_srcdir/sysroot.at:205: : \${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
++$as_echo "$at_srcdir/sysroot.at:205: : \${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  \$CONFIG_SHELL ./configure \$configure_options "
+ at_fn_check_prepare_notrace 'a ${...} parameter expansion' "sysroot.at:205"
+-( $at_check_trace; : ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
++( $at_check_trace; : ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; 	  $CONFIG_SHELL ./configure $configure_options
+ ) >>"$at_stdout" 2>>"$at_stderr"
+ at_status=$? at_failed=false
+ $at_check_filter
+diff -urN libtool-2.4.2.orig/tests/testsuite.at libtool-2.4.2/tests/testsuite.at
+--- libtool-2.4.2.orig/tests/testsuite.at	2011-10-09 14:45:21.000000000 -0700
++++ libtool-2.4.2/tests/testsuite.at	2012-04-05 18:33:41.058006800 -0700
+@@ -162,7 +162,7 @@
+ # Configure CONFIGURE-SCRIPT, defaulting to ./configure, with
+ # additional OPTIONS.
+ m4_define([LT_AT_CONFIGURE],
+-[AT_CHECK([: ${CONFIG_SHELL=/bin/sh}; export CONFIG_SHELL; ]dnl
++[AT_CHECK([: ${CONFIG_SHELL=@GENTOO_PORTAGE_EPREFIX@/bin/sh}; export CONFIG_SHELL; ]dnl
+ 	  [$CONFIG_SHELL m4_default([$2], [./configure]) $configure_options $1],
+ 	  [0], [ignore], [ignore])
+ ])

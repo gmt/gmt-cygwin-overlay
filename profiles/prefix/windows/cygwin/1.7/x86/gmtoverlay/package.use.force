@@ -1,0 +1,7 @@
+# Copyright 2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+# Without this, tests involving indirect_deps.at fail.
+# Warrants more investigation upstream, which is pending.
+sys-devel/libtool static-libs

@@ -1,0 +1,154 @@
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/configure libtool-2.4.2/configure
+--- libtool-2.4.2.orig/configure	2012-04-04 21:25:43.745782000 -0700
++++ libtool-2.4.2/configure	2012-04-04 21:39:49.207840600 -0700
+@@ -13693,8 +13693,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C++ preprocessor \"$CXXCPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/libltdl/configure libtool-2.4.2/libltdl/configure
+--- libtool-2.4.2.orig/libltdl/configure	2012-04-04 21:25:21.635860900 -0700
++++ libtool-2.4.2/libltdl/configure	2012-04-04 21:49:43.357146700 -0700
+@@ -7159,8 +7159,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/cdemo/configure libtool-2.4.2/tests/cdemo/configure
+--- libtool-2.4.2.orig/tests/cdemo/configure	2012-04-04 21:22:33.020644600 -0700
++++ libtool-2.4.2/tests/cdemo/configure	2012-04-04 21:41:35.032501300 -0700
+@@ -7039,8 +7039,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/demo/configure libtool-2.4.2/tests/demo/configure
+--- libtool-2.4.2.orig/tests/demo/configure	2012-04-04 21:22:51.107761300 -0700
++++ libtool-2.4.2/tests/demo/configure	2012-04-04 21:42:12.308955100 -0700
+@@ -7037,8 +7037,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/depdemo/configure libtool-2.4.2/tests/depdemo/configure
+--- libtool-2.4.2.orig/tests/depdemo/configure	2012-04-04 21:23:09.212381500 -0700
++++ libtool-2.4.2/tests/depdemo/configure	2012-04-04 21:42:41.382768700 -0700
+@@ -7034,8 +7034,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/f77demo/configure libtool-2.4.2/tests/f77demo/configure
+--- libtool-2.4.2.orig/tests/f77demo/configure	2012-04-04 21:23:28.006639600 -0700
++++ libtool-2.4.2/tests/f77demo/configure	2012-04-04 21:42:58.938279100 -0700
+@@ -8035,8 +8035,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/fcdemo/configure libtool-2.4.2/tests/fcdemo/configure
+--- libtool-2.4.2.orig/tests/fcdemo/configure	2012-04-04 21:23:47.735084500 -0700
++++ libtool-2.4.2/tests/fcdemo/configure	2012-04-04 21:43:29.822454700 -0700
+@@ -8134,8 +8134,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/mdemo/configure libtool-2.4.2/tests/mdemo/configure
+--- libtool-2.4.2.orig/tests/mdemo/configure	2012-04-04 21:24:07.025941900 -0700
++++ libtool-2.4.2/tests/mdemo/configure	2012-04-04 21:44:08.920772800 -0700
+@@ -7066,8 +7066,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/mdemo2/configure libtool-2.4.2/tests/mdemo2/configure
+--- libtool-2.4.2.orig/tests/mdemo2/configure	2012-04-04 21:24:25.096555300 -0700
++++ libtool-2.4.2/tests/mdemo2/configure	2012-04-04 21:44:25.934174800 -0700
+@@ -7039,8 +7039,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/pdemo/configure libtool-2.4.2/tests/pdemo/configure
+--- libtool-2.4.2.orig/tests/pdemo/configure	2012-04-04 21:24:43.192673800 -0700
++++ libtool-2.4.2/tests/pdemo/configure	2012-04-04 21:44:55.506588100 -0700
+@@ -7042,8 +7042,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
+diff -urN -x '*~' -x '*.rej' -x '*.orig' libtool-2.4.2.orig/tests/tagdemo/configure libtool-2.4.2/tests/tagdemo/configure
+--- libtool-2.4.2.orig/tests/tagdemo/configure	2012-04-04 21:25:01.903415200 -0700
++++ libtool-2.4.2/tests/tagdemo/configure	2012-04-04 21:45:13.860258100 -0700
+@@ -3990,8 +3990,8 @@
+ else
+   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "C preprocessor \"$CPP\" fails sanity check
+-See \`config.log' for more details" "$LINENO" 5; }
++$as_echo "C++ preprocessor \"$CXXCPP\" fails sanity check (ignoring)."
++$as_echo "See \`config.log' for more details" ;}
+ fi
+ 
+ ac_ext=c
