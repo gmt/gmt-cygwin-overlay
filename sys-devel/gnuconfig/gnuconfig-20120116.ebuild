@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit eutils
+inherit eutils prefix-gmt
 if [[ ${PV} == "99999999" ]] ; then
 	EGIT_REPO_URI="git://git.savannah.gnu.org/config.git
 		http://git.savannah.gnu.org/r/config.git"
@@ -20,7 +20,7 @@ HOMEPAGE="http://savannah.gnu.org/projects/config"
 
 LICENSE="GPL-2"
 SLOT="0"
-IUSE=""
+IUSE="ultra-prefixify"
 
 S=${WORKDIR}
 
@@ -50,6 +50,7 @@ src_unpack() {
 src_prepare() {
 	epatch "${WORKDIR}"/*.patch
 	epatch "${FILESDIR}"/20110814/0003-add-cygwin1.7-guess-support.patch
+	use ultra-prefixify && eprefixify_patch "${FILESDIR}"/20120116/ultra-prefixification.patch
 	use elibc_uclibc && sed -i 's:linux-gnu:linux-uclibc:' testsuite/config-guess.data #180637
 }
 
