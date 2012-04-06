@@ -50,7 +50,6 @@ src_prepare() {
 
 	[[ ${CHOST} == *-winnt* ]] &&
 		epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-winnt.patch
-
 	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-mint.patch
 	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-irix.patch
 
@@ -76,7 +75,6 @@ src_prepare() {
 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-module-bundle.patch
 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-use-linux-version.patch
 	epatch "${FILESDIR}"/2.4/${PN}-2.4-interix.patch
-
 
 	# better to ultra-prefixify after all autotools stuff is over
 	if use ultra-prefixify ; then
@@ -195,13 +193,9 @@ src_install() {
 }
 
 pkg_preinst() {
-	# Some wierd problem here bootstrapping cygwin
-	[[ ${CHOST} != *-cygwin* ]] && \
-		preserve_old_lib /usr/$(get_libdir)/libltdl$(get_libname 3)
+	preserve_old_lib /usr/$(get_libdir)/libltdl$(get_libname 3)
 }
 
 pkg_postinst() {
-	# Some wierd problem here bootstrapping cygwin
-	[[ ${CHOST} != *-cygwin* ]] && \
-		preserve_old_lib_notify /usr/$(get_libdir)/libltdl$(get_libname 3)
+	preserve_old_lib_notify /usr/$(get_libdir)/libltdl$(get_libname 3)
 }
