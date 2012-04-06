@@ -1,8 +1,77 @@
 ===== mutual sub-directory: "dev-libs/apr" =====
+--("dev-libs/apr/ChangeLog")-->8-->
+--- usr/portage/dev-libs/apr/ChangeLog	2012-04-03 12:11:49.000000000 -0700
++++ overlay/dev-libs/apr/ChangeLog	2011-08-07 04:01:33.000000000 -0700
+@@ -1,37 +1,6 @@
+ # ChangeLog for dev-libs/apr
+-# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-libs/apr/ChangeLog,v 1.183 2012/02/28 08:08:16 idl0r Exp $
+-
+-*apr-1.4.6 (28 Feb 2012)
+-
+-  28 Feb 2012; Christian Ruppert <idl0r@gentoo.org> +apr-1.4.6.ebuild,
+-  metadata.xml:
+-  Version bump, CVE-2012-0840, bug 403731
+-
+-  11 Nov 2011; Markos Chandras <hwoarang@gentoo.org> -apr-1.4.4.ebuild:
+-  remove old ebuild
+-
+-  11 Nov 2011; Markos Chandras <hwoarang@gentoo.org> apr-1.4.5.ebuild:
+-   Use EAPI=4. Add static-libs USE flag. Patch by Arfrever.
+-
+-  29 Oct 2011; Raúl Porcel <armin76@gentoo.org> apr-1.4.5.ebuild:
+-  alpha/ia64/s390/sh/sparc stable wrt #385859
+-
+-  24 Oct 2011; Markus Meier <maekke@gentoo.org> apr-1.4.5.ebuild:
+-  x86 stable, bug #385859
+-
+-  23 Oct 2011; Markus Meier <maekke@gentoo.org> apr-1.4.5.ebuild:
+-  arm stable, bug #385859
+-
+-  22 Oct 2011; Kacper Kowalik <xarthisius@gentoo.org> apr-1.4.5.ebuild:
+-  ppc/ppc64 stable wrt #385859
+-
+-  19 Oct 2011; Jeroen Roovers <jer@gentoo.org> apr-1.4.5.ebuild:
+-  Stable for HPPA (bug #385859).
+-
+-  19 Oct 2011; Tony Vroon <chainsaw@gentoo.org> apr-1.4.5.ebuild:
+-  Marked stable on AMD64 based on arch testing by Agostino "ago" Sarubbo & Ian
+-  "idella4" Delaney in security bug #385859.
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
++# $Header: /var/cvsroot/gentoo-x86/dev-libs/apr/ChangeLog,v 1.174 2011/07/07 10:21:09 hwoarang Exp $
+ 
+ *apr-1.4.5 (07 Jul 2011)
+ 
+<--8<--
 --("dev-libs/apr/apr-1.4.5.ebuild")-->8-->
---- usr/portage/dev-libs/apr/apr-1.4.5.ebuild	2011-09-03 07:31:31.000000000 -0700
+--- usr/portage/dev-libs/apr/apr-1.4.5.ebuild	2012-04-03 12:11:49.000000000 -0700
 +++ overlay/dev-libs/apr/apr-1.4.5.ebuild	2012-02-11 15:07:12.928674100 -0800
-@@ -27,6 +27,11 @@
+@@ -1,8 +1,8 @@
+ # Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-libs/apr/apr-1.4.5.ebuild,v 1.8 2011/11/11 19:17:50 hwoarang Exp $
++# $Header: /var/cvsroot/gentoo-x86/dev-libs/apr/apr-1.4.5.ebuild,v 1.1 2011/07/07 10:21:09 hwoarang Exp $
+ 
+-EAPI="4"
++EAPI="3"
+ 
+ inherit autotools eutils libtool multilib
+ 
+@@ -13,7 +13,7 @@
+ LICENSE="Apache-2.0"
+ SLOT="1"
+ KEYWORDS="~ppc-aix ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+-IUSE="doc elibc_FreeBSD older-kernels-compatibility static-libs +urandom +uuid"
++IUSE="doc elibc_FreeBSD older-kernels-compatibility +urandom +uuid"
+ RESTRICT="test"
+ 
+ # NOTE: most UNIX systems have uuid functionality in their libc
+@@ -24,11 +24,14 @@
+ DEPEND="${RDEPEND}
+ 	doc? ( app-doc/doxygen )"
+ 
+-DOCS=(CHANGES NOTICE README)
+-
  src_prepare() {
  	epatch "${FILESDIR}"/${PN}-1.2.11-mint.patch
  
@@ -14,7 +83,7 @@
  	# Ensure that system libtool is used.
  	local g=
  	[[ ${CHOST} == *-darwin* ]] && g=g
-@@ -80,6 +85,10 @@
+@@ -82,6 +85,10 @@
  		esac
  	fi
  
@@ -25,10 +94,61 @@
  	if ! use uuid; then
  		local apr_cv_osuuid
  		export apr_cv_osuuid="no"
+@@ -97,24 +104,22 @@
+ }
+ 
+ src_compile() {
+-	emake
++	emake || die "emake failed"
+ 
+ 	if use doc; then
+-		emake dox
++		emake dox || die "emake dox failed"
+ 	fi
+ }
+ 
+ src_install() {
+-	default
++	emake DESTDIR="${D}" install || die "emake install failed"
+ 
+-	find "${ED}" -name "*.la" -exec rm -f {} +
++	find "${ED}" -name "*.la" -print0 | xargs -0 rm -f
+ 
+-	if use doc; then
+-		dohtml -r docs/dox/html/*
+-	fi
++	dodoc CHANGES NOTICE README
+ 
+-	if ! use static-libs; then
+-		find "${ED}" -name "*.a" -exec rm -f {} +
++	if use doc; then
++		dohtml -r docs/dox/html/* || die "dohtml failed"
+ 	fi
+ 
+ 	# This file is only used on AIX systems, which Gentoo is not,
+<--8<--
+--("dev-libs/apr/metadata.xml")-->8-->
+--- usr/portage/dev-libs/apr/metadata.xml	2012-04-03 12:11:49.000000000 -0700
++++ overlay/dev-libs/apr/metadata.xml	2011-08-07 04:01:33.000000000 -0700
+@@ -6,8 +6,8 @@
+ 		<email>apache-bugs@gentoo.org</email>
+ 	</maintainer>
+ 	<use>
+-		<flag name="older-kernels-compatibility">Enable binary compatibility with older kernels</flag>
+-		<flag name="urandom">Use /dev/urandom instead of /dev/random</flag>
+-		<flag name="uuid">Enable UUID support</flag>
++  <flag name='older-kernels-compatibility'>Enable binary compatibility with older kernels</flag>
++  <flag name='urandom'>Use /dev/urandom instead of /dev/random</flag>
++  <flag name='uuid'>Enable UUID support</flag>
+ 	</use>
+ </pkgmetadata>
 <--8<--
 ===== mutual sub-directory: "dev-libs/apr/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-libs/apr/files/apr-1.4.5-cygport-misc.patch: unified diff output, ASCII text
 overlay/dev-libs/apr/files/apr-1.4.5-cygport.patch: unified diff output, ASCII text, with very long lines
+
+*** The following files appear only in portage ***
+usr/portage/dev-libs/apr/apr-1.4.6.ebuild: ASCII English text
 

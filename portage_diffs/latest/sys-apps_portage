@@ -1,16 +1,27 @@
 ===== mutual sub-directory: "sys-apps/portage" =====
 --("sys-apps/portage/ChangeLog")-->8-->
---- usr/portage/sys-apps/portage/ChangeLog	2012-03-01 13:01:30.000000000 -0800
+--- usr/portage/sys-apps/portage/ChangeLog	2012-04-03 11:41:07.000000000 -0700
 +++ overlay/sys-apps/portage/ChangeLog	2012-03-06 21:10:01.141031100 -0800
-@@ -1,8 +1,15 @@
+@@ -1,20 +1,15 @@
  # ChangeLog for sys-apps/portage
  # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Id: ChangeLog 60390 2012-03-01 20:46:45Z grobian $
+-# $Id: ChangeLog 60422 2012-04-03 18:22:01Z grobian $
 +# $Id: ChangeLog $
  
--*portage-2.2.01.20271 (01 Mar 2012)
+-*portage-2.2.01.20389 (03 Apr 2012)
 +*portage-2.2.01.20271 (06 Mar 2012)
-+
+ 
+-  03 Apr 2012; Fabian Groffen <grobian@gentoo.org> +portage-2.2.01.20389.ebuild,
+-  -portage-2.2.01.20239.ebuild:
+-  Version bump, matches v2.2.0_alpha99+
+-
+-*portage-2.2.01.20366 (31 Mar 2012)
+-
+-  31 Mar 2012; Fabian Groffen <grobian@gentoo.org> +portage-2.2.01.20366.ebuild,
+-  -portage-2.2.01.20153.ebuild:
+-  Version bump, matches 2.2.0_alpha96+
+-
+-*portage-2.2.01.20271 (01 Mar 2012)
 +  06 Mar 2012; Greg Turner <gmturner007@ameritech.net>
 +  +files/portage-2.2.01.20271-cygwin-locking-nightmare.patch,
 +  +files/portage-2.2.01.20271-cyg_whitelist.patch,
@@ -34,7 +45,7 @@
 <--8<--
 --("sys-apps/portage/portage-2.2.01.20271.ebuild")-->8-->
 --- usr/portage/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-01 13:01:30.000000000 -0800
-+++ overlay/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-03-30 19:15:41.086223700 -0700
++++ overlay/sys-apps/portage/portage-2.2.01.20271.ebuild	2012-04-06 04:47:03.078006800 -0700
 @@ -1,6 +1,6 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -83,6 +94,57 @@
  
  src_configure() {
 <--8<--
+--("sys-apps/portage/portage-2.2.01.20389.ebuild")-->8-->
+--- usr/portage/sys-apps/portage/portage-2.2.01.20389.ebuild	2012-04-03 11:41:07.000000000 -0700
++++ overlay/sys-apps/portage/portage-2.2.01.20389.ebuild	2012-04-06 05:10:15.158506800 -0700
+@@ -1,6 +1,6 @@
+ # Copyright 1999-2012 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Id: portage-2.2.01.16270.ebuild 58665 2010-09-05 19:54:38Z grobian $
++# $Id: portage-2.2.01.16270.ebuild $
+ 
+ RESTRICT="test"
+ 
+@@ -14,7 +14,7 @@
+ LICENSE="GPL-2"
+ KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+ SLOT="0"
+-IUSE="build doc epydoc ipc linguas_pl selinux prefix-chaining"
++IUSE="build doc epydoc ipc linguas_pl selinux prefix-chaining cygdll-protect"
+ 
+ python_dep=">=dev-lang/python-2.7 <dev-lang/python-3.0"
+ 
+@@ -92,6 +92,29 @@
+ 	fi
+ 
+ 	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
++
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
++		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
++		epatch "${FILESDIR}"/${PN}-2.2.01.20389-cygwin-dosym-exe-hack.patch
++		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-unc-prevention.patch
++	else
++		use cygdll-protect && {
++			ewarn "cygdll-protect outside of cygwin?  Hope you"
++			ewarn "know what you're doing -- seems pretty wierd."
++		}
++	fi
++
++	# WIP, not working yet
++	use cygdll-protect && { \
++		epatch "${FILESDIR}"/${PN}-2.2.01.20389-cygdll_protect.patch
++		for f in "bin/cygdll-update" ; do
++			einfo "setting executable bits for ${f} since patch doesn't"
++			chmod a+x "${S}"/${f}
++		done
++	}
++
++	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
+ }
+ 
+ src_configure() {
+<--8<--
 ===== mutual sub-directory: "sys-apps/portage/files" =====
 
 *** The following files appear only in the overlay ***
@@ -92,8 +154,9 @@ overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-dosym-exe-hack.patch:
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-lib-qa-fix.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-locking-nightmare.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-unc-prevention.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20389-cygdll_protect.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20389-cygwin-dosym-exe-hack.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-apps/portage/portage-2.2.01.20153.ebuild: ASCII English text
-usr/portage/sys-apps/portage/portage-2.2.01.20239.ebuild: ASCII English text
+usr/portage/sys-apps/portage/portage-2.2.01.20366.ebuild: ASCII English text
 

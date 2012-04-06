@@ -1,11 +1,29 @@
 ===== mutual sub-directory: "dev-vcs/subversion" =====
 --("dev-vcs/subversion/ChangeLog")-->8-->
---- usr/portage/dev-vcs/subversion/ChangeLog	2012-03-02 13:33:25.000000000 -0800
+--- usr/portage/dev-vcs/subversion/ChangeLog	2012-03-14 21:34:23.000000000 -0700
 +++ overlay/dev-vcs/subversion/ChangeLog	2011-11-30 06:33:09.000000000 -0800
-@@ -1,25 +1,6 @@
+@@ -1,43 +1,6 @@
  # ChangeLog for dev-vcs/subversion
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/ChangeLog,v 1.71 2012/03/02 21:24:59 grobian Exp $
+-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/ChangeLog,v 1.73 2012/03/15 04:17:20 floppym Exp $
+-
+-  15 Mar 2012; Mike Gilbert <floppym@gentoo.org> subversion-1.6.17-r7.ebuild,
+-  subversion-1.7.0.ebuild, subversion-1.7.1.ebuild, subversion-1.7.2.ebuild,
+-  subversion-1.7.4.ebuild:
+-  Restrict pypy.
+-
+-*subversion-1.7.4 (11 Mar 2012)
+-
+-  11 Mar 2012; Thomas Sachau (Tommy[D]) <tommy@gentoo.org>
+-  +subversion-1.7.4.ebuild,
+-  +files/subversion-fix-parallel-build-support-for-perl-bindings.patch:
+-  Version bump, fixes bug 404939 and bug 404527, add workaround for linking
+-  issue during cross-compilation, when upgrading from 1.6 to 1.7, fixes bug
+-  387057, restrict ruby dependency to 1.8 and force usage of that version,
+-  fixes bug 399105, add patch for parallel make issue with perl module, fixes
+-  bug 388607, also adjust xinetd.d script with USE=apache2 disabled, fixes bug
+-  381385, remove enewgroup and enewuser from pkg_config, fixes bug 404499,
+-  remove files for languages not in LINGUAS var, fixes bug 402299
 -
 -  02 Mar 2012; Fabian Groffen <grobian@gentoo.org> subversion-1.7.2.ebuild:
 -  Drop Solaris flag trickery for neon, neon itself is fixed now
@@ -47,8 +65,22 @@
  		<flag name="ctypes-python">Build and install Ctypes Python bindings</flag>
 <--8<--
 --("dev-vcs/subversion/subversion-1.7.1.ebuild")-->8-->
---- usr/portage/dev-vcs/subversion/subversion-1.7.1.ebuild	2011-11-30 06:33:09.000000000 -0800
+--- usr/portage/dev-vcs/subversion/subversion-1.7.1.ebuild	2012-03-14 21:34:23.000000000 -0700
 +++ overlay/dev-vcs/subversion/subversion-1.7.1.ebuild	2012-02-13 07:28:02.236930700 -0800
+@@ -1,10 +1,10 @@
+-# Copyright 1999-2012 Gentoo Foundation
++# Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/subversion-1.7.1.ebuild,v 1.3 2012/03/15 04:17:20 floppym Exp $
++# $Header: /var/cvsroot/gentoo-x86/dev-vcs/subversion/subversion-1.7.1.ebuild,v 1.2 2011/11/30 14:28:49 grobian Exp $
+ 
+ EAPI="3"
+ SUPPORT_PYTHON_ABIS="1"
+-RESTRICT_PYTHON_ABIS="3.* *-jython *-pypy-*"
++RESTRICT_PYTHON_ABIS="3.* *-jython"
+ WANT_AUTOMAKE="none"
+ MY_P="${P/_/-}"
+ 
 @@ -124,6 +124,15 @@
  	sed -i -e '1c\#!/usr/bin/env sh' build/transform_libtool_scripts.sh || \
  		die "/bin/sh is not POSIX shell!"
@@ -141,4 +173,6 @@ overlay/dev-vcs/subversion/files/subversion-1.7.1-cygwin.patch: unified diff out
 usr/portage/dev-vcs/subversion/subversion-1.6.17-r7.ebuild: ASCII English text
 usr/portage/dev-vcs/subversion/subversion-1.7.0.ebuild: ASCII English text
 usr/portage/dev-vcs/subversion/subversion-1.7.2.ebuild: ASCII English text
+usr/portage/dev-vcs/subversion/subversion-1.7.4.ebuild: ASCII English text
+usr/portage/dev-vcs/subversion/files/subversion-fix-parallel-build-support-for-perl-bindings.patch: unified diff output, ASCII text
 

@@ -1,0 +1,77 @@
+Binary files portage-utils-0.9.orig/.main.c.swp and portage-utils-0.9/.main.c.swp differ
+diff -urN portage-utils-0.9.orig/libq/scandirat.c portage-utils-0.9/libq/scandirat.c
+--- portage-utils-0.9.orig/libq/scandirat.c	2011-12-22 10:29:23.000000000 -0800
++++ portage-utils-0.9/libq/scandirat.c	2012-04-06 07:03:49.760506800 -0700
+@@ -7,7 +7,10 @@
+  * Copyright 2005-2011 Mike Frysinger  - <vapier@gentoo.org>
+  */
+ 
+-static int scandirat(int dir_fd, const char *dir, struct dirent ***dirlist,
++#if !defined(__CYGWIN__)
++static
++#endif
++int scandirat(int dir_fd, const char *dir, struct dirent ***dirlist,
+ 	int (*filter)(const struct dirent *),
+ 	int (*compar)(const struct dirent **, const struct dirent **))
+ {
+@@ -30,8 +33,13 @@
+ 		if (filter(de) == 0)
+ 			continue;
+ 
++		#if __CYGWIN__
++		ret = realloc(ret, sizeof(struct dirent) * (cnt + 1));
++		ret[cnt++] = xmemdup(de, sizeof(struct dirent));
++		#else
+ 		ret = realloc(ret, sizeof(*ret) * (cnt + 1));
+ 		ret[cnt++] = xmemdup(de, de->d_reclen);
++		#endif
+ 	}
+ 	*dirlist = ret;
+ 
+diff -urN portage-utils-0.9.orig/main.c portage-utils-0.9/main.c
+--- portage-utils-0.9.orig/main.c	2011-12-22 12:35:08.000000000 -0800
++++ portage-utils-0.9/main.c	2012-04-06 07:32:07.010506800 -0700
+@@ -540,6 +540,9 @@
+ 	IF_DEBUG(fprintf(stderr, "profile %s\n", file));
+ 
+ 	configroot_len = strlen(configroot);
++	if (*file == '/')
++		while (*(configroot + configroot_len - 1) == '/')
++			if (--configroot_len == 0) break;
+ 	file_len = strlen(file);
+ 	buflen = configroot_len + file_len + 1;
+ 	buf = xmalloc(buflen);
+@@ -648,11 +651,15 @@
+ 
+ 	/* initialize the base profile path */
+ 	configroot_len = strlen(configroot);
++	if (*profile == '/')
++		while (*(configroot + configroot_len - 1) == '/')
++			if (--configroot_len == 0) break;
+ 	profile_len = strlen(profile);
+ 	sub_len = 1024;	/* should be big enough for longest line in "parent" */
+ 	profile_file = xmalloc(configroot_len + profile_len + sub_len + 2);
+ 
+-	memcpy(profile_file, configroot, configroot_len);
++	if (configroot_len > 0)
++		memcpy(profile_file, configroot, configroot_len);
+ 	memcpy(profile_file + configroot_len, profile, profile_len);
+ 	sub_file = profile_file + configroot_len + profile_len + 1;
+ 	sub_file[-1] = '/';
+diff -urN portage-utils-0.9.orig/applets.h portage-utils-0.9/applets.h
+--- portage-utils-0.9.orig/applets.h	2011-12-22 12:35:08.000000000 -0800
++++ portage-utils-0.9/applets.h	2012-04-06 12:19:16.567036500 -0700
+@@ -13,8 +13,13 @@
+ /* applet prototypes */
+ typedef int (*APPLET)(int, char **);
+ 
++#if __CYGWIN__
++#define DECLARE_APPLET(applet) \
++	extern int applet##_main(int, char **);
++#else
+ #define DECLARE_APPLET(applet) \
+ 	extern int applet##_main(int, char **) __attribute__((weak));
++#endif
+ DECLARE_APPLET(q)
+ DECLARE_APPLET(qcheck)
+ DECLARE_APPLET(qdepends)

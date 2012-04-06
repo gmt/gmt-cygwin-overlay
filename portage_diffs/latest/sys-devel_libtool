@@ -33,8 +33,8 @@
  }
 <--8<--
 --("sys-devel/libtool/libtool-2.4.2.ebuild")-->8-->
---- usr/portage/sys-devel/libtool/libtool-2.4.2.ebuild	2012-04-05 05:50:12.180002700 -0700
-+++ overlay/sys-devel/libtool/libtool-2.4.2.ebuild	2012-04-06 03:52:49.664717000 -0700
+--- usr/portage/sys-devel/libtool/libtool-2.4.2.ebuild	2011-11-06 12:31:34.000000000 -0800
++++ overlay/sys-devel/libtool/libtool-2.4.2.ebuild	2012-04-06 04:05:20.261806400 -0700
 @@ -1,12 +1,12 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2

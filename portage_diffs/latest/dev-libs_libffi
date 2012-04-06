@@ -1,11 +1,26 @@
 ===== mutual sub-directory: "dev-libs/libffi" =====
 --("dev-libs/libffi/ChangeLog")-->8-->
---- usr/portage/dev-libs/libffi/ChangeLog	2012-02-19 08:02:52.000000000 -0800
+--- usr/portage/dev-libs/libffi/ChangeLog	2012-04-06 08:05:59.000000000 -0700
 +++ overlay/dev-libs/libffi/ChangeLog	2011-11-18 04:02:57.000000000 -0800
-@@ -1,20 +1,6 @@
+@@ -1,35 +1,6 @@
  # ChangeLog for dev-libs/libffi
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.137 2012/02/19 15:42:11 armin76 Exp $
+-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.140 2012/04/06 14:58:23 ssuominen Exp $
+-
+-  06 Apr 2012; Samuli Suominen <ssuominen@gentoo.org>
+-  -libffi-3.0.11_rc1.ebuild, -libffi-3.0.11_rc2.ebuild,
+-  -files/libffi-3.0.11_rc2-fix-ppc64-compile.patch:
+-  old
+-
+-*libffi-3.0.11_rc3 (06 Apr 2012)
+-
+-  06 Apr 2012; Samuli Suominen <ssuominen@gentoo.org>
+-  +libffi-3.0.11_rc3.ebuild:
+-  Version bump.
+-
+-  13 Mar 2012; Samuli Suominen <ssuominen@gentoo.org> libffi-3.0.11_rc2.ebuild,
+-  +files/libffi-3.0.11_rc2-fix-ppc64-compile.patch:
+-  Fix building for PowerPC64 using patch from libffi-discuss ML.
 -
 -  19 Feb 2012; Raúl Porcel <armin76@gentoo.org> libffi-3.0.10.ebuild:
 -  arm/ia64/m68k/s390/sh/sparc stable wrt #387063
@@ -80,8 +95,7 @@
 overlay/dev-libs/libffi/files/libffi-3.0.8-cygport-no-undefined.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/dev-libs/libffi/libffi-3.0.11_rc1.ebuild: ASCII English text
-usr/portage/dev-libs/libffi/libffi-3.0.11_rc2.ebuild: ASCII English text
+usr/portage/dev-libs/libffi/libffi-3.0.11_rc3.ebuild: ASCII English text
 usr/portage/dev-libs/libffi/libffi-3.0.9-r2.ebuild: ASCII English text
 usr/portage/dev-libs/libffi/files/libffi-3.0.9-x32.patch: unified diff output, ASCII text
 

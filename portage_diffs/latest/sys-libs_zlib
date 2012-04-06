@@ -65,17 +65,19 @@
  		emake || die
 <--8<--
 --("sys-libs/zlib/zlib-1.2.5.1-r2.ebuild")-->8-->
---- usr/portage/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild	2012-01-09 19:01:30.000000000 -0800
+--- usr/portage/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild	2012-03-09 08:31:30.000000000 -0800
 +++ overlay/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild	2012-03-09 19:07:47.227348300 -0800
-@@ -1,6 +1,6 @@
+@@ -1,8 +1,7 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
 -# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild,v 1.3 2011/09/23 17:52:32 jlec Exp $
 +# $Header: $
  
+-AUTOTOOLS_AUTO_DEPEND="no"
  inherit autotools eutils toolchain-funcs
  
-@@ -37,6 +37,9 @@
+ DESCRIPTION="Standard (de)compression library"
+@@ -38,6 +37,9 @@
  
  	epatch "${FILESDIR}"/${P}-aix-soname.patch #213277
  
@@ -85,7 +87,7 @@
  	# also set soname and stuff on Solaris (with CHOST compensation fix as below)
  	sed -i -e 's:Linux\* | linux\*:Linux\* | linux\* | SunOS\* | solaris\*:' configure || die
  	# and compensate for our ebuild env having CHOST set
-@@ -70,6 +73,16 @@
+@@ -71,6 +73,16 @@
  		echoit ./configure --static --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
  		emake || die
  		;;
@@ -102,7 +104,7 @@
  	*)	# not an autoconf script, so can't use econf
  		echoit ./configure --shared --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
  		emake || die
-@@ -99,9 +112,8 @@
+@@ -100,9 +112,8 @@
  		insinto /usr/share/pkgconfig
  		doins zlib.pc || die
  		;;
@@ -113,7 +115,7 @@
  		gen_usr_ldscript -a z
  		sed_macros "${ED}"/usr/include/*.h
  		;;
-@@ -122,5 +134,12 @@
+@@ -123,5 +134,12 @@
  		dodoc *.txt
  	fi
  
