@@ -5,3 +5,7 @@
 # Without this, tests involving indirect_deps.at fail.
 # Warrants more investigation upstream, which is pending.
 sys-devel/libtool static-libs
+
+# Pretty sure I have a good reason for this but I
+# seriously can't remember, sorry -gmt
+sys-libs/ncurses static-libs
