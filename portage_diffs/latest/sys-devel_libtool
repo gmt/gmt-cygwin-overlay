@@ -1,8 +1,23 @@
 ===== mutual sub-directory: "sys-devel/libtool" =====
 --("sys-devel/libtool/libtool-2.4-r4.ebuild")-->8-->
 --- usr/portage/sys-devel/libtool/libtool-2.4-r4.ebuild	2011-11-07 10:01:35.000000000 -0800
-+++ overlay/sys-devel/libtool/libtool-2.4-r4.ebuild	2012-04-06 03:18:36.467159600 -0700
-@@ -55,6 +56,14 @@
++++ overlay/sys-devel/libtool/libtool-2.4-r4.ebuild	2012-04-07 18:38:07.263320600 -0700
+@@ -1,12 +1,12 @@
+ # Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-devel/libtool/libtool-2.4-r4.ebuild,v 1.1 2011/10/20 03:39:19 vapier Exp $
++# $Header: $
+ 
+ EAPI="2" #356089
+ 
+ LIBTOOLIZE="true" #225559
+ WANT_LIBTOOL="none"
+-inherit eutils autotools multilib prefix
++inherit eutils autotools multilib prefix-gmt
+ 
+ if [[ ${PV} == "9999" ]] ; then
+ 	EGIT_REPO_URI="git://git.savannah.gnu.org/${PN}.git
+@@ -55,6 +55,15 @@
  	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-mint.patch
  	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-irix.patch
  
@@ -12,25 +27,35 @@
 +		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-03-gcc-flags.patch
 +		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-04-fstack-protector.patch
 +		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-install-sh-unc-suppression.patch
++		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-libtool-unc-suppression.patch
 +	fi
 +
  	# seems that libtool has to know about EPREFIX a little bit better,
  	# since it fails to find prefix paths to search libs from, resulting in
  	# some packages building static only, since libtool is fooled into
-@@ -112,9 +122,13 @@
+@@ -62,11 +71,9 @@
+ 	# fixed by making the gcc wrapper return the correct result for
+ 	# -print-search-dirs (doesn't include prefix dirs ...).
+ 	if use prefix ; then
+-		epatch "${FILESDIR}"/2.2.10/${PN}-2.2.10-eprefix.patch
+-		eprefixify libltdl/m4/libtool.m4
++		eprefixify_patch "${FILESDIR}"/2.2.10/${PN}-2.2.10-eprefix.patch
+ 	fi
+ 
+-	epunt_cxx
+ 	cd libltdl/m4
+ 	epatch "${FILESDIR}"/1.5.20/${PN}-1.5.20-use-linux-version-in-fbsd.patch #109105
+ 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-module-bundle.patch
+@@ -76,6 +83,9 @@
+ 	AT_NOELIBTOOLIZE=yes eautoreconf
+ 	cd ..
+ 	AT_NOELIBTOOLIZE=yes eautoreconf
++
++	# see bug #410877
++	use test || epunt_cxx
  }
  
- pkg_preinst() {
-+	# Some wierd problem here bootstrapping cygwin
-+	[[ ${CHOST} != *-cygwin* ]] && \
- 	preserve_old_lib /usr/$(get_libdir)/libltdl$(get_libname 3)
- }
- 
- pkg_postinst() {
-+	# Some wierd problem here bootstrapping cygwin
-+	[[ ${CHOST} != *-cygwin* ]] && \
- 	preserve_old_lib_notify /usr/$(get_libdir)/libltdl$(get_libname 3)
- }
+ src_configure() {
 <--8<--
 --("sys-devel/libtool/libtool-2.4.2.ebuild")-->8-->
 --- usr/portage/sys-devel/libtool/libtool-2.4.2.ebuild	2011-11-06 12:31:34.000000000 -0800

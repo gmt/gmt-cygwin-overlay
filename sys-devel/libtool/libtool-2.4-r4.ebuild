@@ -1,12 +1,12 @@
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/libtool/libtool-2.4-r4.ebuild,v 1.1 2011/10/20 03:39:19 vapier Exp $
+# $Header: $
 
 EAPI="2" #356089
 
 LIBTOOLIZE="true" #225559
 WANT_LIBTOOL="none"
-inherit eutils autotools multilib prefix
+inherit eutils autotools multilib prefix-gmt
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://git.savannah.gnu.org/${PN}.git
@@ -52,7 +52,6 @@ src_prepare() {
 
 	[[ ${CHOST} == *-winnt* ]] &&
 		epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-winnt.patch
-
 	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-mint.patch
 	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-irix.patch
 
@@ -62,6 +61,7 @@ src_prepare() {
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-03-gcc-flags.patch
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-04-fstack-protector.patch
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-install-sh-unc-suppression.patch
+		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-libtool-unc-suppression.patch
 	fi
 
 	# seems that libtool has to know about EPREFIX a little bit better,
@@ -71,21 +71,21 @@ src_prepare() {
 	# fixed by making the gcc wrapper return the correct result for
 	# -print-search-dirs (doesn't include prefix dirs ...).
 	if use prefix ; then
-		epatch "${FILESDIR}"/2.2.10/${PN}-2.2.10-eprefix.patch
-		eprefixify libltdl/m4/libtool.m4
+		eprefixify_patch "${FILESDIR}"/2.2.10/${PN}-2.2.10-eprefix.patch
 	fi
 
-	epunt_cxx
 	cd libltdl/m4
 	epatch "${FILESDIR}"/1.5.20/${PN}-1.5.20-use-linux-version-in-fbsd.patch #109105
 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-module-bundle.patch
 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-use-linux-version.patch
 	epatch "${FILESDIR}"/${PV}/${P}-interix.patch
+	cd ..
+	AT_NOELIBTOOLIZE=yes eautoreconf
+	cd ..
+	AT_NOELIBTOOLIZE=yes eautoreconf
 
-	cd ..
-	AT_NOELIBTOOLIZE=yes eautoreconf
-	cd ..
-	AT_NOELIBTOOLIZE=yes eautoreconf
+	# see bug #410877
+	use test || epunt_cxx
 }
 
 src_configure() {
@@ -122,13 +122,9 @@ src_install() {
 }
 
 pkg_preinst() {
-	# Some wierd problem here bootstrapping cygwin
-	[[ ${CHOST} != *-cygwin* ]] && \
-		preserve_old_lib /usr/$(get_libdir)/libltdl$(get_libname 3)
+	preserve_old_lib /usr/$(get_libdir)/libltdl$(get_libname 3)
 }
 
 pkg_postinst() {
-	# Some wierd problem here bootstrapping cygwin
-	[[ ${CHOST} != *-cygwin* ]] && \
-		preserve_old_lib_notify /usr/$(get_libdir)/libltdl$(get_libname 3)
+	preserve_old_lib_notify /usr/$(get_libdir)/libltdl$(get_libname 3)
 }
