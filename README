@@ -91,6 +91,44 @@ efforts involved some very aggressive hacks; I have no idea, as of right now, wh
 would be a working, straightforward bootstrap recipe.  Going forward, I plan to
 fix this somehow, either with explicit instructions or a script or both.
 
+NOTES
+=====
+
+This overlay goes to very great pains to avoid paths beginning with '//'.
+Gentoo ubiquitiously assumes that any number of preceeding slashes are a
+noop in a pathname.  A number of upstream packages make the same assumption.
+Unfortunately for all parties, paths beginning with '//' are not a noop.
+I was surprised to learn that this is not a cygwinism -- it's a POSIXism;
+according to the libtool sources, POSIX reserves the '//*' path-space for
+implementation-dependent special purposes and cygwin merely makes use of
+this reservation.  This means that every time Gentoo acts on this assumption,
+there is a bug in Gentoo.
+
+However, the problem is pretty nearly intractable.  The '//' assumption is so
+ubiquitous as to almost be impossible to fix everywhere.  Eventually I hope to
+go on a bug-hunting expedition and try to find all the places we act on this
+assumption and submit Gentoo bugs for them; hopefully, others will do the same
+as they spot them.  In the meanwhile, I have patched a number of utilities to
+silently drop duplicate preceeding slashes from paths.  So many, in fact, it's
+kinda difficult to keep track of them all.  This means that:
+
+  CIFS PATHS BEGINNING WITH '//' ARE NOT SUPPORTED
+
+Sorry for shouting but this is important.  If you are using my overlay, and
+you are using paths like //foo/bar to get to the 'bar' share on the 'foo'
+machine, things will mostly work, but please be prepared for the likelihood
+that if you do any kind of development, some tool somewhere is likely to
+decide that you actually mean '/foo/bar'.
+
+This is easy to work around.  Just add your //foo/bar path to /etc/fstab
+and mount it into your filesystem (i.e., as /mnt/foobar/ or w/e).  Now you
+have a nice clean unambiguous way to refer to //foo/bar and all will be fine.
+
+In the future, once we have our own ebuild for cygwin1.dll, we may wish to consider
+modifying the //foo/bar feature of cygwin to work like /cygdrive, so that
+for example one could use /smb/foo/bar instead of //foo/bar.  Honestly I'm not
+sure why upstream doesn't do it that way themselves; it is worth investigating
+if upstream cygwin would be amenable to such a change.
 
 USING (INSTALLATION revisited)
 ==============================
