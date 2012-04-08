@@ -88,7 +88,6 @@
 ===== mutual sub-directory: "sys-libs/ncurses/files" =====
 
 *** The following files appear only in the overlay ***
-overlay/sys-libs/ncurses/.ncurses-5.7.20091227.ebuild.swp: Vim swap file, version 7.3
 overlay/sys-libs/ncurses/ncurses-5.7.20091227.ebuild: ASCII English text
 overlay/sys-libs/ncurses/files/ncurses-5.7-20091227.patch: unified diff output, ASCII text
 overlay/sys-libs/ncurses/files/ncurses-5.7-cygwin-misc.patch: unified diff output, ASCII text

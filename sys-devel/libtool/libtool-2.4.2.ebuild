@@ -58,6 +58,7 @@ src_prepare() {
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-03-gcc-flags.patch
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-04-fstack-protector.patch
 		epatch "${FILESDIR}"/2.4/${PN}-2.4.2-cygwin-install-sh-unc-suppression.patch
+		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-libtool-unc-suppression.patch
 	fi
 
 	# seems that libtool has to know about EPREFIX a little bit better,

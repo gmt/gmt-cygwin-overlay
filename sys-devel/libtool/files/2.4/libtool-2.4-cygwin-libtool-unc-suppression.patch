@@ -1,0 +1,15 @@
+diff -urN libtool-2.4.orig/libltdl/config/general.m4sh libtool-2.4.2/libltdl/config/general.m4sh
+--- libtool-2.4.orig/libltdl/config/general.m4sh	2012-04-07 13:11:12.670320600 -0700
++++ libtool-2.4/libltdl/config/general.m4sh	2012-04-07 15:16:22.628733900 -0700
+@@ -172,7 +172,10 @@
+       # Not necessarily an ordinary path; POSIX reserves leading '//'
+       # and for example Cygwin uses it to access remote file shares
+       # over CIFS/SMB, so we conserve a leading double slash if found.
+-      func_normal_abspath_altnamespace=/
++
++      # cygwin_gmt_overlay hack: we don't do this because accidental
++      # usage of this kind is a common source of problems in gentoo
++      # func_normal_abspath_altnamespace=/
+     ;;
+     /*)
+       # Absolute path, do nothing.
