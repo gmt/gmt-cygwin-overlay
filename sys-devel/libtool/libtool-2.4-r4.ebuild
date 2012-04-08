@@ -83,9 +83,6 @@ src_prepare() {
 	AT_NOELIBTOOLIZE=yes eautoreconf
 	cd ..
 	AT_NOELIBTOOLIZE=yes eautoreconf
-
-	# see bug #410877
-	use test || epunt_cxx
 }
 
 src_configure() {

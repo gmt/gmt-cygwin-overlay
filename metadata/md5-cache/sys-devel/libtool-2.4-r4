@@ -10,4 +10,4 @@ RDEPEND=sys-devel/gnuconfig !<sys-devel/autoconf-2.62:2.5 !<sys-devel/automake-1
 SLOT=2
 SRC_URI=mirror://gnu/libtool/libtool-2.4.tar.xz
 _eclasses_=autotools	44549e9bf38e512354112caafb24edc9	eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	libtool	3bc75448a5aa60eb4709b1e7b7750de2	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	prefix-gmt	5ffcf4fcffb353f2e590d3ac6f8eb17f	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
-_md5_=9565cb66f72c858df4c9f7283f8ef36d
+_md5_=489178fbe255730f92b2def3c85fb9ba

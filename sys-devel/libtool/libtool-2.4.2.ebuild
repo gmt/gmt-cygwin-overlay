@@ -59,6 +59,8 @@ src_prepare() {
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-04-fstack-protector.patch
 		epatch "${FILESDIR}"/2.4/${PN}-2.4.2-cygwin-install-sh-unc-suppression.patch
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-libtool-unc-suppression.patch
+		epatch "${FILESDIR}"/2.4/${PN}-2.4.2-subshell-avoidance.patch
+		epatch "${FILESDIR}"/2.4/${PN}-2.4.2-install-sh-subshell-avoidance.patch
 	fi
 
 	# seems that libtool has to know about EPREFIX a little bit better,
@@ -78,17 +80,22 @@ src_prepare() {
 	epatch "${FILESDIR}"/2.4/${PN}-2.4-interix.patch
 
 	# better to ultra-prefixify after all autotools stuff is over
-	if use ultra-prefixify ; then
+	# FIXME: we do this in the cygwin general case because we want to regenerate from
+	# the .m4sh files we modified in the subshell-avoidance patch -- hopefully there is
+	# some less horrific solution to getting those .sh files regenerated?
+	if use ultra-prefixify || [[ ${CHOST} == *-cygwin* ]] ; then
 		# fire up a subshell so we can wreak some havoc
 		(
 		cd "${S}"
 		# avoid maintainer-mode trouble... for the most part
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-anti-maintainer-mode.patch
-		eprefixify_patch "${FILESDIR}"/2.4/${PN}-2.4.2-ultra-prefixification.patch
-		bash_shebang_prefixify bootstrap libltdl/config/compile \
-			libltdl/config/{config.{guess,sub},depcomp,edit-readme-alpha,missing,mkstamp} \
-			libtoolize.in 
-		bash_shebang_prefixify_dirs tests
+		if use ultra-prefixify ; then
+			eprefixify_patch "${FILESDIR}"/2.4/${PN}-2.4.2-ultra-prefixification.patch
+			bash_shebang_prefixify bootstrap libltdl/config/compile \
+				libltdl/config/{config.{guess,sub},depcomp,edit-readme-alpha,missing,mkstamp} \
+				libtoolize.in 
+			bash_shebang_prefixify_dirs tests
+		fi
 		# unfortunately the above touches enough files to cause utter havoc.
 		# for now we take a very crude brute-force approach by aping almost everything
 		# in the bootstrap script.
@@ -114,7 +121,7 @@ src_prepare() {
 		unset WANT_AUTOMAKE
 		export WANT_AUTOCONF
 		export WANT_AUTOMAKE
-		# whip up a dirty Makefile... eGods forgive me, just following the recipe as I got it...
+		# whip up a dirty Makefile: the ... horror ... !
 		sed '/^if /,/^endif$/d;/^else$/,/^endif$/d;/^include /d' Makefile.am libltdl/Makefile.inc > Makefile
 		rm -f libltdl/config/ltmain.sh libltdl/m4/ltversion.m4
 		# note: added libtool.info to avoid maintainer-mode stuff
@@ -129,7 +136,6 @@ src_prepare() {
 		rm -f Makefile
 		cat > libltdl/config/libtoolize <<'EOF'
 #! /bin/sh
-# sheesh, what is with this sed statement!?  The... horror...
 echo "$0: Bootstrap detected, no files installed." | sed 's,^.*/,,g'
 exit 0
 EOF
@@ -155,11 +161,6 @@ EOF
 	AT_NOELIBTOOLIZE=yes eautoreconf
 	cd ..
 	AT_NOELIBTOOLIZE=yes eautoreconf
-
-	# see bug #410877
-	use test || \
-		epatch "${FILESDIR}"/2.4/${PN}-2.4.2-epunt_cxx.patch
-		# epunt_cxx
 }
 
 src_configure() {
