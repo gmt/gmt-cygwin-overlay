@@ -1,0 +1,88 @@
+diff -urN -x '*.swp' ncurses-5.9.orig/configure ncurses-5.9/configure
+--- ncurses-5.9.orig/configure	2012-04-09 12:34:38.073304400 -0700
++++ ncurses-5.9/configure	2012-04-09 12:38:06.950304400 -0700
+@@ -11186,7 +11186,17 @@
+ 		TEST_LIBS="-lpthread $TEST_LIBS"
+ 		TEST_LIBS2="-lpthread $TEST_LIBS2"
+ 	else
+-		LIB_SUFFIX="t${LIB_SUFFIX}"
++		# when not using weak symbols but with_reentrant,
++		# add 't' to the library suffix on all platforms
++		# except cygwin, where we only do that if ALSO
++		# compiling with full thread support.
++		case "$host" in
++		*cygwin* )
++			if test "$with_pthread" = "yes" ; then
++				LIB_SUFFIX="t${LIB_SUFFIX}"
++			fi ;;
++		* ) LIB_SUFFIX="t${LIB_SUFFIX}" ;;
++		esac
+ 	fi
+ 	cat >>confdefs.h <<\EOF
+ #define USE_REENTRANT 1
+diff -urN -x '*.swp' ncurses-5.9.orig/configure.in ncurses-5.9/configure.in
+--- ncurses-5.9.orig/configure.in	2011-03-27 17:22:26.000000000 -0700
++++ ncurses-5.9/configure.in	2012-04-09 12:38:52.485804400 -0700
+@@ -1150,7 +1150,17 @@
+ 		CF_ADD_LIB(pthread,TEST_LIBS)
+ 		CF_ADD_LIB(pthread,TEST_LIBS2)
+ 	else
+-		LIB_SUFFIX="t${LIB_SUFFIX}"
++		# when not using weak symbols but with_reentrant,
++		# add 't' to the library suffix on all platforms
++		# except cygwin, where we only do that if ALSO
++		# compiling with full thread support.
++		case "$host" in
++		*cygwin* )
++			if test "$with_pthread" = "yes" ; then
++				LIB_SUFFIX="t${LIB_SUFFIX}"
++			fi ;;
++		* ) LIB_SUFFIX="t${LIB_SUFFIX}" ;;
++		esac
+ 	fi
+ 	AC_DEFINE(USE_REENTRANT)
+ 	CF_NCURSES_ABI_6
+diff -urN -x '*.swp' ncurses-5.9.orig/Ada95/configure ncurses-5.9/Ada95/configure
+--- ncurses-5.9.orig/Ada95/configure	2011-03-31 16:34:47.000000000 -0700
++++ ncurses-5.9/Ada95/configure	2012-04-09 15:04:59.892804500 -0700
+@@ -9331,7 +9331,17 @@
+ LIBS=`echo "$LIBS" | sed -e 's/-lpthread[ 	]//g' -e 's/-lpthread$//'`
+ 
+ 	elif test "$assume_reentrant" = no ; then
+-		LIB_SUFFIX="t${LIB_SUFFIX}"
++		# when not using weak symbols but with_reentrant,
++		# add 't' to the library suffix on all platforms
++		# except cygwin, where we only do that if ALSO
++		# compiling with full thread support.
++		case "$host" in
++		*cygwin* )
++			if test "$with_pthread" = "yes" ; then
++				LIB_SUFFIX="t${LIB_SUFFIX}"
++			fi ;;
++		* ) LIB_SUFFIX="t${LIB_SUFFIX}" ;;
++		esac
+ 	fi
+ 	cat >>confdefs.h <<\EOF
+ #define USE_REENTRANT 1
+diff -urN -x '*.swp' ncurses-5.9.orig/Ada95/configure.in ncurses-5.9/Ada95/configure.in
+--- ncurses-5.9.orig/Ada95/configure.in	2011-03-31 15:49:22.000000000 -0700
++++ ncurses-5.9/Ada95/configure.in	2012-04-09 15:04:59.895304500 -0700
+@@ -368,7 +368,17 @@
+ 	if test $cf_cv_weak_symbols = yes ; then
+ 		CF_REMOVE_LIB(LIBS,$LIBS,pthread)
+ 	elif test "$assume_reentrant" = no ; then
+-		LIB_SUFFIX="t${LIB_SUFFIX}"
++		# when not using weak symbols but with_reentrant,
++		# add 't' to the library suffix on all platforms
++		# except cygwin, where we only do that if ALSO
++		# compiling with full thread support.
++		case "$host" in
++		*cygwin* )
++			if test "$with_pthread" = "yes" ; then
++				LIB_SUFFIX="t${LIB_SUFFIX}"
++			fi ;;
++		* ) LIB_SUFFIX="t${LIB_SUFFIX}" ;;
++		esac
+ 	fi
+ 	AC_DEFINE(USE_REENTRANT)
+ else

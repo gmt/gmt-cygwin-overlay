@@ -1,112 +1,200 @@
 ===== mutual sub-directory: "sys-libs/ncurses" =====
---("sys-libs/ncurses/ChangeLog")-->8-->
---- usr/portage/sys-libs/ncurses/ChangeLog	2011-12-31 01:31:32.000000000 -0800
-+++ overlay/sys-libs/ncurses/ChangeLog	2010-12-30 12:39:24.000000000 -0800
-@@ -1,79 +1,6 @@
- # ChangeLog for sys-libs/ncurses
--# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/sys-libs/ncurses/ChangeLog,v 1.197 2011/12/28 19:26:42 halcy0n Exp $
--
--  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> ncurses-5.9-r1.ebuild:
--  Don't link non-existing shared libraries on static-only platforms, bug #394877
--
--  31 Dec 2011; Fabian Groffen <grobian@gentoo.org> ncurses-5.9-r1.ebuild:
--  Cleanup some legacy
--
--  28 Dec 2011; Mark Loeser <halcy0n@gentoo.org> ncurses-5.9.ebuild:
--  Stable for ppc/ppc64; bug #377631
--
--  18 Dec 2011; Raúl Porcel <armin76@gentoo.org> ncurses-5.9.ebuild:
--  alpha/ia64/m68k/s390/sh/sparc stable wrt #377631
--
--  03 Dec 2011; Markus Meier <maekke@gentoo.org> ncurses-5.9.ebuild:
--  arm stable, bug #377631
--
--  02 Dec 2011; Steve Dibb <beandog@gentoo.org> ncurses-5.9.ebuild:
--  amd64 stable, bug 377631
--
--  30 Nov 2011; Jeroen Roovers <jer@gentoo.org> ncurses-5.9.ebuild:
--  Stable for HPPA (bug #377631).
--
--  28 Nov 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> ncurses-5.9.ebuild:
--  x86 stable wrt bug #377631
--
--*ncurses-5.9-r1 (21 Nov 2011)
--
--  21 Nov 2011; Mike Frysinger <vapier@gentoo.org> +ncurses-5.9-r1.ebuild:
--  Install pkg-config files.
--
--  13 Nov 2011; Mike Frysinger <vapier@gentoo.org> -ncurses-5.6-r2.ebuild,
--  -ncurses-5.7-r3.ebuild, -ncurses-5.7-r5.ebuild, -ncurses-5.7-r6.ebuild:
--  Drop old ebuilds (to lose USE=nocxx).
--
--  22 May 2011; Kacper Kowalik <xarthisius@gentoo.org> ncurses-5.7-r7.ebuild:
--  ppc64 stable wrt #353437
--
--  23 Apr 2011; Raúl Porcel <armin76@gentoo.org> ncurses-5.7-r7.ebuild:
--  alpha/ia64/s390/sh stable wrt #353437
--
--  19 Apr 2011; Michael Weber <xmw@gentoo.org> ncurses-5.7-r7.ebuild:
--  sparc stable (bug 353437)
--
--  15 Apr 2011; Michael Weber <xmw@gentoo.org> ncurses-5.7-r7.ebuild:
--  arm stable (bug 353437)
--
--  15 Apr 2011; Christoph Mende <angelos@gentoo.org> ncurses-5.7-r7.ebuild:
--  Stable on amd64 wrt bug #353437
--
--  13 Apr 2011; Brent Baude <ranger@gentoo.org> ncurses-5.7-r7.ebuild:
--  Marking ncurses-5.7-r7 ppc for bug 353437
--
--  12 Apr 2011; Jeroen Roovers <jer@gentoo.org> ncurses-5.7-r7.ebuild:
--  Stable for HPPA (bug #353437).
--
--  12 Apr 2011; Thomas Kahle <tomka@gentoo.org> ncurses-5.7-r7.ebuild:
--  x86 stable per bug 353437
--
--*ncurses-5.9 (12 Apr 2011)
--
--  12 Apr 2011; Mike Frysinger <vapier@gentoo.org> +ncurses-5.9.ebuild:
--  Version bump #363177 by Panagiotis Christopoulos.
--
--*ncurses-5.8 (01 Mar 2011)
--
--  01 Mar 2011; Mike Frysinger <vapier@gentoo.org> +ncurses-5.8.ebuild,
--  +files/ncurses-5.8-gfbsd.patch, +files/ncurses-5.8-rxvt-unicode.patch:
--  Version bump.
--
--*ncurses-5.7-r7 (01 Mar 2011)
--
--  01 Mar 2011; Mike Frysinger <vapier@gentoo.org> +ncurses-5.7-r7.ebuild:
--  Fix new static-libs logic #351316 by Rafał Mużyło.
-+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/sys-libs/ncurses/ChangeLog,v 1.178 2010/11/15 11:55:07 wired Exp $
+--("sys-libs/ncurses/ncurses-5.9-r1.ebuild")-->8-->
+--- usr/portage/sys-libs/ncurses/ncurses-5.9-r1.ebuild	2011-12-31 01:31:32.000000000 -0800
++++ overlay/sys-libs/ncurses/ncurses-5.9-r1.ebuild	2012-04-10 12:32:21.662804500 -0700
+@@ -1,6 +1,6 @@
+-# Copyright 1999-2011 Gentoo Foundation
++# Copyright 1999-2012 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: /var/cvsroot/gentoo-x86/sys-libs/ncurses/ncurses-5.9-r1.ebuild,v 1.1 2011/11/21 22:08:23 vapier Exp $
++# $Header: $
  
- *ncurses-5.7-r6 (15 Nov 2010)
+ EAPI="1"
+ AUTOTOOLS_AUTO_DEPEND="no"
+@@ -31,8 +31,8 @@
+ 	# cannot depend on libtool, as this would create circular dependencies...
+ 	# And libtool-1.5.26 needs (a similar) patch for AIX (DESTDIR) as found in
+ 	# http://lists.gnu.org/archive/html/bug-libtool/2008-03/msg00124.html
+-	# Use libtool on hpux too to get some soname.
+-	[[ ${CHOST} == *'-aix'* || ${CHOST} == *'-hpux'* ]]
++	# Use libtool on hpux too to get some soname, and cygwin to avoid BROKEN_LINKER
++	[[ ${CHOST} == *'-aix'* || ${CHOST} == *'-hpux'* || ${CHOST} == *'-cygwin'* ]]
+ }
  
+ src_unpack() {
+@@ -49,6 +49,13 @@
+ 	epatch "${FILESDIR}"/${PN}-5.5-aix-shared.patch
+ 	epatch "${FILESDIR}"/${PN}-5.6-interix.patch
+ 
++	epatch "${FILESDIR}"/${PN}-5.9-cygwin-pthreads-suffix.patch
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-5.9-cygwin-version-info.patch
++		# perhaps because it sets pwd to the location of the new ncurses dll,
++		# this subshell created by progs/Makefile causes rebase errors
++		epatch "${FILESDIR}"/${PN}-5.9-cygwin-subshell-avoidance.patch
++	fi
+ 	# /bin/sh is not always good enough
+ 	find . -name "*.sh" | xargs sed -i -e '1c\#!/usr/bin/env sh'
+ 
+@@ -103,6 +110,13 @@
+ 	cd "${WORKDIR}"/$1
+ 	shift
+ 
++	local going_wide=no
++	for arg in "$@" ; do
++		if [[ $arg == --enable-widec ]] ; then
++			going_wide=yes
++		fi
++	done
++
+ 	# The chtype/mmask-t settings below are to retain ABI compat
+ 	# with ncurses-5.4 so dont change em !
+ 	local conf_abi="
+@@ -117,6 +131,8 @@
+ 	local myconf=""
+ 	if need-libtool; then
+ 		myconf="${myconf} --with-libtool"
++		[[ ${CHOST} == *-cygwin* ]] && \
++			myconf="${myconf} --with-shared --with-normal"
+ 	elif [[ ${CHOST} == *-mint* ]]; then
+ 		:
+ 	else
+@@ -125,6 +141,33 @@
+ 
+ 	if [[ ${CHOST} == *-interix* ]]; then
+ 		myconf="--without-leaks"
++	elif [[ ${CHOST} == *-cygwin* ]] ; then
++		myconf="${myconf} --without-leaks"
++		# override most of the conf_abi defaults set above
++		conf_abi="--with-mmask-t=long --without-pthread --with-abi-version=10"
++		if [[ ${going_wide} == yes ]] ; then
++			conf_abi="${conf_abi} --enable-ext-colors"
++		else
++			conf_abi="${conf_abi} --disable-ext-colors "
++		fi
++		myconf="${myconf} --disable-relink"
++		myconf="${myconf} --disable-rpath"
++		myconf="${myconf} --with-ticlib"
++		myconf="${myconf} --without-termlib"
++		myconf="${myconf} --enable-ext-mouse"
++		myconf="${myconf} --enable-sp-funcs"
++		myconf="${myconf} --with-wrap-prefix=ncwrap_"
++		myconf="${myconf} --enable-sigwinch"
++		myconf="${myconf} --enable-tcap-names"
++		myconf="${myconf} --disable-mixed-case"
++		myconf="${myconf} --with-pkg-config"
++		myconf="${myconf} --enable-pc-files"
++		myconf="${myconf} --enable-reentrant"
++		# weaks are a disaster in cygwin, so why play with fire?  plus configure test barfs
++		myconf="${myconf} --disable-weak-symbols"
++		export cf_cv_weak_symbols=no
++	else
++		myconf="${myconf} $(use_enable debug leaks)"
+ 	fi
+ 
+ 	# We need the basic terminfo files in /etc, bug #37026.  We will
+@@ -153,7 +196,6 @@
+ 		--enable-pc-files \
+ 		$(use_enable !ada warnings) \
+ 		$(use_with debug assertions) \
+-		$(use_enable debug leaks) \
+ 		$(use_with debug expanded) \
+ 		$(use_with !debug macros) \
+ 		$(use_with trace) \
+@@ -168,6 +210,16 @@
+ 	need-libtool ||
+ 	sed -i -e '/^libdir/s:/usr/lib\(64\|\)$:/lib\1:' ncurses/Makefile || die "nlibdir"
+ 
++	if [[ ${CHOST} == *-cygwin* && ${going_wide} == yes ]] ; then
++		# There is a bug here -- there is code in configure which looks like its
++		# supposed to do this automatically but.. it doesn't.  If that bug ever
++		# got fixed, the following code would be harmless anyhow.
++		find . -name 'Makefile' | while read f ; do
++			sed -e 's/-D_XOPEN_SOURCE=500/& -D_XOPEN_SOURCE_EXTENDED=1/' -i "${f}" && \
++				einfo "Hacking up ${f} to use -D_XOPEN_SOURCE_EXTENDED=1"
++		done
++	fi
++
+ 	# A little hack to fix parallel builds ... they break when
+ 	# generating sources so if we generate the sources first (in
+ 	# non-parallel), we can then build the rest of the package
+@@ -197,17 +249,39 @@
+ 
+ 	if need-libtool; then
+ 		# Move dynamic ncurses libraries into /lib
+-		dodir /$(get_libdir)
+ 		local f
+-		for f in "${ED}"usr/$(get_libdir)/lib{,n}curses{,w}$(get_libname)*; do
++		local libpfx=lib
++		local shlibdir=$(get_libdir)
++		local postfix=
++		[[ ${CHOST} == *-cygwin* ]] && { libpfx=cyg; shlibdir=bin; postfix=-10; }
++		dodir /${shlibdir}
++		[[ ${CHOST} == *-cygwin* ]] && dodir /$(get_libdir)
++		for f in "${ED}"usr/${shlibdir}/${libpfx}{,n}curses{,w}${postfix}$(get_libname)*; do
+ 			[[ -f ${f} ]] || continue
+-			mv "${f}" "${ED}"$(get_libdir)/ || die "could not move ${f#${ED}}"
++			einfo "moving \"/${f#${ED}}\" to \"/${shlibdir}/\"."
++			mv "${f}" "${ED}"${shlibdir}/ || die "could not move /${f#${ED}}"
++			[[ ${CHOST} == *-cygwin* ]] && {
++				local x="$( dirname ${f} )"
++				x="${x%${shlibdir}}$(get_libdir)"
++				x="${x}/lib$( foo=$(basename ${f}); foo="${foo%-10.dll}" ; echo ${foo#cyg} ).dll.a"
++				einfo "moving \"/${x#${ED}}\" to \"/lib/\"."
++				mv "${x}" "${ED}"lib/ || die "could not move /${x#${ED}}"
++			}
+ 		done
+-	else # keeping intendation to keep diff small
++	elif ! need-libtool ; then # keeping intendation to keep diff small
+ 	# Move static and extraneous ncurses static libraries out of /lib
+ 	cd "${ED}"/$(get_libdir)
+ 	mv *.a "${ED}"/usr/$(get_libdir)/
+ 	fi
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		dodir /$(get_libdir)
++		cd "${ED}"$(get_libdir)
++		ln -s libncurses.dll.a libcurses.dll.a
++		gen_usr_ldscript lib{,n}curses.dll.a
++		use unicode && gen_usr_ldscript libncursesw.dll.a
++		cd "${ED}"usr/$(get_libdir)
++		ln -s libncurses.a libcurses.a
++	else
+ 	gen_usr_ldscript lib{,n}curses$(get_libname)
+ 	if use unicode ; then
+ 		gen_usr_ldscript libncursesw$(get_libname)
+@@ -216,6 +290,7 @@
+ 		ln -sf libncurses$(get_libname) "${ED}"/usr/$(get_libdir)/libcurses$(get_libname) || die
+ 	fi
+ 	use static-libs || rm "${ED}"/usr/$(get_libdir)/*.a
++	fi
+ 
+ #	if ! use berkdb ; then
+ 		# We need the basic terminfo files in /etc, bug #37026
+@@ -241,6 +316,15 @@
+ 	echo "CONFIG_PROTECT_MASK=\"/etc/terminfo\"" > "${T}"/50ncurses
+ 	doenvd "${T}"/50ncurses
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		# abi "10" is an artifact of cygwin history
++		# As far as external clients are concerned, this is ncurses API 6
++		mv "${ED}"/usr/bin/ncurses10-config "${ED}"/usr/bin/ncurses6-config
++		mv "${ED}"/usr/bin/ncursesw10-config "${ED}"/usr/bin/ncursesw6-config
++		sed -i -e "s/echo \"10\"/echo \"6\"/" "${ED}"/usr/bin/ncurses6-config
++		sed -i -e "s/echo \"10\"/echo \"6\"/" "${ED}"/usr/bin/ncursesw6-config
++	fi
++
+ 	use minimal && rm -r "${ED}"/usr/share/terminfo*
+ 	# Because ncurses5-config --terminfo returns the directory we keep it
+ 	keepdir /usr/share/terminfo #245374
 <--8<--
 ===== mutual sub-directory: "sys-libs/ncurses/files" =====
 
 *** The following files appear only in the overlay ***
-overlay/sys-libs/ncurses/ncurses-5.7.20091227.ebuild: ASCII English text
-overlay/sys-libs/ncurses/files/ncurses-5.7-20091227.patch: unified diff output, ASCII text
-overlay/sys-libs/ncurses/files/ncurses-5.7-cygwin-misc.patch: unified diff output, ASCII text
-overlay/sys-libs/ncurses/files/ncurses-5.7-cygwin-pthreads.patch: unified diff output, ASCII text
-overlay/sys-libs/ncurses/files/ncurses-5.7-ldflags-with-libtool-refresh.patch: unified diff output, ASCII text
-overlay/sys-libs/ncurses/files/ncurses-5.7-mint-refresh.patch: unified diff output, ASCII text
-overlay/sys-libs/ncurses/files/ncurses-5.7-pc-files-dep.patch: unified diff output, ASCII text
-overlay/sys-libs/ncurses/files/ncurses-5.7-widec-wchar_h.patch: unified diff output, ASCII text
+overlay/sys-libs/ncurses/files/ncurses-5.9-cygwin-pthreads-suffix.patch: unified diff output, ASCII text
+overlay/sys-libs/ncurses/files/ncurses-5.9-cygwin-subshell-avoidance.patch: unified diff output, ASCII text
+overlay/sys-libs/ncurses/files/ncurses-5.9-cygwin-version-info.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
 usr/portage/sys-libs/ncurses/ncurses-5.7-r6.ebuild: ASCII English text
 usr/portage/sys-libs/ncurses/ncurses-5.7-r7.ebuild: ASCII English text
-usr/portage/sys-libs/ncurses/ncurses-5.9-r1.ebuild: ASCII English text
-usr/portage/sys-libs/ncurses/files/ncurses-5.7-emacs.patch: unified diff output, ASCII text
-usr/portage/sys-libs/ncurses/files/ncurses-5.7-hashdb-open.patch: unified diff output, ASCII text
-usr/portage/sys-libs/ncurses/files/ncurses-5.7-ldflags-with-libtool.patch: unified diff output, ASCII text
-usr/portage/sys-libs/ncurses/files/ncurses-5.7-mint.patch: unified diff output, ASCII text
-usr/portage/sys-libs/ncurses/files/ncurses-5.7-rxvt-unicode-9.09.patch: unified diff output, UTF-8 Unicode text
-usr/portage/sys-libs/ncurses/files/ncurses-5.7-tic-cross-detection.patch: unified diff output, ASCII text
-usr/portage/sys-libs/ncurses/files/ncurses-5.8-gfbsd.patch: unified diff output, ASCII text
-usr/portage/sys-libs/ncurses/files/ncurses-5.8-rxvt-unicode.patch: unified diff output, UTF-8 Unicode text
 

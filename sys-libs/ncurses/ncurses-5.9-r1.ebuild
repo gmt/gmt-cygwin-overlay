@@ -31,48 +31,32 @@ need-libtool() {
 	# cannot depend on libtool, as this would create circular dependencies...
 	# And libtool-1.5.26 needs (a similar) patch for AIX (DESTDIR) as found in
 	# http://lists.gnu.org/archive/html/bug-libtool/2008-03/msg00124.html
-	# Use libtool on hpux too to get some soname.
-	# and cygwin to avoid BROKEN_LINKER
+	# Use libtool on hpux too to get some soname, and cygwin to avoid BROKEN_LINKER
 	[[ ${CHOST} == *'-aix'* || ${CHOST} == *'-hpux'* || ${CHOST} == *'-cygwin'* ]]
 }
 
 src_unpack() {
 	unpack ${A}
 	cd "${S}"
-	if [[ -n ${PV_SNAP} ]] ; then
-		if [[ -e "${WORKDIR}"/${MY_P}-${PV_SNAP}-patch.sh ]] ; then
-			epatch "${WORKDIR}"/${MY_P}-${PV_SNAP}-patch.sh
-		# gmt_cygwin_overlay hack: if the official .sh script 
-		# is not found, look for a regular patch (FIXME: any reason
-		# I didn't just use the real deal instead?  IIRC it's 
-		# avail. in the cygport)
-		elif [[ -e "${FILESDIR}"/${MY_P}-${PV_SNAP}.patch ]] ; then
-			epatch "${FILESDIR}"/${MY_P}-${PV_SNAP}.patch
-		else
-			die snapshot "${PV_SNAP}" not found
-		fi
-	fi
-	epatch "${FILESDIR}"/${PN}-5.6-gfbsd.patch
+	[[ -n ${PV_SNAP} ]] && epatch "${WORKDIR}"/${MY_P}-${PV_SNAP}-patch.sh
+	epatch "${FILESDIR}"/${PN}-5.8-gfbsd.patch
 	epatch "${FILESDIR}"/${PN}-5.7-nongnu.patch
-	sed -i '/with_no_leaks=yes/s:=.*:=$enableval:' configure #305889
+	epatch "${FILESDIR}"/${PN}-5.8-rxvt-unicode.patch #192083
+	sed -i \
+		-e '/^PKG_CONFIG_LIBDIR/s:=.*:=$(libdir)/pkgconfig:' \
+		misc/Makefile.in || die
 
-	epatch "${FILESDIR}"/${PN}-5.7-mint-refresh.patch
-	epatch "${FILESDIR}"/${PN}-5.7-mint-terminfo.patch
 	epatch "${FILESDIR}"/${PN}-5.5-aix-shared.patch
 	epatch "${FILESDIR}"/${PN}-5.6-interix.patch
-	epatch "${FILESDIR}"/${PN}-5.6-netbsd.patch
-#	epatch "${FILESDIR}"/${PN}-5.6-libtool.patch # used on aix
-	epatch "${FILESDIR}"/${PN}-5.7-x64-freebsd.patch
-	epatch "${FILESDIR}"/${PN}-5.7-ldflags-with-libtool-refresh.patch
 
+	epatch "${FILESDIR}"/${PN}-5.9-cygwin-pthreads-suffix.patch
 	if [[ ${CHOST} == *-cygwin* ]] ; then
-		epatch "${FILESDIR}"/${PN}-5.7-cygwin-pthreads.patch
-		epatch "${FILESDIR}"/${PN}-5.7-pc-files-dep.patch
-		epatch "${FILESDIR}"/${PN}-5.7-widec-wchar_h.patch
-		epatch "${FILESDIR}"/${PN}-5.7-cygwin-misc.patch
+		epatch "${FILESDIR}"/${PN}-5.9-cygwin-version-info.patch
+		# perhaps because it sets pwd to the location of the new ncurses dll,
+		# this subshell created by progs/Makefile causes rebase errors
+		epatch "${FILESDIR}"/${PN}-5.9-cygwin-subshell-avoidance.patch
 	fi
-
-	# irix /bin/sh is no good
+	# /bin/sh is not always good enough
 	find . -name "*.sh" | xargs sed -i -e '1c\#!/usr/bin/env sh'
 
 	if need-libtool; then
@@ -126,6 +110,13 @@ do_compile() {
 	cd "${WORKDIR}"/$1
 	shift
 
+	local going_wide=no
+	for arg in "$@" ; do
+		if [[ $arg == --enable-widec ]] ; then
+			going_wide=yes
+		fi
+	done
+
 	# The chtype/mmask-t settings below are to retain ABI compat
 	# with ncurses-5.4 so dont change em !
 	local conf_abi="
@@ -141,9 +132,7 @@ do_compile() {
 	if need-libtool; then
 		myconf="${myconf} --with-libtool"
 		[[ ${CHOST} == *-cygwin* ]] && \
-			# FIXME: what's up with 'normal' here?  Specifically, why would
-			# cross-compiles and cygwin need it, but not the general case?
-			myconf="${myconf} --with-shared $(use_enable static-libs normal)"
+			myconf="${myconf} --with-shared --with-normal"
 	elif [[ ${CHOST} == *-mint* ]]; then
 		:
 	else
@@ -152,22 +141,19 @@ do_compile() {
 
 	if [[ ${CHOST} == *-interix* ]]; then
 		myconf="--without-leaks"
-	fi
-
-	if [[ ${CHOST} == *-cygwin* ]] ; then
-		# FIXME: we override most of the conf_abi defaults... any
-		# way we can pare this list of changes down and integrate
-		# more with the general flow of the rest of the ebuild here?
-		conf_abi="--with-mmask-t=long --without-pthread"
-		myconf="${myconf} --disable-relink"
-		myconf="${myconf} --disable-rpath"
-		myconf="${myconf} --without-ticlib"
-		myconf="${myconf} --without-termlib"
-		if [[ $charmode == widec ]] ; then
-			myconf="${myconf} --enable-ext-colors"
+	elif [[ ${CHOST} == *-cygwin* ]] ; then
+		myconf="${myconf} --without-leaks"
+		# override most of the conf_abi defaults set above
+		conf_abi="--with-mmask-t=long --without-pthread --with-abi-version=10"
+		if [[ ${going_wide} == yes ]] ; then
+			conf_abi="${conf_abi} --enable-ext-colors"
 		else
 			conf_abi="${conf_abi} --disable-ext-colors "
 		fi
+		myconf="${myconf} --disable-relink"
+		myconf="${myconf} --disable-rpath"
+		myconf="${myconf} --with-ticlib"
+		myconf="${myconf} --without-termlib"
 		myconf="${myconf} --enable-ext-mouse"
 		myconf="${myconf} --enable-sp-funcs"
 		myconf="${myconf} --with-wrap-prefix=ncwrap_"
@@ -177,9 +163,11 @@ do_compile() {
 		myconf="${myconf} --with-pkg-config"
 		myconf="${myconf} --enable-pc-files"
 		myconf="${myconf} --enable-reentrant"
-		# don't understand this hack but the cygport does this
-		# so we do too.  FIXME: what purpose does this serve?
-		myconf="${myconf} --with-abi-version=10"
+		# weaks are a disaster in cygwin, so why play with fire?  plus configure test barfs
+		myconf="${myconf} --disable-weak-symbols"
+		export cf_cv_weak_symbols=no
+	else
+		myconf="${myconf} $(use_enable debug leaks)"
 	fi
 
 	# We need the basic terminfo files in /etc, bug #37026.  We will
@@ -205,17 +193,14 @@ do_compile() {
 		--enable-const \
 		--enable-colorfgbg \
 		--enable-echo \
+		--enable-pc-files \
 		$(use_enable !ada warnings) \
 		$(use_with debug assertions) \
-		$(use_enable debug leaks) \
 		$(use_with debug expanded) \
 		$(use_with !debug macros) \
 		$(use_with trace) \
 		${conf_abi} \
 		"$@"
-
-	[[ ${CHOST} == *-solaris* ]] && \
-		sed -i -e 's/-D_XOPEN_SOURCE_EXTENDED//g' c++/Makefile
 
 	# Fix for install location of the lib{,n}curses{,w} libs as in Gentoo we
 	# want those in lib not usr/lib.  We cannot move them lateron after
@@ -225,8 +210,15 @@ do_compile() {
 	need-libtool ||
 	sed -i -e '/^libdir/s:/usr/lib\(64\|\)$:/lib\1:' ncurses/Makefile || die "nlibdir"
 
-	# for IRIX to get tests compiling
-	epatch "${FILESDIR}"/${PN}-5.7-irix.patch
+	if [[ ${CHOST} == *-cygwin* && ${going_wide} == yes ]] ; then
+		# There is a bug here -- there is code in configure which looks like its
+		# supposed to do this automatically but.. it doesn't.  If that bug ever
+		# got fixed, the following code would be harmless anyhow.
+		find . -name 'Makefile' | while read f ; do
+			sed -e 's/-D_XOPEN_SOURCE=500/& -D_XOPEN_SOURCE_EXTENDED=1/' -i "${f}" && \
+				einfo "Hacking up ${f} to use -D_XOPEN_SOURCE_EXTENDED=1"
+		done
+	fi
 
 	# A little hack to fix parallel builds ... they break when
 	# generating sources so if we generate the sources first (in
@@ -234,6 +226,11 @@ do_compile() {
 	# in parallel.  This is not really a perf hit since the source
 	# generation is quite small.
 	emake -j1 sources || die
+	# For some reason, sources depends on pc-files which depends on
+	# compiled libraries which depends on sources which ...
+	# Manually delete the pc-files file so the install step will
+	# create the .pc files we want.
+	rm -f misc/pc-files
 	emake ${make_flags} || die
 }
 
@@ -250,31 +247,49 @@ src_install() {
 		emake DESTDIR="${D}" install || die
 	fi
 
-	# don't bother on cygwin, they are fine in /usr
-	# FIXME: but we should move them anyhow; the below needs some changes to do it.
-	if need-libtool && [[ ${CHOST} != *-cygwin* ]] ; then
+	if need-libtool ; then
 		# Move dynamic ncurses libraries into /lib
-		dodir /$(get_libdir)
 		local f
-		for f in "${ED}"usr/$(get_libdir)/lib{,n}curses{,w}$(get_libname)*; do
+		local libpfx=lib
+		local shlibdir=$(get_libdir)
+		local postfix=
+		[[ ${CHOST} == *-cygwin* ]] && { libpfx=cyg; shlibdir=bin; postfix=-10; }
+		dodir /${shlibdir}
+		[[ ${CHOST} == *-cygwin* ]] && dodir /$(get_libdir)
+		for f in "${ED}"usr/${shlibdir}/${libpfx}{,n}curses{,w}${postfix}$(get_libname)*; do
 			[[ -f ${f} ]] || continue
-			mv "${f}" "${ED}"$(get_libdir)/ || die "could not move ${f#${ED}}"
+			einfo "moving \"/${f#${ED}}\" to \"/${shlibdir}/\"."
+			mv "${f}" "${ED}"${shlibdir}/ || die "could not move /${f#${ED}}"
+			[[ ${CHOST} == *-cygwin* ]] && {
+				local x="$( dirname ${f} )"
+				x="${x%${shlibdir}}$(get_libdir)"
+				x="${x}/lib$( foo=$(basename ${f}); foo="${foo%-10.dll}" ; echo ${foo#cyg} ).dll.a"
+				einfo "moving \"/${x#${ED}}\" to \"/lib/\"."
+				mv "${x}" "${ED}"lib/ || die "could not move /${x#${ED}}"
+			}
 		done
 	elif ! need-libtool ; then # keeping intendation to keep diff small
 	# Move static and extraneous ncurses static libraries out of /lib
 	cd "${ED}"/$(get_libdir)
 	mv *.a "${ED}"/usr/$(get_libdir)/
 	fi
+	if [[ ${CHOST} == *-cygwin* ]] ; then
+		dodir /$(get_libdir)
+		cd "${ED}"$(get_libdir)
+		ln -s libncurses.dll.a libcurses.dll.a
+		gen_usr_ldscript lib{,n}curses.dll.a
+		use unicode && gen_usr_ldscript libncursesw.dll.a
+		cd "${ED}"usr/$(get_libdir)
+		ln -s libncurses.a libcurses.a
+	else
 	gen_usr_ldscript lib{,n}curses$(get_libname)
 	if use unicode ; then
 		gen_usr_ldscript libncursesw$(get_libname)
 	fi
-	# no need on cygwin as didn't move to /lib; anyhow even if we had moved them,
-	# cygwin shared libs would still need *.dll.a files in libdir!)
-	if [[ ${HOST} != *-cygwin* ]] ; then
-		ln -sf libncurses$(get_libname) \
-			"${ED}"/usr/$(get_libdir)/libcurses$(get_libname) || die
-		use static-libs || rm "${ED}"/usr/$(get_libdir)/*.a			
+	if ! tc-is-static-only ; then
+		ln -sf libncurses$(get_libname) "${ED}"/usr/$(get_libdir)/libcurses$(get_libname) || die
+	fi
+	use static-libs || rm "${ED}"/usr/$(get_libdir)/*.a
 	fi
 
 #	if ! use berkdb ; then

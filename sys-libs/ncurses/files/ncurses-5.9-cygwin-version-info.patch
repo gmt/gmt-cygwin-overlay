@@ -1,0 +1,30 @@
+diff -urN -x '*.swp' ncurses-5.9.orig/c++/Makefile.in ncurses-5.9/c++/Makefile.in
+--- ncurses-5.9.orig/c++/Makefile.in	2010-11-27 13:45:27.000000000 -0800
++++ ncurses-5.9/c++/Makefile.in	2012-04-09 12:44:00.660290200 -0700
+@@ -169,7 +169,7 @@
+ 	cd ../lib && $(LIBTOOL_LINK) $(CXX) $(CXXFLAGS) \
+ 		-o $(LIBNAME) $(LIB_OBJS:$o=.lo) \
+ 		-rpath $(INSTALL_PREFIX)$(libdir) \
+-		$(LIBTOOL_VERSION) $(NCURSES_MAJOR):$(NCURSES_MINOR) $(LT_UNDEF) $(SHLIB_LIST)
++		$(LIBTOOL_VERSION) $(ABI_VERSION):0:0 $(LT_UNDEF) $(SHLIB_LIST)
+ 
+ OBJS_DEMO = $(MODEL)/demo$o
+ 
+diff -urN -x '*.swp' ncurses-5.9.orig/mk-1st.awk ncurses-5.9/mk-1st.awk
+--- ncurses-5.9.orig/mk-1st.awk	2010-08-07 13:42:30.000000000 -0700
++++ ncurses-5.9/mk-1st.awk	2012-04-09 12:46:38.417335300 -0700
+@@ -396,11 +396,11 @@
+ 				end_name = lib_name;
+ 				printf "../lib/%s : $(%s_OBJS)\n", lib_name, OBJS
+ 				if ( is_ticlib() ) {
+-					printf "\tcd ../lib && $(LIBTOOL_LINK) $(%s) -o %s $(%s_OBJS:$o=.lo) -rpath $(DESTDIR)$(libdir) %s $(NCURSES_MAJOR):$(NCURSES_MINOR) $(LT_UNDEF) $(TICS_LIST)\n", compile, lib_name, OBJS, libtool_version
++					printf "\tcd ../lib && $(LIBTOOL_LINK) $(%s) -o %s $(%s_OBJS:$o=.lo) -rpath $(DESTDIR)$(libdir) %s $(ABI_VERSION):0:0 $(LT_UNDEF) $(TICS_LIST)\n", compile, lib_name, OBJS, libtool_version
+ 				} else if ( is_termlib() ) {
+-					printf "\tcd ../lib && $(LIBTOOL_LINK) $(%s) -o %s $(%s_OBJS:$o=.lo) -rpath $(DESTDIR)$(libdir) %s $(NCURSES_MAJOR):$(NCURSES_MINOR) $(LT_UNDEF) $(TINFO_LIST)\n", compile, lib_name, OBJS, libtool_version
++					printf "\tcd ../lib && $(LIBTOOL_LINK) $(%s) -o %s $(%s_OBJS:$o=.lo) -rpath $(DESTDIR)$(libdir) %s $(ABI_VERSION):0:0 $(LT_UNDEF) $(TINFO_LIST)\n", compile, lib_name, OBJS, libtool_version
+ 				} else {
+-					printf "\tcd ../lib && $(LIBTOOL_LINK) $(%s) -o %s $(%s_OBJS:$o=.lo) -rpath $(DESTDIR)$(libdir) %s $(NCURSES_MAJOR):$(NCURSES_MINOR) $(LT_UNDEF) $(SHLIB_LIST)\n", compile, lib_name, OBJS, libtool_version
++					printf "\tcd ../lib && $(LIBTOOL_LINK) $(%s) -o %s $(%s_OBJS:$o=.lo) -rpath $(DESTDIR)$(libdir) %s $(ABI_VERSION):0:0 $(LT_UNDEF) $(SHLIB_LIST)\n", compile, lib_name, OBJS, libtool_version
+ 				}
+ 				print  ""
+ 				print  "install \\"
