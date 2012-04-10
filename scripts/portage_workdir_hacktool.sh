@@ -277,15 +277,25 @@ diffit()
 }
 
 prepit() 
-{ 
+{
+    local forceit=false
+    [[ $1 == --force ]] && forceit=true
     files_equal "${ebuild_filesdir}"/${hack_patch} "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch || { 
-        echo "Patch mismatch" >&2;
-        return 1
+        echo "Patch mismatch" >&2
+	if $forceit ; then
+	    echo "Ignoring due to --force!" >&2
+	else
+            return 1
+	fi
     };
     [[ -d ${pwork_full} ]] && {
 	patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch <( diffit ) || {
 	    echo "Probable unpreserved changes detected in \"${pwork_full}\".  Won't auto-nuke, do it manually." >&2
-	    return 1
+	    if $forceit ; then
+		echo "Ignoring due to --force!" >&2
+	    else
+		return 1
+	    fi
 	}
     }
     echo ">> USE=\"cygdll-protect\" FEATURES=\"-collision-protect keepwork\" CYG_DONT_REBASE=1 ebuild ${ebuild_file} digest" && \
@@ -309,7 +319,8 @@ prepit()
 
 stashit()
 {
-    
+    local forceit=false
+    [[ $1 == --force ]] && forceit=true
     [[ ! -d ${pwork_full} ]] && {
 	echo "No directory ${pwork_full} exists, no can do" >&2
 	return 1
@@ -320,7 +331,11 @@ stashit()
     }
     patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch <( diffit ) && {
 	echo "No need, ${patch_pile}/${patch_pile_series}.$(latestpatch).patch matches working tree." >&2
-	return 1
+	if $forceit ; then
+	    echo "Proceeding anyhow due to --force" >&2
+	else
+	    return 1
+	fi
     }
     if [[ ! -d "${patch_pile}/${patch_pile_series}_stash" ]] ; then
 	echo ">> mkdir -p ${patch_pile}/${patch_pile_series}_stash"
@@ -329,7 +344,11 @@ stashit()
     if [[ -f "${patch_pile}"/${patch_pile_series}_stash/$(lateststash).patch ]] ; then
 	patches_equiv "${patch_pile}"/${patch_pile_series}_stash/$(lateststash).patch <( diffit ) && {
 		echo "No need, same patch already stashed at \"${patch_pile}/${patch_pile_series}_stash/$(lateststash).patch\"." >&2
-		return 1
+		if $forceit ; then
+		    echo "Proceeding anyhow due to --force" >&2
+		else
+		    return 1
+		fi
 	}
 	diffit > "${patch_pile}"/${patch_pile_series}_stash/$(lateststashp1).patch
 	echo "## good idea.  stashed as \"${patch_pile}/${patch_pile_series}_stash/$(lateststash).patch\"."
@@ -365,9 +384,12 @@ mergeit ()
 
 bumpit() 
 { 
+    local forceit=false
+    [[ $1 == --force ]] && forceit=true
     patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch <( diffit ) && { 
-        echo No changes since last bump. >&2;
-        return 1
+        echo No changes since last bump. >&2
+        $forceit || return 1
+	echo Ignoring due to --force >&2
     }
     oldpatch=$(latestpatch);
     nupatch="$(latestpatchp1)";
