@@ -122,12 +122,14 @@ tamepatch ()
 
 patches_equiv()
 {
-	diffcount="$( diff -u <( tamepatch "${1}" ) <( tamepatch "${2}" ) | wc -l )"
-	if [[ ${diffcount} == 0 ]] ; then
-		return 0
-	else
-		return 1
+	local result=1
+	tamepatch "${1}" > /tmp/foo_pe_1_$$
+	tamepatch "${2}" > /tmp/foo_pe_2_$$
+	if diff -u /tmp/foo_pe_1_$$ /tmp/foo_pe_2_$$ >/dev/null ; then
+		result=0
 	fi
+	rm /tmp/foo_pe_{1,2}_$$
+	return $result
 }
 
 latestpatch() 
@@ -196,7 +198,7 @@ fudgeit()
 	    elif diff "${todir}/${fout}" "${fromdir}/${fout}" >/dev/null ; then
 		head -n 1 "${todir}/${fout}" | grep '^#!' >/dev/null && \
 		head -n 1 "${fromdir}/${fout}" | grep '^#!' >/dev/null && \
-	        diff <( head -n 1 "${todir}/${fout}" ) <( head -n 1 "${fromdir}/${fout}" ) >/dev/null || {
+	        [[ $(head -n 1 "${todir}/${fout}" ) == $(head -n 1 "${fromdir}/${fout}" )  ]] || {
 		    { head -n 1 "${fromdir}/${fout}" ; tail -n +2 "${todir}/${fout}" ; } > "${todir}/${fout}.lolfudgery"
 		    mv "${todir}/${fout}.lolfudgery" "${todir}/${fout}"
 		}
@@ -218,7 +220,7 @@ diffit()
     	--stash|stash|-s)
 	[[ -f "${patch_pile}"/${patch_pile_series}_stash/$(lateststash).patch ]] || {
 	    echo "Cant find \"${patch_pile}/${patch_pile_series}_stash/$(lateststash).patch\"." >&2
-	    exit 1
+	    return 1
 	}
 	delcompdir=yes
 	compdir="${pwork}.stash"
@@ -261,7 +263,7 @@ diffit()
 		patch -p1 < "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch >/dev/null || { echo "Patch error" >&2 ; return 1 ; }
 		cd ..
 	fi
-	fudgeit "${pwork}" "${compdir}" || { echo "fudge factor: what gives?" >&2 ; exit 1 ; }
+	fudgeit "${pwork}" "${compdir}" || { echo "fudge factor: what gives?" >&2 ; return 1 ; }
 	local ignorance=""
 	for ign in "${garbage_files[@]}" ; do
 	    ignorance="${ignorance}${ignorance:+ }-x ${ign}"
@@ -289,15 +291,19 @@ prepit()
 	fi
     };
     [[ -d ${pwork_full} ]] && {
-	patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch <( diffit ) || {
+	diffit > /tmp/prepit_$$
+	patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch /tmp/prepit_$$ || {
 	    echo "Probable unpreserved changes detected in \"${pwork_full}\".  Won't auto-nuke, do it manually." >&2
 	    if $forceit ; then
 		echo "Ignoring due to --force!" >&2
 	    else
+		rm /tmp/prepit_$$
 		return 1
 	    fi
 	}
+	rm /tmp/prepit_$$
     }
+
     echo ">> USE=\"cygdll-protect\" FEATURES=\"-collision-protect keepwork\" CYG_DONT_REBASE=1 ebuild ${ebuild_file} digest" && \
     USE="cygdll-protect" FEATURES="-collision-protect keepwork" CYG_DONT_REBASE=1 ebuild "${ebuild_file}" digest && \
     nukeit -q && \
@@ -329,11 +335,13 @@ stashit()
 	echo "No directory ${pwork_full_orig} exists, no can do" >&2
 	return 1
     }
-    patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch <( diffit ) && {
+    diffit > /tmp/stashit_$$
+    patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch /tmp/stashit_$$ && {
 	echo "No need, ${patch_pile}/${patch_pile_series}.$(latestpatch).patch matches working tree." >&2
 	if $forceit ; then
 	    echo "Proceeding anyhow due to --force" >&2
 	else
+	    rm /tmp/stashit_$$
 	    return 1
 	fi
     }
@@ -342,15 +350,16 @@ stashit()
 	mkdir -p "${patch_pile}"/${patch_pile_series}_stash
     fi
     if [[ -f "${patch_pile}"/${patch_pile_series}_stash/$(lateststash).patch ]] ; then
-	patches_equiv "${patch_pile}"/${patch_pile_series}_stash/$(lateststash).patch <( diffit ) && {
+	patches_equiv "${patch_pile}"/${patch_pile_series}_stash/$(lateststash).patch /tmp/stashit_$$ && {
 		echo "No need, same patch already stashed at \"${patch_pile}/${patch_pile_series}_stash/$(lateststash).patch\"." >&2
 		if $forceit ; then
 		    echo "Proceeding anyhow due to --force" >&2
 		else
+		    rm /tmp/stashit_$$
 		    return 1
 		fi
 	}
-	diffit > "${patch_pile}"/${patch_pile_series}_stash/$(lateststashp1).patch
+	mv -v /tmp/stashit_$$ "${patch_pile}"/${patch_pile_series}_stash/$(lateststashp1).patch
 	echo "## good idea.  stashed as \"${patch_pile}/${patch_pile_series}_stash/$(lateststash).patch\"."
     else
 	[[ "$(lateststash)" == "0000" && ! -e "${patch_pile}"/${patch_pile_series}_stash/0000.patch ]] || {
@@ -386,14 +395,15 @@ bumpit()
 { 
     local forceit=false
     [[ $1 == --force ]] && forceit=true
-    patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch <( diffit ) && { 
+    diffit > /tmp/bumpit_$$
+    patches_equiv "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch /tmp/bumpit_$$ && {
         echo No changes since last bump. >&2
-        $forceit || return 1
+        $forceit || { rm /tmp/bumpit_$$ ; return 1 ; }
 	echo Ignoring due to --force >&2
     }
     oldpatch=$(latestpatch);
     nupatch="$(latestpatchp1)";
-    diffit > "${patch_pile}"/${patch_pile_series}.$(latestpatchp1).patch;
+    mv -v /tmp/bumpit_$$ "${patch_pile}"/${patch_pile_series}.$(latestpatchp1).patch;
     cat "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch | colordiff | less -R && echo -n 'ok? y/n: ';
     while read yn; do
         if [[ $yn == y || $yn == n ]]; then
@@ -420,6 +430,12 @@ grepit()
     local context_lines=${codegrep_context_lines:-3}
 
     [[ "$1" ]] || { echo "for what?" >&2 ; return 1 ; }
+
+    if [[ $1 == --help ]] ; then
+	    echo "grepit [for what] [grep-arg [grep-arg ...]]"
+	    return 0
+    fi
+
     local grepfor="$1"
     shift
 
