@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-libs/ncurses" =====
 --("sys-libs/ncurses/ncurses-5.9-r1.ebuild")-->8-->
 --- usr/portage/sys-libs/ncurses/ncurses-5.9-r1.ebuild	2011-12-31 01:31:32.000000000 -0800
-+++ overlay/sys-libs/ncurses/ncurses-5.9-r1.ebuild	2012-04-10 12:32:21.662804500 -0700
++++ overlay/sys-libs/ncurses/ncurses-5.9-r1.ebuild	2012-04-10 14:30:10.905912900 -0700
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2011 Gentoo Foundation
 +# Copyright 1999-2012 Gentoo Foundation
