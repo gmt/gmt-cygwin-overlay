@@ -116,7 +116,9 @@ src_prepare() {
 
 	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
 
+	# upstream conflicts dept.:
 	epatch "${FILESDIR}"/${PN}-2.2.01.20389-fix-perform-all.patch #411897
+	epatch "${FILESDIR}"/${PN}-2.2.01.20389-distracting-error-message.patch
 }
 
 src_configure() {

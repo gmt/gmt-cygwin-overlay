@@ -1,0 +1,29 @@
+--- pym/Makefile.in.orig	2012-04-12 21:32:27.248664200 -0700
++++ pym/Makefile.in	2012-04-12 22:39:47.619256500 -0700
+@@ -24,13 +24,22 @@
+ install:
+ 	$(INSTALL) -d -m 755 -o "$(portageuser)" -g "$(portagegroup)" $(DESTDIR)$(PORTAGE_PYM)
+ 	$(list_sourcedir_dirs) | while read f ; do \
++		pyfiles="$$( \
++			echo $$( \
++				for pyfile in "$(srcdir)/$${f}"/*.py ; do \
++					[[ -e "$${pyfile}" ]] && echo "$${pyfile}" \
++				; done \
++			) \
++		)" && \
+ 		$(INSTALL) -d -m 755 \
+ 			-o "$(portageuser)" -g "$(portagegroup)" \
+ 			"$(DESTDIR)$(PORTAGE_PYM)/$${f}" && \
+-		$(INSTALL_subst) \
+-			-o "$(portageuser)" -g "$(portagegroup)" \
+-			-t "$(DESTDIR)$(PORTAGE_PYM)/$${f}" \
+-			"$(srcdir)/$${f}"/*.py \
++		if [[ -n "$${pyfiles}" ]] ; then \
++			$(INSTALL_subst) \
++				-o "$(portageuser)" -g "$(portagegroup)" \
++				-t "$(DESTDIR)$(PORTAGE_PYM)/$${f}" \
++				$${pyfiles} \
++		; else :; fi || break \
+ 	; done
+ 
+ .PHONY:	all install
