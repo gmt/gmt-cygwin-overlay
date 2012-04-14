@@ -44,3 +44,23 @@ o libtool patches for fork/subshell avoidance
 
 o fix libtool-2.4.2.ebuild to be merely horrible instead of satanically,
   rediculously, unspeakably gross.
+
+o Need to determine: will cygwin load a .dll through a symlink?  or only respect
+  binaries in PATH?  Basically: Does ignoring symlinks open us up to problems
+  as users, and should we therefore support tracking them with cygdll-protect?
+  Even if there's no issue there in cygwin, I feel like it's awfully
+  platform-kludgetastic to ignore them.  As of now, they are ignored,
+  completely, even if you name them explicitly in CYGDLL_PROTECT.
+
+o manpage entries about the items we added to EPREFIX/var/lib/portage
+
+o cygdll-update needs to understand the empty-file-hash convention or else
+  it's pointless
+
+o Clearly absolute paths are not the answer for cygdll-protect.  Either
+  implement a kludge like "dll's get their paths stripped for testing
+  is_cygdll_protected" or something more generally useful like regular
+  expression matching (substututions?) I still wasn't convinced we need this
+  until I realized what happens when you move a dll around from version a->b
+  of an ebuild -- it's back to the same old BS rebase issues again; there's no
+  reason to let continue after building all this infrastructure to prevent it.
