@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/libtool" =====
---("sys-devel/libtool/libtool-2.4-r4.ebuild")-->8-->
---- usr/portage/sys-devel/libtool/libtool-2.4-r4.ebuild	2011-11-07 10:01:35.000000000 -0800
-+++ overlay/sys-devel/libtool/libtool-2.4-r4.ebuild	2012-04-10 14:29:08.006335500 -0700
+---("sys-devel/libtool/libtool-2.4-r4.ebuild")--->8--->
+--- usr/portage/sys-devel/libtool/libtool-2.4-r4.ebuild [[PORTAGE]]
++++ overlay/sys-devel/libtool/libtool-2.4-r4.ebuild [[OVERLAY]]
 @@ -1,12 +1,12 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -46,10 +46,10 @@
  	cd libltdl/m4
  	epatch "${FILESDIR}"/1.5.20/${PN}-1.5.20-use-linux-version-in-fbsd.patch #109105
  	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-module-bundle.patch
-<--8<--
---("sys-devel/libtool/libtool-2.4.2.ebuild")-->8-->
---- usr/portage/sys-devel/libtool/libtool-2.4.2.ebuild	2011-11-06 12:31:34.000000000 -0800
-+++ overlay/sys-devel/libtool/libtool-2.4.2.ebuild	2012-04-10 14:29:08.009336100 -0700
+<---8<---
+---("sys-devel/libtool/libtool-2.4.2.ebuild")--->8--->
+--- usr/portage/sys-devel/libtool/libtool-2.4.2.ebuild [[PORTAGE]]
++++ overlay/sys-devel/libtool/libtool-2.4.2.ebuild [[OVERLAY]]
 @@ -1,12 +1,12 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -197,7 +197,7 @@
  	cd ..
  	AT_NOELIBTOOLIZE=yes eautoreconf
  	cd ..
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-devel/libtool/files" =====
 ===== mutual sub-directory: "sys-devel/libtool/files/1.5.10" =====
 ===== mutual sub-directory: "sys-devel/libtool/files/1.5.20" =====

@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/mpc" =====
---("dev-libs/mpc/mpc-0.9-r1.ebuild")-->8-->
---- usr/portage/dev-libs/mpc/mpc-0.9-r1.ebuild	2011-12-01 09:02:57.000000000 -0800
-+++ overlay/dev-libs/mpc/mpc-0.9-r1.ebuild	2012-02-16 13:51:07.400669400 -0800
+---("dev-libs/mpc/mpc-0.9-r1.ebuild")--->8--->
+--- usr/portage/dev-libs/mpc/mpc-0.9-r1.ebuild [[PORTAGE]]
++++ overlay/dev-libs/mpc/mpc-0.9-r1.ebuild [[OVERLAY]]
 @@ -5,7 +5,7 @@
  # Unconditional dependency of gcc.  Keep this set to 0.
  EAPI="0"
@@ -24,7 +24,7 @@
  	emake || die
  }
  
-<--8<--
+<---8<---
 
 *** The following files appear only in portage ***
 usr/portage/dev-libs/mpc/mpc-0.8.2.ebuild: ASCII English text

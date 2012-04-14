@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/mpfr" =====
---("dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild")-->8-->
---- usr/portage/dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild	2011-12-01 06:31:31.000000000 -0800
-+++ overlay/dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild	2012-02-23 22:56:24.220515500 -0800
+---("dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild")--->8--->
+--- usr/portage/dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild [[PORTAGE]]
++++ overlay/dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild [[OVERLAY]]
 @@ -46,10 +46,14 @@
  }
  
@@ -18,7 +18,7 @@
  }
  
  src_install() {
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-libs/mpfr/files" =====
 ===== mutual sub-directory: "dev-libs/mpfr/files/2.4.1" =====
 ===== mutual sub-directory: "dev-libs/mpfr/files/2.4.2" =====

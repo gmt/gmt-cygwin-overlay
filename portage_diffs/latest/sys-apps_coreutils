@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-apps/coreutils" =====
---("sys-apps/coreutils/ChangeLog")-->8-->
---- usr/portage/sys-apps/coreutils/ChangeLog	2012-02-14 13:31:30.000000000 -0800
-+++ overlay/sys-apps/coreutils/ChangeLog	2011-10-22 09:31:37.000000000 -0700
+---("sys-apps/coreutils/ChangeLog")--->8--->
+--- usr/portage/sys-apps/coreutils/ChangeLog [[PORTAGE]]
++++ overlay/sys-apps/coreutils/ChangeLog [[OVERLAY]]
 @@ -1,36 +1,6 @@
  # ChangeLog for sys-apps/coreutils
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -41,10 +41,10 @@
  
    18 Oct 2011; Mike Frysinger <vapier@gentoo.org> coreutils-8.14.ebuild:
    Extend man page hack to missing perl #387091 by nzqr.
-<--8<--
---("sys-apps/coreutils/coreutils-8.14.ebuild")-->8-->
---- usr/portage/sys-apps/coreutils/coreutils-8.14.ebuild	2012-02-14 12:01:29.000000000 -0800
-+++ overlay/sys-apps/coreutils/coreutils-8.14.ebuild	2012-03-06 14:10:18.351031100 -0800
+<---8<---
+---("sys-apps/coreutils/coreutils-8.14.ebuild")--->8--->
+--- usr/portage/sys-apps/coreutils/coreutils-8.14.ebuild [[PORTAGE]]
++++ overlay/sys-apps/coreutils/coreutils-8.14.ebuild [[OVERLAY]]
 @@ -1,10 +1,10 @@
 -# Copyright 1999-2012 Gentoo Foundation
 +# Copyright 1999-2011 Gentoo Foundation
@@ -112,10 +112,10 @@
  			dosym /bin/${x} /usr/bin/${x} || die
  		done
  	else
-<--8<--
---("sys-apps/coreutils/coreutils-8.15.ebuild")-->8-->
---- usr/portage/sys-apps/coreutils/coreutils-8.15.ebuild	2012-02-14 13:31:30.000000000 -0800
-+++ overlay/sys-apps/coreutils/coreutils-8.15.ebuild	2012-03-06 16:38:26.211031100 -0800
+<---8<---
+---("sys-apps/coreutils/coreutils-8.15.ebuild")--->8--->
+--- usr/portage/sys-apps/coreutils/coreutils-8.15.ebuild [[PORTAGE]]
++++ overlay/sys-apps/coreutils/coreutils-8.15.ebuild [[OVERLAY]]
 @@ -4,7 +4,7 @@
  
  EAPI="3"
@@ -169,7 +169,7 @@
  			dosym /bin/${x} /usr/bin/${x} || die
  		done
  	else
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-apps/coreutils/files" =====
 
 *** The following files appear only in the overlay ***

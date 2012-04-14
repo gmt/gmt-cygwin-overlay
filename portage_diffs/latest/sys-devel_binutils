@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/binutils" =====
---("sys-devel/binutils/ChangeLog")-->8-->
---- usr/portage/sys-devel/binutils/ChangeLog	2012-02-14 11:31:29.000000000 -0800
-+++ overlay/sys-devel/binutils/ChangeLog	2011-11-30 06:31:33.000000000 -0800
+---("sys-devel/binutils/ChangeLog")--->8--->
+--- usr/portage/sys-devel/binutils/ChangeLog [[PORTAGE]]
++++ overlay/sys-devel/binutils/ChangeLog [[OVERLAY]]
 @@ -1,41 +1,6 @@
  # ChangeLog for sys-devel/binutils
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -46,7 +46,7 @@
  
    23 Nov 2011; Diego E. Pettenò <flameeyes@gentoo.org> binutils-2.22.ebuild:
    QA: make sure to depend on a patch(1) version that actually applies all the
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-devel/binutils/files" =====
 
 *** The following files appear only in the overlay ***

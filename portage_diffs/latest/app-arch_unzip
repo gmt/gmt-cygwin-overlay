@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "app-arch/unzip" =====
---("app-arch/unzip/unzip-6.0-r2.ebuild")-->8-->
---- usr/portage/app-arch/unzip/unzip-6.0-r2.ebuild	2011-01-16 07:31:32.000000000 -0800
-+++ overlay/app-arch/unzip/unzip-6.0-r2.ebuild	2012-02-11 15:50:45.584174100 -0800
+---("app-arch/unzip/unzip-6.0-r2.ebuild")--->8--->
+--- usr/portage/app-arch/unzip/unzip-6.0-r2.ebuild [[PORTAGE]]
++++ overlay/app-arch/unzip/unzip-6.0-r2.ebuild [[OVERLAY]]
 @@ -23,6 +23,10 @@
  S="${WORKDIR}/${MY_P}"
  
@@ -21,7 +21,7 @@
  		*) die "Unknown target, you suck" ;;
  	esac
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "app-arch/unzip/files" =====
 
 *** The following files appear only in the overlay ***

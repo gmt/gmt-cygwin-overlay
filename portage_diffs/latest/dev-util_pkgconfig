@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-util/pkgconfig" =====
---("dev-util/pkgconfig/pkgconfig-0.26.ebuild")-->8-->
---- usr/portage/dev-util/pkgconfig/pkgconfig-0.26.ebuild	2011-12-02 10:02:56.000000000 -0800
-+++ overlay/dev-util/pkgconfig/pkgconfig-0.26.ebuild	2012-02-12 01:55:43.761174100 -0800
+---("dev-util/pkgconfig/pkgconfig-0.26.ebuild")--->8--->
+--- usr/portage/dev-util/pkgconfig/pkgconfig-0.26.ebuild [[PORTAGE]]
++++ overlay/dev-util/pkgconfig/pkgconfig-0.26.ebuild [[OVERLAY]]
 @@ -3,7 +3,7 @@
  # $Header: /var/cvsroot/gentoo-x86/dev-util/pkgconfig/pkgconfig-0.26.ebuild,v 1.10 2011/12/02 17:48:28 grobian Exp $
  
@@ -61,7 +61,7 @@
  		${myconf}
  }
  
-<--8<--
+<---8<---
 
 *** The following files appear only in the overlay ***
 overlay/dev-util/pkgconfig/files: directory

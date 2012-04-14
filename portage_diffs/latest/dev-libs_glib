@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/glib" =====
---("dev-libs/glib/glib-2.30.2.ebuild")-->8-->
---- usr/portage/dev-libs/glib/glib-2.30.2.ebuild	2011-11-27 12:01:32.000000000 -0800
-+++ overlay/dev-libs/glib/glib-2.30.2.ebuild	2012-02-24 02:27:52.545516900 -0800
+---("dev-libs/glib/glib-2.30.2.ebuild")--->8--->
+--- usr/portage/dev-libs/glib/glib-2.30.2.ebuild [[PORTAGE]]
++++ overlay/dev-libs/glib/glib-2.30.2.ebuild [[OVERLAY]]
 @@ -78,6 +78,13 @@
  	# Fix test failure when upgrading from 2.22 to 2.24, upstream bug 621368
  	epatch "${FILESDIR}/${PN}-2.24-assert-test-failure.patch"
@@ -46,7 +46,7 @@
  	# without this, AIX defines EEXIST and ENOTEMPTY to the same value
  	[[ ${CHOST} == *-aix* ]] && append-cppflags -D_LINUX_SOURCE_COMPAT
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-libs/glib/files" =====
 
 *** The following files appear only in the overlay ***

@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/autoconf" =====
---("sys-devel/autoconf/autoconf-2.13.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.13.ebuild	2009-07-22 08:17:50.000000000 -0700
-+++ overlay/sys-devel/autoconf/autoconf-2.13.ebuild	2012-02-23 15:33:00.972515400 -0800
+---("sys-devel/autoconf/autoconf-2.13.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.13.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.13.ebuild [[OVERLAY]]
 @@ -24,6 +24,7 @@
  	epatch "${FILESDIR}"/${P}-gentoo.patch
  	epatch "${FILESDIR}"/${P}-destdir.patch
@@ -10,10 +10,10 @@
  	touch configure # make sure configure is newer than configure.in
  
  	rm -f standards.{texi,info} # binutils installs this infopage
-<--8<--
---("sys-devel/autoconf/autoconf-2.59-r7.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.59-r7.ebuild	2009-10-20 13:06:40.000000000 -0700
-+++ overlay/sys-devel/autoconf/autoconf-2.59-r7.ebuild	2012-02-23 15:33:30.988515400 -0800
+<---8<---
+---("sys-devel/autoconf/autoconf-2.59-r7.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.59-r7.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.59-r7.ebuild [[OVERLAY]]
 @@ -22,6 +22,7 @@
  	unpack ${A}
  	cd "${S}"
@@ -22,10 +22,10 @@
  }
  
  src_compile() {
-<--8<--
---("sys-devel/autoconf/autoconf-2.61-r2.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.61-r2.ebuild	2009-06-22 14:31:57.000000000 -0700
-+++ overlay/sys-devel/autoconf/autoconf-2.61-r2.ebuild	2012-02-23 15:34:05.292515400 -0800
+<---8<---
+---("sys-devel/autoconf/autoconf-2.61-r2.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.61-r2.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.61-r2.ebuild [[OVERLAY]]
 @@ -33,6 +33,7 @@
  	if [[ ${CHOST} == *-interix* || ${CHOST} == *-winnt* ]]; then
  		epatch "${FILESDIR}"/${P}-winnt-flip.patch
@@ -34,10 +34,10 @@
  }
  
  src_compile() {
-<--8<--
---("sys-devel/autoconf/autoconf-2.62-r1.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.62-r1.ebuild	2009-06-22 14:31:57.000000000 -0700
-+++ overlay/sys-devel/autoconf/autoconf-2.62-r1.ebuild	2012-02-23 15:34:28.492015400 -0800
+<---8<---
+---("sys-devel/autoconf/autoconf-2.62-r1.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.62-r1.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.62-r1.ebuild [[OVERLAY]]
 @@ -26,6 +26,7 @@
  	epatch "${FILESDIR}"/${P}-revert-AC_C_BIGENDIAN.patch #228825
  	epatch "${FILESDIR}"/${P}-at-keywords.patch
@@ -46,10 +46,10 @@
  
  	# usr/bin/libtool is provided by binutils-apple
  	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch
-<--8<--
---("sys-devel/autoconf/autoconf-2.63-r01.1.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.63-r01.1.ebuild	2009-07-27 12:03:49.000000000 -0700
-+++ overlay/sys-devel/autoconf/autoconf-2.63-r01.1.ebuild	2012-02-23 15:34:47.164515400 -0800
+<---8<---
+---("sys-devel/autoconf/autoconf-2.63-r01.1.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.63-r01.1.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.63-r01.1.ebuild [[OVERLAY]]
 @@ -27,6 +27,7 @@
  
  	# usr/bin/libtool is provided by binutils-apple
@@ -58,10 +58,10 @@
  }
  
  src_compile() {
-<--8<--
---("sys-devel/autoconf/autoconf-2.64.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.64.ebuild	2010-03-13 09:01:49.000000000 -0800
-+++ overlay/sys-devel/autoconf/autoconf-2.64.ebuild	2012-02-23 15:35:06.652515400 -0800
+<---8<---
+---("sys-devel/autoconf/autoconf-2.64.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.64.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.64.ebuild [[OVERLAY]]
 @@ -27,6 +27,7 @@
  
  	# usr/bin/libtool is provided by binutils-apple
@@ -70,10 +70,10 @@
  }
  
  src_compile() {
-<--8<--
---("sys-devel/autoconf/autoconf-2.65-r1.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.65-r1.ebuild	2010-11-10 12:01:46.000000000 -0800
-+++ overlay/sys-devel/autoconf/autoconf-2.65-r1.ebuild	2012-02-23 15:35:49.484515400 -0800
+<---8<---
+---("sys-devel/autoconf/autoconf-2.65-r1.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.65-r1.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.65-r1.ebuild [[OVERLAY]]
 @@ -28,6 +28,7 @@
  
  	# usr/bin/libtool is provided by binutils-apple
@@ -82,10 +82,10 @@
  }
  
  src_compile() {
-<--8<--
---("sys-devel/autoconf/autoconf-2.65.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.65.ebuild	2010-08-07 09:01:46.000000000 -0700
-+++ overlay/sys-devel/autoconf/autoconf-2.65.ebuild	2012-02-23 15:35:26.572015400 -0800
+<---8<---
+---("sys-devel/autoconf/autoconf-2.65.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.65.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.65.ebuild [[OVERLAY]]
 @@ -27,6 +27,7 @@
  
  	# usr/bin/libtool is provided by binutils-apple
@@ -94,10 +94,10 @@
  }
  
  src_compile() {
-<--8<--
---("sys-devel/autoconf/autoconf-2.67.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.67.ebuild	2010-11-10 12:01:46.000000000 -0800
-+++ overlay/sys-devel/autoconf/autoconf-2.67.ebuild	2012-02-23 15:36:14.796515400 -0800
+<---8<---
+---("sys-devel/autoconf/autoconf-2.67.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.67.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.67.ebuild [[OVERLAY]]
 @@ -34,6 +34,7 @@
  src_prepare() {
  	# usr/bin/libtool is provided by binutils-apple
@@ -106,10 +106,10 @@
  
  	if [[ ${PV} == "9999" ]] ; then
  		autoreconf -f -i || die
-<--8<--
---("sys-devel/autoconf/autoconf-2.68.ebuild")-->8-->
---- usr/portage/sys-devel/autoconf/autoconf-2.68.ebuild	2010-11-10 12:01:46.000000000 -0800
-+++ overlay/sys-devel/autoconf/autoconf-2.68.ebuild	2012-04-04 06:57:41.170002700 -0700
+<---8<---
+---("sys-devel/autoconf/autoconf-2.68.ebuild")--->8--->
+--- usr/portage/sys-devel/autoconf/autoconf-2.68.ebuild [[PORTAGE]]
++++ overlay/sys-devel/autoconf/autoconf-2.68.ebuild [[OVERLAY]]
 @@ -1,10 +1,10 @@
  # Copyright 1999-2010 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -149,7 +149,7 @@
  		autoreconf -f -i || die
  	fi
  }
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-devel/autoconf/files" =====
 
 *** The following files appear only in the overlay ***

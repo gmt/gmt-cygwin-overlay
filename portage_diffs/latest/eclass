@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "eclass" =====
---("eclass/libtool.eclass")-->8-->
---- usr/portage/eclass/libtool.eclass	2011-12-26 04:01:34.000000000 -0800
-+++ overlay/eclass/libtool.eclass	2012-03-28 21:51:27.633226400 -0700
+---("eclass/libtool.eclass")--->8--->
+--- usr/portage/eclass/libtool.eclass [[PORTAGE]]
++++ overlay/eclass/libtool.eclass [[OVERLAY]]
 @@ -1,6 +1,6 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -112,10 +112,10 @@
  				*)
  					ELT_walk_patches "${d}/ltmain.sh" "${p}"
  					ret=$?
-<--8<--
---("eclass/multilib.eclass")-->8-->
---- usr/portage/eclass/multilib.eclass	2011-12-14 10:32:03.000000000 -0800
-+++ overlay/eclass/multilib.eclass	2012-03-08 16:40:50.945893800 -0800
+<---8<---
+---("eclass/multilib.eclass")--->8--->
+--- usr/portage/eclass/multilib.eclass [[PORTAGE]]
++++ overlay/eclass/multilib.eclass [[OVERLAY]]
 @@ -1,6 +1,6 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -133,10 +133,10 @@
  		*-darwin*)                libname="dylib";;
  		*-mint*)                  libname="irrelevant";;
  		hppa*-hpux*)              libname="sl";;
-<--8<--
---("eclass/toolchain-funcs.eclass")-->8-->
---- usr/portage/eclass/toolchain-funcs.eclass	2011-12-12 10:01:33.000000000 -0800
-+++ overlay/eclass/toolchain-funcs.eclass	2012-03-28 21:50:12.977298200 -0700
+<---8<---
+---("eclass/toolchain-funcs.eclass")--->8--->
+--- usr/portage/eclass/toolchain-funcs.eclass [[PORTAGE]]
++++ overlay/eclass/toolchain-funcs.eclass [[OVERLAY]]
 @@ -1,6 +1,6 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -329,10 +329,10 @@
  
  fi
 +# vim: syntax=sh
-<--8<--
---("eclass/toolchain.eclass")-->8-->
---- usr/portage/eclass/toolchain.eclass	2012-03-09 10:01:30.000000000 -0800
-+++ overlay/eclass/toolchain.eclass	2012-04-06 17:03:24.119163100 -0700
+<---8<---
+---("eclass/toolchain.eclass")--->8--->
+--- usr/portage/eclass/toolchain.eclass [[PORTAGE]]
++++ overlay/eclass/toolchain.eclass [[OVERLAY]]
 @@ -1,6 +1,6 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -404,7 +404,7 @@
  gcc_src_test() { toolchain_src_test ; }
 +
 +# vim: syntax=sh
-<--8<--
+<---8<---
 ===== mutual sub-directory: "eclass/ELT-patches" =====
 
 *** The following files appear only in the overlay ***

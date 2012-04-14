@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/popt" =====
---("dev-libs/popt/popt-1.16-r1.ebuild")-->8-->
---- usr/portage/dev-libs/popt/popt-1.16-r1.ebuild	2011-01-27 13:01:32.000000000 -0800
-+++ overlay/dev-libs/popt/popt-1.16-r1.ebuild	2012-02-11 17:49:05.154679600 -0800
+---("dev-libs/popt/popt-1.16-r1.ebuild")--->8--->
+--- usr/portage/dev-libs/popt/popt-1.16-r1.ebuild [[PORTAGE]]
++++ overlay/dev-libs/popt/popt-1.16-r1.ebuild [[OVERLAY]]
 @@ -4,7 +4,7 @@
  
  EAPI=3
@@ -23,7 +23,7 @@
  	elibtoolize # for FreeMiNT
  }
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-libs/popt/files" =====
 
 *** The following files appear only in the overlay ***

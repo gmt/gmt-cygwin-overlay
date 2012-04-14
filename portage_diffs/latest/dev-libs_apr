@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/apr" =====
---("dev-libs/apr/ChangeLog")-->8-->
---- usr/portage/dev-libs/apr/ChangeLog	2012-04-03 12:11:49.000000000 -0700
-+++ overlay/dev-libs/apr/ChangeLog	2011-08-07 04:01:33.000000000 -0700
+---("dev-libs/apr/ChangeLog")--->8--->
+--- usr/portage/dev-libs/apr/ChangeLog [[PORTAGE]]
++++ overlay/dev-libs/apr/ChangeLog [[OVERLAY]]
 @@ -1,37 +1,6 @@
  # ChangeLog for dev-libs/apr
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -42,10 +42,10 @@
  
  *apr-1.4.5 (07 Jul 2011)
  
-<--8<--
---("dev-libs/apr/apr-1.4.5.ebuild")-->8-->
---- usr/portage/dev-libs/apr/apr-1.4.5.ebuild	2012-04-03 12:11:49.000000000 -0700
-+++ overlay/dev-libs/apr/apr-1.4.5.ebuild	2012-02-11 15:07:12.928674100 -0800
+<---8<---
+---("dev-libs/apr/apr-1.4.5.ebuild")--->8--->
+--- usr/portage/dev-libs/apr/apr-1.4.5.ebuild [[PORTAGE]]
++++ overlay/dev-libs/apr/apr-1.4.5.ebuild [[OVERLAY]]
 @@ -1,8 +1,8 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -126,10 +126,10 @@
  	fi
  
  	# This file is only used on AIX systems, which Gentoo is not,
-<--8<--
---("dev-libs/apr/metadata.xml")-->8-->
---- usr/portage/dev-libs/apr/metadata.xml	2012-04-03 12:11:49.000000000 -0700
-+++ overlay/dev-libs/apr/metadata.xml	2011-08-07 04:01:33.000000000 -0700
+<---8<---
+---("dev-libs/apr/metadata.xml")--->8--->
+--- usr/portage/dev-libs/apr/metadata.xml [[PORTAGE]]
++++ overlay/dev-libs/apr/metadata.xml [[OVERLAY]]
 @@ -6,8 +6,8 @@
  		<email>apache-bugs@gentoo.org</email>
  	</maintainer>
@@ -142,7 +142,7 @@
 +  <flag name='uuid'>Enable UUID support</flag>
  	</use>
  </pkgmetadata>
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-libs/apr/files" =====
 
 *** The following files appear only in the overlay ***

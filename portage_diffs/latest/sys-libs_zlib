@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-libs/zlib" =====
---("sys-libs/zlib/ChangeLog")-->8-->
---- usr/portage/sys-libs/zlib/ChangeLog	2011-12-14 07:31:32.000000000 -0800
-+++ overlay/sys-libs/zlib/ChangeLog	2012-03-08 10:57:24.722607500 -0800
+---("sys-libs/zlib/ChangeLog")--->8--->
+--- usr/portage/sys-libs/zlib/ChangeLog [[PORTAGE]]
++++ overlay/sys-libs/zlib/ChangeLog [[OVERLAY]]
 @@ -2,6 +2,9 @@
  # Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
  # $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/ChangeLog,v 1.97 2011/09/23 17:52:32 jlec Exp $
@@ -12,10 +12,10 @@
    14 Dec 2011; Fabian Groffen <grobian@gentoo.org> zlib-1.2.5.1-r2.ebuild:
    Make sure we restore the working directory after minizip patching not to break
    further patching, bug #394629
-<--8<--
---("sys-libs/zlib/metadata.xml")-->8-->
---- usr/portage/sys-libs/zlib/metadata.xml	2011-12-06 12:31:32.000000000 -0800
-+++ overlay/sys-libs/zlib/metadata.xml	2007-04-27 00:44:01.000000000 -0700
+<---8<---
+---("sys-libs/zlib/metadata.xml")--->8--->
+--- usr/portage/sys-libs/zlib/metadata.xml [[PORTAGE]]
++++ overlay/sys-libs/zlib/metadata.xml [[OVERLAY]]
 @@ -2,7 +2,4 @@
  <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
  <pkgmetadata>
@@ -24,10 +24,10 @@
 -		<flag name="minizip">include the minizip library for quick and dirty zip extraction</flag>
 -	</use>
  </pkgmetadata>
-<--8<--
---("sys-libs/zlib/zlib-1.2.5-r2.ebuild")-->8-->
---- usr/portage/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2011-12-06 12:31:32.000000000 -0800
-+++ overlay/sys-libs/zlib/zlib-1.2.5-r2.ebuild	2012-03-09 19:52:31.080848300 -0800
+<---8<---
+---("sys-libs/zlib/zlib-1.2.5-r2.ebuild")--->8--->
+--- usr/portage/sys-libs/zlib/zlib-1.2.5-r2.ebuild [[PORTAGE]]
++++ overlay/sys-libs/zlib/zlib-1.2.5-r2.ebuild [[OVERLAY]]
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  # $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.5-r2.ebuild,v 1.12 2011/05/01 09:52:06 xarthisius Exp $
@@ -63,10 +63,10 @@
  	*)	# not an autoconf script, so can't use econf
  		CC=$(tc-getCC) ./configure --shared --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
  		emake || die
-<--8<--
---("sys-libs/zlib/zlib-1.2.5.1-r2.ebuild")-->8-->
---- usr/portage/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild	2012-03-09 08:31:30.000000000 -0800
-+++ overlay/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild	2012-03-09 19:07:47.227348300 -0800
+<---8<---
+---("sys-libs/zlib/zlib-1.2.5.1-r2.ebuild")--->8--->
+--- usr/portage/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild [[PORTAGE]]
++++ overlay/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild [[OVERLAY]]
 @@ -1,8 +1,7 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -129,7 +129,7 @@
 +		fi
 +	}
  }
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-libs/zlib/files" =====
 
 *** The following files appear only in the overlay ***

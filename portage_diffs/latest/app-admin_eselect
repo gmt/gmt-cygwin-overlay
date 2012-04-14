@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "app-admin/eselect" =====
---("app-admin/eselect/ChangeLog")-->8-->
---- usr/portage/app-admin/eselect/ChangeLog	2012-02-12 09:32:57.000000000 -0800
-+++ overlay/app-admin/eselect/ChangeLog	2011-09-25 09:32:45.000000000 -0700
+---("app-admin/eselect/ChangeLog")--->8--->
+--- usr/portage/app-admin/eselect/ChangeLog [[PORTAGE]]
++++ overlay/app-admin/eselect/ChangeLog [[OVERLAY]]
 @@ -1,32 +1,6 @@
  # ChangeLog for app-admin/eselect
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -37,10 +37,10 @@
  
  *eselect-1.2.18 (25 Sep 2011)
  
-<--8<--
---("app-admin/eselect/eselect-1.2.18.ebuild")-->8-->
---- usr/portage/app-admin/eselect/eselect-1.2.18.ebuild	2012-02-07 14:33:13.000000000 -0800
-+++ overlay/app-admin/eselect/eselect-1.2.18.ebuild	2012-02-19 02:48:21.683766300 -0800
+<---8<---
+---("app-admin/eselect/eselect-1.2.18.ebuild")--->8--->
+--- usr/portage/app-admin/eselect/eselect-1.2.18.ebuild [[PORTAGE]]
++++ overlay/app-admin/eselect/eselect-1.2.18.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2012 Gentoo Foundation
 +# Copyright 1999-2011 Gentoo Foundation
@@ -79,7 +79,7 @@
  }
  
  pkg_postinst() {
-<--8<--
+<---8<---
 
 *** The following files appear only in portage ***
 usr/portage/app-admin/eselect/eselect-1.2.15.ebuild: ASCII English text, with very long lines

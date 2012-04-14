@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "app-portage/portage-utils" =====
---("app-portage/portage-utils/ChangeLog")-->8-->
---- usr/portage/app-portage/portage-utils/ChangeLog	2012-02-06 12:33:02.000000000 -0800
-+++ overlay/app-portage/portage-utils/ChangeLog	2012-04-06 12:48:49.254530500 -0700
+---("app-portage/portage-utils/ChangeLog")--->8--->
+--- usr/portage/app-portage/portage-utils/ChangeLog [[PORTAGE]]
++++ overlay/app-portage/portage-utils/ChangeLog [[OVERLAY]]
 @@ -2,6 +2,12 @@
  # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
  # $Header: /var/cvsroot/gentoo-x86/app-portage/portage-utils/ChangeLog,v 1.125 2012/02/06 20:13:39 vapier Exp $
@@ -15,10 +15,10 @@
    06 Feb 2012; Mike Frysinger <vapier@gentoo.org> portage-utils-0.8.ebuild:
    Mark ppc/ppc64 stable #395317.
  
-<--8<--
---("app-portage/portage-utils/portage-utils-0.9.ebuild")-->8-->
---- usr/portage/app-portage/portage-utils/portage-utils-0.9.ebuild	2012-01-06 12:33:00.000000000 -0800
-+++ overlay/app-portage/portage-utils/portage-utils-0.9.ebuild	2012-04-06 12:34:55.155463400 -0700
+<---8<---
+---("app-portage/portage-utils/portage-utils-0.9.ebuild")--->8--->
+--- usr/portage/app-portage/portage-utils/portage-utils-0.9.ebuild [[PORTAGE]]
++++ overlay/app-portage/portage-utils/portage-utils-0.9.ebuild [[OVERLAY]]
 @@ -1,10 +1,10 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -43,11 +43,11 @@
  src_configure() {
  	use static && append-ldflags -static
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "app-portage/portage-utils/files" =====
---("app-portage/portage-utils/files/post_sync")-->8-->
---- usr/portage/app-portage/portage-utils/files/post_sync	2010-01-13 15:20:20.000000000 -0800
-+++ overlay/app-portage/portage-utils/files/post_sync	2012-04-06 12:38:32.959286900 -0700
+---("app-portage/portage-utils/files/post_sync")--->8--->
+--- usr/portage/app-portage/portage-utils/files/post_sync [[PORTAGE]]
++++ overlay/app-portage/portage-utils/files/post_sync [[OVERLAY]]
 @@ -1,5 +1,5 @@
  #!/bin/sh
 -# Copyright 2006-2009 Gentoo Foundation
@@ -55,7 +55,7 @@
  # Distributed under the terms of the GNU General Public License v2
  
  for f in /etc/portage/postsync.d/* ; do
-<--8<--
+<---8<---
 
 *** The following files appear only in the overlay ***
 overlay/app-portage/portage-utils/files/portage-utils-0.9-cygwin.patch: unified diff output, ASCII text

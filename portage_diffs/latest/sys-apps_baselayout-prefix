@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-apps/baselayout-prefix" =====
---("sys-apps/baselayout-prefix/ChangeLog")-->8-->
---- usr/portage/sys-apps/baselayout-prefix/ChangeLog	2012-02-19 11:33:08.000000000 -0800
-+++ overlay/sys-apps/baselayout-prefix/ChangeLog	2011-12-04 06:02:53.000000000 -0800
+---("sys-apps/baselayout-prefix/ChangeLog")--->8--->
+--- usr/portage/sys-apps/baselayout-prefix/ChangeLog [[PORTAGE]]
++++ overlay/sys-apps/baselayout-prefix/ChangeLog [[OVERLAY]]
 @@ -1,11 +1,6 @@
  # ChangeLog for sys-apps/baselayout-prefix
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -16,10 +16,10 @@
  
    04 Dec 2011; Fabian Groffen <grobian@gentoo.org>
    baselayout-prefix-1.12.14.ebuild:
-<--8<--
---("sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild")-->8-->
---- usr/portage/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild	2012-02-19 11:33:08.000000000 -0800
-+++ overlay/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild	2012-02-11 01:56:25.396028800 -0800
+<---8<---
+---("sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild")--->8--->
+--- usr/portage/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild [[PORTAGE]]
++++ overlay/sys-apps/baselayout-prefix/baselayout-prefix-1.12.14.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2012 Gentoo Foundation
 +# Copyright 1999-2011 Gentoo Foundation
@@ -49,7 +49,7 @@
  	append-ldflags -L../gnulib/gllib
  	append-libs gnu
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-apps/baselayout-prefix/files" =====
 
 *** The following files appear only in the overlay ***

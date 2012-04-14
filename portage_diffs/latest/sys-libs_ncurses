@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-libs/ncurses" =====
---("sys-libs/ncurses/ncurses-5.9-r1.ebuild")-->8-->
---- usr/portage/sys-libs/ncurses/ncurses-5.9-r1.ebuild	2011-12-31 01:31:32.000000000 -0800
-+++ overlay/sys-libs/ncurses/ncurses-5.9-r1.ebuild	2012-04-10 14:30:10.905912900 -0700
+---("sys-libs/ncurses/ncurses-5.9-r1.ebuild")--->8--->
+--- usr/portage/sys-libs/ncurses/ncurses-5.9-r1.ebuild [[PORTAGE]]
++++ overlay/sys-libs/ncurses/ncurses-5.9-r1.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2011 Gentoo Foundation
 +# Copyright 1999-2012 Gentoo Foundation
@@ -186,7 +186,7 @@
  	use minimal && rm -r "${ED}"/usr/share/terminfo*
  	# Because ncurses5-config --terminfo returns the directory we keep it
  	keepdir /usr/share/terminfo #245374
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-libs/ncurses/files" =====
 
 *** The following files appear only in the overlay ***

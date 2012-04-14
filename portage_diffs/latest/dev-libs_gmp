@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/gmp" =====
---("dev-libs/gmp/ChangeLog")-->8-->
---- usr/portage/dev-libs/gmp/ChangeLog	2012-01-27 06:01:29.000000000 -0800
-+++ overlay/dev-libs/gmp/ChangeLog	2011-11-17 10:31:31.000000000 -0800
+---("dev-libs/gmp/ChangeLog")--->8--->
+--- usr/portage/dev-libs/gmp/ChangeLog [[PORTAGE]]
++++ overlay/dev-libs/gmp/ChangeLog [[OVERLAY]]
 @@ -1,35 +1,6 @@
  # ChangeLog for dev-libs/gmp
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -40,10 +40,10 @@
  
    13 Nov 2011; Mike Frysinger <vapier@gentoo.org> gmp-4.3.2.ebuild,
    gmp-5.0.1.ebuild, gmp-5.0.2.ebuild, gmp-5.0.2_p1.ebuild:
-<--8<--
---("dev-libs/gmp/gmp-5.0.2_p1.ebuild")-->8-->
---- usr/portage/dev-libs/gmp/gmp-5.0.2_p1.ebuild	2012-01-27 06:01:29.000000000 -0800
-+++ overlay/dev-libs/gmp/gmp-5.0.2_p1.ebuild	2012-02-16 05:33:17.183522800 -0800
+<---8<---
+---("dev-libs/gmp/gmp-5.0.2_p1.ebuild")--->8--->
+--- usr/portage/dev-libs/gmp/gmp-5.0.2_p1.ebuild [[PORTAGE]]
++++ overlay/dev-libs/gmp/gmp-5.0.2_p1.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2012 Gentoo Foundation
 +# Copyright 1999-2011 Gentoo Foundation
@@ -115,7 +115,7 @@
  
  	dodoc AUTHORS ChangeLog NEWS README
  	dodoc doc/configuration doc/isa_abi_headache
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-libs/gmp/files" =====
 ===== mutual sub-directory: "dev-libs/gmp/files/4.2.1" =====
 ===== mutual sub-directory: "dev-libs/gmp/files/4.2.4" =====

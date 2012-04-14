@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-util/gperf" =====
---("dev-util/gperf/ChangeLog")-->8-->
---- usr/portage/dev-util/gperf/ChangeLog	2012-02-03 17:33:40.000000000 -0800
-+++ overlay/dev-util/gperf/ChangeLog	2011-05-03 00:02:27.000000000 -0700
+---("dev-util/gperf/ChangeLog")--->8--->
+--- usr/portage/dev-util/gperf/ChangeLog [[PORTAGE]]
++++ overlay/dev-util/gperf/ChangeLog [[OVERLAY]]
 @@ -1,9 +1,6 @@
  # ChangeLog for dev-util/gperf
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -14,10 +14,10 @@
  
    03 May 2011; Fabian Groffen <grobian@gentoo.org> gperf-3.0.4.ebuild:
    Marked ~x64-freebsd
-<--8<--
---("dev-util/gperf/gperf-3.0.4.ebuild")-->8-->
---- usr/portage/dev-util/gperf/gperf-3.0.4.ebuild	2011-05-03 00:02:27.000000000 -0700
-+++ overlay/dev-util/gperf/gperf-3.0.4.ebuild	2012-02-21 04:29:54.200056500 -0800
+<---8<---
+---("dev-util/gperf/gperf-3.0.4.ebuild")--->8--->
+--- usr/portage/dev-util/gperf/gperf-3.0.4.ebuild [[PORTAGE]]
++++ overlay/dev-util/gperf/gperf-3.0.4.ebuild [[OVERLAY]]
 @@ -4,6 +4,8 @@
  
  EAPI="3"
@@ -38,10 +38,10 @@
  src_install() {
  	emake DESTDIR="${D}" htmldir="${EPREFIX}"/usr/share/doc/${PF}/html install || die
  	dodoc AUTHORS ChangeLog NEWS README
-<--8<--
---("dev-util/gperf/metadata.xml")-->8-->
---- usr/portage/dev-util/gperf/metadata.xml	2012-02-03 17:33:40.000000000 -0800
-+++ overlay/dev-util/gperf/metadata.xml	2011-09-24 02:02:46.000000000 -0700
+<---8<---
+---("dev-util/gperf/metadata.xml")--->8--->
+--- usr/portage/dev-util/gperf/metadata.xml [[PORTAGE]]
++++ overlay/dev-util/gperf/metadata.xml [[OVERLAY]]
 @@ -2,6 +2,6 @@
  <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
  <pkgmetadata>
@@ -50,7 +50,7 @@
 +		<email>maintainer-needed@gentoo.org</email>
  	</maintainer>
  </pkgmetadata>
-<--8<--
+<---8<---
 
 *** The following files appear only in the overlay ***
 overlay/dev-util/gperf/files: directory

@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/libxml2" =====
---("dev-libs/libxml2/ChangeLog")-->8-->
---- usr/portage/dev-libs/libxml2/ChangeLog	2012-03-07 23:03:15.000000000 -0800
-+++ overlay/dev-libs/libxml2/ChangeLog	2011-10-30 08:33:17.000000000 -0700
+---("dev-libs/libxml2/ChangeLog")--->8--->
+--- usr/portage/dev-libs/libxml2/ChangeLog [[PORTAGE]]
++++ overlay/dev-libs/libxml2/ChangeLog [[OVERLAY]]
 @@ -1,67 +1,6 @@
  # ChangeLog for dev-libs/libxml2
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -72,7 +72,7 @@
  
    30 Oct 2011; Raúl Porcel <armin76@gentoo.org> libxml2-2.7.8-r3.ebuild:
    alpha/ia64/m68k/s390/sh/sparc stable wrt #385699
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-libs/libxml2/files" =====
 
 *** The following files appear only in the overlay ***

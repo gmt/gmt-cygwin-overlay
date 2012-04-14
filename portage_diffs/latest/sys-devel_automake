@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/automake" =====
---("sys-devel/automake/automake-1.10.3.ebuild")-->8-->
---- usr/portage/sys-devel/automake/automake-1.10.3.ebuild	2010-06-21 10:01:41.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.10.3.ebuild	2012-04-04 06:57:41.174502700 -0700
+---("sys-devel/automake/automake-1.10.3.ebuild")--->8--->
+--- usr/portage/sys-devel/automake/automake-1.10.3.ebuild [[PORTAGE]]
++++ overlay/sys-devel/automake/automake-1.10.3.ebuild [[OVERLAY]]
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  # $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.10.3.ebuild,v 1.7 2010/03/13 19:31:12 armin76 Exp $
@@ -35,10 +35,10 @@
  }
  
  src_compile() {
-<--8<--
---("sys-devel/automake/automake-1.11.1.ebuild")-->8-->
---- usr/portage/sys-devel/automake/automake-1.11.1.ebuild	2011-05-02 02:01:25.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.11.1.ebuild	2012-04-04 06:57:41.175502700 -0700
+<---8<---
+---("sys-devel/automake/automake-1.11.1.ebuild")--->8--->
+--- usr/portage/sys-devel/automake/automake-1.11.1.ebuild [[PORTAGE]]
++++ overlay/sys-devel/automake/automake-1.11.1.ebuild [[OVERLAY]]
 @@ -2,7 +2,7 @@
  # Distributed under the terms of the GNU General Public License v2
  # $Header: /var/cvsroot/gentoo-x86/sys-devel/automake/automake-1.11.1.ebuild,v 1.8 2010/05/31 19:20:31 josejx Exp $
@@ -92,10 +92,10 @@
  	done
 +	use prefix && bash_shebang_prefixify "${ED}"/usr/share/${PN}-${SLOT}/depcomp
  }
-<--8<--
---("sys-devel/automake/automake-1.4_p6-r1.ebuild")-->8-->
---- usr/portage/sys-devel/automake/automake-1.4_p6-r1.ebuild	2010-05-16 05:31:50.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.4_p6-r1.ebuild	2012-02-23 15:55:42.892515400 -0800
+<---8<---
+---("sys-devel/automake/automake-1.4_p6-r1.ebuild")--->8--->
+--- usr/portage/sys-devel/automake/automake-1.4_p6-r1.ebuild [[PORTAGE]]
++++ overlay/sys-devel/automake/automake-1.4_p6-r1.ebuild [[OVERLAY]]
 @@ -29,6 +29,7 @@
  	epatch "${FILESDIR}"/${PN}-1.4-subdirs-89656.patch
  	epatch "${FILESDIR}"/${PN}-1.4-ansi2knr-stdlib.patch
@@ -104,10 +104,10 @@
  	sed -i 's:error\.test::' tests/Makefile.in #79529
  	sed -i \
  		-e "/^@setfilename/s|automake|automake${SLOT}|" \
-<--8<--
---("sys-devel/automake/automake-1.5-r1.ebuild")-->8-->
---- usr/portage/sys-devel/automake/automake-1.5-r1.ebuild	2010-05-16 05:31:50.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.5-r1.ebuild	2012-02-23 15:57:56.172515400 -0800
+<---8<---
+---("sys-devel/automake/automake-1.5-r1.ebuild")--->8--->
+--- usr/portage/sys-devel/automake/automake-1.5-r1.ebuild [[PORTAGE]]
++++ overlay/sys-devel/automake/automake-1.5-r1.ebuild [[OVERLAY]]
 @@ -32,6 +32,7 @@
  	epatch "${FILESDIR}"/${P}-test-fixes.patch #79505
  	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
@@ -116,10 +116,10 @@
  	sed -i \
  		-e "/^@setfilename/s|automake|automake${SLOT}|" \
  		-e "s|automake: (automake)|automake v${SLOT}: (automake${SLOT})|" \
-<--8<--
---("sys-devel/automake/automake-1.6.3-r1.ebuild")-->8-->
---- usr/portage/sys-devel/automake/automake-1.6.3-r1.ebuild	2010-05-16 05:31:50.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.6.3-r1.ebuild	2012-02-23 16:00:53.340015400 -0800
+<---8<---
+---("sys-devel/automake/automake-1.6.3-r1.ebuild")--->8--->
+--- usr/portage/sys-devel/automake/automake-1.6.3-r1.ebuild [[PORTAGE]]
++++ overlay/sys-devel/automake/automake-1.6.3-r1.ebuild [[OVERLAY]]
 @@ -29,6 +29,7 @@
  	epatch "${FILESDIR}"/${P}-test-fixes.patch #159557
  	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
@@ -128,10 +128,10 @@
  	export WANT_AUTOCONF=2.5
  }
  
-<--8<--
---("sys-devel/automake/automake-1.7.9-r2.ebuild")-->8-->
---- usr/portage/sys-devel/automake/automake-1.7.9-r2.ebuild	2010-05-16 05:31:50.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.7.9-r2.ebuild	2012-02-23 16:07:08.044515400 -0800
+<---8<---
+---("sys-devel/automake/automake-1.7.9-r2.ebuild")--->8--->
+--- usr/portage/sys-devel/automake/automake-1.7.9-r2.ebuild [[PORTAGE]]
++++ overlay/sys-devel/automake/automake-1.7.9-r2.ebuild [[OVERLAY]]
 @@ -32,6 +32,7 @@
  	epatch "${FILESDIR}"/${P}-libtool-2.patch #257544
  	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
@@ -140,10 +140,10 @@
  	export WANT_AUTOCONF=2.5
  }
  
-<--8<--
---("sys-devel/automake/automake-1.8.5-r4.ebuild")-->8-->
---- usr/portage/sys-devel/automake/automake-1.8.5-r4.ebuild	2010-05-16 05:31:50.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.8.5-r4.ebuild	2012-02-23 16:02:57.804515400 -0800
+<---8<---
+---("sys-devel/automake/automake-1.8.5-r4.ebuild")--->8--->
+--- usr/portage/sys-devel/automake/automake-1.8.5-r4.ebuild [[PORTAGE]]
++++ overlay/sys-devel/automake/automake-1.8.5-r4.ebuild [[OVERLAY]]
 @@ -32,6 +32,7 @@
  	epatch "${FILESDIR}"/${PN}-1.9.6-subst-test.patch #222225
  	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
@@ -152,10 +152,10 @@
  	export WANT_AUTOCONF=2.5
  }
  
-<--8<--
---("sys-devel/automake/automake-1.9.6-r3.ebuild")-->8-->
---- usr/portage/sys-devel/automake/automake-1.9.6-r3.ebuild	2010-05-16 05:31:50.000000000 -0700
-+++ overlay/sys-devel/automake/automake-1.9.6-r3.ebuild	2012-02-23 16:10:04.220515400 -0800
+<---8<---
+---("sys-devel/automake/automake-1.9.6-r3.ebuild")--->8--->
+--- usr/portage/sys-devel/automake/automake-1.9.6-r3.ebuild [[PORTAGE]]
++++ overlay/sys-devel/automake/automake-1.9.6-r3.ebuild [[OVERLAY]]
 @@ -36,6 +36,7 @@
  	epatch "${FILESDIR}"/${PN}-1.9.6-subst-test.patch #222225
  	epatch "${FILESDIR}"/${PN}-1.10-ccnoco-ldflags.patch #203914
@@ -164,7 +164,7 @@
  	export WANT_AUTOCONF=2.5
  }
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-devel/automake/files" =====
 
 *** The following files appear only in the overlay ***

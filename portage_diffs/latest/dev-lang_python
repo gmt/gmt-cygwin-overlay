@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-lang/python" =====
---("dev-lang/python/ChangeLog")-->8-->
---- usr/portage/dev-lang/python/ChangeLog	2012-02-21 11:31:31.000000000 -0800
-+++ overlay/dev-lang/python/ChangeLog	2011-12-01 11:01:32.000000000 -0800
+---("dev-lang/python/ChangeLog")--->8--->
+--- usr/portage/dev-lang/python/ChangeLog [[PORTAGE]]
++++ overlay/dev-lang/python/ChangeLog [[OVERLAY]]
 @@ -1,10 +1,6 @@
  # ChangeLog for dev-lang/python
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -15,10 +15,10 @@
  
    01 Dec 2011; Fabian Groffen <grobian@gentoo.org> python-2.7.2.ebuild,
    python-2.7.2-r3.ebuild:
-<--8<--
---("dev-lang/python/python-2.7.2-r3.ebuild")-->8-->
---- usr/portage/dev-lang/python/python-2.7.2-r3.ebuild	2012-02-21 11:31:31.000000000 -0800
-+++ overlay/dev-lang/python/python-2.7.2-r3.ebuild	2012-03-28 21:17:44.969774600 -0700
+<---8<---
+---("dev-lang/python/python-2.7.2-r3.ebuild")--->8--->
+--- usr/portage/dev-lang/python/python-2.7.2-r3.ebuild [[PORTAGE]]
++++ overlay/dev-lang/python/python-2.7.2-r3.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2012 Gentoo Foundation
 +# Copyright 1999-2011 Gentoo Foundation
@@ -124,7 +124,7 @@
  		$(use_enable ipv6) \
  		$(use_with threads) \
  		$( (use wide-unicode && use !aqua) && echo "--enable-unicode=ucs4" || echo "--enable-unicode=ucs2") \
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-lang/python/files" =====
 
 *** The following files appear only in the overlay ***

@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/gcc-config" =====
---("sys-devel/gcc-config/ChangeLog")-->8-->
---- usr/portage/sys-devel/gcc-config/ChangeLog	2011-12-06 12:31:32.000000000 -0800
-+++ overlay/sys-devel/gcc-config/ChangeLog	2011-04-25 09:01:26.000000000 -0700
+---("sys-devel/gcc-config/ChangeLog")--->8--->
+--- usr/portage/sys-devel/gcc-config/ChangeLog [[PORTAGE]]
++++ overlay/sys-devel/gcc-config/ChangeLog [[OVERLAY]]
 @@ -1,28 +1,6 @@
  # ChangeLog for sys-devel/gcc-config
  # Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
@@ -32,10 +32,10 @@
  
    21 Mar 2011; Mike Frysinger <vapier@gentoo.org> files/gcc-config-1.5:
    Default to /etc/portage/make.conf #338032 by Dennis Schridde.
-<--8<--
---("sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild")-->8-->
---- usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild	2009-12-27 08:39:39.000000000 -0800
-+++ overlay/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild	2012-02-16 16:14:16.499784700 -0800
+<---8<---
+---("sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild")--->8--->
+--- usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild [[PORTAGE]]
++++ overlay/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild [[OVERLAY]]
 @@ -19,10 +19,11 @@
  RDEPEND="!app-admin/eselect-compiler
  	>=sys-devel/binutils-config-1.9-r04.3"
@@ -94,11 +94,11 @@
 +		gcc-config $(${EPREFIX%/}/usr/bin/gcc-config --get-current-profile)
  	fi
  }
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-devel/gcc-config/files" =====
---("sys-devel/gcc-config/files/gcc-config-1.4.1")-->8-->
---- usr/portage/sys-devel/gcc-config/files/gcc-config-1.4.1	2011-06-17 05:31:40.000000000 -0700
-+++ overlay/sys-devel/gcc-config/files/gcc-config-1.4.1	2012-02-24 18:51:05.667515500 -0800
+---("sys-devel/gcc-config/files/gcc-config-1.4.1")--->8--->
+--- usr/portage/sys-devel/gcc-config/files/gcc-config-1.4.1 [[PORTAGE]]
++++ overlay/sys-devel/gcc-config/files/gcc-config-1.4.1 [[OVERLAY]]
 @@ -6,8 +6,10 @@
  trap ":" INT QUIT TSTP
  
@@ -704,7 +704,7 @@
  		#exit 1
  	fi
  fi
-<--8<--
+<---8<---
 
 *** The following files appear only in portage ***
 usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r1.ebuild: ASCII English text

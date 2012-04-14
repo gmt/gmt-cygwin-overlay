@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "app-arch/bzip2" =====
---("app-arch/bzip2/ChangeLog")-->8-->
---- usr/portage/app-arch/bzip2/ChangeLog	2011-12-06 12:31:32.000000000 -0800
-+++ overlay/app-arch/bzip2/ChangeLog	2010-10-25 09:01:50.000000000 -0700
+---("app-arch/bzip2/ChangeLog")--->8--->
+--- usr/portage/app-arch/bzip2/ChangeLog [[PORTAGE]]
++++ overlay/app-arch/bzip2/ChangeLog [[OVERLAY]]
 @@ -1,54 +1,6 @@
  # ChangeLog for app-arch/bzip2
 -# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
@@ -59,10 +59,10 @@
  
    09 Oct 2010; Raúl Porcel <armin76@gentoo.org> bzip2-1.0.6.ebuild:
    ia64/m68k/s390/sh/sparc stable wrt #338215
-<--8<--
---("app-arch/bzip2/bzip2-1.0.6-r1.ebuild")-->8-->
---- usr/portage/app-arch/bzip2/bzip2-1.0.6-r1.ebuild	2011-05-23 07:01:24.000000000 -0700
-+++ overlay/app-arch/bzip2/bzip2-1.0.6-r1.ebuild	2012-03-28 21:50:12.784759700 -0700
+<---8<---
+---("app-arch/bzip2/bzip2-1.0.6-r1.ebuild")--->8--->
+--- usr/portage/app-arch/bzip2/bzip2-1.0.6-r1.ebuild [[PORTAGE]]
++++ overlay/app-arch/bzip2/bzip2-1.0.6-r1.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
  # Copyright 1999-2010 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -133,10 +133,10 @@
  	fi
  
  	fi
-<--8<--
---("app-arch/bzip2/bzip2-1.0.6-r3.ebuild")-->8-->
---- usr/portage/app-arch/bzip2/bzip2-1.0.6-r3.ebuild	2011-12-06 12:31:32.000000000 -0800
-+++ overlay/app-arch/bzip2/bzip2-1.0.6-r3.ebuild	2012-03-28 21:50:12.795261800 -0700
+<---8<---
+---("app-arch/bzip2/bzip2-1.0.6-r3.ebuild")--->8--->
+--- usr/portage/app-arch/bzip2/bzip2-1.0.6-r3.ebuild [[PORTAGE]]
++++ overlay/app-arch/bzip2/bzip2-1.0.6-r3.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2011 Gentoo Foundation
 +# Copyright 1999-2012 Gentoo Foundation
@@ -204,7 +204,7 @@
  		newbin bzip2-shared bzip2 || die
  	fi
  	if ! use static-libs ; then
-<--8<--
+<---8<---
 ===== mutual sub-directory: "app-arch/bzip2/files" =====
 
 *** The following files appear only in the overlay ***

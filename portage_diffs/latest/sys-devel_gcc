@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/gcc" =====
---("sys-devel/gcc/ChangeLog")-->8-->
---- usr/portage/sys-devel/gcc/ChangeLog	2012-02-17 12:31:31.000000000 -0800
-+++ overlay/sys-devel/gcc/ChangeLog	2011-11-30 11:01:33.000000000 -0800
+---("sys-devel/gcc/ChangeLog")--->8--->
+--- usr/portage/sys-devel/gcc/ChangeLog [[PORTAGE]]
++++ overlay/sys-devel/gcc/ChangeLog [[OVERLAY]]
 @@ -1,77 +1,6 @@
  # ChangeLog for sys-devel/gcc
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -82,10 +82,10 @@
  
    30 Nov 2011; Fabian Groffen <grobian@gentoo.org> gcc-4.6.1-r1.ebuild,
    gcc-4.5.3-r1.ebuild:
-<--8<--
---("sys-devel/gcc/gcc-4.5.3-r1.ebuild")-->8-->
---- usr/portage/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2012-02-17 12:31:31.000000000 -0800
-+++ overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild	2012-02-24 16:23:17.608515500 -0800
+<---8<---
+---("sys-devel/gcc/gcc-4.5.3-r1.ebuild")--->8--->
+--- usr/portage/sys-devel/gcc/gcc-4.5.3-r1.ebuild [[PORTAGE]]
++++ overlay/sys-devel/gcc/gcc-4.5.3-r1.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2012 Gentoo Foundation
 +# Copyright 1999-2011 Gentoo Foundation
@@ -282,10 +282,10 @@
  
  }
  
-<--8<--
---("sys-devel/gcc/metadata.xml")-->8-->
---- usr/portage/sys-devel/gcc/metadata.xml	2011-12-06 12:01:32.000000000 -0800
-+++ overlay/sys-devel/gcc/metadata.xml	2011-08-01 14:01:32.000000000 -0700
+<---8<---
+---("sys-devel/gcc/metadata.xml")--->8--->
+--- usr/portage/sys-devel/gcc/metadata.xml [[PORTAGE]]
++++ overlay/sys-devel/gcc/metadata.xml [[OVERLAY]]
 @@ -9,15 +9,11 @@
      <flag name="go">Build the GCC Go language frontend.</flag>
      <flag name="graphite">Add support for the framework for loop
@@ -302,7 +302,7 @@
      <flag name="lto">Add support for link-time optimizations (unsupported, use
        at your own risk).</flag>
      <flag name="mudflap">Add support for mudflap, a pointer use checking library</flag>
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-devel/gcc/files" =====
 ===== mutual sub-directory: "sys-devel/gcc/files/3.3.4" =====
 ===== mutual sub-directory: "sys-devel/gcc/files/3.3.6" =====

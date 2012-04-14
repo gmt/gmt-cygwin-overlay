@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-devel/gnuconfig" =====
---("sys-devel/gnuconfig/gnuconfig-20110814.ebuild")-->8-->
---- usr/portage/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2012-03-03 14:33:08.000000000 -0800
-+++ overlay/sys-devel/gnuconfig/gnuconfig-20110814.ebuild	2012-03-28 21:50:13.117326200 -0700
+---("sys-devel/gnuconfig/gnuconfig-20110814.ebuild")--->8--->
+--- usr/portage/sys-devel/gnuconfig/gnuconfig-20110814.ebuild [[PORTAGE]]
++++ overlay/sys-devel/gnuconfig/gnuconfig-20110814.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -27,10 +27,10 @@
  	use elibc_uclibc && sed -i 's:linux-gnu:linux-uclibc:' testsuite/config-guess.data #180637
  }
  
-<--8<--
---("sys-devel/gnuconfig/gnuconfig-20120116.ebuild")-->8-->
---- usr/portage/sys-devel/gnuconfig/gnuconfig-20120116.ebuild	2012-03-03 14:24:58.000000000 -0800
-+++ overlay/sys-devel/gnuconfig/gnuconfig-20120116.ebuild	2012-04-06 13:51:07.711988300 -0700
+<---8<---
+---("sys-devel/gnuconfig/gnuconfig-20120116.ebuild")--->8--->
+--- usr/portage/sys-devel/gnuconfig/gnuconfig-20120116.ebuild [[PORTAGE]]
++++ overlay/sys-devel/gnuconfig/gnuconfig-20120116.ebuild [[OVERLAY]]
 @@ -1,10 +1,10 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -62,7 +62,7 @@
  	use elibc_uclibc && sed -i 's:linux-gnu:linux-uclibc:' testsuite/config-guess.data #180637
  }
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "sys-devel/gnuconfig/files" =====
 
 *** The following files appear only in the overlay ***

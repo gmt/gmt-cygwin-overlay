@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "app-admin/eselect-python" =====
---("app-admin/eselect-python/eselect-python-20100321.ebuild")-->8-->
---- usr/portage/app-admin/eselect-python/eselect-python-20100321.ebuild	2010-08-04 11:01:51.000000000 -0700
-+++ overlay/app-admin/eselect-python/eselect-python-20100321.ebuild	2012-02-11 04:00:47.352896200 -0800
+---("app-admin/eselect-python/eselect-python-20100321.ebuild")--->8--->
+--- usr/portage/app-admin/eselect-python/eselect-python-20100321.ebuild [[PORTAGE]]
++++ overlay/app-admin/eselect-python/eselect-python-20100321.ebuild [[OVERLAY]]
 @@ -33,6 +33,8 @@
  	unpack ${A}
  	cd "${S}"
@@ -11,7 +11,7 @@
  	./autogen.sh || die "autogen.sh failed"
  }
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "app-admin/eselect-python/files" =====
 
 *** The following files appear only in the overlay ***

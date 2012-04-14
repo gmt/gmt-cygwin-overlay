@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/libffi" =====
---("dev-libs/libffi/ChangeLog")-->8-->
---- usr/portage/dev-libs/libffi/ChangeLog	2012-04-06 08:05:59.000000000 -0700
-+++ overlay/dev-libs/libffi/ChangeLog	2011-11-18 04:02:57.000000000 -0800
+---("dev-libs/libffi/ChangeLog")--->8--->
+--- usr/portage/dev-libs/libffi/ChangeLog [[PORTAGE]]
++++ overlay/dev-libs/libffi/ChangeLog [[OVERLAY]]
 @@ -1,35 +1,6 @@
  # ChangeLog for dev-libs/libffi
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -40,10 +40,10 @@
  
  *libffi-3.0.11_rc2 (18 Nov 2011)
  
-<--8<--
---("dev-libs/libffi/libffi-3.0.10.ebuild")-->8-->
---- usr/portage/dev-libs/libffi/libffi-3.0.10.ebuild	2012-02-19 08:02:52.000000000 -0800
-+++ overlay/dev-libs/libffi/libffi-3.0.10.ebuild	2012-02-21 17:13:22.150710700 -0800
+<---8<---
+---("dev-libs/libffi/libffi-3.0.10.ebuild")--->8--->
+--- usr/portage/dev-libs/libffi/libffi-3.0.10.ebuild [[PORTAGE]]
++++ overlay/dev-libs/libffi/libffi-3.0.10.ebuild [[OVERLAY]]
 @@ -1,12 +1,12 @@
 -# Copyright 1999-2012 Gentoo Foundation
 +# Copyright 1999-2011 Gentoo Foundation
@@ -88,7 +88,7 @@
  	elibtoolize
  }
  
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-libs/libffi/files" =====
 
 *** The following files appear only in the overlay ***

@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-lang/perl" =====
---("dev-lang/perl/ChangeLog")-->8-->
---- usr/portage/dev-lang/perl/ChangeLog	2012-03-03 05:03:49.000000000 -0800
-+++ overlay/dev-lang/perl/ChangeLog	2011-07-09 02:01:32.000000000 -0700
+---("dev-lang/perl/ChangeLog")--->8--->
+--- usr/portage/dev-lang/perl/ChangeLog [[PORTAGE]]
++++ overlay/dev-lang/perl/ChangeLog [[OVERLAY]]
 @@ -1,56 +1,6 @@
  # ChangeLog for dev-lang/perl
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -61,10 +61,10 @@
  
  *perl-5.12.4 (24 Jun 2011)
  
-<--8<--
---("dev-lang/perl/perl-5.12.3-r1.ebuild")-->8-->
---- usr/portage/dev-lang/perl/perl-5.12.3-r1.ebuild	2012-01-02 14:52:21.000000000 -0800
-+++ overlay/dev-lang/perl/perl-5.12.3-r1.ebuild	2012-02-15 19:01:03.311510700 -0800
+<---8<---
+---("dev-lang/perl/perl-5.12.3-r1.ebuild")--->8--->
+--- usr/portage/dev-lang/perl/perl-5.12.3-r1.ebuild [[PORTAGE]]
++++ overlay/dev-lang/perl/perl-5.12.3-r1.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
 -# Copyright 1999-2012 Gentoo Foundation
 +# Copyright 1999-2011 Gentoo Foundation
@@ -408,7 +408,7 @@
  	# Remove cruft
  	einfo "Removing files that are not in the minimal install"
  	echo "${MINIMAL_PERL_INSTALL}"
-<--8<--
+<---8<---
 ===== mutual sub-directory: "dev-lang/perl/files" =====
 
 *** The following files appear only in the overlay ***
