@@ -115,6 +115,8 @@ src_prepare() {
 	}
 
 	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
+
+	epatch "${FILESDIR}"/${PN}-2.2.01.20389-fix-perform-all.patch #411897
 }
 
 src_configure() {

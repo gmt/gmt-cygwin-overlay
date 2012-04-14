@@ -1,0 +1,28 @@
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20389.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20389.stash/pym/portage/checksum.py prefix-portage-2.2.01.20389/pym/portage/checksum.py
+--- prefix-portage-2.2.01.20389.stash/pym/portage/checksum.py	2012-02-19 02:09:03.000000000 -0800
++++ prefix-portage-2.2.01.20389/pym/portage/checksum.py	2012-04-13 17:06:53.220672000 -0700
+@@ -184,10 +184,8 @@
+ 		encoding=_encodings['merge'], errors='strict'), **kwargs)
+ 
+ def perform_all(x, calc_prelink=0):
+-	mydict = {}
+-	for k in hashfunc_map:
+-		mydict[k] = perform_checksum(x, hashfunc_map[k], calc_prelink)[0]
+-	return mydict
++	return dict( (k, perform_checksum(x, k, calc_prelink)[0])
++		     for k in hashfunc_map.keys() )
+ 
+ def get_valid_checksum_keys():
+ 	return list(hashfunc_map)
+@@ -301,8 +299,9 @@
+ 				prelink_capable = False
+ 		try:
+ 			if hashname not in hashfunc_map:
+-				raise portage.exception.DigestException(hashname + \
+-					" hash function not available (needs dev-python/pycrypto)")
++				raise portage.exception.DigestException(
++					"%s hash function not available (needs dev-python/pycrypto)"
++						% hashname )
+ 			myhash, mysize = hashfunc_map[hashname](myfilename)
+ 		except (OSError, IOError) as e:
+ 			if e.errno in (errno.ENOENT, errno.ESTALE):
