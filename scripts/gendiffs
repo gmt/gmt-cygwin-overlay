@@ -251,12 +251,23 @@ compare_regular_file() {
 		if echo "$file" | egrep "\.(patch|diff)$" > /dev/null ; then
 			echo "WARNING: ${file}: differing patch files considered harmful!" | tee -a "${gendiffs_outfile}"
 		fi
-		echo "--(\"${file}\")-->8-->" >> "${gendiffs_outfile}"
+		echo "---(\"${file}\")--->8--->" >> "${gendiffs_outfile}"
 		(
 			cd "$gendiffs_eprefix" || { echo "Couldn't cd to \"${gendiffs_eprefix}\"" >&2 ; exit 1 ; }
-			diff -U 3 -w -B "${gendiffs_portage_tree}/${file}" "${gendiffs_overlay}/${file}"
+			local diffresult="$( diff -U 3 -w -B "${gendiffs_portage_tree}/${file}" "${gendiffs_overlay}/${file}" )"
+			if (( $( echo "${diffresult}" | wc -l ) < 5 )) ; then
+				echo '!!!!! WARNING: pathological diffresult !!!!!' | tee -a "${gendiffs_outfile}" >&2
+				echo "pathological diffresult was:" >&2
+				echo "${diffresult}" >&2
+			fi
+			local header1="$( echo "${diffresult}" | head -n 1 | sed -e 's/[[:space:]]*[[:digit:]-]\{10\} [[:digit:].:]\{18\} -[[:digit:]]\{4\}$//') [[PORTAGE]]"
+			local header2="$( echo "${diffresult}" | head -n 2 | tail -n 1 | sed -e 's/[[:space:]]*[[:digit:]-]\{10\} [[:digit:].:]\{18\} -[[:digit:]]\{4\}$//') [[OVERLAY]]"
+			local body="$( echo "${diffresult}" | tail -n +3 )"
+			echo "${header1}"
+			echo "${header2}"
+			echo "${body}"
 		) >> "${gendiffs_outfile}"
-		echo "<--8<--" >> "${gendiffs_outfile}"
+		echo "<---8<---" >> "${gendiffs_outfile}"
 	fi
 	return 0
 }

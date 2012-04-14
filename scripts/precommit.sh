@@ -4,8 +4,12 @@
 #
 # $Id: use_desc_gen.sh,v 1.6 2008/08/23 21:28:28 robbat2 Exp $
 
+git status # fixup time-stamp-only changes in the index
+
 overlaydir=${OVERLAY:-/g2pfx/overlay}
 
 ${overlaydir}/scripts/metadata_gen.sh
 rm -rvf ${overlaydir}/portage_diffs/latest
 ${overlaydir}/scripts/gendiffs
+
+
