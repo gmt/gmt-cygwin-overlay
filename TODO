@@ -64,3 +64,42 @@ o Clearly absolute paths are not the answer for cygdll-protect.  Either
   until I realized what happens when you move a dll around from version a->b
   of an ebuild -- it's back to the same old BS rebase issues again; there's no
   reason to let continue after building all this infrastructure to prevent it.
+
+o It is desirable for as many portage components as possible to register themselves
+  with the master lock, including ebuild.sh and really anything we can figure out
+  will be running in a subshell.  However, to do this correctly we are going to need
+  to back down from the existing assumption that the master lock cannot be acquired
+  while a non-portage process is waiting for it; some kind of mode needs to be
+  introduced that will allow exactly that to happen.
+
+o Even though they are not allowed in the CYGDLL_PROTECT variable, it would be nice
+  if cygdll-update was able to handle filenames with spaces in them (as of now this
+  will have undefined results).
+
+o Furthermore, during the phase of cygdll-update where the files are being merged
+  to the filesystem, we should do everything possible to avoid subshells and relying
+  on external executables.  What's there now was borrowed from etc-update and
+  doesn't do this at all.  There is code in libtool that we could use for this
+  although I'd need to think about whether there are any licensing issues if we
+  use that (i.e.: quote_for_eval, etc).  The issue, of course, is that if
+  cygdll_update is itself prone to rebasing problems the user could get pretty
+  screwed.
+
+o If cygdll_protected files are in "removed-in-limbo" state (that is, the file
+  is present in cygdll database with the null md5 and has not been physically
+  removed), then if a package is merged that wants to create this file, and
+  collision-protect is active, then the merge will fail as there is no exception
+  made in the collision-protect code against it.  Also, if protect-if-owned is
+  active, then the long database search that happens for collisions will eventually
+  occur (although, presumably, the merge will succeed in this case).
+
+  Both of these cases require an exception.  Instead of normal collision behavior,
+  the merge should instantly succeed, the file should be installed as the
+  currently non-existent _cygdll_protect_foo.dll or whatever, and the new md5
+  of the merged file should replace the null md5 which is currently in the
+  cygdll database.
+
+o Cygdll-update currently silently discards CYGDLL_UPDATE settings which do not
+  currently exist in the filesystem -- but this breaks cygdll protection for
+  new files which may conflict with old files that are elsewhere.  The non-existence
+  test should simply be removed
