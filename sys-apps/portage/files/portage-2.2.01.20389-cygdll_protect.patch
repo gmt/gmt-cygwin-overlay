@@ -11,8 +11,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	env-update \
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20389.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20389.orig/bin/cygdll-update prefix-portage-2.2.01.20389/bin/cygdll-update
 --- prefix-portage-2.2.01.20389.orig/bin/cygdll-update	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20389/bin/cygdll-update	2012-04-15 04:01:33.972916600 -0700
-@@ -0,0 +1,219 @@
++++ prefix-portage-2.2.01.20389/bin/cygdll-update	2012-04-16 05:20:16.382932300 -0700
+@@ -0,0 +1,259 @@
 +#!@PORTAGE_BASH@
 +# Copyright 1999-2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
@@ -58,7 +58,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +fi
 +
 +load_db() {
-+	extra_protection="$( portageq cygdll_protect_list ${EROOT} )"
++	extra_protection="$( pq cygdll_protect_list ${EROOT} )"
 +	[[ "$extra_protection" ]] && CYGDLL_PROTECT="${CYGDLL_PROTECT}${CYGDLL_PROTECT:+ }${extra_protection}"
 +
 +	# clear out any dups
@@ -76,36 +76,29 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	local find_opts
 +	local my_basename
 +
++	# FIXME: support spaces in filenames!!!
 +	for path in ${CYGDLL_PROTECT} ; do
 +		origpath="${path}"
 +
-+		skip_because_pending_removal=no
-+		for origpath2 in ${pending_removals} ; do
-+			[[ ${origpath} == ${origpath2} ]] && skip_because_pending_removal=yes
-+		done
 +
-+		if [[ $skip_because_pending_removal == no ]] ; then
 +
-+			path="${EROOT%/}/${path#/}"
-+			my_basename="${path##*/}"
-+			path="${path%/*}"
-+			find_opts="-maxdepth 1 -name _cygdll_protect_${my_basename}"
++		path="${EPREFIX%/}/${path#/}"
++		my_basename="${path##*/}"
++		path="${path%/*}"
++		cygdllfile="_cygdll_protect_${my_basename}"
 +
-+			ofile=""
-+			# The below set -f turns off file name globbing in the ${find_opts} expansion.
-+			for file in $( set -f ; find ${path}/ ${find_opts} -print | \
-+				   sed -e "s:\(^.*/\)\(_cygdll_protect_\)\(.*$\):\1\2\3\%\1%\2\%\3:" | \
-+				   sort -t'%' -k2,2 -k4,4 -k3,3 | LANG=POSIX LC_ALL=POSIX cut -f1 -d'%' ); do
-+				rpath=$( echo "${file/\/\///}" | sed -e "s:/[^/]*$::" )
-+				rfile=$( echo "${file/\/\///}" | sed -e "s:^.*/::" )
-+				if [[ "${ofile:16}" != "${rfile:16}" ]] ||
-+				   [[ ${opath} != ${rpath} ]]; then
-+					echo "Merging in-limbo update: ${rpath}/${rfile:16}"
-+					mv ${rpath}/${rfile} ${rpath}/${rfile:16} || die "filesystem trouble" $?
-+					continue
-+				fi
-+			done
++		if [[ -e "${path}/${cygdllfile}" ]] ; then
++			echo "Merging in-limbo update for: ${path}/${my_basename}"
++			mv "${path}/${cygdllfile}" "${path}/${my_basename}" || die "filesystem trouble" $?
 +			done_add "${origpath}"
++		else
++			# two possibilities: the file is pending removal, or is a stale/bogus cygdll protection
++			# if the former, don't call done-add because we aren't done!
++			skip_because_pending_removal=no
++			for origpath2 in ${pending_removals} ; do
++				[[ ${origpath} == ${origpath2} ]] && { skip_because_pending_removal=yes ; break ; }
++			done
++			[[ $skip_because_pending_removal == no ]] && done_add "${origpath}"
 +		fi
 +	done
 +
@@ -113,7 +106,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	if [[ -n "${pending_removals}" ]] ; then
 +		for origpath in ${pending_removals} ; do
 +			{
-+				fullpath="${EROOT%/}/${origpath#/}" && \
++				fullpath="${EPREFIX%/}/${origpath#/}" && \
 +				echo "Finalizing in-limbo removal: ${fullpath}" && \
 +				{ rm "${fullpath}" || die "filesystem trouble" $? ; } && \
 +				done_add "${origpath}"
@@ -125,7 +118,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +preprocess_removals() {
 +	echo "Analysing pending removals..."
 +	
-+	removal_candidates="$( portageq cygdll_protect_list "${EROOT}" --md5 | \
++	removal_candidates="$( pq cygdll_protect_list "${EROOT}" --md5 | \
 +		egrep "${removal_magic_regex}" | \
 +		sed -e 's|[[:space:]][^[:space:]]*$||'
 +	)"
@@ -145,7 +138,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	# do not exist, it will simply call done_add and they will be removed from the db
 +	pending_removals="$( echo $( echo "${removal_candidates}" | \
 +		while read removal_candidate ; do
-+			[[ -f "${EROOT%/}/${removal_candidate#/}" ]] && echo "${removal_candidate}"
++			[[ -f "${EPREFIX%/}/${removal_candidate#/}" ]] && echo "${removal_candidate}"
 +		done
 +	) )"
 +}
@@ -163,9 +156,9 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +	echo -n "Cleaning up...."
 +
-+	portageq master_lock_release
++	pq master_lock_release
 +	if (( ${#done[*]} > 0 )) ; then
-+		portageq cygdll_protect_clear "${EROOT}" "${done[@]}"
++		pq cygdll_protect_clear "${EROOT}" "${done[@]}"
 +	fi
 +
 +	echo
@@ -175,9 +168,9 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +
 +usage() {
 +	cat <<-EOF
-+	cygdll-update: Handle configuration file updates
++	${0}: Handle configuration file updates
 +
-+	Usage: cygdll-update
++	Usage: ${0}
 +
 +	Options:
 +	  -d, --debug    Enable shell debugging
@@ -206,25 +199,72 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +done
 +${SET_X} && set -x
 +
-+type portageq > /dev/null || exit $?
-+eval $( portageq envvar -v CYGDLL_PROTECT PORTAGE_HOSTNAME \
-+	EROOT EPREFIX USERLAND )
-+export PORTAGE_TMPDIR
++portageq="${CYGDLL_PROTECT_portageq:-$( which portageq 2>/dev/null )}"
++portageq_path="${CYGDLL_PROTECT_portageq_path:-${PATH}}"
 +
-+# if they have an EPREFIX, use that; otherwise just EROOT, and if they don't have either (they should), use '/'
-+EROOT="${EPREFIX:-${EROOT:-/}}"
++pq() {
++	PATH="${portageq_path}" "${portageq}" "$@"
++}
 +
-+removal_magic_regex="($( echo $( portageq dump_cygdll_removal_magic ) | sed -e 's/[[:space:]][[:space:]]*/|/g' ))$"
++if [[ $CYGDLL_PROTECT_INNER_SHELL != yes ]] ; then
++	# normally it's actually fairly suboptimal for us to be running
++	# in a typical PREFIX environment; this is subject to rebasing issues
++	# which could cause us to freak-out mid-task.  What we really want
++	# is to run under the regular non-prefix /bin/bash; however we also
++	# don't want to rely too heavily on the assumption that this is a
++	# prefix gentoo, since that's just gross. So we provide two failsafes
++	# after which we re-invoke ourselves under the auspices of /bin/bash:
++	# a user override which can be set as CYGDLL_UPDATE_PREFIX_BASH_OVERRIDE
++	# and a check to ensure that this really is a prefix install.
++	type "${portageq}" > /dev/null || exit $?
++	eval $( pq envvar -v CYGDLL_PROTECT PORTAGE_HOSTNAME EROOT EPREFIX )
++
++	EROOT="${EROOT:-/}"
++	EPREFIX="${EPREFIX:-/}"
++
++	removal_magic_regex="($( echo $( pq dump_cygdll_removal_magic ) | sed -e 's/[[:space:]][[:space:]]*/|/g' ))$"
++
++	CYGDLL_UPDATE_PREFIX_BASH="${CYGDLL_UPDATE_PREFIX_BASH_OVERRIDE:-/bin/bash}"
++	# always a PITA figuring this out:
++	selfsource="$( readlink -e ${BASH_SOURCE[0]} )"
++	selfpath=$( cd -P "$( dirname "$selfsource" )" && pwd )
++	selfname="${selfpath}/$( basename "${BASH_SOURCE[0]}" )"
++
++	selfbash="${BASH}"
++	if [[ $selfbash == [A-Za-z]:\\* ]] ; then
++		if type cygpath ; then
++			selfbash="$( cygpath -u ${selfbash} )"
++			echo "Warning: got Windows style path for BASH.  Translated to: \"${selfbash}\"." >&2
++		else
++			echo "BASH appears to be a Windows path but can't find cygpath." >&2
++			exit 1
++		fi
++		# sadly this will probably be something stupid like /cygdrive/c/cygwin/bin/bash...
++		# there's no point going crazy trying to fix it, they should just run the cygdll-update
++		# instead of sourcing us -- we've already been extremely tolerant.
++	fi
++	
++
++	if [[ -x "${CYGDLL_UPDATE_PREFIX_BASH}" && $EPREFIX != / && \
++	      ( ! "${CYGDLL_UPDATE_PREFIX_BASH}" -ef "${selfbash}" ) ]] ; then
++		# we could use exec here but it doesn't really buy us anything; by exiting immediately after,
++		# we ensure that no further forks() happen in our current environment; if fork() is already hosed,
++		# we won't have gotten this far in the first place.
++		echo "Reinvoking self as: \"${CYGDLL_UPDATE_PREFIX_BASH} ${selfname}\""
++		SET_X="${SET_X}" CYGDLL_PROTECT_portageq="${portageq}" CYGDLL_PROTECT_portageq_path="${portageq_path}" \
++		CYGDLL_PROTECT="${CYGDLL_PROTECT}" PORTAGE_HOSTNAME="${PORTAGE_HOSTNAME}" EROOT="${EROOT}" \
++		EPREFIX="${EPREFIX}" removal_magic_regex="${removal_magic_regex}" CYGDLL_PROTECT_INNER_SHELL=yes \
++		PATH="/bin:${PATH}" "${CYGDLL_UPDATE_PREFIX_BASH}" "${selfname}"
++		exit $?
++	fi
++fi
++
 +
 +trap "die suprise-termination 1" EXIT
 +trap "die terminated 1" SIGTERM
 +trap "die interrupted 1" SIGINT
 +
-+portageq master_lock_acquire || exit $?
-+
-+rm_opts="-i"
-+cp_opts="-i"
-+mv_opts="-i"
++pq master_lock_acquire || exit $?
 +
 +load_db
 +preprocess_removals
@@ -1741,7 +1781,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				"BUILD_TIME"         : "",
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20389.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20389.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20389/pym/portage/dbapi/vartree.py
 --- prefix-portage-2.2.01.20389.orig/pym/portage/dbapi/vartree.py	2012-04-15 04:01:37.326416600 -0700
-+++ prefix-portage-2.2.01.20389/pym/portage/dbapi/vartree.py	2012-04-15 04:01:34.067916600 -0700
++++ prefix-portage-2.2.01.20389/pym/portage/dbapi/vartree.py	2012-04-16 03:31:46.151646400 -0700
 @@ -24,6 +24,7 @@
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
  		'writemsg,writemsg_level,write_atomic,atomic_ofstream,writedict,' + \
@@ -1861,7 +1901,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +						# we could go ahead and create the actual empty file -- this
 +						# would be more consistent, but then sooner or later people would
 +						# accidentally merge them by hand with lord-knows-what results.
-+						cygdllobj = cygdllprotect_filename(obj, force=True)
++						cygdllobj = cygdllprotect_filename(obj)
 +						if os.path.exists(cygdllobj):
 +							try:
 +								# FIXME: is this safe?  Is it possible for us to be racing with
@@ -1956,7 +1996,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  		#restore umask
-@@ -4193,7 +4264,7 @@
+@@ -4193,11 +4264,11 @@
  
  		return os.EX_OK
  
@@ -1965,6 +2005,11 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		"""
  		
  		This function handles actual merging of the package contents to the livefs.
+-		It also handles config protection.
++		It also handles config and cygdll protection.
+ 		
+ 		@param srcroot: Where are we copying files from (usually ${D})
+ 		@type srcroot: String (Path)
 @@ -4214,6 +4285,8 @@
  		@type cfgfiledict: Dictionary
  		@param thismtime: The current time (typically long(time.time())
@@ -1992,15 +2037,31 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  					return 1
  			elif stat.S_ISREG(mymode):
  				# we are merging a regular file
-@@ -4454,6 +4529,7 @@
+@@ -4454,9 +4529,21 @@
  				zing = "!!!"
  				mymtime = None
  				protected = self.isprotected(mydest)
+-				if mydmode != None:
 +				cygdllprotected = self._is_cygdll_protected(mydest)
- 				if mydmode != None:
++				if mydmode == None:
++					# new destination file
++					if cygdllprotected:
++						# merging a new cygdll so update cygdlldict and protect file
++						if mymd5 == cygdlldict.get(myrealdest, [None])[0]:
++							# An identical update is already in limbo: skip it
++							zing = '---'
++							moveme = 0
++							mymtime = mystat[stat.ST_MTIME]
++						else:
++							cygdlldict[myrealdest] = [mymd5]
++						mydest = cygdllprotect_filename(mydest)
++				else:
  					# destination file exists
- 					
-@@ -4486,6 +4562,7 @@
+-					
+ 					if stat.S_ISDIR(mydmode):
+ 						# install of destination is blocked by an existing directory with the same name
+ 						newdest = self._new_backup_path(mydest)
+@@ -4486,6 +4573,7 @@
  										protected = False
  
  						if protected:
@@ -2008,7 +2069,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  							# we have a protection path; enable config file management.
  							cfgprot = 0
  							if mymd5 == destmd5:
-@@ -4514,6 +4591,49 @@
+@@ -4514,9 +4602,55 @@
  
  							if cfgprot:
  								mydest = new_protect_filename(mydest, newmd5=mymd5)
@@ -2024,6 +2085,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +							else:
 +								if mymd5 == cygdlldict.get(myrealdest, [None])[0]:
 +									# An identical update is already in limbo: skip it
++									zing = "---"
 +									moveme = 0
 +									cygprot = 0
 +									mymtime = mystat[stat.ST_MTIME]
@@ -2031,7 +2093,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +									moveme = 1
 +									cygprot = 1
 +							if moveme:
-+								# merging a new cygdll so update confmem.
++								# merging a new cygdll so update cygdlldict
 +								cygdlldict[myrealdest] = [mymd5]
 +
 +
@@ -2055,9 +2117,16 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +					except InvalidLocation:
 +						self.settings._init_dirs()
 +						writedict(cygdlldict, self.vartree.dbapi._cygdllprotect.limbodb_file)
++					# update orig_cygdlldict so that we don't do this over and over pointlessly!
++					orig_cygdlldict = cygdlldict.copy()
  
- 				# whether config protection or not, we merge the new file the
- 				# same way.  Unless moveme=0 (blocking directory)
+-				# whether config protection or not, we merge the new file the
+-				# same way.  Unless moveme=0 (blocking directory)
++				# whether config-,cygdll-, or un-protected, we merge the new file the
++				# same way (unless moveme=0 -- blocking directory)
+ 				if moveme:
+ 					# Create hardlinks only for source files that already exist
+ 					# as hardlinks (having identical st_dev and st_ino).
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20389.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20389.orig/pym/portage/exception.py prefix-portage-2.2.01.20389/pym/portage/exception.py
 --- prefix-portage-2.2.01.20389.orig/pym/portage/exception.py	2012-04-15 04:01:37.331916600 -0700
 +++ prefix-portage-2.2.01.20389/pym/portage/exception.py	2012-04-15 04:01:34.070416600 -0700
@@ -2248,8 +2317,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		mod = None
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20389.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20389.orig/pym/portage/util/cygdll_protection.py prefix-portage-2.2.01.20389/pym/portage/util/cygdll_protection.py
 --- prefix-portage-2.2.01.20389.orig/pym/portage/util/cygdll_protection.py	1969-12-31 16:00:00.000000000 -0800
-+++ prefix-portage-2.2.01.20389/pym/portage/util/cygdll_protection.py	2012-04-15 04:05:34.851416600 -0700
-@@ -0,0 +1,398 @@
++++ prefix-portage-2.2.01.20389/pym/portage/util/cygdll_protection.py	2012-04-15 20:47:39.757916600 -0700
+@@ -0,0 +1,391 @@
 +# Copyright 2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
 +
@@ -2380,6 +2449,8 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +			return pathname
 +		if not stat.S_ISREG(mode):
 +			return pathname
++		# we can only strip for .exe's that exist -- otherwise, we could not do
++		# the samefile test.
 +		# FIXME: would it be correct to look at execute permission bits here?
 +		if not pathname.endswith('.exe'):
 +			return pathname
@@ -2535,13 +2606,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +		for x in self._cygdllprotect_cruft_accumulator:
 +			ppath, dummy = self._canonicalize_path(
 +				os.path.join(self._eprefix, x.lstrip(os.path.sep)))
-+			try:
-+				if stat.S_ISREG(os.stat(ppath).st_mode):
-+					new_list.append(ppath)
-+			except OSError:
-+				# if it doesn't exist (or it exists but is not a regular file),
-+				# there's no need to protect it.
-+				pass
++			new_list.append(ppath)
 +		# since, for the moment, at least, a simple string-membership test is used by
 +		# is_cygdll_protected, using frozenset (vs., i.e., a list) will optimize lookups.
 +		self._cygdllprotect_list = frozenset(new_list)
@@ -2595,7 +2660,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	def limbodb_file(self):
 +		return self._cygdll_memory_file_path
 +
-+def cygdllprotect_filename(mydest, force=False):
++def cygdllprotect_filename(mydest):
 +	"""
 +	Resolves a cygdll-protect filename for merging.  If force is provided
 +	(and true), generates a cygwin dll protection filename even if mydest
@@ -2604,9 +2669,6 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +	pending changes, so no numbers are used.  Currently the protection
 +	filename format simply prepends "_cygdll_protect_" to the original.
 +	"""
-+
-+	if not force and not os.path.exists(mydest):
-+		return mydest
 +
 +	real_filename = os.path.basename(mydest)
 +	real_dirname  = os.path.dirname(mydest)
@@ -2644,7 +2706,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +			   if v[0] is not None ) # avoid spurrious collisions if something goes wrong with perform_all
 +
 +	return frozenset([ x for (x,p,h)
-+			   in [ (x, cygdllprotect_filename(x, True), h)
++			   in [ (x, cygdllprotect_filename(x), h)
 +				for (x,h) in candidates]
 +			   if os.path.exists(p) or h in zero_cksums ])
 +
