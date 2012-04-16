@@ -21,18 +21,6 @@ o It turns out that the CHOST setting I have used is an historical
   much fsck up my half-completed bootstrap process and I'm too lazy/entrenched
   to comfortably do so just yet.  So for now I guess I am stuck with it.  boo!
 
-o When directly merging a formerly cygdll_protected file, we should wipe out
-  any in-limbo files -- otherwise the administrator with automatically revert
-  to some older version when they run cygdll-update!!!  This means we need to
-  check the cygdlldict for every regular file that is merged.
-  
-o Some thought will eventually need to be put into just how big the cygdll
-  protections database is going to get.  If its getting out of hand, we might
-  consider embedded mysql or something.  The cygdll protections db is flushed
-  much more frequently than the configdb and potentially could get large if
-  someone is running big emerges (but wouldn't this cause breakage anyhow
-  due to bad BDEPs?)... something to keep an eye on anyhow.
-
 o Somehow we want to get rid of ultra-prefixify, it is a horrible abomination.
   One approach would be to build our own cygwin DLL and launcher utility
   (to ensure that no other cygwin DLL gets pulled in).  Armed with
@@ -54,10 +42,7 @@ o Need to determine: will cygwin load a .dll through a symlink?  or only respect
 
 o manpage entries about the items we added to EPREFIX/var/lib/portage
 
-o cygdll-update needs to understand the empty-file-hash convention or else
-  it's pointless
-
-o Clearly absolute paths are not the answer for cygdll-protect.  Either
+o Clearly absolute paths are not the (full) answer for cygdll-protect.  Either
   implement a kludge like "dll's get their paths stripped for testing
   is_cygdll_protected" or something more generally useful like regular
   expression matching (substututions?) I still wasn't convinced we need this
@@ -67,30 +52,21 @@ o Clearly absolute paths are not the answer for cygdll-protect.  Either
 
 o It is desirable for as many portage components as possible to register themselves
   with the master lock, including ebuild.sh and really anything we can figure out
-  will be running in a subshell.  However, to do this correctly we are going to need
-  to back down from the existing assumption that the master lock cannot be acquired
-  while a non-portage process is waiting for it; some kind of mode needs to be
-  introduced that will allow exactly that to happen.
+  will be running under the care of portage.  However, to do this correctly we are
+  going to need to back down from the existing assumption that the master lock
+  cannot be acquired while a non-portage process is waiting for it; some kind of
+  mode needs to be introduced that will allow exactly that to happen.
 
 o Even though they are not allowed in the CYGDLL_PROTECT variable, it would be nice
   if cygdll-update was able to handle filenames with spaces in them (as of now this
-  will have undefined results).
-
-o Furthermore, during the phase of cygdll-update where the files are being merged
-  to the filesystem, we should do everything possible to avoid subshells and relying
-  on external executables.  What's there now was borrowed from etc-update and
-  doesn't do this at all.  There is code in libtool that we could use for this
-  although I'd need to think about whether there are any licensing issues if we
-  use that (i.e.: quote_for_eval, etc).  The issue, of course, is that if
-  cygdll_update is itself prone to rebasing problems the user could get pretty
-  screwed.
+  will have undefined -- but probably very bad -- results).
 
 o If cygdll_protected files are in "removed-in-limbo" state (that is, the file
   is present in cygdll database with the null md5 and has not been physically
   removed), then if a package is merged that wants to create this file, and
   collision-protect is active, then the merge will fail as there is no exception
   made in the collision-protect code against it.  Also, if protect-if-owned is
-  active, then the long database search that happens for collisions will eventually
+  active, then the long database search that happens for collisions will run
   occur (although, presumably, the merge will succeed in this case).
 
   Both of these cases require an exception.  Instead of normal collision behavior,
@@ -99,7 +75,11 @@ o If cygdll_protected files are in "removed-in-limbo" state (that is, the file
   of the merged file should replace the null md5 which is currently in the
   cygdll database.
 
-o Cygdll-update currently silently discards CYGDLL_UPDATE settings which do not
-  currently exist in the filesystem -- but this breaks cygdll protection for
-  new files which may conflict with old files that are elsewhere.  The non-existence
-  test should simply be removed
+o Something needs to be done about rebasing and portage -- we should take a look
+  at how portage is handling prelink; maybe can be used as a starting point
+  ATM, bad things happen: i.e.: portage shows "!md5" status when unmerging and
+  leaves cruft behind.  The whole rebasing approach we have now is also pretty
+  poorly written.  In fact all of profile.bashrc is pretty awful.  Could look into
+  how rebase is implemented and figure out whether it's worth writing our own
+  portage-aware rebase tool -- if we wanted to get really fancy it could auto-update
+  saved package files as well as portage .... that could get pretty expensive however!
