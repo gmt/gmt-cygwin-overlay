@@ -213,6 +213,7 @@ diffit()
     local delcompdir=no
     local dostash=no
     local doportage=no
+    local dogit=yes
     local compdir="${pwork}.orig"
     local terminal=no
     [[ -t 1 ]] && terminal=yes
@@ -231,6 +232,12 @@ diffit()
 	delcompdir=yes
 	compdir="${pwork}.portage"
 	doportage=yes
+	shift
+	;;
+	--git|git|-g)
+	delcompdir=yes
+	compdir="${pwork}.git"
+	dogit=yes
 	shift
 	;;
 	--help|-h)
@@ -261,6 +268,13 @@ diffit()
 		cp -a "${pwork}.orig" "${pwork}.portage"
 		cd "${pwork}.portage"
 		patch -p1 < "${patch_pile}"/${patch_pile_series}.$(latestpatch).patch >/dev/null || { echo "Patch error" >&2 ; return 1 ; }
+		cd ..
+	elif [[ $dogit == yes ]] ; then
+		# somehow a leftover one from last time, should be ok to wipe it
+		[[ -d "${pwork}.git" ]] && rm -rf "${pwork}.git"
+		cp -a "${pwork}.orig" "${pwork}.git"
+		cd "${pwork}.git"
+		{ ( cd "${overlay_dir}" ; git show "HEAD:${fakeCATEGORY}/${fakePN}/files/${hack_patch}" ) | patch -p1 ; } || { echo "Patch error" >&2 ; return 1 ; }
 		cd ..
 	fi
 	fudgeit "${pwork}" "${compdir}" || { echo "fudge factor: what gives?" >&2 ; return 1 ; }
