@@ -394,7 +394,56 @@ it()
 }
 
 mergeit () 
-{ 
+{
+    if [[ $1 == --help || $1 == -h ]] ; then
+	echo
+	echo "mergeit [-f|--force [egrep-regex [egrep-regex [...]]]"
+	echo
+	return 0
+    elif [[ $1 == -f || $1 == --force ]] ; then
+        shift
+	egrep_regexen=( "$@" )
+	if [[ ${fakePN} == portage && ${fakeCATEGORY} == sys-apps ]] ; then
+	    (
+		echo ">> ( cd ${pwork_full}"
+		cd ${pwork_full}
+		if [[ ${#egrep_regexen[*]} == 0 ]] ; then
+		    echo ">> find pym -name '*.py' | grep -v 'const_autotool' | while read pyf ; do [[ -e \"${EPREFIX}/usr/lib/portage/\${pyf}\" ]] && cp -v \"\${pyf}\" \"${EPREFIX}/usr/lib/portage/\${pyf}\" ; done"
+		    find pym -name '*.py' | grep -v 'const_autotool' | while read pyf ; do
+			[[ -e "${EPREFIX}"/usr/lib/portage/${pyf} ]] && cp -v "${pyf}" "${EPREFIX}"/usr/lib/portage/${pyf}
+		    done
+		else
+		    first=yes
+		    echo -e ">> find pym -name '*.py' | grep -v 'const_autotool' | while read pyf ; do"
+		    echo "       [[ -e \"${EPREFIX}/usr/lib/portage/\${pyf}\" ]] && \\"
+		    echo -n "           {"
+		    for egrep_regex in "${egrep_regexen[@]}" ; do
+			if [[ ${first} == no ]] ; then
+			    echo -n ' || \'
+			else
+			    first=no
+			fi
+			echo -e -n '\n               echo "${pyf}" | egrep'
+			echo -n " \"${egrep_regex}\" > /dev/null"
+		    done
+		    echo
+		    echo "           } && cp -v \"\${pyf}\" \"${EPREFIX}/usr/lib/portage/\${pyf}\""
+		    echo "   done"
+		    find pym -name '*.py' | grep -v 'const_autotool' | while read pyf ; do
+		        [[ -e "${EPREFIX}"/usr/lib/portage/${pyf} ]] && \
+			    for egrep_regex in "${egrep_regexen[@]}" ; do
+				dopyf=no
+				{ echo "${pyf}" | egrep "${egrep_regex}" 2>/dev/null ; } && { dopyf=yes ; break ; }
+				[[ ${dopyf} == yes ]] && cp -v "${pyf}" "${EPREFIX}"/usr/lib/portage/${pyf}
+			    done
+		    done
+		fi
+	    )
+	else
+	    echo "force only supported for sys-apps/portage, sorry."
+	    return 1
+	fi
+    fi
     for goner in image .configured .compiled .installed ; do
 	    echo ">> rm -rvf ${p_dir}/${goner}"
 	    rm -rvf "${p_dir}"/${goner}
