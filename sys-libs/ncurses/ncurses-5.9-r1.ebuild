@@ -226,6 +226,15 @@ do_compile() {
 	# in parallel.  This is not really a perf hit since the source
 	# generation is quite small.
 	emake -j1 sources || die
+	if [[ ${CHOST} == *-cygwin* ]] ; then
+		# the cygport includes a hack to build libncurses before
+		# libtic, without which we get rare parallel build failures.
+		cd ncurses
+		local w=
+		[[ $going_wide == yes ]] && w=w
+		emake -j1 ../lib/libncurses${w}.la || die
+		cd ..
+	fi
 	# For some reason, sources depends on pc-files which depends on
 	# compiled libraries which depends on sources which ...
 	# Manually delete the pc-files file so the install step will
