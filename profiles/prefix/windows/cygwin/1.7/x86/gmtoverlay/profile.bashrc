@@ -109,8 +109,7 @@ CYG_PEFLAGS="${CYG_PEFLAGS:-$( cyg_which peflags )}"
 # fixme: maybe this belongs in prefix profile?  I'd say probably yes
 # or better yet figure out where all this /bin/bash is coming from and
 # fix it in portage (or wherever).
-warn_export BASH="$( cyg_which bash )"
-warn_export CONFIG_SHELL="${BASH}"
+warn_export CONFIG_SHELL="$( cyg_which bash )"
 
 ###############################################################
 # 2d associative array hack i.e.,
@@ -476,7 +475,11 @@ cyg_rebase-dirs() {
 # 0x70000000: regular cygwin rebase address (FIXME: vanilla?)
 # 0x90000000: rebaseall_pfx -- prefix full-system rebase base
 #             this would also be used, presumably, for any portage
-#             rebase driver/script
+#             rebase driver/script (the rebaseall_pfx script
+#             has not yet been published -- in fact as of this
+#	      writing it actually uses 0x70000000, and I no longer
+#             use cygwin's rebaseall -- but cygwin's setup.exe does,
+#	      which I am still using).
 # 0xA0000000: WORKDIR rebase address (cyg_rebase-portage-workdir)
 # 0xC0000000: DESTDIR rebase address (cyg_rebase-portage-destdir)
 
