@@ -114,7 +114,7 @@
  
  python_dep=">=dev-lang/python-2.7 <dev-lang/python-3.0"
  
-@@ -92,6 +92,31 @@
+@@ -92,6 +92,33 @@
  	fi
  
  	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
@@ -142,7 +142,9 @@
 +
 +	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
 +
++	# upstream conflicts dept.:
 +	epatch "${FILESDIR}"/${PN}-2.2.01.20389-fix-perform-all.patch #411897
++	epatch "${FILESDIR}"/${PN}-2.2.01.20389-distracting-error-message.patch
  }
  
  src_configure() {
@@ -158,6 +160,7 @@ overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-locking-nightmare.pat
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-unc-prevention.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20389-cygdll_protect.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20389-cygwin-dosym-exe-hack.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20389-distracting-error-message.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20389-fix-perform-all.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***

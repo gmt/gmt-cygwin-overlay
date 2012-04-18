@@ -1,3 +1,28 @@
+patching file bin/Makefile.in
+patching file bin/cygdll-update
+patching file bin/ebuild
+patching file bin/ebuild-helpers/dosym
+patching file bin/portageq
+patching file cnf/make.conf
+patching file cnf/make.globals
+patching file man/Makefile.am
+patching file man/Makefile.in
+patching file man/cygdll-update.1
+patching file man/emerge.1
+patching file man/make.conf.5
+patching file pym/_emerge/actions.py
+patching file pym/_emerge/main.py
+patching file pym/portage/__init__.py
+patching file pym/portage/const.py
+patching file pym/portage/dbapi/bintree.py
+patching file pym/portage/dbapi/vartree.py
+patching file pym/portage/exception.py
+patching file pym/portage/package/ebuild/_config/special_env_vars.py
+patching file pym/portage/package/ebuild/config.py
+patching file pym/portage/util/cygdll_protection.py
+patching file pym/portage/util/env_update.py
+patching file pym/portage/util/master_lock.py
+patching file pym/portage/util/movefile.py
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20389.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20389.orig/bin/Makefile.in prefix-portage-2.2.01.20389/bin/Makefile.in
 --- prefix-portage-2.2.01.20389.orig/bin/Makefile.in	2012-04-16 14:56:18.670358100 -0700
 +++ prefix-portage-2.2.01.20389/bin/Makefile.in	2012-04-16 14:56:13.123248900 -0700
@@ -1797,7 +1822,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				"BUILD_TIME"         : "",
 diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.20389.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.20389.orig/pym/portage/dbapi/vartree.py prefix-portage-2.2.01.20389/pym/portage/dbapi/vartree.py
 --- prefix-portage-2.2.01.20389.orig/pym/portage/dbapi/vartree.py	2012-04-16 14:56:18.798383700 -0700
-+++ prefix-portage-2.2.01.20389/pym/portage/dbapi/vartree.py	2012-04-16 19:59:59.418248000 -0700
++++ prefix-portage-2.2.01.20389/pym/portage/dbapi/vartree.py	2012-04-18 02:56:26.760447800 -0700
 @@ -24,10 +24,11 @@
  	'portage.util:apply_secpass_permissions,ConfigProtect,ensure_dirs,' + \
  		'writemsg,writemsg_level,write_atomic,atomic_ofstream,writedict,' + \
@@ -1876,7 +1901,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			unmerge_desc["replaced"] = _("replaced")
  			unmerge_desc["!dir"] = _("!dir")
  			unmerge_desc["!empty"] = _("!empty")
-@@ -2168,10 +2189,61 @@
+@@ -2168,10 +2189,94 @@
  					lstatobj = os.lstat(obj)
  				except (OSError, AttributeError):
  					pass
@@ -1894,6 +1919,35 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 -						show_unmerge("---", unmerge_desc["!found"], file_type, obj)
 -						continue
 +					if obj_is_cygdll_protected:
++						# The file is cygdll_protected and not present on the filesystem.  One
++						# of two things can happen here:
++						#   o If the file is owned by another package in our slot: This can and will
++						#     happen if the _cygdll_protect_ file was not yet merged out of "limbo" by
++						#     cygdll-update before a replacement was merged on top of it.  That's absolutely
++						#     fine, and exactly analogous to replacing a regular file so we just show
++						#     "replaced."
++						#   o If the file is not owned by anybody then the _cygdll_update_ file is analogous
++						#     to a regular file that is being unmerged.  So we unmerge it ourselves; however,
++						#     there is also the issue of the entry in the cygdll database to deal with.
++						#     So we mark that as stale and to-be-discarded, as well.  As a sanity check,
++						#     if the md5 of the _cygdll_protect_ file does not match the md5 in the database,
++						#     we warn the user and punt.
++	 					if obj.startswith(real_root):
++							relative_path = obj[real_root_len:]
++							is_owned = False
++							for dblnk in others_in_slot:
++								if dblnk.isowner(relative_path):
++									is_owned = True
++									break
++						else:
++							self._eerror("postrm", [
++								_("The file \"%s\" is under cygdll protection, but") % obj,
++								_("shouldn't be, because it does not start with"),
++								_("\"%s\".  Ignoring.") % real_root])
++							continue
++						if is_owned:
++							show_unmerge("---", unmerge_desc["replaced"], file_type, obj)
++							continue
 +						cygdllobj = cygdllprotect_filename(obj)
 +						cygdllstatobj = None
 +						cygdll_stale = obj in cygdlldict
@@ -1907,31 +1961,35 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +								try:
 +									cygdllmd5 = perf_md5(cygdllobj, calc_prelink=0)
 +								except FileNotFound as e:
-+									self._error("postrm", "cygdll_protect file \"%s\" "
-+										"apparently disappeared between stat "
-+										"and md5 calls: ignoring, but pretty suspicious.")
++									self._eerror("postrm", [
++										_("cygdll_protect file \"%s\" apparently") % cygdllobj,
++										_("disappeared: ignoring, but that's pretty wierd.")])
 +									cygdllstatobj = None
 +							if cygdllstatobj is None:
 +								pass
 +							elif not stat.S_ISREG(cygdllstatobj.st_mode):
-+								self._eerror("postrm", "cygdll_protect file \"%s\" is not a "
-+									"regular file... what gives?" % cygdllobj)
++								self._eerror("postrm", [
++									_("cygdll_protect file \"%s\" is not") % cygdllobj,
++									_("a regular file... what gives?")])
 +								show_unmerge("!!!", unmerge_desc["cygdll"], file_type, cygdllstatobj)
 +								cygdll_stale = False
 +							elif cygdll_stale and cygdllmd5 != cygdlldict[obj][0]:
-+								self._eerror("postrm", "cygdll_protection file \"%s\" does not "
-+									"match the md5 in the cygdll database.  Please consider"
-+									"removing with 'portageq cygdll_protect_clear %s %s' if you"
-+									"do not want cygdll-update to automatically merge this file!"
-+									% (cygdllobj,
-+									   self.settings["EROOT"],
-+									   os.path.relpath(obj, "/" if self.settings["EPREFIX"] == ""
-+									   			    else self.settings["EPREFIX"])))
++								self._eerror("postrm", [
++									_("cygdll_protection file \"%s\" does not") % cygdllobj,
++									_("match the md5 in the cygdll database.  Please consider"),
++									_("removing with 'portageq cygdll_protect_clear %s %s' if you")
++										% ( self.settings["EROOT"],
++									   	    os.path.relpath( obj,
++										    		     "/" if self.settings["EPREFIX"] == "" else
++									   			     self.settings["EPREFIX"] ) ),
++									_("do not want cygdll-update to automatically merge this file!")])
 +								show_unmerge("!!!", unmerge_desc["cygdll"], file_type, cygdllstatobj)
 +								cygdll_stale = False
 +							elif not unlink(cygdllobj, cygdllstatobj):
 +								show_unmerge("!!!", unmerge_desc["cygdll"], file_type, cygdllstatobj)
 +								cygdll_stale = False
++							else:
++								show_unmerge("<<<", unmerge_desc["cygdll"], file_type, cygdllobj)
 +						if cygdll_stale:
 +							stale_cygdllmem.append(obj)
 +					show_unmerge("---", unmerge_desc["!found"], file_type, obj)
@@ -1940,7 +1998,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				# don't use EROOT, CONTENTS entries already contain EPREFIX
  				if obj.startswith(real_root):
  					relative_path = obj[real_root_len:]
-@@ -2208,12 +2280,15 @@
+@@ -2208,12 +2313,15 @@
  							protected_symlinks.setdefault(
  								(statobj.st_dev, statobj.st_ino),
  								[]).append(relative_path)
@@ -1959,7 +2017,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				# next line includes a tweak to protect modules from being unmerged,
  				# but we don't protect modules from being overwritten if they are
  				# upgraded. We effectively only want one half of the config protection
-@@ -2232,7 +2307,7 @@
+@@ -2232,7 +2340,7 @@
  				if unmerge_orphans and \
  					lstatobj and not stat.S_ISDIR(lstatobj.st_mode) and \
  					not (islink and statobj and stat.S_ISDIR(statobj.st_mode)) and \
@@ -1968,7 +2026,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  					try:
  						unlink(obj, lstatobj)
  					except EnvironmentError as e:
-@@ -2336,6 +2411,39 @@
+@@ -2336,6 +2444,48 @@
  					if mymd5 != pkgfiles[objkey][2].lower():
  						show_unmerge("---", unmerge_desc["!md5"], file_type, obj)
  						continue
@@ -1980,19 +2038,28 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +						# would be more consistent, but then sooner or later people would
 +						# accidentally merge them by hand with lord-knows-what results.
 +						cygdllobj = cygdllprotect_filename(obj)
-+						if os.path.exists(cygdllobj):
++						cygdllobjstat = None
++						try:
++							cygdllobjstat = os.lstat(cygdllobj)
++						except OSError:
++							cygdllobjstat = None
++						if cygdllobjstat is not None:
++							# TODO: check for ridiculous file types here and warn (but still try to unlink)
 +							try:
-+								# FIXME: is this safe?  Is it possible for us to be racing with
-+								# another process merging this file?  Also: be more like unlink()
-+								# above; what if cygdllobj is something ridiculous like a nonempty
-+								# directory or named pipe; and, wtf is bsd_chflags about?
-+								# Honestly, we could even think about die-ing here, unless the
-+								# file we are replacing is legitimately cygdll-protected.  This
-+								# is, after all, a collision.  Need to think through.  For now:
 +								os.unlink(cygdllobj)
 +							except (OSError, IOError) as e:
-+								if e.errno not in ignored_unlink_errnos:
-+									raise
++								msg = _("An error occured attempting to "
++									"delete the cygwin dll protection file %s, "
++									"which is no longer relevant.  An entry will be "
++									"recorded in the protection database indicating to "
++									"cygdll-update that this file is supposed to be "
++									"empty, however, cygdll-update will not attempt "
++									"to remove the file, and it is quite possible that "
++									"the file could end up being accidentally merged "
++									"later.  Please remove the file, manually, as soon "
++									"as possible.  The error was: %s") % (cygdllobj, e)
++								msglines = textwrap.wrap(msg, 72)
++								self._eerror("postrm", msglines)
 +								del e
 +						voidmd5 = perf_md5("/dev/null", calc_prelink=0)
 +						if voidmd5 != cygdlldict.get(obj, [None])[0]:
@@ -2008,7 +2075,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  					try:
  						unlink(obj, lstatobj)
  					except (OSError, IOError) as e:
-@@ -2380,6 +2488,12 @@
+@@ -2380,6 +2530,12 @@
  				del cfgfiledict[filename]
  			writedict(cfgfiledict, self.vartree.dbapi._conf_mem_file)
  
@@ -2021,7 +2088,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		#remove self from vartree database so that our own virtual gets zapped if we're the last node
  		self.vartree.zap(self.mycpv)
  
-@@ -3857,6 +3971,7 @@
+@@ -3857,6 +4013,7 @@
  		#if we have a file containing previously-merged config file md5sums, grab it.
  		self.vartree.dbapi._fs_lock()
  		try:
@@ -2029,7 +2096,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			cfgfiledict = grabdict(self.vartree.dbapi._conf_mem_file)
  			if "NOCONFMEM" in self.settings:
  				cfgfiledict["IGNORE"]=1
-@@ -3872,7 +3987,7 @@
+@@ -3872,7 +4029,7 @@
  					cfgfiledict["IGNORE"] = 1
  					break
  
@@ -2038,7 +2105,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			if rval != os.EX_OK:
  				return rval
  		finally:
-@@ -4119,7 +4234,7 @@
+@@ -4119,7 +4276,7 @@
  
  		return backup_p
  
@@ -2047,7 +2114,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  
  		cfgfiledict_orig = cfgfiledict.copy()
  
-@@ -4146,7 +4261,7 @@
+@@ -4146,7 +4303,7 @@
  		# we do a first merge; this will recurse through all files in our srcroot but also build up a
  		# "second hand" of symlinks to merge later
  		if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -2056,7 +2123,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  			return 1
  
  		# now, it's time for dealing our second hand; we'll loop until we can't merge anymore.	The rest are
-@@ -4158,7 +4273,7 @@
+@@ -4158,7 +4315,7 @@
  
  			thirdhand = []
  			if self.mergeme(srcroot, destroot, outfile, thirdhand,
@@ -2065,7 +2132,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  			#swap hands
-@@ -4172,7 +4287,7 @@
+@@ -4172,7 +4329,7 @@
  		if len(secondhand):
  			# force merge of remaining symlinks (broken or circular; oh well)
  			if self.mergeme(srcroot, destroot, outfile, None,
@@ -2074,7 +2141,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  				return 1
  
  		#restore umask
-@@ -4193,11 +4308,11 @@
+@@ -4193,11 +4350,11 @@
  
  		return os.EX_OK
  
@@ -2088,7 +2155,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		
  		@param srcroot: Where are we copying files from (usually ${D})
  		@type srcroot: String (Path)
-@@ -4214,6 +4329,8 @@
+@@ -4214,6 +4371,8 @@
  		@type cfgfiledict: Dictionary
  		@param thismtime: The current time (typically long(time.time())
  		@type thismtime: Long
@@ -2097,7 +2164,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		@rtype: None or Boolean
  		@return:
  		1. True on failure
-@@ -4231,10 +4348,15 @@
+@@ -4231,10 +4390,15 @@
  		destroot = normalize_path(destroot).rstrip(sep) + sep
  		calc_prelink = "prelink-checksums" in self.settings.features
  
@@ -2113,7 +2180,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  		# this is supposed to merge a list of files.  There will be 2 forms of argument passing.
  		if isinstance(stufftomerge, basestring):
  			#A directory is specified.  Figure out protection paths, listdir() it and process it.
-@@ -4398,7 +4520,7 @@
+@@ -4398,7 +4562,7 @@
  							level=logging.ERROR, noiselevel=-1)
  						#now create our directory
  						try:
@@ -2122,7 +2189,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  								_selinux_merge.mkdir(mydest, mysrc)
  							else:
  								os.mkdir(mydest)
-@@ -4422,7 +4544,7 @@
+@@ -4422,7 +4586,7 @@
  				else:
  					try:
  						#destination doesn't exist
@@ -2131,7 +2198,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  							_selinux_merge.mkdir(mydest, mysrc)
  						else:
  							os.mkdir(mydest)
-@@ -4443,7 +4565,7 @@
+@@ -4443,7 +4607,7 @@
  				outfile.write("dir "+myrealdest+"\n")
  				# recurse and merge this directory
  				if self.mergeme(srcroot, destroot, outfile, secondhand,
@@ -2140,7 +2207,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  					return 1
  			elif stat.S_ISREG(mymode):
  				# we are merging a regular file
-@@ -4454,9 +4576,21 @@
+@@ -4454,9 +4618,43 @@
  				zing = "!!!"
  				mymtime = None
  				protected = self.isprotected(mydest)
@@ -2149,22 +2216,44 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +				if mydmode == None:
 +					# new destination file
 +					if cygdllprotected:
-+						# merging a new cygdll so update cygdlldict and protect file
-+						if mymd5 == cygdlldict.get(myrealdest, [None])[0]:
-+							# An identical update is already in limbo: skip it
-+							zing = '---'
-+							moveme = 0
-+							mymtime = mystat[stat.ST_MTIME]
-+						else:
-+							cygdlldict[myrealdest] = [mymd5]
++						# merging a new cygdll protected file so update cygdlldict and protect file
++						cygdlldict[myrealdest] = [mymd5]
 +						mydest = cygdllprotect_filename(mydest)
++						cygdlldmode = None
++						try:
++							cygdlldmode = os.lstat(mydest)
++						except OSError as e:
++							if e.errno != errno.ENOENT:
++								raise
++							del e
++							cygdlldmode = None
++						if cygdlldmode is None:
++							# no existing _cygdll_protect_ file to worry about
++							pass
++						elif not stat.S_ISREG(cygdlldmode):
++							# This is pretty fucked up.  Warn and rename
++							newdest = self._new_backup_path(mydest)
++							msg = []
++							msg.append("")
++							msgline = _( "Installation of the cygdll protection file \"%s\" "
++								     "is blocked by a non-regular file with the same name. "
++								     "The file will instead be installed as \"%s\". "
++							             "Note that if you run cygdll-update before resolving this "
++								     "matter, cygdll-update will replace \"%s\" with the existing "
++								     "\"%s\", which is probably not what you want.  To fix this, "
++								     "you must first remove \"%s\", rename \"%s\" to \"%s\", and "
++								     "only then run cygdll-update.") % (
++									mydest, newdest, myrealdest, mydest, mydest, newdest, mydest )
++							msg.extend(textwrap.wrap(msgline, 72))
++							self._eerror("preinst", msg)
++							mydest = newdest
 +				else:
  					# destination file exists
 -					
  					if stat.S_ISDIR(mydmode):
  						# install of destination is blocked by an existing directory with the same name
  						newdest = self._new_backup_path(mydest)
-@@ -4486,6 +4620,7 @@
+@@ -4486,6 +4684,7 @@
  										protected = False
  
  						if protected:
@@ -2172,29 +2261,36 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  							# we have a protection path; enable config file management.
  							cfgprot = 0
  							if mymd5 == destmd5:
-@@ -4514,9 +4649,99 @@
+@@ -4514,9 +4713,154 @@
  
  							if cfgprot:
  								mydest = new_protect_filename(mydest, newmd5=mymd5)
 +						elif cygdllprotected:
-+							# note that we don't have anything like "protect_if_modified"
-+							# but we could really use something like calc_prelink (TODO)
-+							# to handle rebasing.
 +							cygprot = 0
 +							destmd5 = perform_md5(mydest, calc_prelink=calc_prelink)
 +							if mymd5 == destmd5:
-+								# file already in place; amazingly, updating the destination
-+								# via movefile can still cause rebasing problems.  I suspect
-+								# the following could too but hopefully it will be less prone to.
++								# amazingly, replacing the destination with identical contents 
++								# via movefile can still cause rebasing problems on cygwin!  So we
++								# just do our best to copy the metadata over and consider it "merged".
 +								if selinux_enabled:
++									# not an issue on cygwin; movefile is our best bet
 +									moveme = 1
++									cygprot = 1
 +								else:
 +									moveme = 0
 +									cygprot = 0
-+									redo_mtime = False
++									zing = '---'
++									# We can't change the hard-linkitude of the existing file
++									# so just add our entry to candidates
++									hardlink_key = (mystat.st_dev, mystat.st_ino)
++									hardlink_candidates = self._md5_merge_map.get(hardlink_key)
++									if hardlink_candidates is None:
++										hardlink_candidates = []
++										self._md5_merge_map[hardlink_key] = hardlink_candidates
++									hardlink_candidates.append(mydest)
 +									if xattr_enabled:
 +										try:
-+											redo_mtime = True
++											zing = '>>>'
 +											copyxattr(mysrc, mydest)
 +										except SystemExit:
 +											raise
@@ -2206,12 +2302,12 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +											for line in msg:
 +												writemsg_level("!!! %s\n" % (line,), 
 +													level=logging.ERROR, noiselevel=-1)
-+											raise # ?
++											raise
 +									if mystat[stat.ST_UID] != mydstat[stat.ST_UID] or \
 +									   mystat[stat.ST_GID] != mydstat[stat.ST_GID] or \
 +									   stat.S_IMODE(mystat.st_mode) != stat.S_IMODE(mydstat.st_mode):
 +									   	try:
-+											redo_mtime = True
++											zing = '>>>'
 +											applystat(mystat, mydest)
 +										except SystemExit as e:
 +											raise
@@ -2221,43 +2317,91 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
 +												noiselevel=-1)
 +											writemsg_level(_unicode_decode("!!! %s\n") % (e,),
 +												level=logging.ERROR, noiselevel=-1)
-+									if redo_mtime:
-+										myorigmtime=mymtime
++											zing = '!!!'
++									needmtime = True
++									if thismtime is not None:
++										try:
++											os.utime(mydest, (thismtime, thismtime))
++											mymtime = thismtime
++											needmtime = False
++										except OSError:
++											# The utime can fail here with EPERM 
++											# Instead of failing, use stat
++											pass
++									if needmtime:
 +										newmtimedstat = None
 +										try:
-+											newmtimedstat = os.stat(mydest)
-+										except OSError:
-+											# this could be due to the permissions we just applied or something.
-+											# in this case we just ignore it and go with the existing, probably
-+											# wrong, mymtime.  Not much else we can do so... meh.
++											newmtimedstat = os.lstat(mydest)
++										except OSError as e:
++											# we're pretty well screwed.  Dest will be orphaned.
++											writemsg(_("!!! Failed to stat in cygdll fake-move\n"),
++												noiselevel=-1)
++											writemsg(_("!!! %s will be orphaned\n") % mydest,
++												noiselevel=-1)
++											writemsg(_("!!! error was: %s\n") % e, noiselevel=-1)
++											writemsg(_("!!! sincere apologies.\n"), noiselevel=-1)
++											mymtime = 1
 +											newmtimedstat = None
++											zing = '!!!'
++											del e
 +										if newmtimedstat is not None:
 +											mymtime = newmtimedstat[stat.ST_MTIME]
++									# whew, almost done.  Now we just have to worry about the possibility that
++									# we are leaving an old _cygdll_protect_ file around.  This could happen if
++									# we merged version A, cygdll-updated, then version B, which was left in limbo,
++									# but then reverted to version A before running cygdll-update again.
++									#
++									# Arguably this should happen during unmerge but I like it being here
++									# since accidentally leaving the file around for any reason could entice
++									# cygdll-update to automatically fuck up the user's box.
++									cygdllprotfile = cygdllprotect_filename(mydest)
++									cygdllprotfilestat = None
++									try:
++										cygdllprotfilestat = os.lstat(cygdllprotfile)
++									except OSError as e:
++										if e.errno != errno.ENOENT:
++											writemsg_level(_unicode_decode("!!! Error removing \"%s\": %s\n" %
++												(cygdllprotfile, e)), level=logging.ERROR, noiselevel=-1)
++										del e
++										# dest file doesn't exist (or we will so pretend)
++										cygdllprotfilestat = None
++									if cygdllprotfilestat is not None:
++										if stat.S_ISREG(cygdllprotfilestat[stat.ST_MODE]):
++											try:
++												os.unlink(cygdllprotfile)
++											except OSError as e:
++												if e.errno != errno.ENOENT:
++													writemsg_level(_unicode_decode(
++														"!!! \"%s\" could not "
++														"be removed: %s: Ignoring.\n"
++														% (cygdllprotfile, e)),
++														level=logging.ERROR, noiselevel=-1)
++												del e
++										else:
++											writemsg_level(_unicode_decode("!!! \"%s\", should be "
++												"removed, but it is not a regular "
++												"file.  Ignoring!.\n" % cygdllprotfile),
++												level=logging.ERROR, noiselevel=-1)
++									# whatever may have been in the db is now unnecessary
++									if myrealdest in cygdlldict:
++										del cygdlldict[myrealdest]
 +							else:
 +								# note that even when an identical update is in the cygdll
 +								# database, we just go ahead and re-install.  This ensures all
-+								# permissions are transferred over (something that, disturbingly,
-+								# does not seem to happen with config_protect when the md5's are
-+								# identical), and should be harmless.
++								# permissions are transferred over, and shouldn't cause trouble.
 +								moveme = 1
 +								cygprot = 1
 +							if moveme:
 +								# merging a new cygdll so update cygdlldict
 +								cygdlldict[myrealdest] = [mymd5]
-+							elif destmd5 == cygdlldict.get(myrealdest, [None])[0]:
-+								# A previously in-limbo update was merged, so
-+								# remove that entry from the cygdll protection db
-+								del cygdlldict[myrealdest]
 +
 +							if cygprot:
 +								mydest = cygdllprotect_filename(mydest)
 +
-+				# once we introduce the "currently loaded dlls" heuristic
-+				# CYGDLL_PROTECT offers no easy way (except, perhaps,
-+				# "find / -name '_cygdll_protect_*', but that's too slow) to
-+				# find the CYGDLL_PROTECT'ed files.  for this reason we ought
-+				# not to be as cavalier as we are with conffiledict. let's save
-+				# our changes now, *before* anything gets merged to the fs)
++				# CYGDLL_PROTECT offers no easy way to find the protected files
++				# unless they are stored in the database.  For this reason we ought
++				# to save our changes ASAP so as to prevent protected files from
++				# getting forgotten in case of a catastrophic error mid-merge.
 +				if cygdlldict != orig_cygdlldict:
 +					try:
 +						writedict(cygdlldict, self.vartree.dbapi._cygdllprotect.limbodb_file)

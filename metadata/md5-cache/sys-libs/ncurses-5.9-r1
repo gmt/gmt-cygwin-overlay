@@ -10,4 +10,4 @@ RDEPEND=!<x11-terms/rxvt-unicode-9.06-r3
 SLOT=5
 SRC_URI=mirror://gnu/ncurses/ncurses-5.9.tar.gz
 _eclasses_=autotools	44549e9bf38e512354112caafb24edc9	eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	flag-o-matic	9b838b2a8419c3187a574a46b19c5613	libtool	3bc75448a5aa60eb4709b1e7b7750de2	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
-_md5_=c4ec5460389483fa389b0d44451c7f79
+_md5_=46551681dab3cbb70809201527ef0826
