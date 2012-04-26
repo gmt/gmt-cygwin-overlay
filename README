@@ -18,7 +18,8 @@ a manner as possible.
 
 Please treat the original portage additions such as the code in the ebuilds and
 (the novel bits of) profile.bashrc as GPL-2, but please treat any other code I have
-written and published here (especially, the gendiffs script), as MIT/X11.
+written and published here (especially, the various non-portage scripts, such as
+gendiffs and portage_workdir_hacktool) as MIT/X11
 
 By the above, however, I mean /original/ code (obviously), not stuff that is cloned
 from other repositories -- and please bear in mind that I'm placing the burden of
