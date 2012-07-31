@@ -1,0 +1,15 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup test
+DEPEND=>=dev-lang/python-2.7 <dev-lang/python-3.0 !build? ( >=sys-apps/sed-4.0.5 ) doc? ( app-text/xmlto ~app-text/docbook-xml-dtd-4.4 ) epydoc? ( >=dev-python/epydoc-2.0 !<=dev-python/pysqlite-2.4.1 )
+DESCRIPTION=Prefix branch of the Portage Package Manager, used in Gentoo Prefix
+EAPI=3
+HOMEPAGE=http://www.gentoo.org/proj/en/gentoo-alt/prefix/
+IUSE=build doc epydoc ipc linguas_pl selinux xattr prefix-chaining cygdll-protect
+KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-2
+PDEPEND=!build? ( >=net-misc/rsync-2.6.4 userland_GNU? ( >=sys-apps/coreutils-6.4 ) )
+RDEPEND=>=dev-lang/python-2.7 <dev-lang/python-3.0 || ( >=dev-lang/python-2.7[ssl] <dev-lang/python-3.0 dev-python/python-mhash ) !build? ( >=sys-apps/sed-4.0.5 >=app-shells/bash-3.2_p17 >=app-admin/eselect-1.2 ) elibc_FreeBSD? ( !prefix? ( sys-freebsd/freebsd-bin ) ) elibc_glibc? ( !prefix? ( >=sys-apps/sandbox-2.2 ) ) elibc_uclibc? ( !prefix? ( >=sys-apps/sandbox-2.2 ) ) kernel_linux? ( >=app-misc/pax-utils-0.1.17 ) kernel_SunOS? ( >=app-misc/pax-utils-0.1.17 ) kernel_FreeBSD? ( >=app-misc/pax-utils-0.1.17 ) kernel_Darwin? ( >=app-misc/pax-utils-0.1.18 ) kernel_HPUX? ( !hppa-hpux? ( >=app-misc/pax-utils-0.1.19 ) ) kernel_AIX? ( >=sys-apps/aix-miscutils-0.1.1634 ) xattr? ( kernel_linux? ( || ( >=dev-lang/python-3.3_pre20110902 dev-python/pyxattr ) ) ) selinux? ( || ( >=sys-libs/libselinux-2.0.94[python] <sys-libs/libselinux-2.0.94 ) ) !<app-shells/bash-3.2_p17 !prefix? ( !<app-admin/logrotate-3.8.0 )
+RESTRICT=test
+SLOT=0
+SRC_URI=http://dev.gentoo.org/~zmedico/portage/archives/prefix-portage-2.2.01.20796.tar.bz2 http://dev.gentoo.org/~grobian/distfiles/prefix-portage-2.2.01.20796.tar.bz2 linguas_pl? ( http://dev.gentoo.org/~zmedico/portage/archives/portage-man-pl-2.1.2.tar.bz2 http://dev.gentoo.org/~grobian/distfiles/portage-man-pl-2.1.2.tar.bz2 )
+_eclasses_=eutils	24483bd91d3d074753a77bfe3e69993f	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	python	4152846e243ec207de8a1b02a36f1461	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	caa4a66cca1103139b68c2fad83b8313
+_md5_=33a10a7e047d1b6c36236e06117161f1
