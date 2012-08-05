@@ -2,10 +2,90 @@
 ---("app-shells/bash/ChangeLog")--->8--->
 --- usr/portage/app-shells/bash/ChangeLog [[PORTAGE]]
 +++ overlay/app-shells/bash/ChangeLog [[OVERLAY]]
-@@ -1,28 +1,6 @@
+@@ -1,108 +1,6 @@
  # ChangeLog for app-shells/bash
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/ChangeLog,v 1.294 2011/11/24 00:06:53 vapier Exp $
+-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/ChangeLog,v 1.314 2012/07/11 13:18:32 vapier Exp $
+-
+-*bash-4.2_p36 (11 Jul 2012)
+-
+-  11 Jul 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p36.ebuild:
+-  Version bump.
+-
+-*bash-4.2_p29 (30 May 2012)
+-
+-  30 May 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p29.ebuild:
+-  Version bump #418205 by Lars Wendler (Polynomial-C).
+-
+-  23 May 2012; Zac Medico <zmedico@gentoo.org> bash-4.1_p10.ebuild,
+-  bash-4.1_p11.ebuild, bash-4.1_p7.ebuild, bash-4.1_p9.ebuild,
+-  bash-4.2_p10.ebuild, bash-4.2_p20.ebuild, bash-4.2_p24-r1.ebuild,
+-  bash-4.2_p24.ebuild, bash-4.2_p28.ebuild, bash-4.2_p8-r1.ebuild:
+-  Adjust the portage blocker from bug #297933 to play nicely with
+-  portage-2.1.6.7_p1 (which has a backported fix for this bug). This should not
+-  hurt people upgrading from later portage-2.1.6.x or 2.1.7.x releases, since
+-  the message about BASHOPTS being readonly is only cosmetic.
+-
+-*bash-4.2_p28 (03 May 2012)
+-
+-  03 May 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p28.ebuild:
+-  Version bump #414449 by Lars Wendler (Polynomial-C).
+-
+-  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> bash-4.2_p24-r1.ebuild:
+-  keyword ~amd64-fbsd
+-
+-*bash-4.2_p24-r1 (23 Apr 2012)
+-
+-  23 Apr 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p24-r1.ebuild,
+-  +files/bash-4.2-extglob-multibyte.patch:
+-  Add fix from upstream for multibyte string replaces in extglob mode #412867 by
+-  mva.
+-
+-  03 Apr 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p24.ebuild,
+-  +files/bash-4.2-no-readline.patch:
+-  More USE=-readline fixes.
+-
+-  28 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p24.ebuild:
+-  Make readline optional.
+-
+-  28 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild,
+-  bash-4.2_p24.ebuild:
+-  Fix cross-compiling after move to external readline.
+-
+-  28 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild:
+-  Mark alpha/ia64/m68k/s390/sh/sparc stable #407937.
+-
+-  25 Mar 2012; Markus Meier <maekke@gentoo.org> bash-4.2_p20.ebuild:
+-  arm stable, bug #407937
+-
+-  18 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild,
+-  bash-4.2_p24.ebuild:
+-  Use :alpha: rather than a-z in sed #408369 by step.
+-
+-  14 Mar 2012; Jeroen Roovers <jer@gentoo.org> bash-4.2_p20.ebuild:
+-  Stable for HPPA (bug #407937).
+-
+-  13 Mar 2012; Jeff Horelick <jdhore@gentoo.org> bash-4.2_p20.ebuild:
+-  marked x86 per bug 407937
+-
+-  13 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild,
+-  bash-4.2_p24.ebuild:
+-  Avoid regenerating bash info page #407985 by Jory A. Pratt.
+-
+-  13 Mar 2012; Brent Baude <ranger@gentoo.org> bash-4.2_p20.ebuild:
+-  Marking bash-4.2_p20 ppc for bug 
+-
+-  13 Mar 2012; Agostino Sarubbo <ago@gentoo.org> bash-4.2_p20.ebuild:
+-  Stable for amd64, wrt bug #407937
+-
+-  12 Mar 2012; Brent Baude <ranger@gentoo.org> bash-4.2_p20.ebuild:
+-  Marking bash-4.2_p20 ppc64 for bug 407937
+-
+-*bash-4.2_p24 (12 Mar 2012)
+-
+-  12 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild,
+-  +bash-4.2_p24.ebuild:
+-  Version bump #407927 by Lars Wendler (Polynomial-C).
 -
 -*bash-4.2_p20 (24 Nov 2011)
 -
@@ -38,14 +118,22 @@
 --- usr/portage/app-shells/bash/bash-4.2_p10.ebuild [[PORTAGE]]
 +++ overlay/app-shells/bash/bash-4.2_p10.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
--# Copyright 1999-2011 Gentoo Foundation
-+# Copyright 1999-2012 Gentoo Foundation
+ # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p10.ebuild,v 1.5 2011/10/07 20:01:04 vapier Exp $
+-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p10.ebuild,v 1.6 2012/05/23 01:13:17 zmedico Exp $
 +# $Header: $
  
  EAPI="1"
  
+@@ -44,7 +44,7 @@
+ DEPEND=">=sys-libs/ncurses-5.2-r2
+ 	nls? ( virtual/libintl )"
+ RDEPEND="${DEPEND}
+-	!<sys-apps/portage-2.1.6.7_p1
++	!<sys-apps/portage-2.1.7.16
+ 	!<sys-apps/paludis-0.26.0_alpha5"
+ # we only need yacc when the .y files get patched (bash42-005)
+ DEPEND+=" virtual/yacc"
 @@ -87,6 +87,11 @@
  		epatch "${FILESDIR}"/${PN}-4.0-interix-x64.patch
  	fi
@@ -72,53 +160,58 @@
  	# bash gets borked as readline is usually not binary compadible
  	# between minor versions.
 <---8<---
----("app-shells/bash/bash-4.2_p20.ebuild")--->8--->
---- usr/portage/app-shells/bash/bash-4.2_p20.ebuild [[PORTAGE]]
-+++ overlay/app-shells/bash/bash-4.2_p20.ebuild [[OVERLAY]]
+---("app-shells/bash/bash-4.2_p36.ebuild")--->8--->
+--- usr/portage/app-shells/bash/bash-4.2_p36.ebuild [[PORTAGE]]
++++ overlay/app-shells/bash/bash-4.2_p36.ebuild [[OVERLAY]]
 @@ -1,6 +1,6 @@
--# Copyright 1999-2011 Gentoo Foundation
-+# Copyright 1999-2012 Gentoo Foundation
+ # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p20.ebuild,v 1.1 2011/11/24 00:06:53 vapier Exp $
+-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p36.ebuild,v 1.1 2012/07/11 13:18:32 vapier Exp $
 +# $Header: $
  
  EAPI="1"
  
-@@ -87,6 +87,10 @@
+@@ -91,6 +91,11 @@
  		epatch "${FILESDIR}"/${PN}-4.0-interix-x64.patch
  	fi
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-cache.patch
++		epatch "${FILESDIR}"/${PN}-4.2_p36-cygwin-cache.patch
++		epatch "${FILESDIR}"/${PN}-4.2_p36-cygport-stuff.patch
 +	fi
 +
  	# Nasty trick to set bashbug's shebang to bash instead of sh. We don't have
  	# sh while bootstrapping for the first time, This works around bug 309825
  	sed -i -e '1s:sh:bash:' support/bashbug.sh || die
-@@ -147,6 +151,12 @@
- 		#export ac_cv_lib_ncurses_tgetent=no
- 	fi
+@@ -157,6 +162,13 @@
+ 	#use static && export LDFLAGS="${LDFLAGS} -static"
+ 	use nls || myconf="${myconf} --disable-nls"
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		myconf="${myconf} --without-libintl-prefix --without-libiconv-prefix"
 +		myconf="${myconf} bash_cv_dev_stdin=present bash_cv_dev_fd=standard"
++		# FIXME: remove this next line once prefix bashdb confirmed working
 +		export DEBUGGER_START_FILE=/usr/share/bashdb/bashdb-main.inc
 +	fi
 +
- 	# Always use the buildin readline, else if we update readline
- 	# bash gets borked as readline is usually not binary compadible
- 	# between minor versions.
+ 	# Historically, we always used the builtin readline, but since
+ 	# our handling of SONAME upgrades has gotten much more stable
+ 	# in the PM (and the readline ebuild itself preserves the old
 <---8<---
 ===== mutual sub-directory: "app-shells/bash/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/app-shells/bash/files/bash-4.1-cygport-src-abridged.patch: unified diff output, ASCII text
 overlay/app-shells/bash/files/bash-4.2_p10-cygwin-cache.patch: unified diff output, ASCII text
-overlay/app-shells/bash/files/bash-4.2_p20-cygwin-cache.patch: unified diff output, ASCII text
+overlay/app-shells/bash/files/bash-4.2_p36-cygport-stuff.patch: unified diff output, ASCII text
+overlay/app-shells/bash/files/bash-4.2_p36-cygwin-cache.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
 usr/portage/app-shells/bash/bash-4.0_p38.ebuild: ASCII English text
 usr/portage/app-shells/bash/bash-4.1_p10.ebuild: ASCII English text
 usr/portage/app-shells/bash/bash-4.1_p11.ebuild: ASCII English text
 usr/portage/app-shells/bash/bash-4.1_p7.ebuild: ASCII English text
+usr/portage/app-shells/bash/bash-4.2_p20.ebuild: ASCII English text
+usr/portage/app-shells/bash/bash-4.2_p28.ebuild: ASCII English text
+usr/portage/app-shells/bash/bash-4.2_p29.ebuild: ASCII English text
 

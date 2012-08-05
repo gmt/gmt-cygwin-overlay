@@ -6,3 +6,21 @@
 # this has some pretty gruesome ramifications but not doing it, unfortunately, ends up
 # being even worse
 USE="ultra-prefixify"
+
+# cygdll protections which may not be in use by portage, but are critical
+# or /extremely/ ubiquitously depended-upon system components go here.
+# We don't want to go too nuts adding things to this list, I think -- if
+# that seems to be neccesary then instead we should be looking at expanding
+# the protection heuristics, perhaps to include all .dll/.exe files
+# owned by a hard-coded list of packages (or even @system).
+#
+# NB: these are cumulative and cannot be disabled as there is no
+# CYGDLL_PROTECT_MASK (yet?)  So we are really shoving this very forcibly
+# down the users throat by putting things here -- there is no way for the user to
+# deactivate it except to create a new profile and use it instead of this one
+# (I'm pretty sure even a sub-profile won't be enable to deactivate these)
+#
+# Finally, if until symlinks are implemented be aware that these won't work when, i.e.
+# ${EPREFIX}/bin/sh.exe is symlink (which it probably is!!!), so we are predicting the
+# future here but if our prediction turns out wrong we should get rid of /bin/sh below.
+CYGDLL_PROTECT="/bin/bash.exe /bin/sh.exe /bin/rbash.exe"

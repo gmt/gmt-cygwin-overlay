@@ -1,6 +1,6 @@
 diff -urN bash-4.2.orig/cross-build/cygwin32.cache bash-4.2/cross-build/cygwin32.cache
 --- bash-4.2.orig/cross-build/cygwin32.cache	2001-11-13 07:36:29.000000000 -0800
-+++ bash-4.2/cross-build/cygwin32.cache	2012-03-28 01:05:17.904345600 -0700
++++ bash-4.2/cross-build/cygwin32.cache	2012-08-01 13:16:17.898750000 -0700
 @@ -11,8 +11,8 @@
  # loading this file, other *unset* `ac_cv_foo' will be assigned the
  # following values.
