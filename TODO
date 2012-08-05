@@ -33,12 +33,27 @@ o libtool patches for fork/subshell avoidance
 o fix libtool-2.4.2.ebuild to be merely horrible instead of satanically,
   rediculously, unspeakably gross.
 
-o Need to determine: will cygwin load a .dll through a symlink?  or only respect
-  binaries in PATH?  Basically: Does ignoring symlinks open us up to problems
-  as users, and should we therefore support tracking them with cygdll-protect?
-  Even if there's no issue there in cygwin, I feel like it's awfully
-  platform-kludgetastic to ignore them.  As of now, they are ignored,
-  completely, even if you name them explicitly in CYGDLL_PROTECT.
+o As of now, they are ignored, completely, even if you name them explicitly
+  in CYGDLL_PROTECT.  I'm pretty sure that rebase errors could be caused this
+  way, if not by .dlls, then almost certainly by symlinks to .exe's.
+
+  I think the following heuristic should be followed when merging them:
+  if the file to be merged is a symlink, and the target of that symlink
+  (followed recursively in the case of symlinks-to-symlinks, with some
+  sort of circular-link detection scheme to prevent disaster) is a
+  regular file, and that regular file is considered to be cygdll_protected,
+  and the symlink being merged is not identical to a symlink already
+  existing in the filesystem (in other words, it's going to be
+  created, removed or changed when the merge completes), then put the new
+  symlink (or symlink removal) into cygdll protection limbo just as we would
+  a regular file being merged.
+
+  What about explicitly CYGDLL_PROTECTED symlinks?  I guess we would need to
+  protect those too, and when we recursively followed a link, we would need to
+  test each link in the chain for explicit protection.  This is a bit tricky
+  since we don't really distinguish between cygdll protections arising from
+  heuristics and explicit protections at runtime; but we could just test them
+  against the existing list and that would do the trick.
 
 o manpage entries about the items we added to EPREFIX/var/lib/portage
 
@@ -83,3 +98,7 @@ o Something needs to be done about rebasing and portage -- we should take a look
   how rebase is implemented and figure out whether it's worth writing our own
   portage-aware rebase tool -- if we wanted to get really fancy it could auto-update
   saved package files as well as portage .... that could get pretty expensive however!
+
+o There is a conflict between cygwin and the latest parallel processing commits in
+  portage.  Currently, we are reverting those commits but the underlying problem
+  needs to be solved -- it's very probably an upstream problem of some kind.
