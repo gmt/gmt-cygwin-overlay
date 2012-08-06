@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header $
+# $Header: $
 #
 # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
 
@@ -11,19 +11,19 @@ RESTRICT="strip" # cross-compilers need controlled stripping
 
 inherit eutils versionator libtool toolchain-funcs flag-o-matic gnuconfig multilib fixheadtails pax-utils prefix
 
-if [[ ${PV} == *9999* ]] ; then
+if [[ ${PV} == *_pre9999* ]] ; then
 	EGIT_REPO_URI="git://gcc.gnu.org/git/gcc.git"
 	# naming style:
-	# gcc-9999 -> master
-	# gcc-4.7_pre9999 -> 4.7 branch
-	if [[ ${PV} == *_pre9999* ]] ; then
-		EGIT_BRANCH="${PN}_${PV%_pre9999}_branch"
-		EGIT_BRANCH=${EGIT_BRANCH//./_}
-	fi
+	# gcc-4.7.1_pre9999 -> gcc-4_7-branch
+	#  Note that the micro version is required or lots of stuff will break.
+	#  To checkout master set gcc_LIVE_BRANCH="master" in the ebuild before
+	#  inheriting this eclass.
+	EGIT_BRANCH="${PN}-${PV%.?_pre9999}-branch"
+	EGIT_BRANCH=${EGIT_BRANCH//./_}
 	inherit git-2
 fi
 
-EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_test pkg_preinst src_install pkg_postinst pkg_prerm pkg_postrm
+EXPORT_FUNCTIONS pkg_setup src_unpack src_compile src_test src_install pkg_postinst pkg_postrm
 DESCRIPTION="The GNU Compiler Collection"
 
 FEATURES=${FEATURES/multilib-strict/}
@@ -37,6 +37,10 @@ if [[ ${CTARGET} = ${CHOST} ]] ; then
 		export CTARGET=${CATEGORY/cross-}
 	fi
 fi
+: ${TARGET_ABI:=${ABI}}
+: ${TARGET_MULTILIB_ABIS:=${MULTILIB_ABIS}}
+: ${TARGET_DEFAULT_ABI:=${DEFAULT_ABI}}
+
 is_crosscompile() {
 	[[ ${CHOST} != ${CTARGET} ]]
 }
@@ -117,9 +121,7 @@ fi
 
 # Support upgrade paths here or people get pissed
 if use multislot ; then
-	SLOT="${CTARGET}-${GCC_CONFIG_VER}"
-elif is_crosscompile; then
-	SLOT="${CTARGET}-${GCC_BRANCH_VER}"
+	SLOT="${GCC_CONFIG_VER}"
 else
 	SLOT="${GCC_BRANCH_VER}"
 fi
@@ -176,7 +178,7 @@ if in_iuse gcj ; then
 	DEPEND+=" gcj? ( gtk? ( ${GCJ_GTK_DEPS} ) ${GCJ_DEPS} )"
 fi
 
-PDEPEND=">=sys-devel/gcc-config-1.4"
+PDEPEND=">=sys-devel/gcc-config-1.5"
 
 #----<< DEPEND >>----
 
@@ -480,12 +482,12 @@ create_gcc_env_entry() {
 	# searches that directory first.  This is a temporary
 	# workaround for libtool being stupid and using .la's from
 	# conflicting ABIs by using the first one in the search path
-	local abi=${DEFAULT_ABI}
+	local abi=${TARGET_DEFAULT_ABI}
 	local MULTIDIR=$($(XGCC) $(get_abi_CFLAGS ${abi}) --print-multi-directory)
 	local LDPATH=${EPREFIX}${LIBPATH}
 	[[ ${MULTIDIR} != "." ]] && LDPATH+=/${MULTIDIR}
-	for abi in $(get_all_abis) ; do
-		[[ ${abi} == ${DEFAULT_ABI} ]] && continue
+	for abi in $(get_all_abis TARGET) ; do
+		[[ ${abi} == ${TARGET_DEFAULT_ABI} ]] && continue
 
 		MULTIDIR=$($(XGCC) $(get_abi_CFLAGS ${abi}) --print-multi-directory)
 		LDPATH+=:${EPREFIX}${LIBPATH}
@@ -567,14 +569,6 @@ toolchain_pkg_setup() {
 	# TPREFIX is the prefix of the CTARGET installation
 	export TPREFIX=${TPREFIX:-${EPREFIX}}
 
-	# Setup variables which would normally be in the profile
-	if is_crosscompile ; then
-		multilib_env ${CTARGET}
-		if ! is_multilib ; then
-			MULTILIB_ABIS=${DEFAULT_ABI}
-		fi
-	fi
-
 	# we dont want to use the installed compiler's specs to build gcc!
 	unset GCC_SPECS
 
@@ -587,10 +581,6 @@ toolchain_pkg_setup() {
 	want_minispecs
 
 	unset LANGUAGES #265283
-}
-
-toolchain_pkg_preinst() {
-	:
 }
 
 toolchain_pkg_postinst() {
@@ -607,48 +597,21 @@ toolchain_pkg_postinst() {
 		echo
 	fi
 
-	# If our gcc-config version doesn't like '-' in it's version string,
-	# tell our users that gcc-config will yell at them, but it's all good.
-	if ! has_version '>=sys-devel/gcc-config-1.3.10-r1' && [[ ${GCC_CONFIG_VER/-/} != ${GCC_CONFIG_VER} ]] ; then
-		ewarn "Your version of gcc-config will issue about having an invalid profile"
-		ewarn "when switching to this profile.	It is safe to ignore this warning,"
-		ewarn "and this problem has been corrected in >=sys-devel/gcc-config-1.3.10-r1."
-	fi
-
-	if ! is_crosscompile && ! use multislot && [[ ${GCCMAJOR}.${GCCMINOR} == 3.4 ]] ; then
-		echo
-		ewarn "You should make sure to rebuild all your C++ packages when"
-		ewarn "upgrading between different versions of gcc.	 For example,"
-		ewarn "when moving to gcc-3.4 from gcc-3.3, emerge gentoolkit and run:"
-		ewarn "	 # revdep-rebuild --library libstdc++.so.5"
-		echo
-	fi
-
 	if ! is_crosscompile ; then
-		# hack to prevent collisions between SLOT
-		[[ ! -d ${EROOT}/$(get_libdir)/rcscripts/awk ]] \
-			&& mkdir -p "${EROOT}"/$(get_libdir)/rcscripts/awk
-		[[ ! -d ${EROOT}/sbin ]] \
-			&& mkdir -p "${EROOT}"/sbin
-		cp "${EROOT}/${DATAPATH}"/fixlafiles.awk "${EROOT}"/$(get_libdir)/rcscripts/awk/ || die "installing fixlafiles.awk"
-		cp "${EROOT}/${DATAPATH}"/fix_libtool_files.sh "${EROOT}"/sbin/ || die "installing fix_libtool_files.sh"
+		# hack to prevent collisions between SLOTs
 
-		[[ ! -d ${EROOT}/usr/bin ]] \
-			&& mkdir -p "${EROOT}"/usr/bin
+		# Clean up old paths
+		rm -f "${EROOT}"/*/rcscripts/awk/fixlafiles.awk "${EROOT}"/sbin/fix_libtool_files.sh
+		rmdir "${EROOT}"/*/rcscripts{/awk,} 2>/dev/null
+
+		mkdir -p "${EROOT}"/usr/{share/gcc-data,sbin,bin}
+		cp "${EROOT}/${DATAPATH}"/fixlafiles.awk "${EROOT}"/usr/share/gcc-data/ || die
+		cp "${EROOT}/${DATAPATH}"/fix_libtool_files.sh "${EROOT}"/usr/sbin/ || die
+
 		# Since these aren't critical files and portage sucks with
 		# handling of binpkgs, don't require these to be found
-		for x in "${EROOT}/${DATAPATH}"/c{89,99} ; do
-			if [[ -e ${x} ]]; then
-				cp ${x} "${EROOT}"/usr/bin/ || die "installing c89/c99"
-			fi
-		done
+		cp "${EROOT}/${DATAPATH}"/c{89,99} "${EROOT}"/usr/bin/ 2>/dev/null
 	fi
-}
-
-toolchain_pkg_prerm() {
-	# Don't let these files be uninstalled #87647
-	touch -c "${EROOT}"/sbin/fix_libtool_files.sh \
-		"${EROOT}"/$(get_libdir)/rcscripts/awk/fixlafiles.awk
 }
 
 toolchain_pkg_postrm() {
@@ -675,10 +638,10 @@ toolchain_pkg_postrm() {
 		do_gcc_config
 
 		einfo "Running 'fix_libtool_files.sh ${GCC_RELEASE_VER}'"
-		"${EPREFIX}"/sbin/fix_libtool_files.sh ${GCC_RELEASE_VER}
+		"${EPREFIX}"/usr/sbin/fix_libtool_files.sh ${GCC_RELEASE_VER}
 		if [[ -n ${BRANCH_UPDATE} ]] ; then
 			einfo "Running 'fix_libtool_files.sh ${GCC_RELEASE_VER}-${BRANCH_UPDATE}'"
-			"${EPREFIX}"/sbin/fix_libtool_files.sh ${GCC_RELEASE_VER}-${BRANCH_UPDATE}
+			"${EPREFIX}"/usr/sbin/fix_libtool_files.sh ${GCC_RELEASE_VER}-${BRANCH_UPDATE}
 		fi
 	fi
 
@@ -729,14 +692,15 @@ do_gcc_rename_java_bins() {
 	done
 }
 toolchain_src_unpack() {
-	[[ ${PV} == *9999* ]] && git-2_src_unpack
-
-	export BRANDING_GCC_PKGVERSION="Gentoo ${GCC_PVR}"
-
 	[[ -z ${UCLIBC_VER} ]] && [[ ${CTARGET} == *-uclibc* ]] && die "Sorry, this version does not support uClibc"
 
-	gcc_quick_unpack
+	if [[ ${PV} == *9999* ]]; then
+		git-2_src_unpack
+	else
+		gcc_quick_unpack
+	fi
 
+	export BRANDING_GCC_PKGVERSION="Gentoo ${GCC_PVR}"
 	cd "${S}"
 
 	if ! use vanilla ; then
@@ -793,7 +757,12 @@ toolchain_src_unpack() {
 
 	gcc_version_patch
 	if tc_version_is_at_least 4.1 ; then
-		if [[ -n ${SNAPSHOT} || -n ${PRERELEASE} || -n ${GCC_SVN} ]] ; then
+		if [[ -n ${SNAPSHOT} || -n ${PRERELEASE} ]] ; then
+			# BASE-VER must be a three-digit version number
+			# followed by an optional -pre string
+			#   eg. 4.5.1, 4.6.2-pre20120213, 4.7.0-pre9999
+			# If BASE-VER differs from ${PV/_/-} then libraries get installed in
+			# the wrong directory.
 			echo ${PV/_/-} > "${S}"/gcc/BASE-VER
 		fi
 	fi
@@ -871,29 +840,26 @@ gcc-abi-map() {
 }
 
 gcc-multilib-configure() {
-	# if multilib is disabled, get out quick!
 	if ! is_multilib ; then
 		confgcc+=" --disable-multilib"
-		return
+		# Fun times: if we are building for a target that has multiple
+		# possible ABI formats, and the user has told us to pick one
+		# that isn't the default, then not specifying it via the list
+		# below will break that on us.
 	else
 		confgcc+=" --enable-multilib"
 	fi
 
 	# translate our notion of multilibs into gcc's
 	local abi list
-	for abi in $(get_all_abis) ; do
+	for abi in $(get_all_abis TARGET) ; do
 		local l=$(gcc-abi-map ${abi})
 		[[ -n ${l} ]] && list+=",${l}"
 	done
 	if [[ -n ${list} ]] ; then
 		case ${CTARGET} in
 		x86_64*)
-			# drop the 4.6.2 stuff once 4.7 goes stable
-			if tc_version_is_at_least 4.7 ||
-			   ( tc_version_is_at_least 4.6.2 && has x32 $(get_all_abis) )
-			then
-				confgcc+=" --with-multilib-list=${list:1}"
-			fi
+			tc_version_is_at_least 4.7 && confgcc+=" --with-multilib-list=${list:1}"
 			;;
 		esac
 	fi
@@ -914,7 +880,7 @@ gcc-compiler-configure() {
 		else
 			# Not all libc's have ssp built in.  I assume only glibc has for
 			# now.
-			elibc_glibc? && export gcc_cv_libc_provides_ssp=yes
+			use elibc_glibc? && export gcc_cv_libc_provides_ssp=yes
 			confgcc+=" --disable-libssp"
 		fi
 
@@ -989,33 +955,46 @@ gcc-compiler-configure() {
 
 	local with_abi_map=()
 	case $(tc-arch) in
-		arm)	#264534
-			local arm_arch="${CTARGET%%-*}"
-			# Only do this if arm_arch is armv*
-			if [[ ${arm_arch} == armv* ]] ; then
-				# Convert armv7{a,r,m} to armv7-{a,r,m}
-				[[ ${arm_arch} == armv7? ]] && arm_arch=${arm_arch/7/7-}
-				# Remove endian ('l' / 'eb')
-				[[ ${arm_arch} == *l  ]] && arm_arch=${arm_arch%l}
-				[[ ${arm_arch} == *eb ]] && arm_arch=${arm_arch%eb}
+		arm)	#264534 #414395
+			local a arm_arch=${CTARGET%%-*}
+			# Remove trailing endian variations first: eb el be bl b l
+			for a in e{b,l} {b,l}e b l ; do
+				if [[ ${arm_arch} == *${a} ]] ; then
+					arm_arch=${arm_arch%${a}}
+					break
+				fi
+			done
+			# Convert armv7{a,r,m} to armv7-{a,r,m}
+			[[ ${arm_arch} == armv7? ]] && arm_arch=${arm_arch/7/7-}
+			# See if this is a valid --with-arch flag
+			if (srcdir=${S}/gcc target=${CTARGET} with_arch=${arm_arch};
+			    . "${srcdir}"/config.gcc) &>/dev/null
+			then
 				confgcc+=" --with-arch=${arm_arch}"
 			fi
 
 			# Enable hardvfp
-			if [[ ${CTARGET##*-} == *eabi ]] && [[ $(tc-is-hardfloat) == yes ]] && \
-			    tc_version_is_at_least "4.5" ; then
-			        confgcc+=" --with-float=hard"
+			if [[ $(tc-is-softfloat) == "no" ]] && \
+			   [[ ${CTARGET} == armv[67]* ]] && \
+			   tc_version_is_at_least "4.5"
+			then
+				# Follow the new arm hardfp distro standard by default
+				confgcc+=" --with-float=hard"
+				case ${CTARGET} in
+				armv6*) confgcc+=" --with-fpu=vfp" ;;
+				armv7*) confgcc+=" --with-fpu=vfpv3-d16" ;;
+				esac
 			fi
 			;;
 		# Add --with-abi flags to set default ABI
 		mips)
-			confgcc+=" --with-abi=$(gcc-abi-map ${DEFAULT_ABI})"
+			confgcc+=" --with-abi=$(gcc-abi-map ${TARGET_DEFAULT_ABI})"
 			;;
 		amd64)
 			# drop the older/ABI checks once this get's merged into some
 			# version of gcc upstream
-			if [[ ${PV} == "4.6.2" ]] && has x32 $(get_all_abis) ; then
-				confgcc+=" --with-abi=$(gcc-abi-map ${DEFAULT_ABI})"
+			if tc_version_is_at_least 4.7 && has x32 $(get_all_abis TARGET) ; then
+				confgcc+=" --with-abi=$(gcc-abi-map ${TARGET_DEFAULT_ABI})"
 			fi
 			;;
 		# Default arch for x86 is normally i386, lets give it a bump
@@ -1142,8 +1121,16 @@ gcc_do_configure() {
 		confgcc+=" $(use_enable lto)"
 	fi
 
-	[[ $(tc-is-softfloat) == "yes" ]] && confgcc+=" --with-float=soft"
-	[[ $(tc-is-hardfloat) == "yes" ]] && confgcc+=" --with-float=hard"
+	case $(tc-is-softfloat) in
+	yes)    confgcc+=" --with-float=soft" ;;
+	softfp) confgcc+=" --with-float=softfp" ;;
+	*)
+		# If they've explicitly opt-ed in, do hardfloat,
+		# otherwise let the gcc default kick in.
+		[[ ${CTARGET//_/-} == *-hardfloat-* ]] \
+			&& confgcc+=" --with-float=hard"
+		;;
+	esac
 
 	# Native Language Support
 	if use nls ; then
@@ -1155,6 +1142,7 @@ gcc_do_configure() {
 	# reasonably sane globals (hopefully)
 	confgcc+=" \
 		--with-system-zlib \
+		--enable-obsolete \
 		--disable-werror \
 		--enable-secureplt"
 
@@ -1172,7 +1160,9 @@ gcc_do_configure() {
 			*-gnu*)			 needed_libc=glibc;;
 			*-klibc)		 needed_libc=klibc;;
 			*-uclibc*)		 needed_libc=uclibc;;
-			*-cygwin)        needed_libc=cygwin;;
+			*-cygwin)		 needed_libc=cygwin;;
+			x86_64-*-mingw*|\
+			*-w64-mingw*)	 needed_libc=mingw64-runtime;;
 			mingw*|*-mingw*) needed_libc=mingw-runtime;;
 			avr)			 confgcc+=" --enable-shared --disable-threads";;
 			*-apple-darwin*) confgcc+=" --with-sysroot=${EPREFIX}${PREFIX}/${CTARGET}";;
@@ -1352,12 +1342,15 @@ gcc_do_make() {
 	else
 		# we only want to use the system's CFLAGS if not building a
 		# cross-compiler.
-		BOOT_CFLAGS=${BOOT_CFLAGS-"$(get_abi_CFLAGS) ${CFLAGS}"}
+		BOOT_CFLAGS=${BOOT_CFLAGS-"$(get_abi_CFLAGS ${TARGET_DEFAULT_ABI}) ${CFLAGS}"}
 	fi
 
 	pushd "${WORKDIR}"/build
 
+	# we "undef" T because the GCC makefiles use this variable, and if it's set
+	# in the environment (like Portage does) the build fails, bug #286494
 	emake \
+		T= \
 		LDFLAGS="${LDFLAGS}" \
 		STAGE1_CFLAGS="${STAGE1_CFLAGS}" \
 		LIBPATH="${EPREFIX}${LIBPATH}" \
@@ -1466,7 +1459,6 @@ gcc_do_filter_flags() {
 }
 
 toolchain_src_compile() {
-	multilib_env ${CTARGET}
 	gcc_do_filter_flags
 	einfo "CFLAGS=\"${CFLAGS}\""
 	einfo "CXXFLAGS=\"${CXXFLAGS}\""
@@ -1562,7 +1554,9 @@ toolchain_src_install() {
 	# These should be symlinks
 	dodir /usr/bin
 	cd "${ED}"${BINPATH}
-	for x in cpp gcc g++ c++ g77 gcj gcjh gfortran gccgo ; do
+	# Ugh: we really need to auto-detect this list.
+	#      It's constantly out of date.
+	for x in cpp gcc g++ c++ gcov g77 gcj gcjh gfortran gccgo ; do
 		# For some reason, g77 gets made instead of ${CTARGET}-g77...
 		# this should take care of that
 		[[ -f ${x} ]] && mv ${x} ${CTARGET}-${x}
@@ -1900,7 +1894,7 @@ do_gcc_PIE_patches() {
 should_we_gcc_config() {
 	# we always want to run gcc-config if we're bootstrapping, otherwise
 	# we might get stuck with the c-only stage1 compiler
-	use bootstrap && return 0
+	use_if_iuse bootstrap && return 0
 	use build && return 0
 
 	# if the current config is invalid, we definitely want a new one
@@ -2024,10 +2018,7 @@ setup_multilib_osdirnames() {
 
 	if [[ ${SYMLINK_LIB} == "yes" ]] ; then
 		einfo "updating multilib directories to be: ${libdirs}"
-		# drop the 4.6.2 stuff once 4.7 goes stable
-		if tc_version_is_at_least 4.7 ||
-		   ( tc_version_is_at_least 4.6.2 && has x32 $(get_all_abis) )
-		then
+		if tc_version_is_at_least 4.7 ; then
 			set -- -e '/^MULTILIB_OSDIRNAMES.*lib32/s:[$][(]if.*):../lib32:'
 		else
 			set -- -e "/^MULTILIB_OSDIRNAMES/s:=.*:= ${libdirs}:"

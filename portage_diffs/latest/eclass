@@ -3,9 +3,9 @@
 --- usr/portage/eclass/libtool.eclass [[PORTAGE]]
 +++ overlay/eclass/libtool.eclass [[OVERLAY]]
 @@ -1,6 +1,6 @@
- # Copyright 1999-2011 Gentoo Foundation
+ # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/eclass/libtool.eclass,v 1.98 2011/12/21 21:21:04 vapier Exp $
+-# $Header: /var/cvsroot/gentoo-x86/eclass/libtool.eclass,v 1.101 2012/07/26 16:14:47 grobian Exp $
 +# $Header: $
  
  # @ECLASS: libtool.eclass
@@ -93,7 +93,7 @@
  	return ${ret}
  }
  
-@@ -186,6 +235,7 @@
+@@ -187,6 +236,7 @@
  		*-hpux*)    elt_patches+=" hpux-conf deplibs hc-flag-ld hardcode hardcode-relink relink-prog no-lc" ;;
  		*-irix*)    elt_patches+=" irix-ltmain" ;;
  		*-mint*)    elt_patches+=" mint-conf" ;;
@@ -101,7 +101,7 @@
  	esac
  
  	if $(tc-getLD) --version 2>&1 | grep -qs 'GNU gold'; then
-@@ -361,6 +411,10 @@
+@@ -362,6 +412,10 @@
  						ret=$?
  					fi
  					;;
@@ -119,12 +119,12 @@
 @@ -1,6 +1,6 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/eclass/multilib.eclass,v 1.97 2011/12/14 18:15:09 slyfox Exp $
+-# $Header: /var/cvsroot/gentoo-x86/eclass/multilib.eclass,v 1.98 2012/06/03 08:27:53 vapier Exp $
 +# $Header: $
  
  # @ECLASS: multilib.eclass
  # @MAINTAINER:
-@@ -231,7 +231,7 @@
+@@ -238,7 +238,7 @@
  	local libname
  	local ver=$1
  	case ${CHOST} in
@@ -140,7 +140,7 @@
 @@ -1,6 +1,6 @@
  # Copyright 1999-2011 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.109 2011/12/10 19:45:00 vapier Exp $
+-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.112 2012/06/14 03:38:51 vapier Exp $
 +# $Header: $
  
  # @ECLASS: toolchain-funcs.eclass
@@ -167,7 +167,7 @@
  # @FUNCTION: tc-getBUILD_LD
  # @USAGE: [toolchain prefix]
  # @RETURN: name of the linker for building binaries to run on the build machine
-@@ -375,6 +383,7 @@
+@@ -382,6 +390,7 @@
  		i?86-pc-netbsd*)          echo x86-netbsd;;
  		i?86-pc-interix*)         echo x86-interix;;
  		i?86-pc-winnt*)           echo x86-winnt;;
@@ -175,7 +175,7 @@
  
  		alpha*)		echo alpha;;
  		arm*)		echo arm;;
-@@ -624,34 +633,57 @@
+@@ -631,34 +640,57 @@
  # correctly to point to the latest version of the library present.
  gen_usr_ldscript() {
  	local lib libdir=$(get_libdir) output_format="" auto=false suffix=$(get_libname)
@@ -236,7 +236,7 @@
  		fi
  
  		case ${CTARGET:-${CHOST}} in
-@@ -731,6 +763,87 @@
+@@ -738,6 +770,87 @@
  			ln -snf "../../${libdir}/${tlib}" "${lib}"
  			popd > /dev/null
  			;;
@@ -324,7 +324,7 @@
  		hppa*-hpux*) # PA-RISC 32bit (SOM) only, others (ELF) match *64*-hpux* above.
  			if ${auto} ; then
  				tlib=$(chatr "${ED}"/usr/${libdir}/${lib} | sed -n '/internal name:/{n;s/^ *//;p;q}')
-@@ -792,3 +905,4 @@
+@@ -799,3 +912,4 @@
  }
  
  fi
@@ -336,12 +336,12 @@
 @@ -1,6 +1,6 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain.eclass,v 1.524 2012/03/04 18:46:55 vapier Exp $
-+# $Header $
+-# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain.eclass,v 1.550 2012/06/11 21:07:31 vapier Exp $
++# $Header: $
  #
  # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
  
-@@ -1197,6 +1197,8 @@
+@@ -1187,6 +1187,8 @@
  			confgcc+=" --enable-shared"
  		fi
  		case ${CHOST} in
@@ -350,7 +350,7 @@
  			mingw*|*-mingw*|*-cygwin)
  				confgcc+=" --enable-threads=win32" ;;
  			*)
-@@ -1827,6 +1829,27 @@
+@@ -1821,6 +1823,27 @@
  	popd > /dev/null
  }
  
@@ -378,7 +378,7 @@
  do_gcc_HTB_patches() {
  	use_if_iuse boundschecking || return 0
  
-@@ -2034,7 +2057,7 @@
+@@ -2025,7 +2048,7 @@
  fix_libtool_libdir_paths() {
  	pushd "${ED}" >/dev/null
  
@@ -387,7 +387,7 @@
  	local dir="${PWD#${D%/}}"
  	local allarchives=$(echo *.la)
  	allarchives="\(${allarchives// /\\|}\)"
-@@ -2045,8 +2068,8 @@
+@@ -2036,8 +2059,8 @@
  		./${dir}/*.la
  	sed -i \
  		-e "/^dependency_libs=/s:/[^ ]*/${allarchives}:${EPREFIX}/${LIBPATH##/}/\1:g" \
@@ -398,7 +398,7 @@
  
  	popd >/dev/null
  }
-@@ -2119,3 +2142,5 @@
+@@ -2110,3 +2133,5 @@
  gcc_src_unpack() { toolchain_src_unpack ; }
  gcc_src_compile() { toolchain_src_compile ; }
  gcc_src_test() { toolchain_src_test ; }
@@ -504,6 +504,7 @@ usr/portage/eclass/kde4-functions.eclass: ASCII English text
 usr/portage/eclass/kde4-meta-pkg.eclass: ASCII English text
 usr/portage/eclass/kde4-meta.eclass: ASCII English text
 usr/portage/eclass/kernel-2.eclass: ASCII English text
+usr/portage/eclass/l10n.eclass: ASCII English text
 usr/portage/eclass/latex-package.eclass: ASCII English text
 usr/portage/eclass/leechcraft.eclass: ASCII English text
 usr/portage/eclass/linux-info.eclass: ASCII English text
@@ -517,6 +518,8 @@ usr/portage/eclass/mozcoreconf-2.eclass: ASCII English text
 usr/portage/eclass/mozextension.eclass: ASCII English text
 usr/portage/eclass/mozilla-launcher.eclass: ASCII English text
 usr/portage/eclass/mozlinguas.eclass: ASCII English text
+usr/portage/eclass/multiprocessing.eclass: ASCII English text
+usr/portage/eclass/myspell-r2.eclass: UTF-8 Unicode English text
 usr/portage/eclass/myspell.eclass: ASCII English text
 usr/portage/eclass/mysql-autotools.eclass: ASCII English text
 usr/portage/eclass/mysql-cmake.eclass: ASCII English text
@@ -569,7 +572,7 @@ usr/portage/eclass/selinux-policy-2.eclass: ASCII English text
 usr/portage/eclass/sgml-catalog.eclass: ASCII English text
 usr/portage/eclass/ssl-cert.eclass: ASCII English text
 usr/portage/eclass/stardict.eclass: ASCII English text
-usr/portage/eclass/subversion.eclass: UTF-8 Unicode English text
+usr/portage/eclass/subversion.eclass: ASCII English text
 usr/portage/eclass/sword-module.eclass: ASCII English text
 usr/portage/eclass/systemd.eclass: ASCII English text
 usr/portage/eclass/tests: directory
@@ -583,6 +586,7 @@ usr/portage/eclass/twisted.eclass: Python script, ASCII text executable
 usr/portage/eclass/unpacker.eclass: ASCII English text
 usr/portage/eclass/user.eclass: ASCII English text
 usr/portage/eclass/vcs-snapshot.eclass: ASCII English text
+usr/portage/eclass/vdr-plugin-2.eclass: ASCII English text
 usr/portage/eclass/vdr-plugin.eclass: ASCII English text
 usr/portage/eclass/versionator.eclass: ASCII English text
 usr/portage/eclass/vim-doc.eclass: ASCII English text
@@ -632,6 +636,8 @@ usr/portage/eclass/ELT-patches/relink: directory
 usr/portage/eclass/ELT-patches/relink-prog: directory
 usr/portage/eclass/ELT-patches/rem-int-dep: directory
 usr/portage/eclass/ELT-patches/sed: directory
+usr/portage/eclass/ELT-patches/sol2-conf: directory
+usr/portage/eclass/ELT-patches/sol2-ltmain: directory
 usr/portage/eclass/ELT-patches/sys-lib-dlsearch: directory
 usr/portage/eclass/ELT-patches/test: directory
 usr/portage/eclass/ELT-patches/tmp: directory

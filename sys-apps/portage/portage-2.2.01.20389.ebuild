@@ -2,11 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id: portage-2.2.01.16270.ebuild $
 
-RESTRICT="test"
-
 # Require EAPI 2 since we now require at least python-2.6 (for python 3
 # syntax support) which also requires EAPI 2.
 EAPI=2
+
+RESTRICT="test"
 inherit eutils multilib python
 
 DESCRIPTION="Prefix branch of the Portage Package Manager, used in Gentoo Prefix"
