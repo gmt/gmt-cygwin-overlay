@@ -484,7 +484,7 @@ cyg_rebase-dirs() {
 # 0xC0000000: DESTDIR rebase address (cyg_rebase-portage-destdir)
 
 cyg_rebase-portage-workdir() {
-	[[ ${CYG_DONT_REBASE_WORKDIR:-0} == 0 ]] || return 0
+	[[ ${CYG_DONT_REBASE_WORKDIR:-1} == 0 ]] || return 0
 	cyg_rebase-dirs 0xA0000000 "${WORKDIR}"
 }
 
