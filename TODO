@@ -102,3 +102,23 @@ o Something needs to be done about rebasing and portage -- we should take a look
 o There is a conflict between cygwin and the latest parallel processing commits in
   portage.  Currently, we are reverting those commits but the underlying problem
   needs to be solved -- it's very probably an upstream problem of some kind.
+
+ o Cygdll protection for gcc-config-created dll's.  Although these
+   are not portage-managed files, cygdll-protect actually doesn't
+   require them to so be and this is a perfect example of
+   something we probably ought to be protecting (since they
+   get used ubiquitously and can potentially cause huge
+   system-wide rebasing issues).
+
+ o Tracking of gcc-config .dll's.  This feature is also lacking
+   upstream so I'm reluctant to create a cygwin-specific
+   implementation.  But given the ability of cygdll-protect
+   to gracefully permit the user to clean up abandoned
+   .dlls left by old gcc's, I'm tempted.  Maybe something
+   to try later -- ideally this could be implemented  in
+   a non-cygwin-specific, non-prefix-specific manner so as
+   to allow the general stuff to find its way upstream, and
+   then the cygwin/prefix-specific parts could be tacked on,
+   however, upstream's implementation of the sharedlib-copying
+   is so much simpler that this might be a challenge.
+   
