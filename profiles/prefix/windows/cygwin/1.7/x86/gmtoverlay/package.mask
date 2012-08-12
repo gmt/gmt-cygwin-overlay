@@ -11,6 +11,7 @@
 # the package would simply be globally masked, which is
 # not the idea behind these entries.  Please alphabetize!
 app-arch/bzip2
+sys-devel/gcc-config
 sys-devel/gnuconfig
 sys-libs/ncurses
 sys-libs/zlib

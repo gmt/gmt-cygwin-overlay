@@ -1,74 +1,32 @@
 ===== mutual sub-directory: "sys-devel/gcc-config" =====
----("sys-devel/gcc-config/ChangeLog")--->8--->
---- usr/portage/sys-devel/gcc-config/ChangeLog [[PORTAGE]]
-+++ overlay/sys-devel/gcc-config/ChangeLog [[OVERLAY]]
-@@ -1,28 +1,6 @@
+----[ "sys-devel/gcc-config/ChangeLog" ]----->8----->
+--- PORTAGE/sys-devel/gcc-config/ChangeLog
++++ OVERLAY/sys-devel/gcc-config/ChangeLog
+@@ -1,6 +1,6 @@
  # ChangeLog for sys-devel/gcc-config
- # Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc-config/ChangeLog,v 1.197 2011/11/11 16:12:49 vapier Exp $
--
--*gcc-config-1.5-r2 (11 Nov 2011)
--
--  11 Nov 2011; Mike Frysinger <vapier@gentoo.org> files/gcc-config-1.5,
--  +gcc-config-1.5-r2.ebuild:
--  Add a fallback when tac is unavailable as suggested by Alexis Ballier
--  #390179.
--
--  11 Nov 2011; Alexis Ballier <aballier@gentoo.org> gcc-config-1.5-r1.ebuild:
--  unkeyword 1.5 on fbsd due to bug #390179
--
--  11 Nov 2011; Ryan Hill <dirtyepic@gentoo.org> gcc-config-1.5-r1.ebuild:
--  Keyword 1.5 (needed for gccgo support).
--
--  18 Jun 2011; Mike Frysinger <vapier@gentoo.org> files/wrapper-1.5.2.c:
--  Link g77/g95 to gfortran #278772 by Sébastien Fabbro.
--
--*gcc-config-1.4.1-r1 (28 Apr 2011)
--
--  28 Apr 2011; Mark Loeser <halcy0n@gentoo.org> -gcc-config-1.4.1.ebuild,
--  +gcc-config-1.4.1-r1.ebuild:
--  Version bump to get a change made to the gcc-config bash script
-+# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc-config/ChangeLog,v 1.192 2011/03/21 13:49:02 vapier Exp $
+ # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: $
++# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc-config/ChangeLog,v 1.211 2012/05/13 20:14:06 vapier Exp $
  
-   21 Mar 2011; Mike Frysinger <vapier@gentoo.org> files/gcc-config-1.5:
-   Default to /etc/portage/make.conf #338032 by Dennis Schridde.
-<---8<---
----("sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild")--->8--->
---- usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild [[OVERLAY]]
-@@ -19,10 +19,11 @@
- RDEPEND="!app-admin/eselect-compiler
- 	>=sys-devel/binutils-config-1.9-r04.3"
+ *gcc-config-1.7.1 (13 May 2012)
  
--S=${WORKDIR}
-+S=${WORKDIR%/}
- 
- src_unpack() {
- 	cp "${FILESDIR}"/wrapper-${W_VER}.c "${S}"/wrapper.c || die
-+	echo doing: cp "${FILESDIR}"/wrapper-${W_VER}.c "${S}"/wrapper.c
- 	cp "${FILESDIR}"/${PN}-${PV}  "${S}/"${PN}-${PV} || die
- 	eprefixify "${S}"/wrapper.c "${S}"/${PN}-${PV}
- }
-@@ -35,29 +36,35 @@
+<-----8<-----
+----[ "sys-devel/gcc-config/gcc-config-1.5-r2.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/gcc-config/gcc-config-1.5-r2.ebuild
++++ OVERLAY/sys-devel/gcc-config/gcc-config-1.5-r2.ebuild
+@@ -35,9 +35,10 @@
  
  src_install() {
  	newbin ${PN}-${PV} ${PN} || die "install gcc-config"
 +
-+	local libdir
-+	libdir="$(get_libdir)"
-+	libdir="${libdir%/}"
-+	libdir="${libdir#/}"
-+
  	sed -i \
--		-e "s:@GENTOO_LIBDIR@:$(get_libdir):g" \
+ 		-e "s:@GENTOO_LIBDIR@:$(get_libdir):g" \
 -		"${ED}"/usr/bin/${PN}
-+		-e "s:@GENTOO_LIBDIR@:/${libdir}:g" \
-+		"${ED%/}"/usr/bin/${PN}
++		"${ED}"usr/bin/${PN}
  
--	exeinto /usr/$(get_libdir)/misc
-+	exeinto /usr/${libdir}/misc
+ 	exeinto /usr/$(get_libdir)/misc
  	newexe wrapper gcc-config || die "install wrapper"
- }
+@@ -45,17 +46,17 @@
  
  pkg_postinst() {
  	# Scrub eselect-compiler remains
@@ -82,24 +40,27 @@
 -	rm -f "${EROOT}"/usr/sbin/gcc-config
 +	rm -f "${EROOT}"usr/sbin/gcc-config
  
+ 	# We not longer use the /usr/include/g++-v3 hacks, as
+ 	# it is not needed ...
+-	[[ -L ${EROOT}/usr/include/g++ ]] && rm -f "${EROOT}"/usr/include/g++
+-	[[ -L ${EROOT}/usr/include/g++-v3 ]] && rm -f "${EROOT}"/usr/include/g++-v3
++	[[ -L ${EROOT}usr/include/g++ ]] && rm -f "${EROOT}"usr/include/g++
++	[[ -L ${EROOT}usr/include/g++-v3 ]] && rm -f "${EROOT}"usr/include/g++-v3
+ 
  	# Do we have a valid multi ver setup ?
- 	if gcc-config --get-current-profile &>/dev/null ; then
- 		# We not longer use the /usr/include/g++-v3 hacks, as
- 		# it is not needed ...
--		[[ -L ${EROOT}/usr/include/g++ ]] && rm -f "${EROOT}"/usr/include/g++
--		[[ -L ${EROOT}/usr/include/g++-v3 ]] && rm -f "${EROOT}"/usr/include/g++-v3
--		gcc-config $(${EPREFIX}/usr/bin/gcc-config --get-current-profile)
-+		[[ -L ${EROOT}usr/include/g++ ]] && rm -f "${EROOT}"usr/include/g++
-+		[[ -L ${EROOT}usr/include/g++-v3 ]] && rm -f "${EROOT}"usr/include/g++-v3
-+		gcc-config $(${EPREFIX%/}/usr/bin/gcc-config --get-current-profile)
- 	fi
- }
-<---8<---
+ 	local x
+<-----8<-----
 ===== mutual sub-directory: "sys-devel/gcc-config/files" =====
----("sys-devel/gcc-config/files/gcc-config-1.4.1")--->8--->
---- usr/portage/sys-devel/gcc-config/files/gcc-config-1.4.1 [[PORTAGE]]
-+++ overlay/sys-devel/gcc-config/files/gcc-config-1.4.1 [[OVERLAY]]
-@@ -6,8 +6,10 @@
+----[ "sys-devel/gcc-config/files/gcc-config-1.4.1" ]----->8----->
+--- PORTAGE/sys-devel/gcc-config/files/gcc-config-1.4.1
++++ OVERLAY/sys-devel/gcc-config/files/gcc-config-1.4.1
+@@ -1,13 +1,15 @@
+ #!/usr/bin/env bash
+ # Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: $
++# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc-config/files/gcc-config-1.4.1,v 1.11 2011/03/07 12:48:15 vapier Exp $
+ 
  trap ":" INT QUIT TSTP
  
  argv0=${0##*/}
@@ -112,6 +73,15 @@
  	exit 1
  }
  esyslog() { :; }
+@@ -19,7 +21,7 @@
+ SED=$(type -P gsed)
+ SED=${SED:-$(type -P sed)}
+ 
+-GENTOO_LIBDIR="@GENTOO_LIBDIR@"
++GENTOO_LIBDIR="lib"
+ [[ ${GENTOO_LIBDIR} == @*@ ]] && GENTOO_LIBDIR="lib"
+ 
+ usage() {
 @@ -59,7 +61,7 @@
  	#
  
@@ -650,6 +620,18 @@
  
  for x in "$@" ; do
  	case "${x}" in
+@@ -953,9 +963,9 @@
+ 			rcsfile="$RCSfile: gcc-config-1.4.1,v $"
+ 			rcsfile=${rcsfile#: }
+ 			rcsfile=${rcsfile%,v*}
+-			cvsrev="$Revision: 1.12 $"
++			cvsrev="$Revision: 1.11 $"
+ 			cvsrev=${cvsrev#: }
+-			cvsdate="$Date: 2011/12/07 05:42:19 $"
++			cvsdate="$Date: 2011/03/07 12:48:15 $"
+ 			cvsdate=${cvsdate#: }
+ 			echo "${rcsfile} (r${cvsrev% *} @ ${cvsdate% *})"
+ 			exit 0
 @@ -983,15 +993,15 @@
  				else
  					# User gave us a full HOST-gccver
@@ -704,12 +686,314 @@
  		#exit 1
  	fi
  fi
-<---8<---
+<-----8<-----
+----[ "sys-devel/gcc-config/files/gcc-config-1.5" ]----->8----->
+--- PORTAGE/sys-devel/gcc-config/files/gcc-config-1.5
++++ OVERLAY/sys-devel/gcc-config/files/gcc-config-1.5
+@@ -1,7 +1,7 @@
+ #!/bin/bash
+ # Copyright 1999-2011 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: $
++# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc-config/files/gcc-config-1.5,v 1.7 2011/12/07 05:42:19 vapier Exp $
+ 
+ # Format of /etc/env.d/gcc/:
+ #  config-TARGET:	CURRENT=version for TARGET
+@@ -11,6 +11,10 @@
+ [[ ${ROOT} != */ ]] && ROOT="${ROOT}/"
+ [[ ${ROOT} != /* ]] && ROOT="${PWD}${ROOT}"
+ EPREFIX="@GENTOO_PORTAGE_EPREFIX@"
++
++# really shouldn't be so, but just in case
++EPREFIX="${EPREFIX%/}"
++
+ EROOT="${ROOT%/}${EPREFIX}/"
+ 
+ cd /
+@@ -91,9 +95,9 @@
+ 	#
+ 
+ 	local varname=${1:-CHOST}
+-	local conf=${EROOT}/etc/portage/make.conf
+-	if [[ ! -e ${conf} && -e ${EROOT}/etc/make.conf ]] ; then
+-		conf=${EROOT}/etc/make.conf
++	local conf=${EROOT}etc/portage/make.conf
++	if [[ ! -e ${conf} && -e ${EROOT}etc/make.conf ]] ; then
++		conf=${EROOT}etc/make.conf
+ 	fi
+ 	local ret=$(source "${conf}" 2>/dev/null ; echo ${!varname})
+ 	if [[ -z ${ret} ]] ; then
+@@ -116,8 +120,8 @@
+ 	#
+ 	# Then we try /etc/env.d/gcc/config-${CTARGET}
+ 	#
+-	if [[ -s ${EROOT}/etc/env.d/gcc/config-${CTARGET} ]] ; then
+-		ret=$(split_gcc_ver $(show_var CURRENT "${EROOT}"/etc/env.d/gcc/config-${CTARGET}))
++	if [[ -s ${EROOT}etc/env.d/gcc/config-${CTARGET} ]] ; then
++		ret=$(split_gcc_ver $(show_var CURRENT "${EROOT}"etc/env.d/gcc/config-${CTARGET}))
+ 		echo ${ret% *}
+ 	fi
+ }
+@@ -133,7 +137,20 @@
+ 
+ 	# make sure portage isnt broken
+ 	if python -V &>/dev/null ; then
+-		export REAL_CHOST=$(env -i EPREFIX="${EPREFIX}" "$(PATH="${EPREFIX}/usr/bin:${PATH}" type -P portageq)" envvar CHOST 2>/dev/null)
++		local myportageq=$(PATH="${EPREFIX}/usr/bin:${PATH}" type -P portageq)
++		if [[ $( "${myportageq}" envvar KERNEL) == Cygwin ]] ; then
++		    # on Cygwin we simply cannot function without cygwin1.dll somewhere in
++			# our path.  For the forseeable future, we will take cygwin1.dll from
++			# upstream, so we at least need "/bin" in the PATH, which is where it's
++			# 'supposed' to be.  If you put it somewhere else, I guess you'd better change
++			# this script!  (Actually since multiple cygwin1.dll's aren't supported,
++			# a way better solution would be to parse cygcheck output (i.e.:
++			# something like cygcheck @EPREFIX@/bin/bash.exe), and, after translating to
++			# UNIX-style paths, use PATH=<that cygwin1.dll's path> below... PITA tho.
++			export REAL_CHOST=$(env -i EPREFIX="${EPREFIX}" PATH=/bin "${myportageq}" envvar CHOST 2>/dev/null)
++		else
++			export REAL_CHOST=$(env -i EPREFIX="${EPREFIX}" "${myportageq}" envvar CHOST 2>/dev/null)
++		fi
+ 	else
+ 		ewarn "Python seems to be broken, attempting to locate CHOST ourselves ..."
+ 		export REAL_CHOST=$(try_real_hard_to_find_CHOST)
+@@ -142,7 +159,7 @@
+ 	if [[ -z ${REAL_CHOST} ]] ; then
+ 		eerror "${argv0}: Could not get portage CHOST!"
+ 		eerror "${argv0}: You should verify that CHOST is set in one of these places:"
+-		eerror "${argv0}:  - ${EROOT}/etc/portage/make.conf"
++		eerror "${argv0}:  - ${EROOT}etc/portage/make.conf"
+ 		eerror "${argv0}:  - active environment"
+ 		exit 1
+ 	fi
+@@ -196,9 +213,9 @@
+ 		[[ ${x} != ${CTARGET}-* ]] && is_cross_compiler && continue
+ 
+ 		# Make sure we have no stale wrappers
+-		rm -f "${EROOT}/usr/bin/${x}"
++		rm -f "${EROOT}usr/bin/${x}"
+ 		[[ ${x:${#x}-3} == "gcc" || ${x:${#x}-3} == "g++" ]] \
+-			&& rm -f "${EROOT}/usr/bin/${x}"{32,64}
++			&& rm -f "${EROOT}usr/bin/${x}"{32,64}
+ 
+ 		# Only install a wrapper if the binary exists ...
+ 		# We want to figure out the 'reference file' for each
+@@ -211,19 +228,19 @@
+ 			f77) ref=g77;;
+ 			*)   ref=${x};;
+ 		esac
+-		ref="${ROOT}/${GCC_PATH}/${ref}"
++		ref="${ROOT%/}${GCC_PATH}/${ref}"
+ 		if [[ -x ${ref} ]] ; then
+-			cp -f "${wrapper}" "${EROOT}/usr/bin/${x}"
+-			touch -r "${ref}" "${EROOT}/usr/bin/${x}"
++			cp -f "${wrapper}" "${EROOT}usr/bin/${x}"
++			touch -r "${ref}" "${EROOT}usr/bin/${x}"
+ 		fi
+ 	done
+ 	# legacy cruft, make sure we dont leave it laying around #143205
+-	rm -f "${EROOT}/usr/bin/${CTARGET}-cc"
++	rm -f "${EROOT}usr/bin/${CTARGET}-cc"
+ 
+ 	# install the canonical cpp wrapper
+ 	if ! is_cross_compiler ; then
+-		cp -f "${wrapper}" "${EROOT}/lib/cpp"
+-		touch -r "${EROOT}/usr/bin/${CTARGET}-cpp" "${EROOT}/lib/cpp"
++		cp -f "${wrapper}" "${EROOT}lib/cpp"
++		touch -r "${EROOT}usr/bin/${CTARGET}-cpp" "${EROOT}lib/cpp"
+ 	fi
+ }
+ 
+@@ -288,8 +305,8 @@
+ 		# Pass all by default
+ 		awk '!/^(STDCXX_INCDIR|LDPATH|CC|CXX|CTARGET|GCCBITS|GCC_SPECS|GCC_PATH)=/ {print $0}' \
+ 			"${GCC_ENV_D}/${CC_COMP}" >> "${envd}.tmp"
+-		if [[ -z ${EPREFIX} && -d ${ROOT}/etc/ld.so.conf.d ]] ; then
+-			echo "${MY_LDPATH}" > "${ROOT}"/etc/ld.so.conf.d/05gcc-${CTARGET}.conf
++		if [[ -z ${EPREFIX} && -d ${ROOT}etc/ld.so.conf.d ]] ; then
++			echo "${MY_LDPATH}" > "${ROOT}"etc/ld.so.conf.d/05gcc-${CTARGET}.conf
+ 		else
+ 			echo "LDPATH=\"${MY_LDPATH}\"" >> "${envd}.tmp"
+ 		fi
+@@ -305,10 +322,10 @@
+ 
+ 
+ 		# Relocate random crap
+-		if [[ -e ${EROOT}/usr/${GENTOO_LIBDIR}/pkgconfig/libgcj-${CC_COMP_VERSION}.pc ]] ; then
++		if [[ -e ${EROOT}usr/${GENTOO_LIBDIR}/pkgconfig/libgcj-${CC_COMP_VERSION}.pc ]] ; then
+ 			local mver=${CC_COMP_VERSION:0:3}
+ 			for x in "" "-${mver}" ; do
+-				x="${EROOT}/usr/lib/pkgconfig/libgcj${x}.pc"
++				x="${EROOT}usr/lib/pkgconfig/libgcj${x}.pc"
+ 				rm -f "${x}"
+ 				ln -s libgcj-${CC_COMP_VERSION}.pc "${x}"
+ 			done
+@@ -338,14 +355,44 @@
+ 		# selected version.
+ 		GCC_PROFILES=$(LC_ALL="C" ls ${GCC_ENV_D}/${REAL_CHOST}-*)
+ 
+-		local dstlibgcc=${EROOT}/usr/${REAL_CHOST}/lib/gcc
+-		local dstlib=${EROOT}/lib
++		local dstlibgcc=${EROOT}usr/${REAL_CHOST}/lib/gcc
++		local dstlib=${EROOT}lib
++
++		local dlltool=/bin/false
++		if [[ ${REAL_CHOST} == *-cygwin* ]] ; then
++			if [[ -x ${EPREFIX}/usr/${REAL_CHOST}/bin/dlltool ]] ; then
++				dlltool=${EPREFIX}/usr/${REAL_CHOST}/bin/dlltool
++			elif [[ -x ${EPREFIX}/usr/bin/dlltool ]] ; then
++				dlltool=${EPREFIX}/usr/bin/dlltool
++			elif [[ -x $(which dlltool 2>/dev/null) ]] ; then
++				dlltool=$(which dlltool 2>/dev/null)
++			else 
++				# otherwise, not much we can do about it, /bin/false will have to do
++				echo "WARNING: Cannot find dlltool on cygwin platform: .dll files will not be copied." >&2
++			fi
++		fi
+ 
+ 		# Prepare empty directories first
+ 		local temporary=.gcc.config.new
+ 		rm -rf   "${dstlib}"/${temporary} "${dstlibgcc}"/${temporary} || return 1
+ 		mkdir -p "${dstlib}"/${temporary} "${dstlibgcc}"/${temporary} || return 1
+ 
++		# these dummy names are just insurance against accidentally tacking "${EROOT}" or something
++		# onto them and running amok.  Obviously that shouldn't happen anyhow.
++		local dstcygwindll=/dev/null/foobarbazquux
++		local dstcygwindllgcc=/dev/null/foobarbazquux
++		if [[ -x ${dlltool} && ${dlltool} != /bin/false ]] ; then
++			dstcygwindll=${EROOT}bin
++			# hmm, usr/${REAL_CHOST}/bin better?  Uncharted territory I guess but it makes sense
++			# that someone should be able to set PATH=${EPREFIX}/bin:${EPREFIX}/usr/bin:/bin:/usr/bin
++			# and get things to work (indeed that's exactly what bootstrap recipe calls for)
++			# otherwise, I think it's too likely that we are actually getting base-system dlls at runtime
++			# cross compilers are another story but this code only runs for native toolchain anyhow.
++			dstcygwindllgcc=${EROOT}usr/bin
++			rm -rf "${dstcygwindll}"/${temporary} "${dstcygwindllgcc}"/${temporary} || return 1
++			mkdir -p "${dstcygwindll}"/${temporary} "${dstcygwindllgcc}"/${temporary} || return 1
++		fi
++
+ 		dumpargs() {
+ 			return 0
+ 			local x
+@@ -413,6 +460,72 @@
+ 				|| return 1
+ 			}
+ 			;;
++		*-cygwin*)
++			LIBSUFFIX="dll.a"
++			do_single_runtime() {
++				dumpargs do_single_runtime "$@"
++				local sourcedir=$1; shift
++				local libname=$1; shift
++				local targetdir=$1; shift
++				local finaldir=$1; shift
++
++				do_single_runtime_elf \
++					"${sourcedir}" \
++					"${libname}" \
++					"${targetdir}" \
++					"${finaldir}" \
++				|| return 1
++
++				# on cygwin these are always libfoo.dll.a -- no version numbers appear.
++				# one could think of them as more nearly akin to .pc or .la files.
++				if [[ -n $(ls "${sourcedir}"/lib${libname}.${LIBSUFFIX} 2>/dev/null) ]] ; then
++					if [[ -x ${dlltool} && ${dlltool} != /bin/false ]] ; then
++						local cygdllname
++						cygdllname="$( echo $(
++							${dlltool} -I "${sourcedir}"/lib${libname}.${LIBSUFFIX} 2>/dev/null || \
++								echo xxxFAILFAILFAILxxx
++						) )"
++						if [[ -n "${cygdllname}" && ${cygdllname} != *xxxFAILFAILFAILxxx* ]] ; then
++							# we suspect that the .dll in question will be here:
++							cygdllname="${GCC_PATH}/${cygdllname}"
++							if [[ ! -x ${cygdllname} ]] ; then
++								echo "WARNING: expected \"${cygdllname}\" to exist but is not there." >&2
++							else
++								# attempt to map the targetdir to a corresponding dstcygwindll -- if
++								# not an /exact/ match then we skip it -- note that nothing is being
++								# done here to prevent us from scribbling over portage's files, but
++								# we're feeling lucky, apparently (non-cygwin gcc-config has same issue).
++								# But something will be done about it later: cygdll-protection!
++								case ${finaldir} in
++									${dstlib}/.)
++									    [[ ${targetdirs} == *":${dstcygwindll},:"* ]] ||
++											targetdirs=":${dstcygwindll},:${targetdirs}"
++										cp -fpP "${cygdllname}" "${dstcygwindll}"/${temporary} || return 1
++										;;
++									${dstlibgcc}/.)
++										[[ ${targetdirs} == *":${dstcygwindllgcc},:"* ]] ||
++											targetdirs="${targetdirs}:${dstcygwindllgcc},:"
++										cp -fpP "${cygdllname}" "${dstcygwindllgcc}"/${temporary} || return 1
++										;;
++									*)
++										echo "WARNING: no .dll target mapping for \"${targetdir}\". Skipping." >&2
++										;;
++								esac
++							fi
++						else
++							echo "WARNING: unable to determine .dll name from ${sourcedir}/lib${libname}.${LIBSUFFIX}" >&2
++						fi
++					fi # user was already warned about missing dlltool, not need to repeat ourselves.
++				else
++					# on most platforms this is harmless but on cygwin it's almost certainly an error:
++					echo "WARNING: expected ${sourcedir}/lib${libname}.${LIBSUFFIX} to exist but it does not." >&2
++				fi
++			}
++			finish_runtime_dir() {
++				# TODO: Implement cygdll protection for dll's installed this way.
++				finish_runtime_dir_elf "$@"
++			}
++			;;
+ 		*-darwin*)
+ 			LIBSUFFIX="dylib"
+ 
+@@ -564,7 +677,7 @@
+ 			for multilib in $(
+ 				# ensure we always operate on base libdir first
+ 				[[ -n ${EPREFIX} ]] && echo ".;@X" ;
+-				"${ROOT}/${GCC_PATH}"/gcc -print-multi-lib
++				"${ROOT}${GCC_PATH#/}"/gcc -print-multi-lib
+ 			); do
+ 
+ 			multiarg=${multilib#*;}
+@@ -576,7 +689,7 @@
+ 			if [[ ${multilib} == ".;@X" ]] ; then
+ 				libdir="lib/${multilibdir}"
+ 			else
+-				libdir="lib/"$("${ROOT}/${GCC_PATH}"/gcc ${multiarg} -print-multi-os-directory)
++				libdir="lib/"$("${ROOT}${GCC_PATH}"/gcc ${multiarg} -print-multi-os-directory)
+ 			fi
+ 
+ 			pushd "${ROOT%/}${LDPATH}/${multilibdir}" > /dev/null || return 1
+@@ -676,7 +789,7 @@
+ 			ewarn "are setup properly.  Please rerun gcc-config with the -f option."
+ 			echo ""
+ 			if [[ -z ${EPREFIX} && ! -d /etc/ld.so.conf.d ]] ; then
+-				show_var LDPATH "${ROOT}"/etc/env.d/05gcc-${CTARGET} \
++				show_var LDPATH "${ROOT}"etc/env.d/05gcc-${CTARGET} \
+ 					| sed -e 's|:|\n|g' >> /etc/ld.so.conf
+ 			fi
+ 			ldconfig
+@@ -1028,11 +1141,11 @@
+ 	CC_COMP_VERSION=$(chop_gcc_ver_spec ${CC_COMP})
+ 	CC_COMP_TARGET=${CC_COMP%-${CC_COMP_VERSION}*}
+ 
+-	if [[ ! -d ${EROOT}/${GCC_LIB}/${CC_COMP_TARGET}/${CC_COMP_VERSION} ]]; then
++	if [[ ! -d ${EROOT}${GCC_LIB}/${CC_COMP_TARGET}/${CC_COMP_VERSION} ]]; then
+ 		CC_COMP_VERSION=${CC_COMP_VERSION%-*}
+ 	fi
+ 
+-	if [[ ! -d ${EROOT}/${GCC_LIB}/${CC_COMP_TARGET}/${CC_COMP_VERSION} ]] || \
++	if [[ ! -d ${EROOT}${GCC_LIB}/${CC_COMP_TARGET}/${CC_COMP_VERSION} ]] || \
+ 	   [[ ! -f ${GCC_ENV_D}/${CC_COMP} ]]
+ 	then
+ 		eerror "${argv0}: Profile does not exist or invalid setting for ${GCC_ENV_D}/${CC_COMP}" 1>&2
+<-----8<-----
+
+*** The following files appear only in the overlay ***
+overlay/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild: ASCII English text
 
 *** The following files appear only in portage ***
 usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r1.ebuild: ASCII English text
-usr/portage/sys-devel/gcc-config/gcc-config-1.5-r01.1.ebuild: ASCII English text
-usr/portage/sys-devel/gcc-config/gcc-config-1.5-r2.ebuild: ASCII English text
-usr/portage/sys-devel/gcc-config/files/gcc-config-1.5: Bourne-Again shell script, ASCII text executable
-usr/portage/sys-devel/gcc-config/files/wrapper-1.5.2.c: ASCII English text
+usr/portage/sys-devel/gcc-config/gcc-config-1.7.1.ebuild: ASCII English text
 
