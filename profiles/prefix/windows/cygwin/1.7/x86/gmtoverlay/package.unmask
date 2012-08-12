@@ -10,6 +10,9 @@
 # specific versions for which we have ebuilds.  These
 # must be kept in sync (and alphabetical)!!
 =app-arch/bzip2-1.0.6-r3
+=sys-apps/coreutils-8.14
+=sys-apps/coreutils-8.15
+=sys-apps/coreutils-8.17
 =sys-devel/gcc-config-1.4.1-r00.2
 =sys-devel/gcc-config-1.5-r2
 =sys-devel/gnuconfig-20110814
