@@ -121,4 +121,7 @@ o There is a conflict between cygwin and the latest parallel processing commits 
    then the cygwin/prefix-specific parts could be tacked on,
    however, upstream's implementation of the sharedlib-copying
    is so much simpler that this might be a challenge.
-   
+
+ o For some reason it necessary for us to include some
+   "anti-maintainer-mode" patches that upstream doesn't need.
+   We should figure out why and fix it somehow!
