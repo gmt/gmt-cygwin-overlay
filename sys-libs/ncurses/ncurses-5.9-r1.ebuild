@@ -196,7 +196,6 @@ do_compile() {
 		--enable-pc-files \
 		$(use_enable !ada warnings) \
 		$(use_with debug assertions) \
-		$(use_enable debug leaks) \
 		$(use_with debug expanded) \
 		$(use_with !debug macros) \
 		$(use_with trace) \
