@@ -196,6 +196,7 @@ do_compile() {
 		--enable-pc-files \
 		$(use_enable !ada warnings) \
 		$(use_with debug assertions) \
+		$(use_enable debug leaks) \
 		$(use_with debug expanded) \
 		$(use_with !debug macros) \
 		$(use_with trace) \
@@ -261,20 +262,19 @@ src_install() {
 		local f
 		local libpfx=lib
 		local shlibdir=$(get_libdir)
-		local postfix=
-		[[ ${CHOST} == *-cygwin* ]] && { libpfx=cyg; shlibdir=bin; postfix=-10; }
+		local suffix=
+		[[ ${CHOST} == *-cygwin* ]] && { libpfx=cyg; shlibdir=bin; suffix=-10; dodir /$(get_libdir); }
 		dodir /${shlibdir}
-		[[ ${CHOST} == *-cygwin* ]] && dodir /$(get_libdir)
-		for f in "${ED}"usr/${shlibdir}/${libpfx}{,n}curses{,w}${postfix}$(get_libname)*; do
+		for f in "${ED}"usr/${shlibdir}/${libpfx}{,n}curses{,w}${suffix}$(get_libname)*; do
 			[[ -f ${f} ]] || continue
 			einfo "moving \"/${f#${ED}}\" to \"/${shlibdir}/\"."
 			mv "${f}" "${ED}"${shlibdir}/ || die "could not move /${f#${ED}}"
 			[[ ${CHOST} == *-cygwin* ]] && {
 				local x="$( dirname ${f} )"
 				x="${x%${shlibdir}}$(get_libdir)"
-				x="${x}/lib$( foo=$(basename ${f}); foo="${foo%-10.dll}" ; echo ${foo#cyg} ).dll.a"
-				einfo "moving \"/${x#${ED}}\" to \"/lib/\"."
-				mv "${x}" "${ED}"lib/ || die "could not move /${x#${ED}}"
+				x="${x}/lib$( foo=$(basename ${f}); foo="${foo%${suffix}.dll}" ; echo ${foo#cyg} ).dll.a"
+				einfo "moving \"/${x#${ED}}\" to \"/$(get_libdir)/\"."
+				mv "${x}" "${ED}"$(get_libdir)/ || die "could not move /${x#${ED}}"
 			}
 		done
 	elif ! need-libtool ; then # keeping intendation to keep diff small
