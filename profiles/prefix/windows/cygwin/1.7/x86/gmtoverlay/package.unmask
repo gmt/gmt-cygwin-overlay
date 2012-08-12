@@ -2,6 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+# "must-overlay" dept.: These are here to make sure that
+# only the overlay ebuilds are used for packages which
+# contain essential patches, even if new versions get
+# pulled in via a sync.  "package.mask" entries masking
+# the entire package exist, and here we unmask only the
+# specific versions for which we have ebuilds.  These
+# must be kept in sync!!!
 =sys-libs/zlib-1.2.5-r2
 =sys-libs/zlib-1.2.5.1-r2
 =sys-libs/zlib-1.2.7
