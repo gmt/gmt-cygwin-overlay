@@ -1,77 +1,8 @@
 ===== mutual sub-directory: "app-arch/bzip2" =====
----("app-arch/bzip2/ChangeLog")--->8--->
---- usr/portage/app-arch/bzip2/ChangeLog [[PORTAGE]]
-+++ overlay/app-arch/bzip2/ChangeLog [[OVERLAY]]
-@@ -1,54 +1,6 @@
- # ChangeLog for app-arch/bzip2
--# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/ChangeLog,v 1.99 2011/11/02 03:28:17 mattst88 Exp $
--
--  02 Nov 2011; Matt Turner <mattst88@gentoo.org> bzip2-1.0.6-r3.ebuild:
--  Stable on Alpha, bug 387333.
--
--  29 Oct 2011; Markus Meier <maekke@gentoo.org> bzip2-1.0.6-r3.ebuild:
--  arm stable, bug #387333
--
--  23 Oct 2011; nixnut <nixnut@gentoo.org> bzip2-1.0.6-r3.ebuild:
--  ppc stable #387333
--
--  18 Oct 2011; Tony Vroon <chainsaw@gentoo.org> bzip2-1.0.6-r3.ebuild:
--  Marked stable on AMD64 based on arch testing by Agostino "ago" Sarubbo &
--  Elijah "Armagedon" El Lazkani in bug #387333.
--
--  18 Oct 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> bzip2-1.0.6-r3.ebuild:
--  x86 stable wrt bug #387333
--
--  17 Oct 2011; Jeroen Roovers <jer@gentoo.org> bzip2-1.0.6-r3.ebuild:
--  Stable for HPPA (bug #387333).
--
--  29 Aug 2011; Jeroen Roovers <jer@gentoo.org> bzip2-1.0.6-r2.ebuild:
--  Stable for HPPA (bug #377315).
--
--  28 Aug 2011; Raúl Porcel <armin76@gentoo.org> bzip2-1.0.6-r2.ebuild:
--  alpha/ia64/m68k/s390/sh/sparc stable wrt #377315
--
--  21 Aug 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> bzip2-1.0.6-r2.ebuild:
--  x86 stable wrt bug #377315
--
--  14 Aug 2011; Markos Chandras <hwoarang@gentoo.org> bzip2-1.0.6-r2.ebuild:
--  Stable on amd64 wrt bug #377315
--
--  13 Aug 2011; Markus Meier <maekke@gentoo.org> bzip2-1.0.6-r2.ebuild:
--  arm stable, bug #377315
--
--  13 Aug 2011; Kacper Kowalik <xarthisius@gentoo.org> bzip2-1.0.6-r2.ebuild:
--  ppc/ppc64 stable wrt #377315
--
--*bzip2-1.0.6-r3 (12 Aug 2011)
--
--  12 Aug 2011; Mike Frysinger <vapier@gentoo.org> +bzip2-1.0.6-r3.ebuild:
--  Add USE=static-libs support #378211 by Agostino Sarubbo.
--
--*bzip2-1.0.6-r2 (16 May 2011)
--
--  16 May 2011; Mike Frysinger <vapier@gentoo.org> +bzip2-1.0.6-r2.ebuild,
--  +files/bzip2-1.0.6-progress.patch:
--  Update progress patch by Justin Binns for LFS #365639 by Christopher Head.
-+# Copyright 1999-2010 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/ChangeLog,v 1.85 2010/10/09 16:30:07 armin76 Exp $
- 
-   09 Oct 2010; Raúl Porcel <armin76@gentoo.org> bzip2-1.0.6.ebuild:
-   ia64/m68k/s390/sh/sparc stable wrt #338215
-<---8<---
----("app-arch/bzip2/bzip2-1.0.6-r1.ebuild")--->8--->
---- usr/portage/app-arch/bzip2/bzip2-1.0.6-r1.ebuild [[PORTAGE]]
-+++ overlay/app-arch/bzip2/bzip2-1.0.6-r1.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2010 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r1.ebuild,v 1.1 2010/09/23 09:19:49 vapier Exp $
-+# $Header: $
- 
- inherit eutils multilib toolchain-funcs flag-o-matic prefix
- 
-@@ -46,6 +46,10 @@
+----[ "app-arch/bzip2/bzip2-1.0.6-r3.ebuild" ]----->8----->
+--- PORTAGE/app-arch/bzip2/bzip2-1.0.6-r3.ebuild
++++ OVERLAY/app-arch/bzip2/bzip2-1.0.6-r3.ebuild
+@@ -51,6 +51,10 @@
  	elif [[ ${CHOST} == *-interix* ]] ; then
  		sed -i -e 's,-soname,-h,' Makefile-libbz2_so || die "cannot replace -soname with -h"
  		sed -i -e 's,-fpic,,' -e 's,-fPIC,,' Makefile-libbz2_so || die "cannot replace pic options"
@@ -82,7 +13,7 @@
  	fi
  }
  
-@@ -66,16 +70,26 @@
+@@ -71,19 +75,32 @@
  			# do nothing, no shared libraries
  			:
  		;;
@@ -109,91 +40,17 @@
  	dodoc README* CHANGES bzip2.txt manual.*
  
  	if [[ $(get_libname) != ".irrelevant" ]] ; then
-@@ -84,15 +98,22 @@
- 	#  .x.x.x - standard shared lib behavior
- 	#  .x.x   - SONAME some distros use #338321
- 	#  .x     - SONAME Gentoo uses
++	# FIXME: indent++++++++
 +	if [[ ${CHOST} != *-cygwin* ]] ; then
- 	dolib.so libbz2$(get_libname ${PV}) || die
- 	local s
++	# FIXME: indent++++++++
+ 
+ 	# Install the shared lib manually.  We install:
+ 	#  .x.x.x - standard shared lib behavior
+@@ -94,15 +111,19 @@
  	for v in libbz2$(get_libname) libbz2$(get_libname ${PV%%.*}) libbz2$(get_libname ${PV%.*}) ; do
  		dosym libbz2$(get_libname ${PV}) /usr/$(get_libdir)/${v} || die
  	done
-+	fi
-+
- 	gen_usr_ldscript -a bz2
- 
--	if ! use static ; then
-+	if ! use static && [[ ${CHOST} != *-cygwin* ]] ; then
- 		newbin bzip2-shared bzip2 || die
-+	elif ! use static ; then
-+		# cygwin always installs static so fix it
-+		rm "${ED}"/usr/$(get_libdir)/libbz2.a || \
-+			die "expected \"${ED}/usr/$(get_libdir)/libbz2.a\""
- 	fi
- 
- 	fi
-<---8<---
----("app-arch/bzip2/bzip2-1.0.6-r3.ebuild")--->8--->
---- usr/portage/app-arch/bzip2/bzip2-1.0.6-r3.ebuild [[PORTAGE]]
-+++ overlay/app-arch/bzip2/bzip2-1.0.6-r3.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
--# Copyright 1999-2011 Gentoo Foundation
-+# Copyright 1999-2012 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/app-arch/bzip2/bzip2-1.0.6-r3.ebuild,v 1.7 2011/11/02 03:28:17 mattst88 Exp $
-+# $Header: $
- 
- # XXX: atm, libbz2.a is always PIC :(, so it is always built quickly
- #      (since we're building shared libs) ...
-@@ -49,6 +49,10 @@
- 	elif [[ ${CHOST} == *-interix* ]] ; then
- 		sed -i -e 's,-soname,-h,' Makefile-libbz2_so || die "cannot replace -soname with -h"
- 		sed -i -e 's,-fpic,,' -e 's,-fPIC,,' Makefile-libbz2_so || die "cannot replace pic options"
-+	elif [[ ${CHOST} == *-cygwin* ]] ; then
-+		epatch "${FILESDIR}"/${PN}-1.0.6-cygport.patch
-+		cp "${FILESDIR}"/${PN}-1.0.6-Makefile-cygwin Makefile-cygwin
-+		cp "${FILESDIR}"/${PN}-1.0.6-cygwin-libbz2.def.in libbz2.def.in
- 	fi
- }
- 
-@@ -69,16 +73,26 @@
- 			# do nothing, no shared libraries
- 			:
- 		;;
-+		*-cygwin*)
-+			use static && append-flags -static
-+			bemake -f Makefile-cygwin all || die
-+		;;
- 		*)
- 			bemake -f Makefile-libbz2_so all || die
- 		;;
- 	esac
-+	if [[ ${CHOST} != *-cygwin* ]] ; then
- 	use static && append-flags -static
- 	bemake all || die
-+	fi
- }
- 
- src_install() {
-+	if [[ ${CHOST} == *-cygwin* ]] ; then
-+	make DESTDIR="${D}" -f Makefile-cygwin install || die
-+	else
- 	make PREFIX="${D}${EPREFIX}"/usr LIBDIR="$(get_libdir)" install || die
-+	fi
- 	dodoc README* CHANGES bzip2.txt manual.*
- 
- 	if [[ $(get_libname) != ".irrelevant" ]] ; then
-@@ -87,14 +101,18 @@
- 	#  .x.x.x - standard shared lib behavior
- 	#  .x.x   - SONAME some distros use #338321
- 	#  .x     - SONAME Gentoo uses
-+	if [[ ${CHOST} != *-cygwin* ]] ; then
- 	dolib.so libbz2$(get_libname ${PV}) || die
- 	local s
- 	for v in libbz2$(get_libname) libbz2$(get_libname ${PV%%.*}) libbz2$(get_libname ${PV%.*}) ; do
- 		dosym libbz2$(get_libname ${PV}) /usr/$(get_libdir)/${v} || die
- 	done
++	# FIXME: indent--------
 +	fi
 +
  	gen_usr_ldscript -a bz2
@@ -204,7 +61,14 @@
  		newbin bzip2-shared bzip2 || die
  	fi
  	if ! use static-libs ; then
-<---8<---
+ 		rm -f "${ED}"/usr/lib*/libbz2.a || die
+ 	fi
+-
++	# FIXME: indent--------
+ 	fi
+ 
+ 	# move "important" bzip2 binaries to /bin and use the shared libbz2.so
+<-----8<-----
 ===== mutual sub-directory: "app-arch/bzip2/files" =====
 
 *** The following files appear only in the overlay ***
@@ -213,5 +77,5 @@ overlay/app-arch/bzip2/files/bzip2-1.0.6-cygport.patch: unified diff output, ASC
 overlay/app-arch/bzip2/files/bzip2-1.0.6-cygwin-libbz2.def.in: ASCII text, with CRLF line terminators
 
 *** The following files appear only in portage ***
-usr/portage/app-arch/bzip2/bzip2-1.0.5-r1.ebuild: ASCII English text
+usr/portage/app-arch/bzip2/bzip2-1.0.6-r1.ebuild: ASCII English text
 

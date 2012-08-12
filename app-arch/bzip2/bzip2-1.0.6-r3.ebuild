@@ -25,6 +25,8 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-1.0.6-progress.patch
 	epatch "${FILESDIR}"/${PN}-1.0.3-no-test.patch
 	epatch "${FILESDIR}"/${PN}-1.0.4-POSIX-shell.patch #193365
+	epatch "${FILESDIR}"/${PN}-1.0.6-mingw.patch #393573
+
 	epatch "${FILESDIR}"/${PN}-1.0.5-checkenv.patch # for AIX, Darwin?
 	epatch "${FILESDIR}"/${PN}-1.0.4-prefix.patch
 	eprefixify bz{diff,grep,more}
@@ -96,17 +98,20 @@ src_install() {
 	dodoc README* CHANGES bzip2.txt manual.*
 
 	if [[ $(get_libname) != ".irrelevant" ]] ; then
+	# FIXME: indent++++++++
+	if [[ ${CHOST} != *-cygwin* ]] ; then
+	# FIXME: indent++++++++
 
 	# Install the shared lib manually.  We install:
 	#  .x.x.x - standard shared lib behavior
 	#  .x.x   - SONAME some distros use #338321
 	#  .x     - SONAME Gentoo uses
-	if [[ ${CHOST} != *-cygwin* ]] ; then
 	dolib.so libbz2$(get_libname ${PV}) || die
 	local s
 	for v in libbz2$(get_libname) libbz2$(get_libname ${PV%%.*}) libbz2$(get_libname ${PV%.*}) ; do
 		dosym libbz2$(get_libname ${PV}) /usr/$(get_libdir)/${v} || die
 	done
+	# FIXME: indent--------
 	fi
 
 	gen_usr_ldscript -a bz2
@@ -118,7 +123,7 @@ src_install() {
 	if ! use static-libs ; then
 		rm -f "${ED}"/usr/lib*/libbz2.a || die
 	fi
-
+	# FIXME: indent--------
 	fi
 
 	# move "important" bzip2 binaries to /bin and use the shared libbz2.so

@@ -1,6 +1,6 @@
-diff -urN bzip2-1.0.6.orig/bzgrep bzip2-1.0.6/bzgrep
---- bzip2-1.0.6.orig/bzgrep	2012-02-21 01:45:18.985210700 -0800
-+++ bzip2-1.0.6/bzgrep	2012-02-21 01:59:16.632210700 -0800
+diff -u bzip2-1.0.6.orig/bzgrep bzip2-1.0.6/bzgrep
+--- bzip2-1.0.6.orig/bzgrep	2012-08-12 02:54:31.180550000 -0700
++++ bzip2-1.0.6/bzgrep	2012-08-12 03:02:44.750050000 -0700
 @@ -8,20 +8,55 @@
  
  PATH="/g2pfx/usr/bin:$PATH"; export PATH
@@ -138,19 +138,10 @@ diff -urN bzip2-1.0.6.orig/bzgrep bzip2-1.0.6/bzgrep
 +  test $res -lt $r && res=$r
  done
  exit $res
-diff -urN bzip2-1.0.6.orig/bzip2.c bzip2-1.0.6/bzip2.c
---- bzip2-1.0.6.orig/bzip2.c	2012-02-21 01:45:17.618210700 -0800
-+++ bzip2-1.0.6/bzip2.c	2012-02-21 01:47:32.310710700 -0800
-@@ -129,7 +129,7 @@
- #if BZ_LCCWIN32
- #   include <io.h>
- #   include <fcntl.h>
--#   include <sys\stat.h>
-+#   include <sys/stat.h>
- 
- #   define NORETURN       /**/
- #   define PATH_SEP       '\\'
-@@ -1191,8 +1191,8 @@
+diff -u bzip2-1.0.6.orig/bzip2.c bzip2-1.0.6/bzip2.c
+--- bzip2-1.0.6.orig/bzip2.c	2012-08-12 02:54:30.130550000 -0700
++++ bzip2-1.0.6/bzip2.c	2012-08-12 03:02:44.757050000 -0700
+@@ -1187,8 +1187,8 @@
  static 
  void compress ( Char *name )
  {
@@ -161,7 +152,7 @@ diff -urN bzip2-1.0.6.orig/bzip2.c bzip2-1.0.6/bzip2.c
     Int32 n, i;
     struct MY_STAT statBuf;
  
-@@ -1372,8 +1372,8 @@
+@@ -1368,8 +1368,8 @@
  static 
  void uncompress ( Char *name )
  {
@@ -172,7 +163,7 @@ diff -urN bzip2-1.0.6.orig/bzip2.c bzip2-1.0.6/bzip2.c
     Int32 n, i;
     Bool  magicNumberOK;
     Bool  cantGuess;
-@@ -1570,7 +1570,7 @@
+@@ -1566,7 +1566,7 @@
  static 
  void testf ( Char *name )
  {
@@ -181,9 +172,9 @@ diff -urN bzip2-1.0.6.orig/bzip2.c bzip2-1.0.6/bzip2.c
     Bool allOK;
     struct MY_STAT statBuf;
  
-diff -urN bzip2-1.0.6.orig/bzip2recover.c bzip2-1.0.6/bzip2recover.c
+diff -u bzip2-1.0.6.orig/bzip2recover.c bzip2-1.0.6/bzip2recover.c
 --- bzip2-1.0.6.orig/bzip2recover.c	2010-09-10 16:18:40.000000000 -0700
-+++ bzip2-1.0.6/bzip2recover.c	2012-02-21 02:00:07.582710700 -0800
++++ bzip2-1.0.6/bzip2recover.c	2012-08-12 03:02:44.762050000 -0700
 @@ -24,6 +24,8 @@
  #include <errno.h>
  #include <stdlib.h>
@@ -236,9 +227,9 @@ diff -urN bzip2-1.0.6.orig/bzip2recover.c bzip2-1.0.6/bzip2recover.c
           if (outFile == NULL) {
              fprintf ( stderr, "%s: can't write `%s'\n",
                        progName, outFileName );
-diff -urN bzip2-1.0.6.orig/bzlib.c bzip2-1.0.6/bzlib.c
+diff -u bzip2-1.0.6.orig/bzlib.c bzip2-1.0.6/bzlib.c
 --- bzip2-1.0.6.orig/bzlib.c	2010-09-10 15:38:23.000000000 -0700
-+++ bzip2-1.0.6/bzlib.c	2012-02-21 01:47:32.318710700 -0800
++++ bzip2-1.0.6/bzlib.c	2012-08-12 03:02:44.768050000 -0700
 @@ -1372,7 +1372,7 @@
  #ifndef BZ_NO_STDIO
  /*---------------------------------------------------*/
@@ -248,10 +239,10 @@ diff -urN bzip2-1.0.6.orig/bzlib.c bzip2-1.0.6/bzlib.c
  #   include <fcntl.h>
  #   include <io.h>
  #   define SET_BINARY_MODE(file) setmode(fileno(file),O_BINARY)
-diff -urN bzip2-1.0.6.orig/bzlib.h bzip2-1.0.6/bzlib.h
---- bzip2-1.0.6.orig/bzlib.h	2010-09-10 16:08:42.000000000 -0700
-+++ bzip2-1.0.6/bzlib.h	2012-02-21 01:47:32.322210700 -0800
-@@ -75,21 +75,39 @@
+diff -u bzip2-1.0.6.orig/bzlib.h bzip2-1.0.6/bzlib.h
+--- bzip2-1.0.6.orig/bzlib.h	2012-08-12 02:54:30.132550000 -0700
++++ bzip2-1.0.6/bzlib.h	2012-08-12 03:02:12.646050000 -0700
+@@ -75,7 +75,7 @@
  #include <stdio.h>
  #endif
  
@@ -260,7 +251,9 @@ diff -urN bzip2-1.0.6.orig/bzlib.h bzip2-1.0.6/bzlib.h
  #   include <windows.h>
  #   ifdef small
        /* windows.h define small to char */
- #      undef small
+@@ -84,15 +84,33 @@
+ #   ifndef WINAPI
+ #   define WINAPI
  #   endif
 -#   ifdef BZ_EXPORT
 -#   define BZ_API(func) WINAPI func
@@ -298,9 +291,9 @@ diff -urN bzip2-1.0.6.orig/bzlib.h bzip2-1.0.6/bzlib.h
  #   define BZ_API(func) func
  #   define BZ_EXTERN extern
  #endif
-diff -urN bzip2-1.0.6.orig/bzmore bzip2-1.0.6/bzmore
---- bzip2-1.0.6.orig/bzmore	2012-02-21 01:45:19.048210700 -0800
-+++ bzip2-1.0.6/bzmore	2012-02-21 01:47:32.325210700 -0800
+diff -u bzip2-1.0.6.orig/bzmore bzip2-1.0.6/bzmore
+--- bzip2-1.0.6.orig/bzmore	2012-08-12 02:54:31.259550000 -0700
++++ bzip2-1.0.6/bzmore	2012-08-12 03:02:44.771050000 -0700
 @@ -24,10 +24,10 @@
    # 'stty min 1' resets eof to ^a on both SunOS and SysV!
    cb='min 1 -icanon'; ncb='icanon eof ^d'

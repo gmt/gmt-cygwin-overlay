@@ -8,7 +8,8 @@
 # pulled in via a sync.  "package.mask" entries masking
 # the entire package exist, and here we unmask only the
 # specific versions for which we have ebuilds.  These
-# must be kept in sync (and preferably alphabetical)!!
+# must be kept in sync (and alphabetical)!!
+=app-arch/bzip2-1.0.6-r3
 =sys-libs/ncurses-5.9-r1
 =sys-libs/ncurses-5.9-r2
 =sys-libs/zlib-1.2.5-r2

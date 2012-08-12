@@ -9,6 +9,7 @@
 # each of these must be maintained to be in sync with
 # what is actually provided by the overlay, or else
 # the package would simply be globally masked, which is
-# not the idea behind these entries.
-sys-libs/zlib
+# not the idea behind these entries.  Please alphabetize!
+app-arch/bzip2
 sys-libs/ncurses
+sys-libs/zlib

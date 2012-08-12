@@ -77,7 +77,7 @@ LIBNAME    =    libbz2
 
 # Shell used by make...
 #
-SHELL	   =	$(BASH)
+SHELL	   =	/bin/bash
 
 # Where to find the sources...
 #
