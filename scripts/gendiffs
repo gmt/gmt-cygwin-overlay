@@ -206,16 +206,6 @@ only_in_portage() {
 	return 0
 }
 
-raw_files_equal() {
-	local file1="${1}"
-	local file2="${2}"
-	if [[ "$(< "${file1}" )" == "$(< "${file2}" )" ]] ; then
-		return 0
-	else
-		return 1
-	fi
-}
-
 is_probably_binary() {
 	local file="${1}"
 	file -bi "$file" | egrep "charset=binary$" && {
@@ -224,6 +214,30 @@ is_probably_binary() {
 	}
 	echo "no"
 	return 1
+}
+
+cook_portage_file() {
+	local file="$*"
+	if [[ $( is_probably_binary "${file}" ) == no ]] ; then
+		# Make all "# $Header:" lines look like "# $Header: $" coming from portage.
+		# this will ensure that correctly blanked out header lines in the overlay
+		# are correctly ignored in gendiffs, whereas any header lines in the overlay
+		# which incorrectly contain cvs-generated cruft will generate diff-hunks
+		# which could also pseudo-conveniently could be reversed to fix the problem
+		cat "${file}" | sed 's/^# \$Header:.*$/# $Header: $/'
+	else
+		cat "${file}"
+	fi
+}
+
+raw_files_equal() {
+	local file1="$( cook_portage_file ${1} )"
+	local file2="$(< "${2}" )"
+	if [[ "${file1}" == "${file2}" ]] ; then
+		return 0
+	else
+		return 1
+	fi
 }
 
 compare_regular_file() {
@@ -235,7 +249,7 @@ compare_regular_file() {
 	# ignore cygwin coredumpish thingys
 	[[ $file == *.exe.stackdump ]] && return 0
 	# if the files have the exact same contents then we just do nothing
-	raw_files_equal "${_overlay}/${file}" "${_portage}/${file}" && return 0
+	raw_files_equal "${_portage}/${file}" "${_overlay}/${file}" && return 0
 	# the files differ.
 	local ovl_is_binary="$( is_probably_binary "${_overlay}/${file}" )"
 	local prt_is_binary="$( is_probably_binary "${_portage}/${file}" )"
@@ -251,24 +265,23 @@ compare_regular_file() {
 		if echo "$file" | egrep "\.(patch|diff)$" > /dev/null ; then
 			echo "WARNING: ${file}: differing patch files considered harmful!" | tee -a "${gendiffs_outfile}"
 		fi
-		echo "----(\"${file}\")----->8----->" >> "${gendiffs_outfile}"
-		(
-			cd "$gendiffs_eprefix" || { echo "Couldn't cd to \"${gendiffs_eprefix}\"" >&2 ; exit 1 ; }
-			local diffresult="$( diff -U 3 -w -B \
-				"${gendiffs_portage_tree}/${file}" \
-				"${gendiffs_overlay}/${file}" )"
-			if (( $( echo "${diffresult}" | wc -l ) < 5 )) ; then
-				echo '!!!!! WARNING: pathological diffresult !!!!!' | tee -a "${gendiffs_outfile}" >&2
-				echo "pathological diffresult was:" >&2
-				echo "${diffresult}" >&2
-			fi
-			local header1="$( echo "${diffresult}" | head -n 1 | sed -e 's/[[:space:]]*[[:digit:]-]\{10\} [[:digit:].:]\{18\} -[[:digit:]]\{4\}$//') [[PORTAGE]]"
-			local header2="$( echo "${diffresult}" | head -n 2 | tail -n 1 | sed -e 's/[[:space:]]*[[:digit:]-]\{10\} [[:digit:].:]\{18\} -[[:digit:]]\{4\}$//') [[OVERLAY]]"
-			local body="$( echo "${diffresult}" | tail -n +3 )"
-			echo "${header1}"
-			echo "${header2}"
-			echo "${body}"
-		) >> "${gendiffs_outfile}"
+		echo "----[ \"${file}\" ]----->8----->" >> "${gendiffs_outfile}"
+		local diffresult="$( diff -U 3 -w -B \
+			<( cook_portage_file "${_portage}/${file}" ) \
+			"${_overlay}/${file}"
+		)"
+		if (( $( echo "${diffresult}" | wc -l ) < 5 )) ; then
+			echo '!!!!! WARNING: pathological diffresult !!!!!' | tee -a "${gendiffs_outfile}" >&2
+			echo "  pathological diffresult was:" >&2
+			echo "\"${diffresult}\"" >&2
+			echo "  file generating pathological result was: \"${file}\"" >&2
+		fi
+		local header1="--- PORTAGE/${file}"
+		local header2="+++ OVERLAY/${file}"
+		local body="$( echo "${diffresult}" | tail -n +3 )"
+		echo "${header1}" >> "${gendiffs_outfile}"
+		echo "${header2}" >> "${gendiffs_outfile}"
+		echo "${body}" >> "${gendiffs_outfile}"
 		echo "<-----8<-----" >> "${gendiffs_outfile}"
 	fi
 	return 0
