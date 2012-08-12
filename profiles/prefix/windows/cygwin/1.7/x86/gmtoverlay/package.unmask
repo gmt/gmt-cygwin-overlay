@@ -8,7 +8,9 @@
 # pulled in via a sync.  "package.mask" entries masking
 # the entire package exist, and here we unmask only the
 # specific versions for which we have ebuilds.  These
-# must be kept in sync!!!
+# must be kept in sync (and preferably alphabetical)!!
+=sys-libs/ncurses-5.9-r1
+=sys-libs/ncurses-5.9-r2
 =sys-libs/zlib-1.2.5-r2
 =sys-libs/zlib-1.2.5.1-r2
 =sys-libs/zlib-1.2.7

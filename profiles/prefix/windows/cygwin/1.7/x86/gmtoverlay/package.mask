@@ -11,3 +11,4 @@
 # the package would simply be globally masked, which is
 # not the idea behind these entries.
 sys-libs/zlib
+sys-libs/ncurses
