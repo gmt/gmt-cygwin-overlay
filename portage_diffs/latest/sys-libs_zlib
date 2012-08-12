@@ -1,18 +1,17 @@
 ===== mutual sub-directory: "sys-libs/zlib" =====
----("sys-libs/zlib/ChangeLog")--->8--->
---- usr/portage/sys-libs/zlib/ChangeLog [[PORTAGE]]
-+++ overlay/sys-libs/zlib/ChangeLog [[OVERLAY]]
-@@ -1,6 +1,9 @@
- # ChangeLog for sys-libs/zlib
+----[ "sys-libs/zlib/ChangeLog" ]----->8----->
+--- PORTAGE/sys-libs/zlib/ChangeLog
++++ OVERLAY/sys-libs/zlib/ChangeLog
+@@ -2,6 +2,9 @@
  # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/ChangeLog,v 1.108 2012/05/26 10:11:59 maekke Exp $
-+# $Header: $
-+
+ # $Header: $
+ 
 +  11 Aug 2012; Greg Turner <gmturner007@ameritech.net> zlib-1.2.7.ebuild:
 +  Version bump for cygwin patches
- 
++
    05 Jun 2012; Fabian Groffen <grobian@gentoo.org> zlib-1.2.7.ebuild:
    Add missing colon, thanks Richard Freeman in bug #419499
+ 
 @@ -42,6 +45,9 @@
    01 May 2012; Jeroen Roovers <jer@gentoo.org> zlib-1.2.5.1-r2.ebuild:
    Stable for HPPA (bug #384483).
@@ -23,10 +22,10 @@
    26 Apr 2012; Alexis Ballier <aballier@gentoo.org> zlib-1.2.6.ebuild:
    keyword ~amd64-fbsd
  
-<---8<---
----("sys-libs/zlib/zlib-1.2.5-r2.ebuild")--->8--->
---- usr/portage/sys-libs/zlib/zlib-1.2.5-r2.ebuild [[PORTAGE]]
-+++ overlay/sys-libs/zlib/zlib-1.2.5-r2.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-libs/zlib/zlib-1.2.5-r2.ebuild" ]----->8----->
+--- PORTAGE/sys-libs/zlib/zlib-1.2.5-r2.ebuild
++++ OVERLAY/sys-libs/zlib/zlib-1.2.5-r2.ebuild
 @@ -42,6 +42,8 @@
  #	epatch "${FILESDIR}"/${PN}-1.2.3-shlib-aix.patch
  	# patch breaks shared libs installation
@@ -53,18 +52,10 @@
  	*)	# not an autoconf script, so can't use econf
  		CC=$(tc-getCC) ./configure --shared --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
  		emake || die
-<---8<---
----("sys-libs/zlib/zlib-1.2.5.1-r2.ebuild")--->8--->
---- usr/portage/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild [[PORTAGE]]
-+++ overlay/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2012 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild,v 1.10 2012/05/26 10:11:59 maekke Exp $
-+# $Header: $
- 
- AUTOTOOLS_AUTO_DEPEND="no"
- inherit autotools eutils toolchain-funcs
+<-----8<-----
+----[ "sys-libs/zlib/zlib-1.2.5.1-r2.ebuild" ]----->8----->
+--- PORTAGE/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild
++++ OVERLAY/sys-libs/zlib/zlib-1.2.5.1-r2.ebuild
 @@ -38,6 +38,9 @@
  
  	epatch "${FILESDIR}"/${P}-aix-soname.patch #213277
@@ -106,18 +97,10 @@
 +		fi
 +	}
  }
-<---8<---
----("sys-libs/zlib/zlib-1.2.7.ebuild")--->8--->
---- usr/portage/sys-libs/zlib/zlib-1.2.7.ebuild [[PORTAGE]]
-+++ overlay/sys-libs/zlib/zlib-1.2.7.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2012 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/zlib-1.2.7.ebuild,v 1.2 2012/05/03 19:08:41 vapier Exp $
-+# $Header: $
- 
- AUTOTOOLS_AUTO_DEPEND="no"
- inherit autotools toolchain-funcs eutils
+<-----8<-----
+----[ "sys-libs/zlib/zlib-1.2.7.ebuild" ]----->8----->
+--- PORTAGE/sys-libs/zlib/zlib-1.2.7.ebuild
++++ OVERLAY/sys-libs/zlib/zlib-1.2.7.ebuild
 @@ -23,6 +23,12 @@
  	unpack ${A}
  	cd "${S}"
@@ -162,7 +145,7 @@
 +		fi
 +	}
  }
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "sys-libs/zlib/files" =====
 
 *** The following files appear only in the overlay ***
