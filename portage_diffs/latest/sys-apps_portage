@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "sys-apps/portage" =====
----("sys-apps/portage/ChangeLog")--->8--->
---- usr/portage/sys-apps/portage/ChangeLog [[PORTAGE]]
-+++ overlay/sys-apps/portage/ChangeLog [[OVERLAY]]
+----[ "sys-apps/portage/ChangeLog" ]----->8----->
+--- PORTAGE/sys-apps/portage/ChangeLog
++++ OVERLAY/sys-apps/portage/ChangeLog
 @@ -1,38 +1,15 @@
  # ChangeLog for sys-apps/portage
  # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
@@ -49,10 +49,10 @@
  
    01 Mar 2012; Fabian Groffen <grobian@gentoo.org> +portage-2.2.01.20271.ebuild,
    -portage-2.2.01.20062.ebuild, files/portage-2.2.01.20239-ebuildshell.patch:
-<---8<---
----("sys-apps/portage/metadata.xml")--->8--->
---- usr/portage/sys-apps/portage/metadata.xml [[PORTAGE]]
-+++ overlay/sys-apps/portage/metadata.xml [[OVERLAY]]
+<-----8<-----
+----[ "sys-apps/portage/metadata.xml" ]----->8----->
+--- PORTAGE/sys-apps/portage/metadata.xml
++++ OVERLAY/sys-apps/portage/metadata.xml
 @@ -9,5 +9,6 @@
  		<flag name="ipc">Use inter-process communication between portage and running ebuilds.</flag>
  		<flag name="less">Pull in sys-apps/less as default pager for etc-update.</flag>
@@ -60,10 +60,10 @@
 +		<flag name="cygdll-protect">Apply experimental cygdll-protect portage patch for stable emerges in cygwin</flag>
  	</use>
  </pkgmetadata>
-<---8<---
----("sys-apps/portage/portage-2.2.01.20796.ebuild")--->8--->
---- usr/portage/sys-apps/portage/portage-2.2.01.20796.ebuild [[PORTAGE]]
-+++ overlay/sys-apps/portage/portage-2.2.01.20796.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-apps/portage/portage-2.2.01.20796.ebuild" ]----->8----->
+--- PORTAGE/sys-apps/portage/portage-2.2.01.20796.ebuild
++++ OVERLAY/sys-apps/portage/portage-2.2.01.20796.ebuild
 @@ -1,6 +1,6 @@
  # Copyright 1999-2012 Gentoo Foundation
  # Distributed under the terms of the GNU General Public License v2
@@ -112,7 +112,7 @@
  }
  
  src_configure() {
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "sys-apps/portage/files" =====
 
 *** The following files appear only in the overlay ***

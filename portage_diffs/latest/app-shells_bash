@@ -1,11 +1,11 @@
 ===== mutual sub-directory: "app-shells/bash" =====
----("app-shells/bash/ChangeLog")--->8--->
---- usr/portage/app-shells/bash/ChangeLog [[PORTAGE]]
-+++ overlay/app-shells/bash/ChangeLog [[OVERLAY]]
+----[ "app-shells/bash/ChangeLog" ]----->8----->
+--- PORTAGE/app-shells/bash/ChangeLog
++++ OVERLAY/app-shells/bash/ChangeLog
 @@ -1,108 +1,6 @@
  # ChangeLog for app-shells/bash
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/ChangeLog,v 1.314 2012/07/11 13:18:32 vapier Exp $
+-# $Header: $
 -
 -*bash-4.2_p36 (11 Jul 2012)
 -
@@ -113,18 +113,10 @@
  
    16 May 2011; Tristan Heaven <nyhm@gentoo.org> bash-3.2_p51.ebuild,
    bash-4.0_p38.ebuild, bash-4.1_p7.ebuild, bash-4.1_p9.ebuild,
-<---8<---
----("app-shells/bash/bash-4.2_p10.ebuild")--->8--->
---- usr/portage/app-shells/bash/bash-4.2_p10.ebuild [[PORTAGE]]
-+++ overlay/app-shells/bash/bash-4.2_p10.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2012 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p10.ebuild,v 1.6 2012/05/23 01:13:17 zmedico Exp $
-+# $Header: $
- 
- EAPI="1"
- 
+<-----8<-----
+----[ "app-shells/bash/bash-4.2_p10.ebuild" ]----->8----->
+--- PORTAGE/app-shells/bash/bash-4.2_p10.ebuild
++++ OVERLAY/app-shells/bash/bash-4.2_p10.ebuild
 @@ -44,7 +44,7 @@
  DEPEND=">=sys-libs/ncurses-5.2-r2
  	nls? ( virtual/libintl )"
@@ -159,18 +151,10 @@
  	# Always use the buildin readline, else if we update readline
  	# bash gets borked as readline is usually not binary compadible
  	# between minor versions.
-<---8<---
----("app-shells/bash/bash-4.2_p36.ebuild")--->8--->
---- usr/portage/app-shells/bash/bash-4.2_p36.ebuild [[PORTAGE]]
-+++ overlay/app-shells/bash/bash-4.2_p36.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2012 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/bash-4.2_p36.ebuild,v 1.1 2012/07/11 13:18:32 vapier Exp $
-+# $Header: $
- 
- EAPI="1"
- 
+<-----8<-----
+----[ "app-shells/bash/bash-4.2_p36.ebuild" ]----->8----->
+--- PORTAGE/app-shells/bash/bash-4.2_p36.ebuild
++++ OVERLAY/app-shells/bash/bash-4.2_p36.ebuild
 @@ -91,6 +91,11 @@
  		epatch "${FILESDIR}"/${PN}-4.0-interix-x64.patch
  	fi
@@ -197,7 +181,7 @@
  	# Historically, we always used the builtin readline, but since
  	# our handling of SONAME upgrades has gotten much more stable
  	# in the PM (and the readline ebuild itself preserves the old
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "app-shells/bash/files" =====
 
 *** The following files appear only in the overlay ***
