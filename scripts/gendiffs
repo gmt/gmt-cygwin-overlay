@@ -7,7 +7,8 @@ if [[ "$GENDIFFS_DEBUG" ]] ; then
 	source /usr/share/bashdb/bashdb-trace --
 fi
 
-gendiffs_eprefix=${EPREFIX:-/g2pfx}
+gendiffs_eprefix=${EPREFIX:-$(portageq envvar EPREFIX)}
+gendiffs_eprefix=/${gendiffs_eprefix#/}
 
 # FIXME: big ugly assumption: overlay is a subdirectory of EPREFIX and so is portage
 gendiffs_portage_tree=usr/portage
@@ -54,23 +55,43 @@ only_in_overlay_output=
 only_in_portage_output=
 
 usage() {
-	echo "${0}: [-c|--clean] [-h|--help]"
+	echo "${0}: [-c|--clean] [-h|--help] [ filepath ]"
 	echo
 	echo "--clean: remove all backups before creating the new one"
 	echo "         unless the environment variable \"KEEP2\" is"
 	echo "         exported and nonempty in which case all but the"
 	echo "         two most recent backups are wiped."
 	echo
+	echo "filepath: if provided, only files under this path will be"
+	echo "          considered.  For example: 'sys-apps/portage'."
+	echo "          Incompatible with the -c/--clean option."
 }
 
-if [[ $1 == -h || $1 == --help || $2 == -h || $2 == --help ]] ; then
+if [[ $1 == -h || $1 == --help || $2 == -h || $2 == --help || $3 == -h || $3 == --help ]] ; then
 	usage
 	exit 0
 fi
 
+limiting_filepath=
+for arg in "$@" ; do
+	if [[ $arg != -h && $arg != --help && arg != -c && arg != --clean ]] ; then
+		limiting_filepath="${arg}"
+		if echo "${limiting_filepath}" | grep -s '/.*/.' ; then
+			echo "limiting_filepath \"${limiting_filepath}\" is too deep, shorten it!" >&2
+			exit 1
+		fi
+	fi
+done
+
+limiting_filepath=${limiting_filepath%/}
+
 mkdir -p "${_portage_diffs}" || { echo "Couldn't create \"${_portage_diffs}\" directory" >&2 ; exit 1 ; }
 cd "${_portage_diffs}" || { echo "Couldn't enter \"${_portage_diffs}\"" >&2 ; exit 1 ; }
-if [[ $1 == -c || $1 == --clean ]] ; then
+if [[ $1 == -c || $1 == --clean || $2 == -c || $2 == --clean ]] ; then
+	if [[ -n ${limiting_filepath} ]] ; then
+		echo "ERROR: cannot clean and provide a limiting filepath at the same time!" >&2
+		exit 1
+	fi
 	if [[ "$KEEP2" && -d latest ]] ; then
 		[[ -f latest/datetimestamp ]] || { echo "Can't find datetimestamp file in latest backup." >&2 ; exit 1 ; }
 		[[ -d "$(< latest/datetimestamp)" ]] && { echo "Can't rename 'latest' to '$(< latest/datetimestamp)' because already exists." >&2 ; exit 1 ; }
@@ -98,18 +119,29 @@ if [[ $1 == -c || $1 == --clean ]] ; then
 	else
 		echo "Nothing to clean!" >&2
 	fi
-else
+elif [[ -z ${limiting_filepath} ]] ; then
 	if [[ -d ${gendiffs_outdir} ]] ; then
 		[[ -f latest/datetimestamp ]] || { echo "Can't find datetimestamp file in latest backup." >&2 ; exit 1 ; }
 		[[ -d "$(< latest/datetimestamp)" ]] && { echo "Can't rename 'latest' to '$(< latest/datetimestamp)' because already exists." >&2 ; exit 1 ; }
 		echo "NOTE: renaming 'latest' directory to '$(< latest/datetimestamp)'"
 		mv latest "$(< latest/datetimestamp)"
 	fi
+else
+	if [[ -d "${gendiffs_outdir}" ]] ; then
+		for f in $( cd "${gendiffs_outdir}" ; ls ) ; do
+			limitoid=$( echo $f | sed 's|_|/|' )
+			if [[ ${limiting_filepath} == ${limitoid} || ${limiting_filepath} == ${limitoid}/* ]] ; then
+				rm -v "${gendiffs_outdir}"/$f
+			fi
+		done
+	fi
 fi
 
-echo "Creating \"${gendiffs_outdir}\""
+if [[ -z ${limiting_filepath} ]] ; then
+	echo "Creating \"${gendiffs_outdir}\""
+	mkdir -p ${gendiffs_outdir} || { echo "Couldn't create \"${gendiffs_outdir}\"" >&2 ;  exit 1 ; }
+fi
 
-mkdir -p ${gendiffs_outdir} || { echo "Couldn't create \"${gendiffs_outdir}\"" >&2 ;  exit 1 ; }
 echo "${gendiffs_datetime}" > "${gendiffs_outdir}/datetimestamp" || { echo "WTF???" >&2 ; exit 1 ; }
 
 echo '** processing overlay directories **'
@@ -117,9 +149,18 @@ echo '** processing overlay directories **'
 dirs=( )
 while read dir ; do
 	dirs[${#dirs[*]}]="${dir}"
-done < <( cd ${_overlay} ; find . -maxdepth 2 \( -name '.git' -prune \) -o \( -type d -regextype posix-extended \
-	  -regex '\./([[:alnum:]_]*-[[:alnum:]_]*/[^/]*|eclass)' -print \) | \
-	  sed 's/^..//' )
+done < <(
+	cd ${_overlay}
+	find . -maxdepth 2 \( -name '.git' -prune \) -o \( -type d -regextype posix-extended \
+		-regex '\./([[:alnum:]_]*-[[:alnum:]_]*/[^/]*|eclass)' -print \) | \
+			sed 's/^..//' | (
+				if [[ -z ${limiting_filepath} ]] ; then
+					tee /dev/null
+				else
+					grep "^${limiting_filepath}"
+				fi
+			)
+	)
 
 my_file() {
 	local old_pwd="$(pwd)"
