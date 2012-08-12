@@ -1,0 +1,32 @@
+diff -urN zlib-1.2.7.orig/Makefile.in zlib-1.2.7/Makefile.in
+--- zlib-1.2.7.orig/Makefile.in	2012-08-11 17:36:57.348800000 -0700
++++ zlib-1.2.7/Makefile.in	2012-08-11 17:37:52.238800000 -0700
+@@ -167,22 +167,22 @@
+ 	$(SHAREDLIBPOST)
+ 	-@rmdir objs
+ 
+-example$(EXE): example.o $(STATICLIB)
++example$(EXE): example.o $(STATICLIB) $(SHAREDTARGET)
+ 	$(CC) $(CFLAGS) -o $@ example.o $(TEST_LDFLAGS)
+ 
+-minigzip$(EXE): minigzip.o $(STATICLIB)
++minigzip$(EXE): minigzip.o $(STATICLIB) $(SHAREDTARGET)
+ 	$(CC) $(CFLAGS) -o $@ minigzip.o $(TEST_LDFLAGS)
+ 
+-examplesh$(EXE): example.o $(SHAREDTARGET)
++examplesh$(EXE): example.o $(SHAREDTARGET) $(SHAREDTARGET)
+ 	$(CC) $(CFLAGS) -o $@ example.o -L. $(SHAREDTARGET)
+ 
+-minigzipsh$(EXE): minigzip.o $(SHAREDLIBTARGET)
++minigzipsh$(EXE): minigzip.o $(SHAREDLIBTARGET) $(SHAREDTARGET)
+ 	$(CC) $(CFLAGS) -o $@ minigzip.o -L. $(SHAREDTARGET)
+ 
+-example64$(EXE): example64.o $(STATICLIB)
++example64$(EXE): example64.o $(STATICLIB) $(SHAREDTARGET)
+ 	$(CC) $(CFLAGS) -o $@ example64.o $(TEST_LDFLAGS)
+ 
+-minigzip64$(EXE): minigzip64.o $(STATICLIB)
++minigzip64$(EXE): minigzip64.o $(STATICLIB) $(SHAREDTARGET)
+ 	$(CC) $(CFLAGS) -o $@ minigzip64.o $(TEST_LDFLAGS)
+ 
+ install-libs: $(LIBS)

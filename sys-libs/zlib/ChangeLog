@@ -1,9 +1,60 @@
 # ChangeLog for sys-libs/zlib
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-libs/zlib/ChangeLog,v 1.97 2011/09/23 17:52:32 jlec Exp $
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
 
-  08 Mar 2012; Greg Turner <gmt@malth.us> zlib-1.2.5.1-r2.ebuild:
-  apply cygport patches on cygwin.
+  11 Aug 2012; Greg Turner <gmturner007@ameritech.net> zlib-1.2.7.ebuild:
+  Version bump for cygwin patches
+
+  05 Jun 2012; Fabian Groffen <grobian@gentoo.org> zlib-1.2.7.ebuild:
+  Add missing colon, thanks Richard Freeman in bug #419499
+
+  04 Jun 2012; Fabian Groffen <grobian@gentoo.org> zlib-1.2.7.ebuild:
+  Fix compilation on Darwin <10.7 by using Prefix libtool (which matches ld),
+  bug #419499
+
+  29 May 2012; Fabian Groffen <grobian@gentoo.org> zlib-1.2.7.ebuild:
+  Add missing inherit eutils, bug #418105
+
+  26 May 2012; Markus Meier <maekke@gentoo.org> zlib-1.2.5.1-r2.ebuild:
+  arm stable, bug #384483
+
+  24 May 2012; Matt Turner <mattst88@gentoo.org> zlib-1.2.5.1-r2.ebuild:
+  Stable on alpha, bug 384483.
+
+  22 May 2012; Jeff Horelick <jdhore@gentoo.org> zlib-1.2.5.1-r2.ebuild:
+  marked x86 per bug 384483
+
+  20 May 2012; Agostino Sarubbo <ago@gentoo.org> zlib-1.2.5.1-r2.ebuild:
+  Stable for amd64, wrt bug #384483
+
+  19 May 2012; Samuli Suominen <ssuominen@gentoo.org> zlib-1.2.5.1-r2.ebuild:
+  ppc64 stable wrt #384483
+
+  06 May 2012; Brent Baude <ranger@gentoo.org> zlib-1.2.5.1-r2.ebuild:
+  Marking zlib-1.2.5.1-r2 ppc for bug 384483
+
+  03 May 2012; Mike Frysinger <vapier@gentoo.org> zlib-1.2.6.ebuild,
+  zlib-1.2.7.ebuild:
+  Fix by jk3064 for mingw headers #409801.
+
+*zlib-1.2.7 (03 May 2012)
+
+  03 May 2012; Mike Frysinger <vapier@gentoo.org> +zlib-1.2.7.ebuild:
+  Version bump #414453 by Samuli Suominen.
+
+  01 May 2012; Jeroen Roovers <jer@gentoo.org> zlib-1.2.5.1-r2.ebuild:
+  Stable for HPPA (bug #384483).
+
+  08 Mar 2012; Greg Turner <gmturner007@ameritech.net> zlib-1.2.5.1-r2.ebuild:
+  apply cygport patches on cygwin
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> zlib-1.2.6.ebuild:
+  keyword ~amd64-fbsd
+
+*zlib-1.2.6 (30 Jan 2012)
+
+  30 Jan 2012; Mike Frysinger <vapier@gentoo.org> +zlib-1.2.6.ebuild:
+  Version bump.
 
   14 Dec 2011; Fabian Groffen <grobian@gentoo.org> zlib-1.2.5.1-r2.ebuild:
   Make sure we restore the working directory after minizip patching not to break

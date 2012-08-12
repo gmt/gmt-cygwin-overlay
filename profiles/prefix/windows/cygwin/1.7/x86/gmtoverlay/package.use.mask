@@ -1,0 +1,6 @@
+# Copyright 2012 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+# previous versions of the overlay's zlib don't support minizip
+<sys-libs/zlib-1.2.7 -minizip

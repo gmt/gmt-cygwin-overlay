@@ -1,0 +1,13 @@
+# Copyright 1999-2011 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+# $Header: $
+
+# "must-overlay" dept.: These are here to make sure that
+# only the overlay ebuilds are used for packages which
+# contain essential patches, even if new versions get
+# pulled in via a sync.  "package.unmask" entries for
+# each of these must be maintained to be in sync with
+# what is actually provided by the overlay, or else
+# the package would simply be globally masked, which is
+# not the idea behind these entries.
+sys-libs/zlib

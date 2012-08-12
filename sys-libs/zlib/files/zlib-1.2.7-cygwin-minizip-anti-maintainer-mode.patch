@@ -1,0 +1,11 @@
+diff -urN zlib-1.2.7.orig/contrib/minizip/configure.ac zlib-1.2.7/contrib/minizip/configure.ac
+--- zlib-1.2.7.orig/contrib/minizip/configure.ac	2012-03-26 20:17:41.000000000 -0700
++++ zlib-1.2.7/contrib/minizip/configure.ac	2012-08-11 18:09:20.681800000 -0700
+@@ -4,6 +4,7 @@
+ AC_INIT([minizip], [1.2.7], [bugzilla.redhat.com])
+ AC_CONFIG_SRCDIR([minizip.c])
+ AM_INIT_AUTOMAKE([foreign])
++AM_MAINTAINER_MODE([disable])
+ LT_INIT
+ 
+ AC_MSG_CHECKING([whether to build example programs])
