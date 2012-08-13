@@ -495,7 +495,7 @@ cyg_rebase-portage-destdir() {
 
 # move any '{/usr,}/bin' to the end of PATH
 cyg_path-fix() {
-	[[ ${CYG_DONT_FIX_PATH:-0} == 0 ]] || return 0
+	[[ ${CYG_DONT_FIX_PATH:-1} == 0 ]] || return 0
 	local IFS_set=${IFS+yes}
 	local old_IFS="${IFS}"
 	local got_bin=
