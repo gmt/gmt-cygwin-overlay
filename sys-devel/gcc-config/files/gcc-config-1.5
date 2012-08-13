@@ -9,7 +9,7 @@
 
 : ${ROOT:=/}
 [[ ${ROOT} != */ ]] && ROOT="${ROOT}/"
-[[ ${ROOT} != /* ]] && ROOT="${PWD}${ROOT}"
+[[ ${ROOT} != /* ]] && ROOT="${PWD}/${ROOT}"
 EPREFIX="@GENTOO_PORTAGE_EPREFIX@"
 
 # really shouldn't be so, but just in case

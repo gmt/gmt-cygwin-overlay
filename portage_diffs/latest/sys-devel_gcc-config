@@ -701,7 +701,7 @@
  #  config-TARGET:	CURRENT=version for TARGET
 @@ -11,6 +11,10 @@
  [[ ${ROOT} != */ ]] && ROOT="${ROOT}/"
- [[ ${ROOT} != /* ]] && ROOT="${PWD}${ROOT}"
+ [[ ${ROOT} != /* ]] && ROOT="${PWD}/${ROOT}"
  EPREFIX="@GENTOO_PORTAGE_EPREFIX@"
 +
 +# really shouldn't be so, but just in case
