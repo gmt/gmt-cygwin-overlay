@@ -12,6 +12,7 @@
 # not the idea behind these entries.  Please alphabetize!
 app-arch/bzip2
 sys-apps/coreutils
+sys-devel/binutils-config
 sys-devel/gcc-config
 sys-devel/gnuconfig
 sys-libs/ncurses

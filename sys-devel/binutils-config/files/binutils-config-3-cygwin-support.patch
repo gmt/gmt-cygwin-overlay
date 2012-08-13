@@ -1,0 +1,15 @@
+sys-devel/binutils-config: Add cygwin support to create-ldwrapper
+
+diff -urN a/ld/create-ldwrapper.in b/ld/create-ldwrapper.in
+--- a/ld/create-ldwrapper.in	2012-02-22 11:34:42.000000000 -0800
++++ b/ld/create-ldwrapper.in	2012-08-13 14:34:39.844350000 -0700
+@@ -61,7 +61,8 @@
+ 		*-hpux*) plugins="${plugins}${plugins:+,}hpux" ;;
+ 		*-solaris*:yes) plugins="${plugins}${plugins:+,}solaris" ;;
+ 		*-solaris*) plugins="${plugins}${plugins:+,}gnu" ;;
+-		*-linux* | *-interix* | *-mint* | *-freebsd* | *-netbsd* | *-openbsd*) plugins="${plugins}${plugins:+,}gnu" ;;
++		*-linux*|*-interix*|*-mint*|*-freebsd*|*-netbsd*|*-openbsd*|*-cygwin*)
++			plugins="${plugins}${plugins:+,}gnu" ;;
+ 		*)	echo "unknown platform ${CTARGET}" >&2
+ 			exit 1
+ 			;;

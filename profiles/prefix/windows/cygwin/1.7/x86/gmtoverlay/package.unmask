@@ -13,6 +13,7 @@
 =sys-apps/coreutils-8.14
 =sys-apps/coreutils-8.15
 =sys-apps/coreutils-8.17
+=sys-devel/binutils-config-3-r3
 =sys-devel/gcc-config-1.4.1-r00.2
 =sys-devel/gcc-config-1.5-r2
 =sys-devel/gnuconfig-20110814
