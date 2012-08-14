@@ -1,0 +1,36 @@
+===== mutual sub-directory: "sys-devel/patch" =====
+----[ "sys-devel/patch/ChangeLog" ]----->8----->
+--- PORTAGE/sys-devel/patch/ChangeLog
++++ OVERLAY/sys-devel/patch/ChangeLog
+@@ -2,6 +2,10 @@
+ # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+ # $Header: $
+ 
++  13 Aug 2012; Greg Turner <gmturner007@ameritech.net> patch-2.6.1.ebuild,
++  +files/patch-2.6.1-cygwin-setmode.patch:
++  In cygwin setmode() needs io.h, add to src/pch.c
++
+   26 Apr 2012; Alexis Ballier <aballier@gentoo.org> patch-2.6.1.ebuild:
+   keyword ~amd64-fbsd
+ 
+<-----8<-----
+----[ "sys-devel/patch/patch-2.6.1.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/patch/patch-2.6.1.ebuild
++++ OVERLAY/sys-devel/patch/patch-2.6.1.ebuild
+@@ -28,6 +28,7 @@
+ 
+ 	epatch "${FILESDIR}"/${P}-interix-nomultibyte.patch
+ 	epatch "${FILESDIR}"/${P}-mint.patch # applies on top of interix patch
++	epatch "${FILESDIR}"/${PN}-2.6.1-cygwin-setmode.patch
+ }
+ 
+ src_compile() {
+<-----8<-----
+===== mutual sub-directory: "sys-devel/patch/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/sys-devel/patch/files/patch-2.6.1-cygwin-setmode.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/sys-devel/patch/patch-2.5.9-r1.ebuild: ASCII English text
+

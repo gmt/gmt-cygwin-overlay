@@ -1,0 +1,14 @@
+diff -urN patch-2.6.1.orig/src/pch.c patch-2.6.1/src/pch.c
+--- patch-2.6.1.orig/src/pch.c	2012-08-13 19:00:43.384850000 -0700
++++ patch-2.6.1/src/pch.c	2012-08-13 19:02:10.054850000 -0700
+@@ -31,6 +31,10 @@
+ #define XTERN
+ #include <pch.h>
+ 
++#ifdef __CYGWIN__
++#include <io.h>
++#endif 
++
+ #define INITHUNKMAX 125			/* initial dynamic allocation size */
+ 
+ /* Patch (diff listing) abstract type. */
