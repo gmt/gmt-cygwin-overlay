@@ -1,6 +1,76 @@
 # ChangeLog for dev-libs/libffi
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.132 2011/11/18 11:53:22 ssuominen Exp $
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  22 Jul 2012; <nixnut@gentoo.org> libffi-3.0.11.ebuild:
+  ppc stable #416669
+
+  08 Jul 2012; Raúl Porcel <armin76@gentoo.org> libffi-3.0.11.ebuild:
+  ia64/m68k/s390/sh/sparc stable wrt #416669
+
+  13 Jun 2012; Richard Yao <ryao@gentoo.org> libffi-3.0.10.ebuild,
+  libffi-3.0.11.ebuild:
+  Add epatch_user
+
+  31 May 2012; Jeroen Roovers <jer@gentoo.org> libffi-3.0.11.ebuild:
+  Stable for HPPA (bug #416669).
+
+  30 May 2012; Markus Meier <maekke@gentoo.org> libffi-3.0.11.ebuild:
+  arm stable, bug #416669
+
+  24 May 2012; Matt Turner <mattst88@gentoo.org> libffi-3.0.11.ebuild:
+  Stable on alpha, bug 416669. Also fixes bug 395755.
+
+  21 May 2012; Jeff Horelick <jdhore@gentoo.org> libffi-3.0.11.ebuild:
+  marked x86 per bug 416669
+
+  20 May 2012; Agostino Sarubbo <ago@gentoo.org> libffi-3.0.11.ebuild:
+  Stable for amd64, wrt bug #416669
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> libffi-3.0.11.ebuild:
+  keyword ~amd64-fbsd
+
+  12 Apr 2012; Samuli Suominen <ssuominen@gentoo.org> -libffi-3.0.9-r2.ebuild,
+  -files/libffi-3.0.9-arm-oabi.patch,
+  -files/libffi-3.0.9-define-generic-symbols-carefully.patch,
+  -files/libffi-3.0.9-interix.patch, -files/libffi-3.0.9-irix.patch,
+  -files/libffi-3.0.9-powerpc64-darwin.patch,
+  -files/libffi-3.0.9-strncmp.patch, -libffi-3.0.11_rc3.ebuild:
+  old
+
+*libffi-3.0.11 (12 Apr 2012)
+
+  12 Apr 2012; Samuli Suominen <ssuominen@gentoo.org> +libffi-3.0.11.ebuild:
+  Version bump.
+
+  06 Apr 2012; Samuli Suominen <ssuominen@gentoo.org>
+  -libffi-3.0.11_rc1.ebuild, -libffi-3.0.11_rc2.ebuild,
+  -files/libffi-3.0.11_rc2-fix-ppc64-compile.patch:
+  old
+
+*libffi-3.0.11_rc3 (06 Apr 2012)
+
+  06 Apr 2012; Samuli Suominen <ssuominen@gentoo.org>
+  +libffi-3.0.11_rc3.ebuild:
+  Version bump.
+
+  13 Mar 2012; Samuli Suominen <ssuominen@gentoo.org> libffi-3.0.11_rc2.ebuild,
+  +files/libffi-3.0.11_rc2-fix-ppc64-compile.patch:
+  Fix building for PowerPC64 using patch from libffi-discuss ML.
+
+  19 Feb 2012; Raúl Porcel <armin76@gentoo.org> libffi-3.0.10.ebuild:
+  arm/ia64/m68k/s390/sh/sparc stable wrt #387063
+
+  16 Feb 2012; Mike Frysinger <vapier@gentoo.org> libffi-3.0.9-r2.ebuild,
+  +files/libffi-3.0.9-x32.patch, libffi-3.0.10.ebuild,
+  libffi-3.0.11_rc1.ebuild, libffi-3.0.11_rc2.ebuild:
+  Add patch from upstream for x32 targets.
+
+  31 Jan 2012; Samuli Suominen <ssuominen@gentoo.org> libffi-3.0.10.ebuild:
+  ppc/ppc64 stable wrt #387063
+
+  21 Jan 2012; Tobias Klausmann <klausman@gentoo.org> libffi-3.0.10.ebuild:
+  Stable on alpha, bug #387063
 
 *libffi-3.0.11_rc2 (18 Nov 2011)
 

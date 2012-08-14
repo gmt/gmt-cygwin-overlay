@@ -1,57 +1,8 @@
 ===== mutual sub-directory: "dev-libs/libffi" =====
----("dev-libs/libffi/ChangeLog")--->8--->
---- usr/portage/dev-libs/libffi/ChangeLog [[PORTAGE]]
-+++ overlay/dev-libs/libffi/ChangeLog [[OVERLAY]]
-@@ -1,35 +1,6 @@
- # ChangeLog for dev-libs/libffi
--# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.140 2012/04/06 14:58:23 ssuominen Exp $
--
--  06 Apr 2012; Samuli Suominen <ssuominen@gentoo.org>
--  -libffi-3.0.11_rc1.ebuild, -libffi-3.0.11_rc2.ebuild,
--  -files/libffi-3.0.11_rc2-fix-ppc64-compile.patch:
--  old
--
--*libffi-3.0.11_rc3 (06 Apr 2012)
--
--  06 Apr 2012; Samuli Suominen <ssuominen@gentoo.org>
--  +libffi-3.0.11_rc3.ebuild:
--  Version bump.
--
--  13 Mar 2012; Samuli Suominen <ssuominen@gentoo.org> libffi-3.0.11_rc2.ebuild,
--  +files/libffi-3.0.11_rc2-fix-ppc64-compile.patch:
--  Fix building for PowerPC64 using patch from libffi-discuss ML.
--
--  19 Feb 2012; Raúl Porcel <armin76@gentoo.org> libffi-3.0.10.ebuild:
--  arm/ia64/m68k/s390/sh/sparc stable wrt #387063
--
--  16 Feb 2012; Mike Frysinger <vapier@gentoo.org> libffi-3.0.9-r2.ebuild,
--  +files/libffi-3.0.9-x32.patch, libffi-3.0.10.ebuild,
--  libffi-3.0.11_rc1.ebuild, libffi-3.0.11_rc2.ebuild:
--  Add patch from upstream for x32 targets.
--
--  31 Jan 2012; Samuli Suominen <ssuominen@gentoo.org> libffi-3.0.10.ebuild:
--  ppc/ppc64 stable wrt #387063
--
--  21 Jan 2012; Tobias Klausmann <klausman@gentoo.org> libffi-3.0.10.ebuild:
--  Stable on alpha, bug #387063
-+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/ChangeLog,v 1.132 2011/11/18 11:53:22 ssuominen Exp $
- 
- *libffi-3.0.11_rc2 (18 Nov 2011)
- 
-<---8<---
----("dev-libs/libffi/libffi-3.0.10.ebuild")--->8--->
---- usr/portage/dev-libs/libffi/libffi-3.0.10.ebuild [[PORTAGE]]
-+++ overlay/dev-libs/libffi/libffi-3.0.10.ebuild [[OVERLAY]]
-@@ -1,12 +1,12 @@
--# Copyright 1999-2012 Gentoo Foundation
-+# Copyright 1999-2011 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/libffi-3.0.10.ebuild,v 1.8 2012/02/19 15:39:17 armin76 Exp $
-+# $Header: /var/cvsroot/gentoo-x86/dev-libs/libffi/libffi-3.0.10.ebuild,v 1.4 2011/11/09 16:14:39 jer Exp $
- 
- EAPI=2
+----[ "dev-libs/libffi/libffi-3.0.10.ebuild" ]----->8----->
+--- PORTAGE/dev-libs/libffi/libffi-3.0.10.ebuild
++++ OVERLAY/dev-libs/libffi/libffi-3.0.10.ebuild
+@@ -6,7 +6,7 @@
  
  MY_P=${P/_}
  
@@ -60,16 +11,7 @@
  
  DESCRIPTION="a portable, high level programming interface to various calling conventions."
  HOMEPAGE="http://sourceware.org/libffi/"
-@@ -14,7 +14,7 @@
- 
- LICENSE="MIT"
- SLOT="0"
--KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-+KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~ppc-aix ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
- IUSE="debug static-libs test"
- 
- RDEPEND=""
-@@ -32,8 +32,17 @@
+@@ -32,8 +32,18 @@
  	fi
  }
  
@@ -80,22 +22,20 @@
 +}
 +
  src_prepare() {
--	epatch "${FILESDIR}"/${PN}-3.0.9-x32.patch
+ 	epatch "${FILESDIR}"/${PN}-3.0.9-x32.patch
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-3.0.8-cygport-no-undefined.patch
 +		eautoreconf
 +	fi
+ 	epatch_user
  	elibtoolize
  }
- 
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "dev-libs/libffi/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-libs/libffi/files/libffi-3.0.8-cygport-no-undefined.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/dev-libs/libffi/libffi-3.0.11_rc3.ebuild: ASCII English text
-usr/portage/dev-libs/libffi/libffi-3.0.9-r2.ebuild: ASCII English text
-usr/portage/dev-libs/libffi/files/libffi-3.0.9-x32.patch: unified diff output, ASCII text
+usr/portage/dev-libs/libffi/libffi-3.0.11.ebuild: ASCII English text
 
