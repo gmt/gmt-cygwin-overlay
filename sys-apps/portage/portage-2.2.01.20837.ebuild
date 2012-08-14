@@ -1,30 +1,46 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Id: portage-2.2.01.16270.ebuild $
+# $Id: $
 
 # Require EAPI 2 since we now require at least python-2.6 (for python 3
 # syntax support) which also requires EAPI 2.
-EAPI=2
+EAPI=3
+inherit eutils multilib python
 
 RESTRICT="test"
-inherit eutils multilib python
 
 DESCRIPTION="Prefix branch of the Portage Package Manager, used in Gentoo Prefix"
 HOMEPAGE="http://www.gentoo.org/proj/en/gentoo-alt/prefix/"
 LICENSE="GPL-2"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 SLOT="0"
-IUSE="build doc epydoc ipc linguas_pl selinux prefix-chaining cygdll-protect"
+IUSE="build doc epydoc ipc linguas_pl selinux xattr prefix-chaining cygdll-protect"
 
-python_dep=">=dev-lang/python-2.7 <dev-lang/python-3.0"
+# Import of the io module in python-2.6 raises ImportError for the
+# thread module if threading is disabled.
+python_dep_ssl="python3? ( =dev-lang/python-3*[ssl] )
+	!pypy1_9? ( !python2? ( !python3? (
+		|| ( >=dev-lang/python-2.7[ssl] dev-lang/python:2.6[threads,ssl] )
+	) ) )
+	pypy1_9? ( !python2? ( !python3? ( dev-python/pypy:1.9[bzip2,ssl] ) ) )
+	python2? ( !python3? ( || ( dev-lang/python:2.7[ssl] dev-lang/python:2.6[ssl,threads] ) ) )"
+python_dep_ssl=">=dev-lang/python-2.7[ssl] <dev-lang/python-3.0" # prefix override
+python_dep="${python_dep_ssl//\[ssl\]}"
+python_dep="${python_dep//,ssl}"
+python_dep="${python_dep//ssl,}"
 
 # The pysqlite blocker is for bug #282760.
 DEPEND="${python_dep}
-	!build? ( >=sys-apps/sed-4.0.5 )
+	>=sys-apps/sed-4.0.5 sys-devel/patch
 	doc? ( app-text/xmlto ~app-text/docbook-xml-dtd-4.4 )
 	epydoc? ( >=dev-python/epydoc-2.0 !<=dev-python/pysqlite-2.4.1 )"
 # Require sandbox-2.2 for bug #288863.
-RDEPEND="${python_dep}
+# For xattr, we can spawn getfattr and setfattr from sys-apps/attr, but that's
+# quite slow, so it's not considered in the dependencies as an alternative to
+# to python-3.3 / pyxattr. Also, xattr support is only tested with Linux, so
+# for now, don't pull in xattr deps for other kernels.
+# For whirlpool hash, require python[ssl] or python-mhash (bug #425046).
+RDEPEND="${python_dep} || ( ${python_dep_ssl} dev-python/python-mhash )
 	!build? ( >=sys-apps/sed-4.0.5
 		>=app-shells/bash-3.2_p17
 		>=app-admin/eselect-1.2 )
@@ -37,8 +53,10 @@ RDEPEND="${python_dep}
 	kernel_Darwin? ( >=app-misc/pax-utils-0.1.18 )
 	kernel_HPUX? ( !hppa-hpux? ( >=app-misc/pax-utils-0.1.19 ) )
 	kernel_AIX? ( >=sys-apps/aix-miscutils-0.1.1634 )
+	xattr? ( kernel_linux? ( || ( >=dev-lang/python-3.3_pre20110902 dev-python/pyxattr ) ) )
 	selinux? ( || ( >=sys-libs/libselinux-2.0.94[python] <sys-libs/libselinux-2.0.94 ) )
-	!<app-shells/bash-3.2_p17"
+	!<app-shells/bash-3.2_p17
+	!prefix? ( !<app-admin/logrotate-3.8.0 )"
 PDEPEND="
 	!build? (
 		>=net-misc/rsync-2.6.4
@@ -73,6 +91,64 @@ fi
 S="${WORKDIR}"/prefix-${PN}-${TARBALL_PV}
 S_PL="${WORKDIR}"/${PN}-${PV_PL}
 
+compatible_python_is_selected() {
+	[[ $("${EPREFIX}/usr/bin/python" -c 'import sys ; sys.stdout.write(sys.hexversion >= 0x2060000 and "good" or "bad")') = good ]]
+}
+
+current_python_has_xattr() {
+	[[ $("${EPREFIX}/usr/bin/python" -c 'import sys ; sys.stdout.write(sys.hexversion >= 0x3030000 and "yes" or "no")') = yes ]] || \
+	"${EPREFIX}/usr/bin/python" -c 'import xattr' 2>/dev/null
+}
+
+pkg_setup() {
+	use prefix && return
+
+	# Bug #359731 - Die early if get_libdir fails.
+	[[ -z $(get_libdir) ]] && \
+		die "get_libdir returned an empty string"
+
+	if use python2 && use python3 ; then
+		ewarn "Both python2 and python3 USE flags are enabled, but only one"
+		ewarn "can be in the shebangs. Using python3."
+	fi
+	if use pypy1_9 && use python3 ; then
+		ewarn "Both pypy1_9 and python3 USE flags are enabled, but only one"
+		ewarn "can be in the shebangs. Using python3."
+	fi
+	if use pypy1_9 && use python2 ; then
+		ewarn "Both pypy1_9 and python2 USE flags are enabled, but only one"
+		ewarn "can be in the shebangs. Using python2"
+	fi
+	if ! use pypy1_9 && ! use python2 && ! use python3 && \
+		! compatible_python_is_selected ; then
+		ewarn "Attempting to select a compatible default python interpreter"
+		local x success=0
+		for x in /usr/bin/python2.* ; do
+			x=${x#/usr/bin/python2.}
+			if [[ $x -ge 6 ]] 2>/dev/null ; then
+				eselect python set python2.$x
+				if compatible_python_is_selected ; then
+					elog "Default python interpreter is now set to python-2.$x"
+					success=1
+					break
+				fi
+			fi
+		done
+		if [ $success != 1 ] ; then
+			eerror "Unable to select a compatible default python interpreter!"
+			die "This version of portage requires at least python-2.6 to be selected as the default python interpreter (see \`eselect python --help\`)."
+		fi
+	fi
+
+	if use python3; then
+		python_set_active_version 3
+	elif use python2; then
+		python_set_active_version 2
+	elif use pypy1_9; then
+		python_set_active_version 2.7-pypy-1.9
+	fi
+}
+
 src_prepare() {
 	if [ -n "${PATCHVER}" ] ; then
 		if [[ -L $S/bin/ebuild-helpers/portageq ]] ; then
@@ -96,7 +172,7 @@ src_prepare() {
 	if [[ ${CHOST} == *-cygwin* ]] ; then
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
-		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-dosym-exe-hack.patch
+		epatch "${FILESDIR}"/${PN}-2.2.01.20389-cygwin-dosym-exe-hack.patch
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-unc-prevention.patch
 	else
 		use cygdll-protect && {
@@ -105,9 +181,8 @@ src_prepare() {
 		}
 	fi
 
-	# WIP, not working yet
 	use cygdll-protect && { \
-		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygdll_protect.patch
+		epatch "${FILESDIR}"/${PN}-2.2.01.20837-cygdll_protect.patch
 		for f in "bin/cygdll-update" ; do
 			einfo "setting executable bits for ${f} since patch doesn't"
 			chmod a+x "${S}"/${f}
@@ -115,6 +190,7 @@ src_prepare() {
 	}
 
 	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
+	epatch "${FILESDIR}"/${PN}-2.2.01.20796-cygwin-revert-problematic-commits.patch
 }
 
 src_configure() {
@@ -176,8 +252,9 @@ src_compile() {
 }
 
 src_test() {
-	./pym/portage/tests/runTests || \
-		die "test(s) failed"
+	# make files executable, in case they were created by patch
+	find bin -type f | xargs chmod +x
+	emake test || die
 }
 
 src_install() {
@@ -209,8 +286,8 @@ src_install() {
 	doexe  "${S}"/pym/portage/tests/runTests
 
 	if use linguas_pl; then
-		doman -i18n=pl "${S_PL}"/man/pl/*.[0-9]
-		doman -i18n=pl_PL.UTF-8 "${S_PL}"/man/pl_PL.UTF-8/*.[0-9]
+		doman -i18n=pl "${S_PL}"/man/pl/*.[0-9] || die
+		doman -i18n=pl_PL.UTF-8 "${S_PL}"/man/pl_PL.UTF-8/*.[0-9] || die
 	fi
 
 	dodoc "${S}"/{ChangeLog,NEWS,RELEASE-NOTES}
@@ -228,9 +305,6 @@ pkg_preinst() {
 		ewarn "enable the ssl USE flag for >=dev-lang/python-2.6 in order"
 		ewarn "to enable RMD160 hash support."
 		ewarn "See bug #198398 for more information."
-	fi
-	if [ -f "${EROOT}/etc/make.globals" ]; then
-		rm "${EROOT}/etc/make.globals"
 	fi
 
 	has_version "<=${CATEGORY}/${PN}-2.2.00.13346"
