@@ -265,7 +265,7 @@ cook_portage_file() {
 		# are correctly ignored in gendiffs, whereas any header lines in the overlay
 		# which incorrectly contain cvs-generated cruft will generate diff-hunks
 		# which could also pseudo-conveniently could be reversed to fix the problem
-		cat "${file}" | sed 's/^# \$Header:.*$/# $Header: $/'
+		cat "${file}" | sed 's/^# \$Header:.*$/# $Header: $/;s/^# \$Id:.*$/# $Id: $/'
 	else
 		cat "${file}"
 	fi
