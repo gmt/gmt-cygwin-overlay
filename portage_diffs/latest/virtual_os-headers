@@ -1,0 +1,63 @@
+===== mutual sub-directory: "virtual/os-headers" =====
+----[ "virtual/os-headers/ChangeLog" ]----->8----->
+--- PORTAGE/virtual/os-headers/ChangeLog
++++ OVERLAY/virtual/os-headers/ChangeLog
+@@ -2,6 +2,9 @@
+ # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+ # $Header: $
+ 
++  16 Aug 2012; Greg Turner <gmt@be-evil.net> os-headers-0.ebuild:
++  keyword ~x86-cygwin; add conditional cygwin-headers-bin dependency.
++
+   26 Apr 2012; Alexis Ballier <aballier@gentoo.org> os-headers-0.ebuild:
+   keyword ~amd64-fbsd
+ 
+<-----8<-----
+----[ "virtual/os-headers/Manifest" ]----->8----->
+--- PORTAGE/virtual/os-headers/Manifest
++++ OVERLAY/virtual/os-headers/Manifest
+@@ -1,13 +1,3 @@
+------BEGIN PGP SIGNED MESSAGE-----
+-Hash: SHA1
+-
+-EBUILD os-headers-0.ebuild 873 RMD160 1e9815552a00d158621a1cf552d3f0308a711a30 SHA1 2e5dd405f701fa66df52c2be3a7a21650bff3a4f SHA256 d1f066338ad68b91a0f7439febf93220ccb9e16d52e77fba7f5335eda7fb371a
+-MISC ChangeLog 686 RMD160 ed77d0be905c633334858150c55205cbcb07dc89 SHA1 364d99d8ae0e62e357b18f595f61fa4ef759a235 SHA256 258ec5be10e03f274c7df88c0ce149c26c5e83fc5e2ac10203ce9b9121d31de6
+-MISC metadata.xml 179 RMD160 08b615d3f92f7ed172f0e96d2a89817bc8e2b37e SHA1 099e7f0a3557378971f4d27f15a3e86d3089148d SHA256 09fc0c8bb89359b67449ff1c2cccaf4cbf5fe016fe5d69e80f9d4b1acb68fe59
+------BEGIN PGP SIGNATURE-----
+-Version: GnuPG v2.0.19 (GNU/Linux)
+-
+-iEYEARECAAYFAk+ZXHEACgkQvFcC4BYPU0pcWQCglja22pmf2gQVCqgu36REdcqr
+-/KEAn25+qShUMWkTO+YIMJI1QTNl5Mei
+-=aM9n
+------END PGP SIGNATURE-----
++EBUILD os-headers-0.ebuild 829 SHA256 98158ab439e2a63396ebe6133187e84a0e415e217ef07297a917070fb5437f11 SHA512 2877aa3ed3101fdbbb0f091b81c5617135e1e33f00a147032d49015b963ff600cd9a5b801b2302a518c88f08d9e2643c748b72a1344980831a37333b348dc794 WHIRLPOOL e165596a94a623b900a23b6805c89ae38a56a32af3a7a4d6af75e2434ad397cfcbf34b7c9b991f28e3ec6e40e883e3f33006b9bbf9392c0b9602d82f584c996e
++MISC ChangeLog 731 SHA256 edcfad883853d7e77803399e8ee176c8a41de1d27459cf928f04a6bb0d9c94c8 SHA512 9fd9e00901dfb79c2a6d599449aa4cc916ae69f41d77361c8057a79454b2f2aeecd32ed817756866c4cfed033c29247c130fd8caa728d81c1713d9660181133a WHIRLPOOL cea58157bf91ce2a147e0676820f12686079465b02e3c151cdf6071c7a6dd24c24395b73d22897adf1bcb070534f2b726da5b932e3cbf406cd56810523e4666a
++MISC metadata.xml 179 SHA256 09fc0c8bb89359b67449ff1c2cccaf4cbf5fe016fe5d69e80f9d4b1acb68fe59 SHA512 b775e337b6c2bf7b613c5916d5472edba52eef7e008ef00e873867a65c0a0ace8ac67004e020714153643fb9acfbb55571e596cc3fc319ca2e8bde9b29588c60 WHIRLPOOL 84e7d9c117f9878a272a2385133fa8f954560033e686d9d5a993ac1123c35fc067f295560200320e52fcbede2e252f21c676643e61d21491ccb17ac9bbc25562
+<-----8<-----
+----[ "virtual/os-headers/os-headers-0.ebuild" ]----->8----->
+--- PORTAGE/virtual/os-headers/os-headers-0.ebuild
++++ OVERLAY/virtual/os-headers/os-headers-0.ebuild
+@@ -4,13 +4,13 @@
+ 
+ EAPI=1
+ 
+-DESCRIPTION="Virtual for operating system headers"
++DESCRIPTION="Virtual for system headers"
+ HOMEPAGE=""
+ SRC_URI=""
+ 
+ LICENSE=""
+ SLOT="0"
+-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
++KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-cygwin"
+ IUSE=""
+ 
+ DEPEND=""
+@@ -19,5 +19,6 @@
+ RDEPEND="
+ 	|| (
+ 		kernel_linux? ( sys-kernel/linux-headers:0 )
++		kernel_Cygwin17? ( sys-devel/cygwin-headers-bin:1.7 )
+ 		!prefix? ( sys-freebsd/freebsd-lib )
+ 	)"
+<-----8<-----

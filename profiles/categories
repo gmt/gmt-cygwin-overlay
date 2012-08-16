@@ -9,4 +9,4 @@ dev-vcs
 sys-apps
 sys-devel
 sys-libs
-virtuals
+virtual
