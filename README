@@ -92,11 +92,38 @@ efforts involved some very aggressive hacks; I have no idea, as of right now, wh
 would be a working, straightforward bootstrap recipe.  Going forward, I plan to
 fix this somehow, either with explicit instructions or a script or both.
 
-NOTES
-=====
+SHOWSTOPPER LIMITATIONS YOU WANT TO KNOW ABOUT
+==============================================
 
-This overlay goes to very great pains to avoid paths beginning with '//'.
-Gentoo ubiquitiously assumes that any number of preceeding slashes are a
+-- UAC is not tested
+
+I don't have UAC enabled on my development machines.  Unfortunately, perhaps,
+corporate environments seem to keep it enabled as a policy and of course
+it is not particularly recommended by anybody concerned about security
+to turn it off.  If you don't know, UAC is that feature in Vista and
+higher versions of windows which darkens the screen when you do something
+"dangerous" and asks you if you really meant to do it.  There are plenty
+of guides as to how to deactivate UAC, so if you are comfortable doing so,
+your best bet, for now, is probably to go ahead and do so if you want to
+play with this overlay.
+
+My guess is that with UAC enabled, cygwin portage is going to pretty much
+choke and die very quickly.  Solutions to this can and should be automated,
+but in the short run, there isn't much point spending time fixing this
+until it is at least possible to bootstrap the system profile.
+
+So for now, turn it off, or fix the problems yourself and send me your
+patches (I can be reached at gmt@be-evil.RM-IF-NOT-SPAM.net).
+
+-- SMB/CIFS paths beginning with '//' are not supported by cygwin prefix!
+
+This is extremely important.  If you are using this overlay, and you use
+paths like //foo/bar to get to the 'bar' share on the 'foo' machine, this
+prefix is going to give you incredible amounts of grief.  Some things
+will work, but be prepared for the likelihood that some tool or another is
+likely to decide that you actually mean '/foo/bar'.
+
+Why?  Gentoo ubiquitiously assumes that any number of preceeding slashes are a
 noop in a pathname.  A number of upstream packages make the same assumption.
 Unfortunately for all parties, paths beginning with '//' are not a noop.
 I was surprised to learn that this is not a cygwinism -- it's a POSIXism;
@@ -105,31 +132,32 @@ implementation-dependent special purposes and cygwin merely makes use of
 this reservation.  This means that every time Gentoo acts on this assumption,
 there is a bug in Gentoo.
 
-However, the problem is pretty nearly intractable.  The '//' assumption is so
-ubiquitous as to almost be impossible to fix everywhere.  Eventually I hope to
-go on a bug-hunting expedition and try to find all the places we act on this
-assumption and submit Gentoo bugs for them; hopefully, others will do the same
-as they spot them.  In the meanwhile, I have patched a number of utilities to
-silently drop duplicate preceeding slashes from paths.  So many, in fact, it's
-kinda difficult to keep track of them all.  This means that:
-
-  CIFS PATHS BEGINNING WITH '//' ARE NOT SUPPORTED
-
-Sorry for shouting but this is important.  If you are using my overlay, and
-you are using paths like //foo/bar to get to the 'bar' share on the 'foo'
-machine, things will mostly work, but please be prepared for the likelihood
-that if you do any kind of development, some tool somewhere is likely to
-decide that you actually mean '/foo/bar'.
+However, The '// == /' assumption is ubiquitous in Gentoo and difficult to
+fully eradicate.  Lots of bugs need to be filed for this.  In the meanwhile,
+I have patched a number of utilities (notably, coreutils' "install" and libtool)
+to silently drop duplicate preceeding slashes from paths.
 
 This is easy to work around.  Just add your //foo/bar path to /etc/fstab
 and mount it into your filesystem (i.e., as /mnt/foobar/ or w/e).  Now you
 have a nice clean unambiguous way to refer to //foo/bar and all will be fine.
+Also, for simple operations like copying files around or tab-completion,
+the '//' path is still supported, so you don't necessarily need to go to all
+that trouble every time.
 
-In the future, once we have our own ebuild for cygwin1.dll, we may wish to consider
-modifying the //foo/bar feature of cygwin to work like /cygdrive, so that
-for example one could use /smb/foo/bar instead of //foo/bar.  Honestly I'm not
-sure why upstream doesn't do it that way themselves; it is worth investigating
-if upstream cygwin would be amenable to such a change.
+In the future, we may have our own ebuild for cygwin1.dll, in which case we
+could modify the //foo/bar feature of cygwin to work like /cygdrive: for
+example, one could use /smb/foo/bar instead of //foo/bar.  It is worth
+investigating whether upstream would be at all amenable to such a change, but
+they have had '//' for a long time and it has worked for them, so we may need
+to tread lightly there.
+
+However, building cygwin1.dll in prefix would be inconsistent with the
+long-standing prefix convention that core operating-system components
+such as libc are omitted from prefix.  Years of bitter experience underly
+this convention, or so I'm told, and indeed, the cygwin project is extremely
+unfriendly to multiple versions of cygwin1.dll floating around, so to
+really do this right, we would need cygwin portage non-prefix support,
+which is probably a long way off.
 
 USING (INSTALLATION revisited)
 ==============================
@@ -179,4 +207,4 @@ gl!
 
 -gmt
 
-gmt@malth.RMIFNOTSPAMKTHX.us
+gmt@be-evil.RM-IF-NOT-SPAM.net
