@@ -1,0 +1,22 @@
+# ChangeLog for virtual/os-headers
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  16 Aug 2012; Greg Turner <gmt@be-evil.net> os-headers-0.ebuild:
+  keyword ~x86-cygwin; add conditional cygwin-headers-bin dependency.
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> os-headers-0.ebuild:
+  keyword ~amd64-fbsd
+
+  23 Mar 2012; Jeremy Olexa <darkside@gentoo.org> os-headers-0.ebuild:
+  fix up some linux dependency issues for Gentoo Prefix, bug 409357
+
+  25 Sep 2011; Ulrich Mueller <ulm@gentoo.org> metadata.xml:
+  Remove myself as maintainer.
+
+*os-headers-0 (14 Apr 2011)
+
+  14 Apr 2011; Ulrich Mueller <ulm@gentoo.org> +os-headers-0.ebuild,
+  +metadata.xml:
+  Initial import, bug 358999.
+

@@ -15,7 +15,7 @@ IUSE=""
 
 SLOT="$(get_version_component_range 1-2)"
 DEPEND=""
-RDEPEND=""
+RDEPEND="!sys-kernel/linux-headers"
 
 MYREV="${PR#r}"
 # prefix subrev compatibility

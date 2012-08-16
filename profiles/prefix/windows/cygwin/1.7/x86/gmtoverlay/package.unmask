@@ -7,8 +7,11 @@
 # contain essential patches, even if new versions get
 # pulled in via a sync.  "package.mask" entries masking
 # the entire package exist, and here we unmask only the
-# specific versions for which we have ebuilds.  These
-# must be kept in sync (and alphabetical)!!
+# specific versions for which we have ebuilds.  Note: this
+# can and should go away once we stop accepting x86-linux
+# keywords by default (since we can achieve this the
+# correct way, by keywording).  These must be kept in
+# in sync with the ebuilds we support.  Please alphabetize!
 =app-arch/bzip2-1.0.6-r3
 =sys-apps/coreutils-8.14
 =sys-apps/coreutils-8.15
