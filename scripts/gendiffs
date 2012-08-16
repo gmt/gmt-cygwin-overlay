@@ -152,7 +152,7 @@ while read dir ; do
 done < <(
 	cd ${_overlay}
 	find . -maxdepth 2 \( -name '.git' -prune \) -o \( -type d -regextype posix-extended \
-		-regex '\./([[:alnum:]_]*-[[:alnum:]_]*/[^/]*|eclass)' -print \) | \
+		-regex '\./([[:alnum:]_]*-[[:alnum:]_]*/[^/]*|eclass|virtual/[^/]*)' -print \) | \
 			sed 's/^..//' | (
 				if [[ -z ${limiting_filepath} ]] ; then
 					tee /dev/null
