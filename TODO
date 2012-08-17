@@ -125,3 +125,7 @@ o There is a conflict between cygwin and the latest parallel processing commits 
  o For some reason it necessary for us to include some
    "anti-maintainer-mode" patches that upstream doesn't need.
    We should figure out why and fix it somehow!
+
+o We should offer the option of a cygwin-headers package which is built from
+  source -- cygwin.cygport doesn't look too hairy although limiting the build
+  to just what's needed for headers might be a challenge.
