@@ -6,5 +6,5 @@ LICENSE=ZLIB
 RDEPEND=!<dev-libs/libxml2-2.7.7
 SLOT=0
 SRC_URI=http://www.gzip.org/zlib/zlib-1.2.5.tar.bz2 http://www.zlib.net/zlib-1.2.5.tar.bz2
-_eclasses_=eutils	24483bd91d3d074753a77bfe3e69993f	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313
+_eclasses_=eutils	de58f96326a651ae957e22b680ad531a	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313
 _md5_=c3a63e949a6081e2ac801c92d7a639d1

@@ -25,7 +25,6 @@ src_unpack() {
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
 		epatch "${FILESDIR}"/${PN}-1.2.7-cygport-ish.patch
-		epatch "${FILESDIR}"/${PN}-1.2.7-cygwin-fix-parallel-make.patch
 		epatch "${FILESDIR}"/${PN}-1.2.7-cygwin-minizip-anti-maintainer-mode.patch
 	fi
 

@@ -101,20 +101,19 @@
 ----[ "sys-libs/zlib/zlib-1.2.7.ebuild" ]----->8----->
 --- PORTAGE/sys-libs/zlib/zlib-1.2.7.ebuild
 +++ OVERLAY/sys-libs/zlib/zlib-1.2.7.ebuild
-@@ -23,6 +23,12 @@
+@@ -23,6 +23,11 @@
  	unpack ${A}
  	cd "${S}"
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-1.2.7-cygport-ish.patch
-+		epatch "${FILESDIR}"/${PN}-1.2.7-cygwin-fix-parallel-make.patch
 +		epatch "${FILESDIR}"/${PN}-1.2.7-cygwin-minizip-anti-maintainer-mode.patch
 +	fi
 +
  	if use minizip ; then
  		pushd contrib/minizip > /dev/null || die
  		eautoreconf
-@@ -56,6 +62,16 @@
+@@ -56,6 +61,16 @@
  		echoit ./configure --static --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
  		emake || die
  		;;
@@ -131,7 +130,7 @@
  	*)	# not an autoconf script, so can't use econf
  		echoit ./configure --shared --prefix="${EPREFIX}"/usr --libdir="${EPREFIX}"/usr/$(get_libdir) || die
  		emake || die
-@@ -108,5 +124,12 @@
+@@ -108,5 +123,12 @@
  		dodoc *.txt
  	fi
  
@@ -152,7 +151,6 @@
 overlay/sys-libs/zlib/files/zlib-1.2.5-cygport.patch: unified diff output, ASCII text
 overlay/sys-libs/zlib/files/zlib-1.2.5.1-cygport-ish.patch: unified diff output, ASCII text
 overlay/sys-libs/zlib/files/zlib-1.2.7-cygport-ish.patch: unified diff output, ASCII text
-overlay/sys-libs/zlib/files/zlib-1.2.7-cygwin-fix-parallel-make.patch: unified diff output, ASCII text
 overlay/sys-libs/zlib/files/zlib-1.2.7-cygwin-minizip-anti-maintainer-mode.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***

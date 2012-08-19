@@ -45,7 +45,7 @@ diff -urN zlib-1.2.7.orig/Makefile.in zlib-1.2.7/Makefile.in
  
 -minigzipsh$(EXE): minigzip.o $(SHAREDLIBV)
 -	$(CC) $(CFLAGS) -o $@ minigzip.o -L. $(SHAREDLIBV)
-+minigzipsh$(EXE): minigzip.o $(SHAREDLIBTARGET)
++minigzipsh$(EXE): minigzip.o $(SHAREDTARGET)
 +	$(CC) $(CFLAGS) -o $@ minigzip.o -L. $(SHAREDTARGET)
  
  example64$(EXE): example64.o $(STATICLIB)
