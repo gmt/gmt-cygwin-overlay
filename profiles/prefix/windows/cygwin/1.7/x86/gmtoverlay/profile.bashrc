@@ -170,7 +170,12 @@ cyg_fix-dirflag-dir() {
 	local dir="$*"
 
 	local initial_slash=
+	local initial_dots=
 	local trailing_slash=
+	while [[ ${dir} == .* ]] ; do
+		dir=${dir#.}
+		initial_dots="${initial_dots}."
+	done
 	[[ $dir == /* ]] && initial_slash=/
 	[[ $dir == */ ]] && trailing_slash=/
 	declare -a resultparts
@@ -196,7 +201,7 @@ cyg_fix-dirflag-dir() {
 			result="${result}/${pathpart}"
 		fi
 	done
-	result="${initial_slash}${result}${trailing_slash}"
+	result="${initial_dots}${initial_slash}${result}${trailing_slash}"
 	echo "${result}"
 }
 
@@ -244,7 +249,7 @@ cyg_fix-retarded-compiler-flag() {
 	for dirflag in "${dirflags[@]}" ; do
 		if [[ $2 == ${dirflag}* ]] ; then
 			local dirflag_dir="${2#${dirflag}}"
-			echo "${dirflag}$( cyg_fix-dirflag-dir ${dirflag_dir})"
+			echo "${dirflag}$( cyg_fix-dirflag-dir "${dirflag_dir}")"
 			return 0
 		fi
 	done
