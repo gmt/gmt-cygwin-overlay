@@ -19,4 +19,5 @@ sys-devel/binutils-config
 sys-devel/gcc-config
 sys-devel/gnuconfig
 sys-libs/ncurses
+sys-libs/readline
 sys-libs/zlib

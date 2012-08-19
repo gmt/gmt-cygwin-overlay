@@ -1,0 +1,21 @@
+diff -urN readline-6.2.orig/examples/rlfe/os.h readline-6.2/examples/rlfe/os.h
++++ readline-6.2.orig/examples/rlfe/os.h	2012-08-17 04:58:01.381520000 -0700
+--- readline-6.2/examples/rlfe/os.h	2012-08-17 05:14:58.168766600 -0700
+@@ -186,7 +186,7 @@
+  *    terminal handling
+  */
+ 
+-#if defined (POSIX) || defined (__FreeBSD__)
++#if defined (POSIX) || defined (__FreeBSD__) || defined(__CYGWIN__)
+ # include <termios.h>
+ # ifdef hpux
+ #  include <bsdtty.h>
+@@ -410,7 +410,7 @@
+ #endif
+ 
+ /* Geeeee, reverse it? */
+-#if defined(SVR4) || (defined(SYSV) && defined(ISC)) || defined(_AIX) || defined(linux) || defined(ultrix) || defined(__386BSD__) || defined(__bsdi__) || defined(POSIX) || defined(NeXT)
++#if defined(SVR4) || (defined(SYSV) && defined(ISC)) || defined(_AIX) || defined(linux) || defined(ultrix) || defined(__386BSD__) || defined(__bsdi__) || defined(POSIX) || defined(NeXT) || defined(__CYGWIN__)
+ # define SIGHASARG
+ #endif
+ 

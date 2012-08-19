@@ -1,71 +1,39 @@
 ===== mutual sub-directory: "sys-libs/readline" =====
----("sys-libs/readline/readline-6.2_p1.ebuild")--->8--->
---- usr/portage/sys-libs/readline/readline-6.2_p1.ebuild [[PORTAGE]]
-+++ overlay/sys-libs/readline/readline-6.2_p1.ebuild [[OVERLAY]]
-@@ -63,6 +63,10 @@
+----[ "sys-libs/readline/readline-6.2_p1-r1.ebuild" ]----->8----->
+--- PORTAGE/sys-libs/readline/readline-6.2_p1-r1.ebuild
++++ OVERLAY/sys-libs/readline/readline-6.2_p1-r1.ebuild
+@@ -59,7 +59,8 @@
+ 	epatch "${FILESDIR}"/${PN}-6.1-darwin-shlib-versioning.patch
  	epatch "${FILESDIR}"/${PN}-6.1-aix-expfull.patch
  	epatch "${FILESDIR}"/${PN}-6.1-aix-soname.patch
- 
-+	if [[ $CHOST == *-cygwin* ]] ; then
-+		epatch "${FILESDIR}"/${PN}-6.2-cygport.patch
-+	fi
-+
+-
++	epatch "${FILESDIR}"/${PN}-6.2-cygwin-fixes.patch
++	[[ $CHOST == *-cygwin* ]] && epatch "${FILESDIR}"/${PN}-6.2-cygport.patch
  	# force ncurses linking #71420
  	sed -i -e 's:^SHLIB_LIBS=:SHLIB_LIBS=-lncurses:' support/shobj-conf || die "sed"
  
-@@ -85,7 +89,8 @@
- 	econf --with-curses || die
- 	emake || die
+@@ -79,6 +80,12 @@
+ 	# http://lists.gnu.org/archive/html/bug-readline/2010-07/msg00013.html
+ 	append-cppflags -Dxrealloc=_rl_realloc -Dxmalloc=_rl_malloc -Dxfree=_rl_free
  
--	if ! tc-is-cross-compiler ; then
-+#	if ! tc-is-cross-compiler ; then
-+	if /bin/false ; then
- 		# code is full of AC_TRY_RUN()
- 		cd examples/rlfe
- 		append-ldflags -L.
-@@ -103,9 +108,9 @@
- 	emake DESTDIR="${D}" install || die
- 	gen_usr_ldscript -a readline history #4411
- 
--	if ! tc-is-cross-compiler; then
--		dobin examples/rlfe/rlfe || die
--	fi
-+#	if ! tc-is-cross-compiler; then
-+#		dobin examples/rlfe/rlfe || die
-+#	fi
- 
- 	dodoc CHANGELOG CHANGES README USAGE NEWS
- 	docinto ps
-@@ -113,12 +118,12 @@
- 	dohtml -r doc
- }
- 
--pkg_preinst() {
--	preserve_old_lib /$(get_libdir)/lib{history,readline}$(get_libname 4) #29865
--	preserve_old_lib /$(get_libdir)/lib{history,readline}$(get_libname 5) #29865
--}
--
--pkg_postinst() {
--	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 4)
--	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 5)
--}
-+# pkg_preinst() {
-+#	preserve_old_lib /$(get_libdir)/lib{history,readline}$(get_libname 4) #29865
-+#	preserve_old_lib /$(get_libdir)/lib{history,readline}$(get_libname 5) #29865
-+#}
++	# Not sure if cygwin project will bump their DLLVERSION once they port to
++	# 6.2 -- if they do, we will be kinda screwed, but changing it to 8 didn't
++	# work well at all in testing, presumably due to non-prefix rl7.dll's still
++	# being loadable at the same time.
++	[[ ${CHOST} == *-cygwin* ]] && export DLLVERSION=7
 +
-+#pkg_postinst() {
-+#	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 4)
-+#	preserve_old_lib_notify /$(get_libdir)/lib{history,readline}$(get_libname 5)
-+#}
-<---8<---
+ 	# This is for rlfe, but we need to make sure LDFLAGS doesn't change
+ 	# so we can re-use the config cache file between the two.
+ 	append-ldflags -L.
+<-----8<-----
 ===== mutual sub-directory: "sys-libs/readline/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/sys-libs/readline/files/readline-6.2-cygport.patch: unified diff output, ASCII text
+overlay/sys-libs/readline/files/readline-6.2-cygwin-fixes.patch: diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-libs/readline/ChangeLog: UTF-8 Unicode English text
-usr/portage/sys-libs/readline/readline-5.2_p14.ebuild: ASCII English text
-usr/portage/sys-libs/readline/readline-6.1_p2.ebuild: ASCII English text
+usr/portage/sys-libs/readline/readline-5.2_p14.ebuild: ASCII text
+usr/portage/sys-libs/readline/readline-6.1_p2.ebuild: ASCII text
+usr/portage/sys-libs/readline/readline-6.2_p1.ebuild: ASCII text
 

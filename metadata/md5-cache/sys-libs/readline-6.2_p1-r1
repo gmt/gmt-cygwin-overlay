@@ -1,0 +1,12 @@
+DEFINED_PHASES=compile install postinst preinst unpack
+DEPEND=>=sys-libs/ncurses-5.2-r2
+DESCRIPTION=Another cute console display library
+HOMEPAGE=http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+IUSE=static-libs
+KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=GPL-3
+RDEPEND=>=sys-libs/ncurses-5.2-r2
+SLOT=0
+SRC_URI=mirror://gnu/readline/readline-6.2.tar.gz ftp://ftp.cwru.edu/pub/bash/readline-6.2-patches/readline62-001 mirror://gnu/readline/readline-6.2-patches/readline62-001
+_eclasses_=eutils	de58f96326a651ae957e22b680ad531a	flag-o-matic	f8651713795af42726abd3efcd5caad0	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313
+_md5_=10bee0e999ecc9ea7ff1dededf10e288
