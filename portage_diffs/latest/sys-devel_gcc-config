@@ -699,9 +699,12 @@
  
  # Format of /etc/env.d/gcc/:
  #  config-TARGET:	CURRENT=version for TARGET
-@@ -11,6 +11,10 @@
+@@ -9,8 +9,12 @@
+ 
+ : ${ROOT:=/}
  [[ ${ROOT} != */ ]] && ROOT="${ROOT}/"
- [[ ${ROOT} != /* ]] && ROOT="${PWD}/${ROOT}"
+-[[ ${ROOT} != /* ]] && ROOT="${PWD}${ROOT}"
++[[ ${ROOT} != /* ]] && ROOT="${PWD}/${ROOT}"
  EPREFIX="@GENTOO_PORTAGE_EPREFIX@"
 +
 +# really shouldn't be so, but just in case
@@ -740,7 +743,7 @@
  	if python -V &>/dev/null ; then
 -		export REAL_CHOST=$(env -i EPREFIX="${EPREFIX}" "$(PATH="${EPREFIX}/usr/bin:${PATH}" type -P portageq)" envvar CHOST 2>/dev/null)
 +		local myportageq=$(PATH="${EPREFIX}/usr/bin:${PATH}" type -P portageq)
-+		if [[ $( "${myportageq}" envvar KERNEL) == Cygwin ]] ; then
++		if [[ $( "${myportageq}" envvar KERNEL) == Cygwin* ]] ; then
 +		    # on Cygwin we simply cannot function without cygwin1.dll somewhere in
 +			# our path.  For the forseeable future, we will take cygwin1.dll from
 +			# upstream, so we at least need "/bin" in the PATH, which is where it's

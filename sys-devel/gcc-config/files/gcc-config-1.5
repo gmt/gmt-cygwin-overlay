@@ -138,7 +138,7 @@ get_real_chost() {
 	# make sure portage isnt broken
 	if python -V &>/dev/null ; then
 		local myportageq=$(PATH="${EPREFIX}/usr/bin:${PATH}" type -P portageq)
-		if [[ $( "${myportageq}" envvar KERNEL) == Cygwin ]] ; then
+		if [[ $( "${myportageq}" envvar KERNEL) == Cygwin* ]] ; then
 		    # on Cygwin we simply cannot function without cygwin1.dll somewhere in
 			# our path.  For the forseeable future, we will take cygwin1.dll from
 			# upstream, so we at least need "/bin" in the PATH, which is where it's
