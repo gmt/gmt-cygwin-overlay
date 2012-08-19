@@ -1,15 +1,26 @@
 ===== mutual sub-directory: "eclass" =====
----("eclass/libtool.eclass")--->8--->
---- usr/portage/eclass/libtool.eclass [[PORTAGE]]
-+++ overlay/eclass/libtool.eclass [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2012 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/eclass/libtool.eclass,v 1.101 2012/07/26 16:14:47 grobian Exp $
-+# $Header: $
+----[ "eclass/eutils.eclass" ]----->8----->
+--- PORTAGE/eclass/eutils.eclass
++++ OVERLAY/eclass/eutils.eclass
+@@ -658,7 +658,7 @@
+ # @CODE
+ # binary:   what command does the app run with ?
+ # name:     the name that will show up in the menu
+-# icon:     give your little like a pretty little icon ...
++# icon:     i'm gonna give your little thingy a pretty little icon ...
+ #           this can be relative (to /usr/share/pixmaps) or
+ #           a full path to an icon
+ # type:     what kind of application is this?
+@@ -1488,3 +1488,5 @@
+ check_license() { die "you no longer need this as portage supports ACCEPT_LICENSE itself"; }
  
- # @ECLASS: libtool.eclass
- # @MAINTAINER:
+ fi
++
++# vim: syntax=sh
+<-----8<-----
+----[ "eclass/libtool.eclass" ]----->8----->
+--- PORTAGE/eclass/libtool.eclass
++++ OVERLAY/eclass/libtool.eclass
 @@ -27,6 +27,9 @@
  	if [[ ! -d ${d} ]] ; then
  		d="${ECLASSDIR_LOCAL}/ELT-patches"
@@ -112,18 +123,10 @@
  				*)
  					ELT_walk_patches "${d}/ltmain.sh" "${p}"
  					ret=$?
-<---8<---
----("eclass/multilib.eclass")--->8--->
---- usr/portage/eclass/multilib.eclass [[PORTAGE]]
-+++ overlay/eclass/multilib.eclass [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2011 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/eclass/multilib.eclass,v 1.98 2012/06/03 08:27:53 vapier Exp $
-+# $Header: $
- 
- # @ECLASS: multilib.eclass
- # @MAINTAINER:
+<-----8<-----
+----[ "eclass/multilib.eclass" ]----->8----->
+--- PORTAGE/eclass/multilib.eclass
++++ OVERLAY/eclass/multilib.eclass
 @@ -238,7 +238,7 @@
  	local libname
  	local ver=$1
@@ -133,18 +136,10 @@
  		*-darwin*)                libname="dylib";;
  		*-mint*)                  libname="irrelevant";;
  		hppa*-hpux*)              libname="sl";;
-<---8<---
----("eclass/toolchain-funcs.eclass")--->8--->
---- usr/portage/eclass/toolchain-funcs.eclass [[PORTAGE]]
-+++ overlay/eclass/toolchain-funcs.eclass [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2011 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain-funcs.eclass,v 1.112 2012/06/14 03:38:51 vapier Exp $
-+# $Header: $
- 
- # @ECLASS: toolchain-funcs.eclass
- # @MAINTAINER:
+<-----8<-----
+----[ "eclass/toolchain-funcs.eclass" ]----->8----->
+--- PORTAGE/eclass/toolchain-funcs.eclass
++++ OVERLAY/eclass/toolchain-funcs.eclass
 @@ -66,6 +66,10 @@
  # @USAGE: [toolchain prefix]
  # @RETURN: name of the C++ compiler
@@ -175,7 +170,7 @@
  
  		alpha*)		echo alpha;;
  		arm*)		echo arm;;
-@@ -631,34 +640,57 @@
+@@ -631,36 +640,57 @@
  # correctly to point to the latest version of the library present.
  gen_usr_ldscript() {
  	local lib libdir=$(get_libdir) output_format="" auto=false suffix=$(get_libname)
@@ -184,6 +179,8 @@
  
  	tc-is-static-only && return
  
+-	[[ -n ${PREFIX_DISABLE_GEN_USR_LDSCRIPT} ]] && return
+-
  	# Just make sure it exists
  	dodir /usr/${libdir}
  
@@ -236,7 +233,7 @@
  		fi
  
  		case ${CTARGET:-${CHOST}} in
-@@ -738,6 +770,87 @@
+@@ -740,6 +770,87 @@
  			ln -snf "../../${libdir}/${tlib}" "${lib}"
  			popd > /dev/null
  			;;
@@ -324,23 +321,15 @@
  		hppa*-hpux*) # PA-RISC 32bit (SOM) only, others (ELF) match *64*-hpux* above.
  			if ${auto} ; then
  				tlib=$(chatr "${ED}"/usr/${libdir}/${lib} | sed -n '/internal name:/{n;s/^ *//;p;q}')
-@@ -799,3 +912,4 @@
+@@ -801,3 +912,4 @@
  }
  
  fi
 +# vim: syntax=sh
-<---8<---
----("eclass/toolchain.eclass")--->8--->
---- usr/portage/eclass/toolchain.eclass [[PORTAGE]]
-+++ overlay/eclass/toolchain.eclass [[OVERLAY]]
-@@ -1,6 +1,6 @@
- # Copyright 1999-2012 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/eclass/toolchain.eclass,v 1.550 2012/06/11 21:07:31 vapier Exp $
-+# $Header: $
- #
- # Maintainer: Toolchain Ninjas <toolchain@gentoo.org>
- 
+<-----8<-----
+----[ "eclass/toolchain.eclass" ]----->8----->
+--- PORTAGE/eclass/toolchain.eclass
++++ OVERLAY/eclass/toolchain.eclass
 @@ -1187,6 +1187,8 @@
  			confgcc+=" --enable-shared"
  		fi
@@ -404,7 +393,7 @@
  gcc_src_test() { toolchain_src_test ; }
 +
 +# vim: syntax=sh
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "eclass/ELT-patches" =====
 
 *** The following files appear only in the overlay ***
@@ -451,7 +440,6 @@ usr/portage/eclass/embassy.eclass: ASCII English text
 usr/portage/eclass/emboss.eclass: ASCII English text
 usr/portage/eclass/emul-linux-x86.eclass: ASCII English text
 usr/portage/eclass/enlightenment.eclass: ASCII English text
-usr/portage/eclass/eutils.eclass: ASCII English text
 usr/portage/eclass/fdo-mime.eclass: ASCII English text
 usr/portage/eclass/findlib.eclass: ASCII English text
 usr/portage/eclass/fixheadtails.eclass: ASCII English text
