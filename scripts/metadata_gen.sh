@@ -78,7 +78,7 @@ if [[ -n $limitdir ]] ; then case $limitdir in
 		;;
 	*)
 		atoms=$(
-			for d in $( cd "${limitdir}" ; ls ) ; do
+			for d in $( cd "${limitdir}" && ls ) ; do
 				echo "${limitdir}/${d}"
 			done
 		)
