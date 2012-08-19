@@ -203,8 +203,22 @@ If you are having trouble bootstrapping python due to a chicken-and-egg issue
 with the gcc-config -> python -> gcc -> gcc-config recursive dependency, try
 emerging python with the "cygbootstraphack" USE-flag.
 
+Rebasing
+========
+
+From time to time your gentoo portage is likely to "freak out" and dump lots of
+confusing messages about fork().  When this happens there is nothing to be done
+for it but to kill off /all/ of your cygwin processes and run the pfxrebase.bat
+program from a "dos" prompt (not cygwin).
+
+With any luck, that will fix the problem.  There are some paths hard-coded into
+the top of the pfxrebase.bat file.  Please adjust them to reflect the specifics
+of your particular installation.  If your cygwin layout is nonstandard you may
+also need to hack on the "*_all" files in scripts/.
+
 gl!
 
--gmt
+-gmt 
 
+Greg Turner
 gmt@be-evil.RM-IF-NOT-SPAM.net
