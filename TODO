@@ -33,7 +33,7 @@ o libtool patches for fork/subshell avoidance
 o fix libtool-2.4.2.ebuild to be merely horrible instead of satanically,
   rediculously, unspeakably gross.
 
-o As of now, they are ignored, completely, even if you name them explicitly
+o As of now, symlinks are ignored, completely, even if you name them explicitly
   in CYGDLL_PROTECT.  I'm pretty sure that rebase errors could be caused this
   way, if not by .dlls, then almost certainly by symlinks to .exe's.
 
@@ -60,7 +60,7 @@ o manpage entries about the items we added to EPREFIX/var/lib/portage
 o Clearly absolute paths are not the (full) answer for cygdll-protect.  Either
   implement a kludge like "dll's get their paths stripped for testing
   is_cygdll_protected" or something more generally useful like regular
-  expression matching (substututions?) I still wasn't convinced we need this
+  expression matching or shell-globs.  I still wasn't convinced we need this
   until I realized what happens when you move a dll around from version a->b
   of an ebuild -- it's back to the same old BS rebase issues again; there's no
   reason to let continue after building all this infrastructure to prevent it.
@@ -81,7 +81,7 @@ o If cygdll_protected files are in "removed-in-limbo" state (that is, the file
   removed), then if a package is merged that wants to create this file, and
   collision-protect is active, then the merge will fail as there is no exception
   made in the collision-protect code against it.  Also, if protect-if-owned is
-  active, then the long database search that happens for collisions will run
+  active, then the long database search that happens for collisions will
   occur (although, presumably, the merge will succeed in this case).
 
   Both of these cases require an exception.  Instead of normal collision behavior,
@@ -129,3 +129,9 @@ o There is a conflict between cygwin and the latest parallel processing commits 
 o We should offer the option of a cygwin-headers package which is built from
   source -- cygwin.cygport doesn't look too hairy although limiting the build
   to just what's needed for headers might be a challenge.
+
+o There is a cygdll-protect bug in portage which happens when a cygdll_protected
+  .dll with in-limbo updates pending is removed by an upgrade.  The unmerge
+  step shows "!md5" and the old file is orphaned rather than being cygdll-protected.
+  (either way the file would remain in the filesystem but it is definitely supposed to
+  be cygdll-protected in the normal way (with a null md5 in the cygdll-protect database).
