@@ -163,7 +163,7 @@
 ===== mutual sub-directory: "sys-apps/portage/files" =====
 
 *** The following files appear only in the overlay ***
-overlay/sys-apps/portage/portage-2.2.01.20389.ebuild: ASCII English text
+overlay/sys-apps/portage/portage-2.2.01.20389.ebuild: ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cyg_whitelist.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-lib-qa-fix.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-locking-nightmare.patch: unified diff output, ASCII text
@@ -177,5 +177,5 @@ overlay/sys-apps/portage/files/portage-2.2.01.20796-cygwin-revert-problematic-co
 overlay/sys-apps/portage/files/portage-2.2.01.20837-cygdll_protect.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-apps/portage/portage-2.2.01.20757.ebuild: ASCII English text
+usr/portage/sys-apps/portage/portage-2.2.01.20757.ebuild: ASCII text
 

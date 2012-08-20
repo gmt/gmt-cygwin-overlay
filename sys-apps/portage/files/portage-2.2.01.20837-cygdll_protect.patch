@@ -1,10 +1,26 @@
-commit e456f98e4bd13348e1ae77e52ac4df8b06fbb3d6
+commit 82ad491bcd9440a6cd2188666124e098628559e7
 Author: Gregory M. Turner <gmturner007@ameritech.net>
 Date:   Thu Aug 2 15:38:31 2012 -0700
 
-    cygwin: cygdll_protect (REFACTOR-ME)
+    cygwin: cygdll_protect
     
     This is the cygdll_protect patch I've been kicking around for a while.
+    
+    Adds the cygdll_protect feature, which allows files to be merged by
+    portage but still "in-limbo" in a manner analogous to config_protect.
+    Unlike config_protect, only one pending update to a file is tolerated
+    (config_protect takes precedence over cygdll_protect, so this is not
+    a problem).
+    
+    The idea is that many updates in cygwin are likely to cause rebasing
+    errors if they are actually deployed, which ends up looking like armageddon
+    for any running cygwin processes (unless they never, ever fork()).
+    
+    This provides a way to temporarily defer those updates until such a time
+    as the user is comfortable with such a drastic event.
+    
+    additional notes:
+    =================
     
     Executive summary: this patch is too big and should be refactored
     into several smaller commits.  However, the code is pretty much
@@ -40,6 +56,15 @@ Date:   Thu Aug 2 15:38:31 2012 -0700
     
     Aside from the issue of splitting the patches, however, AFAIK, the
     implementation is correct and working.
+    
+    additional commits in my tree squashed into this one:
+    
+    cygdll-protect: cygdll-update: preserve debug mode when reinvoking
+    cygdll_protect: cygdll-update: oops, fix master-lock bug
+    cygdll_protect: cygdll-update: Support empty files
+    cygdll_protect: portageq: query cygdll_protect & cygdll_protected installation
+    
+    Signed-off-by: Gregory M. Turner <gmturner007@ameritech.net>
 
 diff --git a/bin/Makefile.in b/bin/Makefile.in
 index e9bf141..a77335e 100644
@@ -55,10 +80,10 @@ index e9bf141..a77335e 100644
  	env-update \
 diff --git a/bin/cygdll-update b/bin/cygdll-update
 new file mode 100644
-index 0000000..3a0d30b
+index 0000000..b4a38bd
 --- /dev/null
 +++ b/bin/cygdll-update
-@@ -0,0 +1,258 @@
+@@ -0,0 +1,266 @@
 +#!@PORTAGE_BASH@
 +# Copyright 1999-2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
@@ -70,6 +95,8 @@ index 0000000..3a0d30b
 +# Leo Lipelis <aeoo@gentoo.org>
 +# Karl Trygve Kalleberg <karltk@gentoo.org>
 +# Author Brandon Low <lostlogic@gentoo.org>
++
++_cygdll_protect_prefix="_cygdll_protect_"
 +
 +cd /
 +
@@ -125,13 +152,10 @@ index 0000000..3a0d30b
 +	# FIXME: support spaces in filenames!!!
 +	for path in ${CYGDLL_PROTECT} ; do
 +		origpath="${path}"
-+
-+
-+
 +		path="${EPREFIX%/}/${path#/}"
 +		my_basename="${path##*/}"
 +		path="${path%/*}"
-+		cygdllfile="_cygdll_protect_${my_basename}"
++		cygdllfile="${_cygdll_protect_prefix}${my_basename}"
 +
 +		if [[ -e "${path}/${cygdllfile}" ]] ; then
 +			echo "Merging in-limbo update for: ${path}/${my_basename}"
@@ -181,10 +205,19 @@ index 0000000..3a0d30b
 +
 +	# by filtering removal candidates that don't exist, we cause the main removal
 +	# loop to take care of them; since the corresponding _cygdll_protect_ files
-+	# do not exist, it will simply call done_add and they will be removed from the db
++	# do not exist, it will simply call done_add and they will be removed from the db.
++	# However, if the _cygdll_protect_ file /does/ exist, we also want to filter the
++	# removal candidate, because such cases do not represent removals, but replacement
++	# by a file which happens to be empty (which is suspicious, but what can we do?)
 +	pending_removals="$( echo $( echo "${removal_candidates}" | \
 +		while read removal_candidate ; do
-+			[[ -f "${EPREFIX%/}/${removal_candidate#/}" ]] && echo "${removal_candidate}"
++			removal_candidate_path="${EPREFIX%/}/${removal_candidate#/}"
++			removal_candidate_basename="${removal_candidate_path##*/}"
++			removal_candidate_dir="${removal_candidate_path%/*}"
++			removal_candidate_cygdllfile="${_cygdll_protect_prefix}${removal_candidate_basename}"
++			[[ -f "${removal_candidate_dir}/${removal_candidate_cygdllfile}" ]] && continue
++			[[ -f "${removal_candidate_path}" ]] || continue
++			echo "${removal_candidate}"
 +		done
 +	) )"
 +}
@@ -202,10 +235,10 @@ index 0000000..3a0d30b
 +
 +	echo -n "Cleaning up...."
 +
-+	pq master_lock_release
 +	if (( ${#done[*]} > 0 )) ; then
 +		pq cygdll_protect_clear "${EROOT}" "${done[@]}"
 +	fi
++	pq master_lock_release
 +
 +	echo
 +
@@ -233,7 +266,7 @@ index 0000000..3a0d30b
 +# Run the script
 +#
 +
-+SET_X=false
++SET_X=${SET_X:-false}
 +while [[ -n $1 ]] ; do
 +	case $1 in
 +		-d|--debug)   SET_X=true;;
@@ -431,19 +464,30 @@ index f8cd6e2..0172e67 100755
  # to and from files ("foo" and "bar", respectively) that don't include ".exe"
  # at the end, and if bar and bar.exe both exist and have he same inode, and
 diff --git a/bin/portageq b/bin/portageq
-index b07df1d..4a9fb82 100755
+index b07df1d..7a31899 100755
 --- a/bin/portageq
 +++ b/bin/portageq
-@@ -55,6 +55,8 @@ portage.proxy.lazyimport.lazyimport(globals(),
+@@ -21,6 +21,8 @@ except KeyboardInterrupt:
+ 	sys.exit(128 + signal.SIGINT)
+ 
+ import os
++from stat import ST_MODE, S_ISREG
++import shutil
+ import types
+ 
+ # for an explanation on this logic, see pym/_emerge/__init__.py
+@@ -55,6 +57,10 @@ portage.proxy.lazyimport.lazyimport(globals(),
  	'_emerge.RootConfig:RootConfig',
  	'portage.dbapi._expand_new_virt:expand_new_virt',
  	'portage._sets.base:InternalPackageSet',
++	'portage.util.cygdll_protection:cygdllprotect_filename',
 +	'portage.util.master_lock:acquire_master_lock,release_master_lock',
-+	'portage.checksum:perform_all'
++	'portage.util.movefile:applystat,copyxattr',
++	'portage.checksum:perform_all,perform_md5'
  )
  
  def eval_atom_use(atom):
-@@ -777,6 +779,119 @@ def list_preserved_libs(argv):
+@@ -777,6 +783,273 @@ def list_preserved_libs(argv):
  	return rValue
  list_preserved_libs.uses_root = True
  
@@ -491,6 +535,10 @@ index b07df1d..4a9fb82 100755
 +
 +	would empty out the cygdll protections database in
 +	/foo/var/lib/portage/cygdll completely.
++
++	WARNING: Does not acquire or enforce the portage master lock!!!  To avoid
++	database corruption it is essential that the portage master lock
++	be acquired before using this.
 +	"""
 +	if len(argv) < 2:
 +		print("ERROR: wrong number of arguments")
@@ -560,20 +608,175 @@ index b07df1d..4a9fb82 100755
 +		writemsg_stdout("%s\n" % cksum, noiselevel=-1)
 +	return 0
 +
++def is_cygdll_protected(argv):
++	"""<eroot> <filename>
++	Given a fully qualified candidate filepath, determines whether
++	or not cygwin dll protection applies in the given eroot.
++
++	returns zero (success) if the file in question requires protection, or
++	1 (failure) if the file does not appear to warrant protection.  Returns
++	2 on any error.  The file path need not exist, for a meaningful test to
++	occur, but if it does not start with the eroot filepath, it is treated
++	as an error.
++	"""
++	if len(argv) != 2:
++		print("ERROR: Wrong number of arguments")
++		sys.exit(2)
++	cygdllprotect = portage.db[argv[0]]["vartree"].dbapi._cygdllprotect
++	canonpath, has_eprefix = cygdllprotect._canonicalize_path(argv[1])
++	if not has_eprefix:
++		print("ERROR: Path must start with valid EPREFIX equivalent.")
++		sys.exit(2)
++	if cygdllprotect.is_cygdll_protected(canonpath):
++		return 0
++	else:
++		return 1
++is_cygdll_protected.uses_root = True
++
++def cygdll_install_protected_file(argv):
++	"""<eroot> <source> <dest>
++	Places a copy of the source file in cygwin dll protection limbo
++	as a pending replacement for the specified destination file.
++	To place a logical file-removal in limbo, provide "/dev/null"
++	as the source file.  In all other cases, both the source and
++	destination files must begin with EPREFIX.
++
++	Does not change the portage package database and therefore should
++	be used with caution: will happily create orphaned files and
++	can cause file collisions; intended for use with non-portage dests.
++
++	Returns 1 if an error occurs and 0 otherwise.
++
++	WARNING: Does not acquire or enforce the portage master lock!!!  To avoid
++	database corruption it is essential that the portage master lock
++	be acquired before using this.
++	"""
++	if len(argv) != 3:
++		print("ERROR: Wrong number of arguments")
++		sys.exit(1)
++	cygdllprotect = portage.db[argv[0]]["vartree"].dbapi._cygdllprotect
++
++	if argv[1] == '/dev/null':
++		canonsource = ''
++	else:
++		canonsource, has_eprefix = cygdllprotect._canonicalize_path(argv[1])
++		if not has_eprefix:
++			print("ERROR: %s does not start with a valid EPREFIX" % argv[1])
++			sys.exit(1)
++		if not os.path.exists(canonsource):
++			print("ERROR: %s does not exist." % argv[1])
++			sys.exit(1)
++		mode = os.stat(canonsource)[ST_MODE]
++		if not S_ISREG(mode):
++			print("ERROR: %s exists but is not a regular file." % argv[1])
++			sys.exit(1)
++	canondest, has_eprefix = cygdllprotect._canonicalize_path(argv[2])
++	if not has_eprefix:
++		print("ERROR: %s does not start with a valid EPREFIX" % argv[2])
++		sys.exit(1)
++
++	if len(canonsource) > 0:
++		source = os.sep + os.path.relpath(canonsource, cygdllprotect._eprefix)
++		sourcemd5 = perform_md5(canonsource)
++	else:
++		source = ''
++		sourcemd5 = perform_md5('/dev/null')
++	dest = os.sep + os.path.relpath(canondest, cygdllprotect._eprefix)
++	realdest = cygdllprotect_filename(canondest)
++
++	do_db_entry = True
++	do_file_copy = False
++
++	# We now need to install the physical file.  We need to handle all of the
++	# following cases (note that, where I have not listed "drop db entry",
++	# it is implied that the db-entry will be created or updated):
++	#
++	# destination exists but is not a regular file (error)
++	# source does not exist and not a removal (error - this was already handled above)
++	# source exists and is not a regular file (error - this was already handled above)
++	# removal of nonexistent file (remove any in-limbo file, drop db entry)
++	# removal of existing file (remove any existing in-limbo file)
++	# addition of nonexistent file (add/replace in-limbo file)
++	# addition of existing file identical to dest (copy permissions, remove any in-limbo file, drop db entry)
++	# addition of existing file different from dest (add/replace in-limbo file)
++	#
++	# no special handling is required for adding existing files different from dest but identical to pending
++	# in-limbo updates, since we want to capture all of the permissions anyhow and the best way is to treat
++	# as just a regular addition of existing file different from dest.
++	#
++	# Portage is supposed to do the exact same thing for all of these cases.  If it doesn't, it's a bug!
++
++	if os.path.exists(canondest):
++		mode = os.stat(canondest)[ST_MODE]
++		if not S_ISREG(mode):
++			print("ERROR: %s exists but is not a regular file." % canondest)
++			sys.exit(1)
++		if source == '': # removal
++			if os.path.exists(realdest):
++				mode = os.stat(realdest)[ST_MODE]
++				if not S_ISREG(mode):
++					print("ERROR: %s exists but is not a regular file." % realdest)
++					sys.exit(1)
++				os.unlink(realdest)
++		else: # addition of existing file
++			destmd5 = perform_md5(canondest)
++			if sourcemd5 == destmd5: # ... identical to dest
++				applystat(os.stat(canonsource), canondest)
++				copyxattr(canonsource, canondest)
++				if os.path.exists(realdest):
++					mode = os.stat(realdest)[ST_MODE]
++					if not S_ISREG(mode):
++						print("ERROR: %s exists but is not a regular file." % realdest)
++						sys.exit(1)
++					os.unlink(realdest)
++				cygdllprotect.limbodb_drop(dest)
++				do_db_entry = False
++			else: # ... diferent from dest
++				do_file_copy = True
++	else: # ! os.path.exists(canondest)
++		if source == '': # removal
++			if os.path.exists(realdest):
++				mode = os.stat(realdest)[ST_MODE]
++				if not S_ISREG(mode):
++					print("ERROR: %s exists but is not a regular file." % realdest)
++					sys.exit(1)
++				os.unlink(realdest)
++			cygdllprotect.limbodb_drop(dest)
++			do_db_entry = False
++		else: # addition of nonexistent file
++			do_file_copy = True
++
++	if do_file_copy:
++		shutil.copyfile(canonsource, realdest)
++		applystat(os.stat(canonsource), realdest)
++		copyxattr(canonsource, realdest)
++
++	# sheesh, what a PITA that was... now update the database if required.
++	if do_db_entry:
++		cygdllprotect.limbodb_add(dest, sourcemd5)
++
++	return 0
++cygdll_install_protected_file.uses_root = True
++
  #-----------------------------------------------------------------------------
  #
  # DO NOT CHANGE CODE BEYOND THIS POINT - IT'S NOT NEEDED!
-@@ -787,7 +902,8 @@ if not portage.const._ENABLE_PRESERVE_LIBS:
+@@ -785,9 +1058,12 @@ list_preserved_libs.uses_root = True
+ if not portage.const._ENABLE_PRESERVE_LIBS:
+ 	del list_preserved_libs
  
- non_commands = frozenset(['elog', 'eval_atom_use',
+-non_commands = frozenset(['elog', 'eval_atom_use',
++non_commands = frozenset(['applystat', 'copyxattr',
++	'cygdllprotect_filename', 'elog', 'eval_atom_use',
  	'exithandler', 'expand_new_virt', 'main',
 -	'usage', 'writemsg', 'writemsg_stdout'])
++	'perform_all', 'perform_md5',
 +	'usage', 'writemsg', 'writemsg_stdout',
 +	'acquire_master_lock', 'release_master_lock'])
  commands = sorted(k for k, v in globals().items() \
  	if k not in non_commands and isinstance(v, types.FunctionType))
  
-@@ -909,3 +1025,4 @@ def main():
+@@ -909,3 +1185,4 @@ def main():
  main()
  
  #-----------------------------------------------------------------------------
@@ -2615,10 +2818,10 @@ index b95ed97..49d3272 100644
  		mod = None
 diff --git a/pym/portage/util/cygdll_protection.py b/pym/portage/util/cygdll_protection.py
 new file mode 100644
-index 0000000..2a55611
+index 0000000..15269b3
 --- /dev/null
 +++ b/pym/portage/util/cygdll_protection.py
-@@ -0,0 +1,435 @@
+@@ -0,0 +1,457 @@
 +# Copyright 2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
 +
@@ -2972,6 +3175,8 @@ index 0000000..2a55611
 +		"""
 +		Accepts a list of un-prefixed file names beginning with '/' and removes any
 +		matching entries from the cygwin dll protection in-limbo files database.
++		Does not take care of acquiring the master lock; this must be done before using
++		this API to ensure data integrity.
 +		@param: file_list
 +		@type: List
 +		"""
@@ -2987,6 +3192,28 @@ index 0000000..2a55611
 +		else:
 +			return 1
 +
++	def limbodb_add(self, filename, filemd5):
++		"""
++		Adds the provided filename to the limbodb to the current cygdll protection
++		database, unless an exactly matching entry already exists, in which case
++		no action is taken.  The filename provided should have any prefix stripped from
++		the front and start with a '/'.  The provided filenames are not sanity checked
++		or canonicalized in any way, but blindly added after prepending the prefix.
++		NB: does not take care of the master lock; to ensure data integrity this
++		must be perfomred externally before using this API!
++		@param filename: The filename to be added; should have any EPREFIX stripped from
++		                 the front.
++		@type filename: String
++		@param filemd5: The md5 to store for the new database entry.
++		@type filemd5: String
++		"""
++		oldfilesdict = grabdict(self._cygdll_memory_file_path)
++		newfilesdict = oldfilesdict.copy()
++		newfilesdict[os.path.join(self._raw_eprefix, os.path.relpath(filename, os.sep))] = [filemd5]
++		if newfilesdict != oldfilesdict:
++			writedict(newfilesdict, self._cygdll_memory_file_path)
++		return os.EX_OK
++
 +	def __nonzero__(self):
 +		return True
 +
@@ -2996,11 +3223,9 @@ index 0000000..2a55611
 +
 +def cygdllprotect_filename(mydest):
 +	"""
-+	Resolves a cygdll-protect filename for merging.  If force is provided
-+	(and true), generates a cygwin dll protection filename even if mydest
-+	does not exist; otherwise, returns the original filename.  unlike config
-+	protection, cygdll protection has no need to support multiple layers of
-+	pending changes, so no numbers are used.  Currently the protection
++	Resolves a cygdll-protect filename for merging.  Unlike config
++	protection, cygdll protection has no need for multiple layers of
++	pending changes, so no numbers are appended.  Currently the protection
 +	filename format simply prepends "_cygdll_protect_" to the original.
 +	"""
 +
