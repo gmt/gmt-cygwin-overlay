@@ -1,8 +1,8 @@
-commit 82ad491bcd9440a6cd2188666124e098628559e7
+commit 1e0a389377b9c607a3db3f5b3c1153ad2224a4b7
 Author: Gregory M. Turner <gmturner007@ameritech.net>
 Date:   Thu Aug 2 15:38:31 2012 -0700
 
-    cygwin: cygdll_protect
+    cygwin: cygdll_protect (REFACTOR-ME)
     
     This is the cygdll_protect patch I've been kicking around for a while.
     
@@ -30,13 +30,13 @@ Date:   Thu Aug 2 15:38:31 2012 -0700
     
     In portage, proper, we have:
     
-     o the master_lock infrastructure and
-     o the CYGDLL_PROTECT handler code;
+      o the master_lock infrastructure and
+      o the CYGDLL_PROTECT handler code;
     
     the latter depends on the former and should be separated into
     its own patch.  Thirdly, it contains
     
-     o the cygdll-update implementation,
+      o the cygdll-update implementation,
     
     which operates enitrely separately from anything else and really should
     be split into a separate patch, as well.  The additions to portageq
@@ -45,11 +45,6 @@ Date:   Thu Aug 2 15:38:31 2012 -0700
     be double checked, i.e. with the cygwin-overlay's
     scripts/portage_workdir_hacktool "grepit" tool, to be sure.
     
-    [OT: Speaking of which, it would be pretty sexy if portage_workdir_hacktool
-    could be taught to automatically translate back and forth between the
-    commits in this repo and those in the overlay's sys-apps/portage/files
-    directory.... perhaps using stgit?]
-    
     Finally, the documentation changes could be split out.  So the patch should
     be refactored into at least four or five separate patches, hence no
     sign-off as-is.
@@ -57,14 +52,42 @@ Date:   Thu Aug 2 15:38:31 2012 -0700
     Aside from the issue of splitting the patches, however, AFAIK, the
     implementation is correct and working.
     
-    additional commits in my tree squashed into this one:
+    additional git commits squashed into this patch:
     
     cygdll-protect: cygdll-update: preserve debug mode when reinvoking
     cygdll_protect: cygdll-update: oops, fix master-lock bug
+    
+    Silly me, I was releasing the master lock /before/ doing the
+    database operation instead of after.  Not much point in it
+    that way :)
+    
     cygdll_protect: cygdll-update: Support empty files
+    
+    If we try to put an empty file in-limbo, cygdll-update was
+    interpreting this as a pending removal.  This is a weird
+    corner-case but if it happens, there is cruft left behind
+    and there's no reason we can't support it.  This changes
+    cygdll-update to check if the corresponding _cygdll_protect_
+    file exists and do the right thing with it.
+    
     cygdll_protect: portageq: query cygdll_protect & cygdll_protected installation
     
-    Signed-off-by: Gregory M. Turner <gmturner007@ameritech.net>
+    This adds two new capabilities to portageq:
+    
+      o The ability to query if a file should be cygdll_protected
+      o The ability to actually install a file as a cygdll_protected
+        replacement for a live file on the filesystem
+    
+    This can be used by, i.e., gcc-config/binutils-config, or
+    eselect foo utilities, to ensure that they do not trigger
+    rebasing problems.  The files that get protected don't
+    need to be portage files, but they do need to be somewhere
+    under EPREFIX.
+    
+    cygdll_protect: portageq: in-limbo protections warning
+    
+    Adds the ability to dump the standard warning about in-limbo
+    files pending merging.
 
 diff --git a/bin/Makefile.in b/bin/Makefile.in
 index e9bf141..a77335e 100644
@@ -464,7 +487,7 @@ index f8cd6e2..0172e67 100755
  # to and from files ("foo" and "bar", respectively) that don't include ".exe"
  # at the end, and if bar and bar.exe both exist and have he same inode, and
 diff --git a/bin/portageq b/bin/portageq
-index b07df1d..7a31899 100755
+index b07df1d..29f3606 100755
 --- a/bin/portageq
 +++ b/bin/portageq
 @@ -21,6 +21,8 @@ except KeyboardInterrupt:
@@ -476,7 +499,15 @@ index b07df1d..7a31899 100755
  import types
  
  # for an explanation on this logic, see pym/_emerge/__init__.py
-@@ -55,6 +57,10 @@ portage.proxy.lazyimport.lazyimport(globals(),
+@@ -49,12 +51,18 @@ from portage import os
+ from portage.eapi import eapi_has_repo_deps
+ from portage.util import writemsg, writemsg_stdout
+ from portage.output import colormap
++from _emerge.actions import chk_updated_cygdll_files
++
+ portage.proxy.lazyimport.lazyimport(globals(),
+ 	'subprocess',
+ 	'_emerge.Package:Package',
  	'_emerge.RootConfig:RootConfig',
  	'portage.dbapi._expand_new_virt:expand_new_virt',
  	'portage._sets.base:InternalPackageSet',
@@ -487,7 +518,7 @@ index b07df1d..7a31899 100755
  )
  
  def eval_atom_use(atom):
-@@ -777,6 +783,273 @@ def list_preserved_libs(argv):
+@@ -777,6 +785,287 @@ def list_preserved_libs(argv):
  	return rValue
  list_preserved_libs.uses_root = True
  
@@ -758,25 +789,40 @@ index b07df1d..7a31899 100755
 +	return 0
 +cygdll_install_protected_file.uses_root = True
 +
++def cygdll_show_in_limbo_updates(argv):
++	"""<eroot>
++	Displays a warning suitable for human consumption if there are pending in-limbo
++	cygdll_protected files in the database, as portage does when it terminates.
++	Always returns zero.
++	"""
++	if len(argv) != 1:
++		print("ERROR: Wrong number of arguments")
++		sys.exit(1)
++	settings = portage.db[argv[0]]["vartree"].settings
++	chk_updated_cygdll_files(settings["EROOT"], settings.get("CYGDLL_PROTECT", ""))
++	return 0
++cygdll_show_in_limbo_updates.uses_root = True
++
  #-----------------------------------------------------------------------------
  #
  # DO NOT CHANGE CODE BEYOND THIS POINT - IT'S NOT NEEDED!
-@@ -785,9 +1058,12 @@ list_preserved_libs.uses_root = True
+@@ -785,9 +1074,12 @@ list_preserved_libs.uses_root = True
  if not portage.const._ENABLE_PRESERVE_LIBS:
  	del list_preserved_libs
  
 -non_commands = frozenset(['elog', 'eval_atom_use',
-+non_commands = frozenset(['applystat', 'copyxattr',
-+	'cygdllprotect_filename', 'elog', 'eval_atom_use',
- 	'exithandler', 'expand_new_virt', 'main',
+-	'exithandler', 'expand_new_virt', 'main',
 -	'usage', 'writemsg', 'writemsg_stdout'])
-+	'perform_all', 'perform_md5',
++non_commands = frozenset(['applystat', 'chk_updated_cygdll_files',
++	'copyxattr', 'cygdllprotect_filename', 'elog',
++	'eval_atom_use', 'exithandler', 'expand_new_virt',
++	'main', 'perform_all', 'perform_md5', 'S_ISREG',
 +	'usage', 'writemsg', 'writemsg_stdout',
 +	'acquire_master_lock', 'release_master_lock'])
  commands = sorted(k for k, v in globals().items() \
  	if k not in non_commands and isinstance(v, types.FunctionType))
  
-@@ -909,3 +1185,4 @@ def main():
+@@ -909,3 +1201,4 @@ def main():
  main()
  
  #-----------------------------------------------------------------------------
