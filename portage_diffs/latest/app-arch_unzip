@@ -1,16 +1,4 @@
 ===== mutual sub-directory: "app-arch/unzip" =====
-----[ "app-arch/unzip/ChangeLog" ]----->8----->
---- PORTAGE/app-arch/unzip/ChangeLog
-+++ OVERLAY/app-arch/unzip/ChangeLog
-@@ -1,6 +1,6 @@
- # ChangeLog for app-arch/unzip
- # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: $
-+# $Header: /var/cvsroot/gentoo-x86/app-arch/unzip/ChangeLog,v 1.82 2012/04/26 16:34:58 aballier Exp $
- 
-   26 Apr 2012; Alexis Ballier <aballier@gentoo.org> unzip-6.0-r3.ebuild:
-   keyword ~amd64-fbsd
-<-----8<-----
 ----[ "app-arch/unzip/unzip-6.0-r2.ebuild" ]----->8----->
 --- PORTAGE/app-arch/unzip/unzip-6.0-r2.ebuild
 +++ OVERLAY/app-arch/unzip/unzip-6.0-r2.ebuild
