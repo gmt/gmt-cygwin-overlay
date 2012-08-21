@@ -1,67 +1,7 @@
 ===== mutual sub-directory: "dev-libs/gmp" =====
----("dev-libs/gmp/ChangeLog")--->8--->
---- usr/portage/dev-libs/gmp/ChangeLog [[PORTAGE]]
-+++ overlay/dev-libs/gmp/ChangeLog [[OVERLAY]]
-@@ -1,35 +1,6 @@
- # ChangeLog for dev-libs/gmp
--# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/dev-libs/gmp/ChangeLog,v 1.161 2012/01/03 10:21:17 vapier Exp $
--
--  03 Jan 2012; Mike Frysinger <vapier@gentoo.org> gmp-5.0.2_p1.ebuild:
--  Mung the libgmp.la references in libgmpxx.la #397389 by David Leverton.
--
--  01 Jan 2012; Raúl Porcel <armin76@gentoo.org> gmp-5.0.2_p1.ebuild:
--  ia64/m68k/s390/sh/sparc/x86 stable wrt #395193
--
--  26 Dec 2011; Markus Meier <maekke@gentoo.org> gmp-5.0.2_p1.ebuild:
--  arm stable, bug #395193
--
--  23 Dec 2011; Matt Turner <mattst88@gentoo.org> gmp-5.0.2_p1.ebuild:
--  alpha stable, bug #395193.
--
--  20 Dec 2011; Jeroen Roovers <jer@gentoo.org> gmp-5.0.2_p1.ebuild:
--  Stable for HPPA (bug #395193).
--
--  18 Dec 2011; Agostino Sarubbo <ago@gentoo.org> gmp-5.0.2_p1.ebuild:
--  Stable for AMD64, wrt bug #395193
--
--  18 Dec 2011; Mike Frysinger <vapier@gentoo.org> gmp-5.0.2.ebuild:
--  Mark ppc64 stable #380675.
--
--  08 Dec 2011; Mike Frysinger <vapier@gentoo.org>
--  files/gmp-5.0.2-x32-support.patch:
--  Tweak the x32 fix so it works for native builds too.
--
--  07 Dec 2011; Mike Frysinger <vapier@gentoo.org> gmp-5.0.2_p1.ebuild,
--  +files/gmp-5.0.2-x32-bugfix.patch, +files/gmp-5.0.2-x32-support.patch:
--  Add x32 ABI support.
-+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/dev-libs/gmp/ChangeLog,v 1.152 2011/11/13 20:03:31 vapier Exp $
- 
-   13 Nov 2011; Mike Frysinger <vapier@gentoo.org> gmp-4.3.2.ebuild,
-   gmp-5.0.1.ebuild, gmp-5.0.2.ebuild, gmp-5.0.2_p1.ebuild:
-<---8<---
----("dev-libs/gmp/gmp-5.0.2_p1.ebuild")--->8--->
---- usr/portage/dev-libs/gmp/gmp-5.0.2_p1.ebuild [[PORTAGE]]
-+++ overlay/dev-libs/gmp/gmp-5.0.2_p1.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
--# Copyright 1999-2012 Gentoo Foundation
-+# Copyright 1999-2011 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/dev-libs/gmp/gmp-5.0.2_p1.ebuild,v 1.10 2012/01/03 10:21:17 vapier Exp $
-+# $Header: /var/cvsroot/gentoo-x86/dev-libs/gmp/gmp-5.0.2_p1.ebuild,v 1.3 2011/11/13 20:03:31 vapier Exp $
- 
- inherit flag-o-matic eutils libtool toolchain-funcs
- 
-@@ -16,7 +16,7 @@
- SLOT="0"
- 
- KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
--IUSE="doc cxx static-libs"
-+IUSE="doc nocxx static-libs"
- 
- DEPEND="sys-devel/m4"
- RDEPEND=""
+----[ "dev-libs/gmp/gmp-5.0.2_p1.ebuild" ]----->8----->
+--- PORTAGE/dev-libs/gmp/gmp-5.0.2_p1.ebuild
++++ OVERLAY/dev-libs/gmp/gmp-5.0.2_p1.ebuild
 @@ -31,7 +31,7 @@
  	epatch "${FILESDIR}"/${PN}-4.1.4-noexecstack.patch
  	epatch "${FILESDIR}"/${PN}-5.0.0-s390.diff
@@ -71,26 +11,46 @@
  
  	# disable -fPIE -pie in the tests for x86  #236054
  	if use x86 && gcc-specs-pie ; then
-@@ -62,7 +62,7 @@
- 	case ${ABI} in
- 		32|x86)       GMPABI=32;;
- 		64|amd64|n64) GMPABI=64;;
--		[onx]32)      GMPABI=${ABI};;
-+		o32|n32)      GMPABI=${ABI};;
- 	esac
- 	export GMPABI
- 
-@@ -71,10 +71,21 @@
+@@ -71,10 +71,17 @@
  		filter-flags -O?
  	fi
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		use static-libs && die "the static-libs useflag is unsupported on Cygwin"
-+		# otherwise libmpc will spaz later
-+		myconf="${myconf} --disable-static"
-+		myconf="${myconf} --enable-shared"
 +		myconf="${myconf} --enable-mpbsd"
 +		myconf="${myconf} --enable-fat"
++		myconf="${myconf} --enable-shared" # otherwise only static is built!
++	else
++		myconf="${myconf} --disable-mpbsd"
++	fi
++
+ 	tc-export CC
+ 	econf \
+ 		--localstatedir="${EPREFIX}"/var/state/gmp \
+-		--disable-mpbsd \
+ 		$(use_enable !nocxx cxx) \
+ 		${myconf} \
+ 		$(use_enable static-libs static) \
+<-----8<-----
+----[ "dev-libs/gmp/gmp-5.0.5.ebuild" ]----->8----->
+--- PORTAGE/dev-libs/gmp/gmp-5.0.5.ebuild
++++ OVERLAY/dev-libs/gmp/gmp-5.0.5.ebuild
+@@ -30,6 +30,7 @@
+ 	[[ -d ${FILESDIR}/${PV} ]] && EPATCH_SUFFIX="diff" EPATCH_FORCE="yes" epatch "${FILESDIR}"/${PV}
+  	epatch "${FILESDIR}"/${PN}-4.1.4-noexecstack.patch
+ 	epatch "${FILESDIR}"/${PN}-5.0.5-x32-support.patch
++	epatch "${FILESDIR}"/${PN}-5.0.2-cygwin-declspec.patch
+ 
+ 	# disable -fPIE -pie in the tests for x86  #236054
+ 	if use x86 && gcc-specs-pie ; then
+@@ -69,10 +70,19 @@
+ 		filter-flags -O?
+ 	fi
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		# libmpc issue?
++		myconf="${myconf} --enable-mpbsd"
++		myconf="${myconf} --enable-fat"
++		myconf="${myconf} --enable-shared" # otherwise only static is built!
 +		GMPABI=32
 +	else
 +		myconf="${myconf} --disable-mpbsd"
@@ -103,19 +63,7 @@
  		$(use_enable !nocxx cxx) \
  		${myconf} \
  		$(use_enable static-libs static) \
-@@ -89,10 +100,7 @@
- 	# should be a standalone lib
- 	rm -f "${ED}"/usr/$(get_libdir)/libgmp.la
- 	# this requires libgmp
--	local la="${ED}/usr/$(get_libdir)/libgmpxx.la"
--	use static-libs \
--		&& sed -i 's:/[^ ]*/libgmp.la:-lgmp:' "${la}" \
--		|| rm -f "${la}"
-+	use static-libs || rm -f "${ED}"/usr/$(get_libdir)/libgmpxx.la
- 
- 	dodoc AUTHORS ChangeLog NEWS README
- 	dodoc doc/configuration doc/isa_abi_headache
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "dev-libs/gmp/files" =====
 ===== mutual sub-directory: "dev-libs/gmp/files/4.2.1" =====
 ===== mutual sub-directory: "dev-libs/gmp/files/4.2.4" =====
@@ -124,8 +72,6 @@
 overlay/dev-libs/gmp/files/gmp-5.0.2-cygwin-declspec.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/dev-libs/gmp/gmp-5.0.1.ebuild: ASCII English text
-usr/portage/dev-libs/gmp/gmp-5.0.2.ebuild: ASCII English text
-usr/portage/dev-libs/gmp/files/gmp-5.0.2-x32-bugfix.patch: unified diff output, ASCII text
-usr/portage/dev-libs/gmp/files/gmp-5.0.2-x32-support.patch: unified diff output, ASCII text
+usr/portage/dev-libs/gmp/gmp-5.0.1.ebuild: ASCII text
+usr/portage/dev-libs/gmp/gmp-5.0.2.ebuild: ASCII text
 

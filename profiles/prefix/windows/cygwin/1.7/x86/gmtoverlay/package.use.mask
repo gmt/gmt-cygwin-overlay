@@ -4,3 +4,6 @@
 
 # previous versions of the overlay's zlib don't support minizip
 <sys-libs/zlib-1.2.7 -minizip
+
+# configure: "cannot build both static and DLL, since gmp.h is different for each."
+sys-libs/gmp -static-libs

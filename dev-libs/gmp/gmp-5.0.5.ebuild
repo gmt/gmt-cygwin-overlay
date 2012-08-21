@@ -2,14 +2,14 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-inherit flag-o-matic eutils libtool toolchain-funcs
+inherit flag-o-matic eutils libtool unpacker toolchain-funcs
 
 MY_PV=${PV/_p*}
 MY_P=${PN}-${MY_PV}
 PLEVEL=${PV/*p}
 DESCRIPTION="Library for arithmetic on arbitrary precision integers, rational numbers, and floating-point numbers"
 HOMEPAGE="http://gmplib.org/"
-SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.bz2
+SRC_URI="mirror://gnu/${PN}/${MY_P}.tar.xz
 	doc? ( http://gmplib.org/${PN}-man-${MY_PV}.pdf )"
 
 LICENSE="LGPL-3"
@@ -18,19 +18,18 @@ SLOT="0"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc cxx static-libs"
 
-DEPEND="sys-devel/m4"
+DEPEND="sys-devel/m4
+	app-arch/xz-utils"
 RDEPEND=""
 
 S=${WORKDIR}/${MY_P}
 
 src_unpack() {
-	unpack ${MY_P}.tar.bz2
+	unpacker_src_unpack
 	cd "${S}"
 	[[ -d ${FILESDIR}/${PV} ]] && EPATCH_SUFFIX="diff" EPATCH_FORCE="yes" epatch "${FILESDIR}"/${PV}
-
-	epatch "${FILESDIR}"/${PN}-4.1.4-noexecstack.patch
-	epatch "${FILESDIR}"/${PN}-5.0.0-s390.diff
-	epatch "${FILESDIR}"/${MY_P}-unnormalised-dividends.patch
+ 	epatch "${FILESDIR}"/${PN}-4.1.4-noexecstack.patch
+	epatch "${FILESDIR}"/${PN}-5.0.5-x32-support.patch
 	epatch "${FILESDIR}"/${PN}-5.0.2-cygwin-declspec.patch
 
 	# disable -fPIE -pie in the tests for x86  #236054
@@ -72,9 +71,11 @@ src_compile() {
 	fi
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
+		# libmpc issue?
 		myconf="${myconf} --enable-mpbsd"
 		myconf="${myconf} --enable-fat"
 		myconf="${myconf} --enable-shared" # otherwise only static is built!
+		GMPABI=32
 	else
 		myconf="${myconf} --disable-mpbsd"
 	fi
