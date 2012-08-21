@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <herd>prefix</herd>
+  <maintainer>gmturner007@ameritech.net</maintainer>
+  <longdescription>
+    The Cygwin project provides a Linux-like environment for windows users.
+    Cygwin ships with a number of core header files which must appear in
+    ${EPREFIX}/usr/include for Gentoo/Cygwin to work properly.  This binary
+    package creates an exact duplicate of the currently shipping Cygwin
+    project's header files from the official "cygwin" package.
+  </longdescription>
+  <upstream>http://www.gentoo.org/proj/en/gentoo-alt/prefix/</upstream>
+</pkgmetadata>
+<bugs-to>https://github.com/gmt/gmt-cygwin-overlay/issues</bugs-to>
