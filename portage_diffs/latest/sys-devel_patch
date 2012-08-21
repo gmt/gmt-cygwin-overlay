@@ -32,5 +32,5 @@
 overlay/sys-devel/patch/files/patch-2.6.1-cygwin-setmode.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-devel/patch/patch-2.5.9-r1.ebuild: ASCII English text
+usr/portage/sys-devel/patch/patch-2.5.9-r1.ebuild: ASCII text
 

@@ -30,7 +30,7 @@
 overlay/sys-devel/gnuconfig/files/20110814: directory
 
 *** The following files appear only in portage ***
-usr/portage/sys-devel/gnuconfig/gnuconfig-20100924.ebuild: ASCII English text
-usr/portage/sys-devel/gnuconfig/gnuconfig-20110202.ebuild: ASCII English text
-usr/portage/sys-devel/gnuconfig/gnuconfig-99999999.ebuild: ASCII English text, with very long lines
+usr/portage/sys-devel/gnuconfig/gnuconfig-20100924.ebuild: ASCII text
+usr/portage/sys-devel/gnuconfig/gnuconfig-20110202.ebuild: ASCII text
+usr/portage/sys-devel/gnuconfig/gnuconfig-99999999.ebuild: ASCII text, with very long lines
 

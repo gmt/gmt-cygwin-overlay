@@ -25,15 +25,17 @@
 ----[ "sys-devel/binutils-config/files/binutils-config-3" ]----->8----->
 --- PORTAGE/sys-devel/binutils-config/files/binutils-config-3
 +++ OVERLAY/sys-devel/binutils-config/files/binutils-config-3
-@@ -10,7 +10,7 @@
+@@ -10,8 +10,8 @@
  EPREFIX="@GENTOO_PORTAGE_EPREFIX@"
  
  : ${ROOT:=/}
 -#[[ ${ROOT} != */ ]] && ROOT="${ROOT}/"
+-[[ ${ROOT} != /* ]] && ROOT="${PWD}${ROOT}"
 +[[ ${ROOT} != */ ]] && ROOT="${ROOT}/"
- [[ ${ROOT} != /* ]] && ROOT="${PWD}/${ROOT}"
++[[ ${ROOT} != /* ]] && ROOT="${PWD}/${ROOT}"
  EROOT="${ROOT%/}${EPREFIX}/"
  
+ cd ${EPREFIX}
 @@ -126,7 +126,7 @@
  		# Newer paths: /usr/${HOST}/${TARGET}/...
  		# Older paths: /usr/${TARGET}/...
@@ -316,11 +318,10 @@
 <-----8<-----
 
 *** The following files appear only in the overlay ***
-overlay/sys-devel/binutils-config/.binutils-config-3-r3.ebuild.swp: Vim swap file, version 7.3
 overlay/sys-devel/binutils-config/files/binutils-config-3-cygwin-support.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-devel/binutils-config/ChangeLog: UTF-8 Unicode English text
-usr/portage/sys-devel/binutils-config/binutils-config-3-r2.ebuild: ASCII English text
+usr/portage/sys-devel/binutils-config/ChangeLog: UTF-8 Unicode text
+usr/portage/sys-devel/binutils-config/binutils-config-3-r2.ebuild: ASCII text
 usr/portage/sys-devel/binutils-config/metadata.xml: XML document text
 

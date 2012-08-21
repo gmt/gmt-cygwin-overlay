@@ -72,10 +72,10 @@
 ===== mutual sub-directory: "app-arch/bzip2/files" =====
 
 *** The following files appear only in the overlay ***
-overlay/app-arch/bzip2/files/bzip2-1.0.6-Makefile-cygwin: ASCII English text
+overlay/app-arch/bzip2/files/bzip2-1.0.6-Makefile-cygwin: makefile script, ASCII text
 overlay/app-arch/bzip2/files/bzip2-1.0.6-cygport.patch: unified diff output, ASCII text
 overlay/app-arch/bzip2/files/bzip2-1.0.6-cygwin-libbz2.def.in: ASCII text, with CRLF line terminators
 
 *** The following files appear only in portage ***
-usr/portage/app-arch/bzip2/bzip2-1.0.6-r1.ebuild: ASCII English text
+usr/portage/app-arch/bzip2/bzip2-1.0.6-r1.ebuild: ASCII text
 

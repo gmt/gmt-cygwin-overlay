@@ -154,5 +154,5 @@ overlay/sys-libs/zlib/files/zlib-1.2.7-cygport-ish.patch: unified diff output, A
 overlay/sys-libs/zlib/files/zlib-1.2.7-cygwin-minizip-anti-maintainer-mode.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-libs/zlib/zlib-1.2.3-r01.1.ebuild: ASCII English text
+usr/portage/sys-libs/zlib/zlib-1.2.3-r01.1.ebuild: ASCII text
 

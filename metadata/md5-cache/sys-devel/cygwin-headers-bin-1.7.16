@@ -7,5 +7,5 @@ LICENSE=GPL-3
 RDEPEND=!sys-kernel/linux-headers
 SLOT=1.7
 SRC_URI=mirror://cygwin/release/cygwin/cygwin-1.7.16-1.tar.bz2
-_eclasses_=eutils	24483bd91d3d074753a77bfe3e69993f	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313	versionator	6601b4c5b3f019a993db59a50e1854e4
+_eclasses_=eutils	de58f96326a651ae957e22b680ad531a	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313	versionator	6601b4c5b3f019a993db59a50e1854e4
 _md5_=0f5a0f77beffe2a64dd1d3b68ee1db54

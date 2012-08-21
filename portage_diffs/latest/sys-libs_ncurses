@@ -412,5 +412,5 @@ overlay/sys-libs/ncurses/files/ncurses-5.9-cygwin-subshell-avoidance.patch: unif
 overlay/sys-libs/ncurses/files/ncurses-5.9-cygwin-version-info.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-libs/ncurses/ncurses-5.7-r7.ebuild: ASCII English text
+usr/portage/sys-libs/ncurses/ncurses-5.7-r7.ebuild: ASCII text
 
