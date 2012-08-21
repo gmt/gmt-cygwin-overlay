@@ -1,0 +1,14 @@
+#!/bin/ash
+
+# these two variables should be adjusted to match your site
+assumed_eprefix="/g2pfx"
+assumed_overlay_path="/g2pfx/overlay"
+
+if [ -n $EPREFIX ]
+then
+	echo "WARNING: assuming EPREFIX=${assumed_eprefix}"
+	export EPREFIX=/g2pfx
+fi
+
+PATH=/bin "${assumed_overlay_path}"/scripts/rebaseall_pfx -P "${EPREFIX}"
+PATH=/bin "${assumed_overlay_path}"/scripts/peflagsall_pfx -P "${EPREFIX}"
