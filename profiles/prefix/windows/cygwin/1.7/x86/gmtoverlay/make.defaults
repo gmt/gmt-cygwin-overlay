@@ -23,7 +23,7 @@ USE="ultra-prefixify"
 # Finally, if until symlinks are implemented be aware that these won't work when, i.e.
 # ${EPREFIX}/bin/sh.exe is symlink (which it probably is!!!), so we are predicting the
 # future here but if our prediction turns out wrong we should get rid of /bin/sh below.
-CYGDLL_PROTECT="/bin/bash.exe /bin/sh.exe /bin/rbash.exe /bin/cygreadline6.dll /bin/cygreadline7.dll"
+CYGDLL_PROTECT="/bin/bash.exe /bin/sh.exe /bin/rbash.exe /bin/cygreadline6.dll /bin/cygreadline7.dll /bin/cyggcc_s-1.dll"
 
 KERNEL="Cygwin Cygwin17"
 

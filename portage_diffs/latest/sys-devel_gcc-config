@@ -806,7 +806,15 @@
  	fi
  }
  
-@@ -288,8 +305,8 @@
+@@ -242,6 +259,7 @@
+ 	local GCC_PROFILES=
+ 	local OLD_CC_COMP=
+ 	local GCC_PATH=
++	local cygdll_protections=no
+ 
+ 	[[ $(id -u) != $(python -c 'import portage.const as c; print c.rootuid;') ]] && die_eerror "Must be root"
+ 
+@@ -288,8 +306,8 @@
  		# Pass all by default
  		awk '!/^(STDCXX_INCDIR|LDPATH|CC|CXX|CTARGET|GCCBITS|GCC_SPECS|GCC_PATH)=/ {print $0}' \
  			"${GCC_ENV_D}/${CC_COMP}" >> "${envd}.tmp"
@@ -817,7 +825,7 @@
  		else
  			echo "LDPATH=\"${MY_LDPATH}\"" >> "${envd}.tmp"
  		fi
-@@ -305,10 +322,10 @@
+@@ -305,10 +323,10 @@
  
  
  		# Relocate random crap
@@ -830,7 +838,7 @@
  				rm -f "${x}"
  				ln -s libgcj-${CC_COMP_VERSION}.pc "${x}"
  			done
-@@ -338,14 +355,44 @@
+@@ -338,14 +356,44 @@
  		# selected version.
  		GCC_PROFILES=$(LC_ALL="C" ls ${GCC_ENV_D}/${REAL_CHOST}-*)
  
@@ -877,7 +885,7 @@
  		dumpargs() {
  			return 0
  			local x
-@@ -413,6 +460,72 @@
+@@ -413,6 +461,123 @@
  				|| return 1
  			}
  			;;
@@ -916,7 +924,6 @@
 +								# not an /exact/ match then we skip it -- note that nothing is being
 +								# done here to prevent us from scribbling over portage's files, but
 +								# we're feeling lucky, apparently (non-cygwin gcc-config has same issue).
-+								# But something will be done about it later: cygdll-protection!
 +								case ${finaldir} in
 +									${dstlib}/.)
 +									    [[ ${targetdirs} == *":${dstcygwindll},:"* ]] ||
@@ -943,14 +950,66 @@
 +				fi
 +			}
 +			finish_runtime_dir() {
-+				# TODO: Implement cygdll protection for dll's installed this way.
-+				finish_runtime_dir_elf "$@"
++				dumpargs finish_runtime_dir_elf "$@"
++				local sourcedir="$1"
++				local targetdir="$2"
++				local cleanup="$3"
++
++				# make sure that portageq has the needed features -- this will only be the case
++				# if it was merged with the cygdll_protect flag, python works right, etc...
++			    CYGDLL_PROTECT="/foo" portageq is_cygdll_protected "${EROOT}" \
++														"${EPREFIX}"/foo 2>&1 >/dev/null || {
++					finish_runtime_dir_elf "$@"
++					return $?
++				}
++
++				# Here we want to implement any cygdll protections behind
++				# finish_runtime_dir_elf's back.  However, if we allow it to clean, it's going
++				# to remove any _cygdll_protect_ files and fail to respect cygdll_protect.
++				# so we implement cleaning here and tell finish_runtime_dir_elf that no cleaning
++				# is required.  We also have to remove any files that we cygdll_protect from
++				# source, otherwise finish_runtime_dir_elf would deploy them anyway.
++				if [[ ${cleanup} == clean ]]; then
++					if [[ ${targetdir} == *${EPREFIX}/lib ]]; then
++						echo "WARNING: not cleaning ${targetdir}" >&2
++					else
++						for f in "${targetdir}"/*; do
++							[[ ${f} == ${sourcedir} ]] && continue
++							# even if they are cruft of some kind, seems wrong to remove these.
++							[[ ${f##*/} == _cygdll_protect_* ]] && continue
++							[[ -e "${sourcedir}/${f##*/}" ]] && continue
++							if portageq is_cygdll_protected "${EROOT}" "${f}" ; then
++								if [[ ${cygdll_protections} == no ]] ; then
++									portageq master_lock_acquire
++									cygdll_protections=yes
++								fi
++								portageq cygdll_install_protected_file "${EROOT}" /dev/null "${f}"
++							else
++								rm -f "${f}"
++							fi
++						done
++					fi
++				fi
++				for f in ${sourcedir}/* ; do
++					[[ -f "${f}" ]] || continue
++					targetfile="${targetdir}"/${f##*/}
++					if portageq is_cygdll_protected "${EROOT}" "${targetfile}" ; then
++						if [[ ${cygdll_protections} == no ]] ; then
++							portageq master_lock_acquire
++							cygdll_protections=yes
++						fi
++						portageq cygdll_install_protected_file "${EROOT}" "${f}" "${targetfile}"
++						rm -f "${f}"
++					fi
++				done
++
++				finish_runtime_dir_elf "$1" "$2" noclean
 +			}
 +			;;
  		*-darwin*)
  			LIBSUFFIX="dylib"
  
-@@ -564,7 +677,7 @@
+@@ -564,7 +729,7 @@
  			for multilib in $(
  				# ensure we always operate on base libdir first
  				[[ -n ${EPREFIX} ]] && echo ".;@X" ;
@@ -959,7 +1018,7 @@
  			); do
  
  			multiarg=${multilib#*;}
-@@ -576,7 +689,7 @@
+@@ -576,7 +741,7 @@
  			if [[ ${multilib} == ".;@X" ]] ; then
  				libdir="lib/${multilibdir}"
  			else
@@ -968,7 +1027,7 @@
  			fi
  
  			pushd "${ROOT%/}${LDPATH}/${multilibdir}" > /dev/null || return 1
-@@ -676,7 +789,7 @@
+@@ -676,7 +841,7 @@
  			ewarn "are setup properly.  Please rerun gcc-config with the -f option."
  			echo ""
  			if [[ -z ${EPREFIX} && ! -d /etc/ld.so.conf.d ]] ; then
@@ -977,7 +1036,27 @@
  					| sed -e 's|:|\n|g' >> /etc/ld.so.conf
  			fi
  			ldconfig
-@@ -1028,11 +1141,11 @@
+@@ -698,6 +863,19 @@
+ 		echo
+ 	fi
+ 
++	# If any cygdll_protections were put in-limbo then we release the master lock
++	# and have portageq warn the user if any updates are pending (they may not be,
++	# if, for example, a file with a pending in-limbo update was reverted).
++	# Note that, if, for any reason, this script died while holding the master lock,
++	# the PID would be left in the database; however, this only presents a problem if
++	# the database wash shared across multiple hosts -- otherwise, the lock would be
++	# automatically cleaned as soon as the next time the master lock was accessed.
++	# TODO: It would be better if a trap were implemented to prevent this nevertheless.
++	if [[ ${cygdll_protections} == yes ]] ; then
++		portageq master_lock_release
++		portageq cygdll_show_in_limbo_updates "${EROOT}"
++	fi
++
+ 	return 0
+ }
+ 
+@@ -1028,11 +1206,11 @@
  	CC_COMP_VERSION=$(chop_gcc_ver_spec ${CC_COMP})
  	CC_COMP_TARGET=${CC_COMP%-${CC_COMP_VERSION}*}
  
@@ -994,9 +1073,9 @@
 <-----8<-----
 
 *** The following files appear only in the overlay ***
-overlay/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild: ASCII English text
+overlay/sys-devel/gcc-config/gcc-config-1.4.1-r00.2.ebuild: ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r1.ebuild: ASCII English text
-usr/portage/sys-devel/gcc-config/gcc-config-1.7.1.ebuild: ASCII English text
+usr/portage/sys-devel/gcc-config/gcc-config-1.4.1-r1.ebuild: ASCII text
+usr/portage/sys-devel/gcc-config/gcc-config-1.7.1.ebuild: ASCII text
 
