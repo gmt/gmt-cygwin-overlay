@@ -1,7 +1,19 @@
 ===== mutual sub-directory: "app-arch/unzip" =====
----("app-arch/unzip/unzip-6.0-r2.ebuild")--->8--->
---- usr/portage/app-arch/unzip/unzip-6.0-r2.ebuild [[PORTAGE]]
-+++ overlay/app-arch/unzip/unzip-6.0-r2.ebuild [[OVERLAY]]
+----[ "app-arch/unzip/ChangeLog" ]----->8----->
+--- PORTAGE/app-arch/unzip/ChangeLog
++++ OVERLAY/app-arch/unzip/ChangeLog
+@@ -1,6 +1,6 @@
+ # ChangeLog for app-arch/unzip
+ # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+-# $Header: $
++# $Header: /var/cvsroot/gentoo-x86/app-arch/unzip/ChangeLog,v 1.82 2012/04/26 16:34:58 aballier Exp $
+ 
+   26 Apr 2012; Alexis Ballier <aballier@gentoo.org> unzip-6.0-r3.ebuild:
+   keyword ~amd64-fbsd
+<-----8<-----
+----[ "app-arch/unzip/unzip-6.0-r2.ebuild" ]----->8----->
+--- PORTAGE/app-arch/unzip/unzip-6.0-r2.ebuild
++++ OVERLAY/app-arch/unzip/unzip-6.0-r2.ebuild
 @@ -23,6 +23,10 @@
  S="${WORKDIR}/${MY_P}"
  
@@ -21,7 +33,30 @@
  		*) die "Unknown target, you suck" ;;
  	esac
  
-<---8<---
+<-----8<-----
+----[ "app-arch/unzip/unzip-6.0-r3.ebuild" ]----->8----->
+--- PORTAGE/app-arch/unzip/unzip-6.0-r3.ebuild
++++ OVERLAY/app-arch/unzip/unzip-6.0-r3.ebuild
+@@ -23,6 +23,10 @@
+ S="${WORKDIR}/${MY_P}"
+ 
+ src_prepare() {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-misc.patch
++	fi
+ 	epatch "${FILESDIR}"/${P}-no-exec-stack.patch
+ 	use natspec && epatch "${FILESDIR}/${PN}-6.0-natspec.patch" #275244
+ 	epatch "${FILESDIR}"/${P}-irix.patch
+@@ -61,6 +65,7 @@
+ 		*-aix*)              TARGET=gcc; append-cppflags "-DNO_LCHMOD"; append-ldflags "-Wl,-blibpath:${EPREFIX}/usr/$(get_libdir)" ;;
+ 		*-hpux*)             TARGET=gcc; append-ldflags "-Wl,+b,${EPREFIX}/usr/$(get_libdir)" ;;
+ 		*-mint*)             TARGET=generic ;;
++		*-cygwin*)	     TARGET=cygwin ;;
+ 		*) die "Unknown target, you suck" ;;
+ 	esac
+ 
+<-----8<-----
 ===== mutual sub-directory: "app-arch/unzip/files" =====
 
 *** The following files appear only in the overlay ***
@@ -29,6 +64,6 @@ overlay/app-arch/unzip/files/unzip-6.0-cygport-misc.patch: unified diff output, 
 overlay/app-arch/unzip/files/unzip-6.0-cygport.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/app-arch/unzip/unzip-5.52-r2.ebuild: ASCII English text
-usr/portage/app-arch/unzip/unzip-6.0-r1.ebuild: ASCII English text
+usr/portage/app-arch/unzip/unzip-5.52-r2.ebuild: ASCII text
+usr/portage/app-arch/unzip/unzip-6.0-r1.ebuild: ASCII text
 

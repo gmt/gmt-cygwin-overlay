@@ -14,6 +14,7 @@
 # keywords by default (since we can achieve this the
 # correct way, by keywording).  Please alphabetize!
 app-arch/bzip2
+app-arch/unzip
 sys-apps/coreutils
 sys-devel/binutils-config
 sys-devel/gcc-config

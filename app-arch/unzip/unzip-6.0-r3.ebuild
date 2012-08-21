@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -42,6 +42,7 @@ src_prepare() {
 		-e 's:SL = :SL = $(LDFLAGS) :' \
 		-e 's:FL = :FL = $(LDFLAGS) :' \
 		-e "/^#L_BZ2/s:^$(use bzip2 && echo .)::" \
+		-e 's:$(AS) :$(AS) $(ASFLAGS) :g' \
 		-e 's:STRIP =.*$:STRIP = true:' \
 		-e "s!CF = \$(CFLAGS) \$(CF_NOOPT)!CF = \$(CFLAGS) \$(CF_NOOPT) \$(CPPFLAGS)!" \
 		unix/Makefile \
@@ -73,7 +74,7 @@ src_compile() {
 	use unicode && append-cppflags -DUNICODE_SUPPORT -DUNICODE_WCHAR -DUTF8_MAYBE_NATIVE
 	append-cppflags -DLARGE_FILE_SUPPORT #281473
 
-	emake \
+	ASFLAGS="${ASFLAGS} $(get_abi_var CFLAGS)" emake \
 		-f unix/Makefile \
 		${TARGET} || die "emake failed"
 }

@@ -13,6 +13,8 @@
 # correct way, by keywording).  These must be kept in
 # in sync with the ebuilds we support.  Please alphabetize!
 =app-arch/bzip2-1.0.6-r3
+=app-arch/unzip-6.0-r2
+=app-arch/unzip-6.0-r3
 =sys-apps/coreutils-8.14
 =sys-apps/coreutils-8.15
 =sys-apps/coreutils-8.17
