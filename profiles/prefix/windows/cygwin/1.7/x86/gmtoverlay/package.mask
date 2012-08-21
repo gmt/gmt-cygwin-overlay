@@ -17,6 +17,7 @@ app-arch/bzip2
 app-arch/unzip
 app-arch/zip
 dev-libs/gmp
+dev-libs/mpfr
 sys-apps/coreutils
 sys-devel/binutils-config
 sys-devel/gcc-config

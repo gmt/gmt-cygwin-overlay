@@ -1,13 +1,13 @@
 DEFINED_PHASES=configure install postinst preinst prepare
-DEPEND=>=dev-libs/gmp-4.1.4-r2[static-libs=]
+DEPEND=>=dev-libs/gmp-4.1.4-r2[static-libs?]
 DESCRIPTION=library for multiple-precision floating-point computations with exact rounding
 EAPI=3
 HOMEPAGE=http://www.mpfr.org/
 IUSE=static-libs
 KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
 LICENSE=LGPL-2.1
-RDEPEND=>=dev-libs/gmp-4.1.4-r2[static-libs=]
+RDEPEND=>=dev-libs/gmp-4.1.4-r2[static-libs?]
 SLOT=0
 SRC_URI=http://www.mpfr.org/mpfr-3.0.1/mpfr-3.0.1.tar.bz2
-_eclasses_=eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	libtool	3bc75448a5aa60eb4709b1e7b7750de2	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
-_md5_=9eaac37081647de90c5c3753729fa2b3
+_eclasses_=eutils	de58f96326a651ae957e22b680ad531a	libtool	3e3686668a08e02358b8f73f22d37504	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313
+_md5_=8c3b43c65221a37d0027c30b6941b9f1

@@ -1,8 +1,8 @@
 ===== mutual sub-directory: "dev-libs/mpfr" =====
----("dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild")--->8--->
---- usr/portage/dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild [[PORTAGE]]
-+++ overlay/dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild [[OVERLAY]]
-@@ -46,10 +46,14 @@
+----[ "dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild" ]----->8----->
+--- PORTAGE/dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild
++++ OVERLAY/dev-libs/mpfr/mpfr-3.0.1_p4-r1.ebuild
+@@ -45,10 +45,14 @@
  }
  
  src_configure() {
@@ -18,7 +18,7 @@
  }
  
  src_install() {
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "dev-libs/mpfr/files" =====
 ===== mutual sub-directory: "dev-libs/mpfr/files/2.4.1" =====
 ===== mutual sub-directory: "dev-libs/mpfr/files/2.4.2" =====
@@ -26,9 +26,11 @@
 ===== mutual sub-directory: "dev-libs/mpfr/files/3.0.1" =====
 
 *** The following files appear only in portage ***
-usr/portage/dev-libs/mpfr/mpfr-2.4.2_p3-r1.ebuild: ASCII English text
-usr/portage/dev-libs/mpfr/mpfr-2.4.2_p3.ebuild: ASCII English text
-usr/portage/dev-libs/mpfr/mpfr-3.0.0_p3.ebuild: ASCII English text
-usr/portage/dev-libs/mpfr/mpfr-3.0.1.ebuild: ASCII English text
-usr/portage/dev-libs/mpfr/mpfr-3.1.0.ebuild: ASCII English text
+usr/portage/dev-libs/mpfr/mpfr-2.4.2_p3-r1.ebuild: ASCII text
+usr/portage/dev-libs/mpfr/mpfr-2.4.2_p3.ebuild: ASCII text
+usr/portage/dev-libs/mpfr/mpfr-3.0.0_p3.ebuild: ASCII text
+usr/portage/dev-libs/mpfr/mpfr-3.0.1.ebuild: ASCII text
+usr/portage/dev-libs/mpfr/mpfr-3.1.0.ebuild: ASCII text
+usr/portage/dev-libs/mpfr/mpfr-3.1.0_p7.ebuild: ASCII text
+usr/portage/dev-libs/mpfr/files/3.1.0: directory
 
