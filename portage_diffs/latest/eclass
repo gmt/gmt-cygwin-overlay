@@ -397,205 +397,205 @@
 ===== mutual sub-directory: "eclass/ELT-patches" =====
 
 *** The following files appear only in the overlay ***
-overlay/eclass/prefix-gmt.eclass: ASCII English text
+overlay/eclass/prefix-gmt.eclass: ASCII text
 overlay/eclass/ELT-patches/cygwin-install-sh: directory
 overlay/eclass/ELT-patches/cygwin-ltmain: directory
 
 *** The following files appear only in portage ***
-usr/portage/eclass/ChangeLog: UTF-8 Unicode English text
-usr/portage/eclass/alternatives.eclass: ASCII English text
-usr/portage/eclass/ant-tasks.eclass: ASCII English text
-usr/portage/eclass/apache-2.eclass: ASCII English text
-usr/portage/eclass/apache-module.eclass: ASCII English text
-usr/portage/eclass/aspell-dict.eclass: ASCII English text
-usr/portage/eclass/autotools-utils.eclass: UTF-8 Unicode English text
-usr/portage/eclass/autotools.eclass: UTF-8 Unicode English text
-usr/portage/eclass/base.eclass: ASCII English text
-usr/portage/eclass/bash-completion-r1.eclass: ASCII English text
+usr/portage/eclass/ChangeLog: UTF-8 Unicode text
+usr/portage/eclass/alternatives.eclass: ASCII text
+usr/portage/eclass/ant-tasks.eclass: ASCII text
+usr/portage/eclass/apache-2.eclass: ASCII text
+usr/portage/eclass/apache-module.eclass: ASCII text
+usr/portage/eclass/aspell-dict.eclass: ASCII text
+usr/portage/eclass/autotools-utils.eclass: UTF-8 Unicode text
+usr/portage/eclass/autotools.eclass: UTF-8 Unicode text
+usr/portage/eclass/base.eclass: ASCII text
+usr/portage/eclass/bash-completion-r1.eclass: ASCII text
 usr/portage/eclass/bash-completion.eclass: HTML document, ASCII text
-usr/portage/eclass/bsdmk.eclass: UTF-8 Unicode English text
-usr/portage/eclass/bzr.eclass: UTF-8 Unicode English text
-usr/portage/eclass/cannadic.eclass: ASCII English text
-usr/portage/eclass/cdrom.eclass: ASCII English text
-usr/portage/eclass/check-reqs.eclass: UTF-8 Unicode English text
-usr/portage/eclass/chromium.eclass: ASCII English text
-usr/portage/eclass/clutter.eclass: ASCII English text
-usr/portage/eclass/cmake-utils.eclass: UTF-8 Unicode English text
-usr/portage/eclass/common-lisp-common-2.eclass: ASCII English text
-usr/portage/eclass/common-lisp-common-3.eclass: ASCII English text
-usr/portage/eclass/common-lisp-common.eclass: ASCII English text
-usr/portage/eclass/common-lisp.eclass: ASCII English text
-usr/portage/eclass/confutils.eclass: UTF-8 Unicode English text
-usr/portage/eclass/cron.eclass: ASCII English text
-usr/portage/eclass/cvs.eclass: ASCII English text
-usr/portage/eclass/darcs.eclass: ASCII English text
-usr/portage/eclass/db-use.eclass: ASCII English text
-usr/portage/eclass/db.eclass: ASCII English text
-usr/portage/eclass/depend.apache.eclass: ASCII English text
-usr/portage/eclass/depend.php.eclass: ASCII English text
-usr/portage/eclass/distutils.eclass: ASCII English text
+usr/portage/eclass/bsdmk.eclass: UTF-8 Unicode text
+usr/portage/eclass/bzr.eclass: UTF-8 Unicode text
+usr/portage/eclass/cannadic.eclass: ASCII text
+usr/portage/eclass/cdrom.eclass: ASCII text
+usr/portage/eclass/check-reqs.eclass: UTF-8 Unicode text
+usr/portage/eclass/chromium.eclass: ASCII text
+usr/portage/eclass/clutter.eclass: ASCII text
+usr/portage/eclass/cmake-utils.eclass: UTF-8 Unicode text
+usr/portage/eclass/common-lisp-common-2.eclass: ASCII text
+usr/portage/eclass/common-lisp-common-3.eclass: ASCII text
+usr/portage/eclass/common-lisp-common.eclass: ASCII text
+usr/portage/eclass/common-lisp.eclass: ASCII text
+usr/portage/eclass/confutils.eclass: UTF-8 Unicode text
+usr/portage/eclass/cron.eclass: ASCII text
+usr/portage/eclass/cvs.eclass: ASCII text
+usr/portage/eclass/darcs.eclass: ASCII text
+usr/portage/eclass/db-use.eclass: ASCII text
+usr/portage/eclass/db.eclass: ASCII text
+usr/portage/eclass/depend.apache.eclass: ASCII text
+usr/portage/eclass/depend.php.eclass: ASCII text
+usr/portage/eclass/distutils.eclass: ASCII text
 usr/portage/eclass/elisp-common.eclass: Lisp/Scheme program, UTF-8 Unicode text
-usr/portage/eclass/elisp.eclass: UTF-8 Unicode English text
-usr/portage/eclass/embassy.eclass: ASCII English text
-usr/portage/eclass/emboss.eclass: ASCII English text
-usr/portage/eclass/emul-linux-x86.eclass: ASCII English text
-usr/portage/eclass/enlightenment.eclass: ASCII English text
-usr/portage/eclass/fdo-mime.eclass: ASCII English text
-usr/portage/eclass/findlib.eclass: ASCII English text
-usr/portage/eclass/fixheadtails.eclass: ASCII English text
-usr/portage/eclass/flag-o-matic.eclass: ASCII English text
-usr/portage/eclass/font-ebdftopcf.eclass: ASCII English text
-usr/portage/eclass/font.eclass: ASCII English text
-usr/portage/eclass/fortran-2.eclass: ASCII English text
-usr/portage/eclass/fox.eclass: ASCII English text
-usr/portage/eclass/freebsd.eclass: UTF-8 Unicode English text
-usr/portage/eclass/freedict.eclass: ASCII English text
-usr/portage/eclass/games-ggz.eclass: ASCII English text
-usr/portage/eclass/games-mods.eclass: ASCII English text
-usr/portage/eclass/games.eclass: ASCII English text
-usr/portage/eclass/gdesklets.eclass: ASCII English text
-usr/portage/eclass/gems.eclass: ASCII English text
-usr/portage/eclass/ghc-package.eclass: ASCII English text
-usr/portage/eclass/git-2.eclass: UTF-8 Unicode English text
-usr/portage/eclass/git.eclass: ASCII English text
-usr/portage/eclass/gkrellm-plugin.eclass: ASCII English text
-usr/portage/eclass/gnat.eclass: ASCII English text
-usr/portage/eclass/gnatbuild.eclass: ASCII English text
-usr/portage/eclass/gnome-python-common.eclass: ASCII English text
-usr/portage/eclass/gnome.org.eclass: ASCII English text
-usr/portage/eclass/gnome2-utils.eclass: ASCII English text
-usr/portage/eclass/gnome2.eclass: ASCII English text
-usr/portage/eclass/gnuconfig.eclass: ASCII English text
-usr/portage/eclass/gnustep-2.eclass: ASCII English text
-usr/portage/eclass/gnustep-base.eclass: ASCII English text
-usr/portage/eclass/go-mono.eclass: ASCII English text
-usr/portage/eclass/gpe.eclass: ASCII English text
-usr/portage/eclass/gst-plugins-bad.eclass: ASCII English text
-usr/portage/eclass/gst-plugins-base.eclass: ASCII English text
-usr/portage/eclass/gst-plugins-good.eclass: ASCII English text
-usr/portage/eclass/gst-plugins-ugly.eclass: ASCII English text
-usr/portage/eclass/gst-plugins10.eclass: ASCII English text
-usr/portage/eclass/gtk-sharp-module.eclass: ASCII English text
-usr/portage/eclass/haskell-cabal.eclass: ASCII English text
-usr/portage/eclass/horde.eclass: ASCII English text
-usr/portage/eclass/java-ant-2.eclass: UTF-8 Unicode English text
-usr/portage/eclass/java-mvn-src.eclass: ASCII C++ program text
-usr/portage/eclass/java-osgi.eclass: UTF-8 Unicode English text
-usr/portage/eclass/java-pkg-2.eclass: ASCII English text
+usr/portage/eclass/elisp.eclass: UTF-8 Unicode text
+usr/portage/eclass/embassy.eclass: ASCII text
+usr/portage/eclass/emboss.eclass: ASCII text
+usr/portage/eclass/emul-linux-x86.eclass: ASCII text
+usr/portage/eclass/enlightenment.eclass: ASCII text
+usr/portage/eclass/fdo-mime.eclass: ASCII text
+usr/portage/eclass/findlib.eclass: ASCII text
+usr/portage/eclass/fixheadtails.eclass: ASCII text
+usr/portage/eclass/flag-o-matic.eclass: ASCII text
+usr/portage/eclass/font-ebdftopcf.eclass: ASCII text
+usr/portage/eclass/font.eclass: ASCII text
+usr/portage/eclass/fortran-2.eclass: ASCII text
+usr/portage/eclass/fox.eclass: ASCII text
+usr/portage/eclass/freebsd.eclass: UTF-8 Unicode text
+usr/portage/eclass/freedict.eclass: ASCII text
+usr/portage/eclass/games-ggz.eclass: ASCII text
+usr/portage/eclass/games-mods.eclass: ASCII text
+usr/portage/eclass/games.eclass: ASCII text
+usr/portage/eclass/gdesklets.eclass: ASCII text
+usr/portage/eclass/gems.eclass: ASCII text
+usr/portage/eclass/ghc-package.eclass: ASCII text
+usr/portage/eclass/git-2.eclass: UTF-8 Unicode text
+usr/portage/eclass/git.eclass: ASCII text
+usr/portage/eclass/gkrellm-plugin.eclass: ASCII text
+usr/portage/eclass/gnat.eclass: ASCII text
+usr/portage/eclass/gnatbuild.eclass: ASCII text
+usr/portage/eclass/gnome-python-common.eclass: ASCII text
+usr/portage/eclass/gnome.org.eclass: ASCII text
+usr/portage/eclass/gnome2-utils.eclass: ASCII text
+usr/portage/eclass/gnome2.eclass: ASCII text
+usr/portage/eclass/gnuconfig.eclass: ASCII text
+usr/portage/eclass/gnustep-2.eclass: ASCII text
+usr/portage/eclass/gnustep-base.eclass: ASCII text
+usr/portage/eclass/go-mono.eclass: ASCII text
+usr/portage/eclass/gpe.eclass: ASCII text
+usr/portage/eclass/gst-plugins-bad.eclass: ASCII text
+usr/portage/eclass/gst-plugins-base.eclass: ASCII text
+usr/portage/eclass/gst-plugins-good.eclass: ASCII text
+usr/portage/eclass/gst-plugins-ugly.eclass: ASCII text
+usr/portage/eclass/gst-plugins10.eclass: ASCII text
+usr/portage/eclass/gtk-sharp-module.eclass: ASCII text
+usr/portage/eclass/haskell-cabal.eclass: ASCII text
+usr/portage/eclass/horde.eclass: ASCII text
+usr/portage/eclass/java-ant-2.eclass: UTF-8 Unicode text
+usr/portage/eclass/java-mvn-src.eclass: ASCII text
+usr/portage/eclass/java-osgi.eclass: UTF-8 Unicode text
+usr/portage/eclass/java-pkg-2.eclass: ASCII text
 usr/portage/eclass/java-pkg-opt-2.eclass: ASCII text
-usr/portage/eclass/java-pkg-simple.eclass: ASCII C++ program text
-usr/portage/eclass/java-utils-2.eclass: ASCII English text
-usr/portage/eclass/java-virtuals-2.eclass: ASCII English text
-usr/portage/eclass/java-vm-2.eclass: ASCII English text
-usr/portage/eclass/kde4-base.eclass: ASCII English text
-usr/portage/eclass/kde4-functions.eclass: ASCII English text
-usr/portage/eclass/kde4-meta-pkg.eclass: ASCII English text
-usr/portage/eclass/kde4-meta.eclass: ASCII English text
-usr/portage/eclass/kernel-2.eclass: ASCII English text
-usr/portage/eclass/l10n.eclass: ASCII English text
-usr/portage/eclass/latex-package.eclass: ASCII English text
-usr/portage/eclass/leechcraft.eclass: ASCII English text
-usr/portage/eclass/linux-info.eclass: ASCII English text
-usr/portage/eclass/linux-mod.eclass: ASCII English text
-usr/portage/eclass/makeedit.eclass: ASCII English text
-usr/portage/eclass/mercurial.eclass: ASCII English text
-usr/portage/eclass/mono.eclass: ASCII English text
-usr/portage/eclass/mount-boot.eclass: ASCII English text
-usr/portage/eclass/mozconfig-3.eclass: ASCII English text
-usr/portage/eclass/mozcoreconf-2.eclass: ASCII English text
-usr/portage/eclass/mozextension.eclass: ASCII English text
-usr/portage/eclass/mozilla-launcher.eclass: ASCII English text
-usr/portage/eclass/mozlinguas.eclass: ASCII English text
-usr/portage/eclass/multiprocessing.eclass: ASCII English text
-usr/portage/eclass/myspell-r2.eclass: UTF-8 Unicode English text
-usr/portage/eclass/myspell.eclass: ASCII English text
-usr/portage/eclass/mysql-autotools.eclass: ASCII English text
-usr/portage/eclass/mysql-cmake.eclass: ASCII English text
-usr/portage/eclass/mysql-v2.eclass: ASCII English text
-usr/portage/eclass/mysql.eclass: ASCII English text
-usr/portage/eclass/mysql_fx.eclass: ASCII English text
-usr/portage/eclass/mythtv-plugins.eclass: ASCII English text
-usr/portage/eclass/mythtv.eclass: ASCII English text
-usr/portage/eclass/nsplugins.eclass: ASCII English text
-usr/portage/eclass/nvidia-driver.eclass: ASCII English text
-usr/portage/eclass/oasis.eclass: ASCII English text
-usr/portage/eclass/obs-download.eclass: ASCII English text
-usr/portage/eclass/obs-service.eclass: ASCII English text
-usr/portage/eclass/office-ext.eclass: UTF-8 Unicode English text
-usr/portage/eclass/openib.eclass: ASCII English text
-usr/portage/eclass/pam.eclass: UTF-8 Unicode English text
-usr/portage/eclass/pax-utils.eclass: ASCII English text
-usr/portage/eclass/perl-app.eclass: ASCII English text
-usr/portage/eclass/perl-module.eclass: ASCII English text
-usr/portage/eclass/php-common-r1.eclass: ASCII English text
-usr/portage/eclass/php-ext-base-r1.eclass: ASCII English text
-usr/portage/eclass/php-ext-pecl-r1.eclass: ASCII English text
-usr/portage/eclass/php-ext-pecl-r2.eclass: ASCII English text
-usr/portage/eclass/php-ext-source-r1.eclass: ASCII English text
-usr/portage/eclass/php-ext-source-r2.eclass: ASCII English text
-usr/portage/eclass/php-ezc.eclass: ASCII English text
-usr/portage/eclass/php-lib-r1.eclass: ASCII English text
-usr/portage/eclass/php-pear-lib-r1.eclass: ASCII English text
-usr/portage/eclass/php-pear-r1.eclass: ASCII English text
-usr/portage/eclass/phpconfutils.eclass: ASCII English text
-usr/portage/eclass/portability.eclass: UTF-8 Unicode English text
-usr/portage/eclass/prefix.eclass: ASCII English text
-usr/portage/eclass/python-distutils-ng.eclass: ASCII English text
-usr/portage/eclass/python.eclass: ASCII English text, with very long lines
-usr/portage/eclass/qmail.eclass: ASCII English text
-usr/portage/eclass/qt4-build.eclass: ASCII English text
-usr/portage/eclass/qt4-r2.eclass: ASCII English text
-usr/portage/eclass/qt4.eclass: ASCII English text
-usr/portage/eclass/rox-0install.eclass: ASCII English text
-usr/portage/eclass/rox.eclass: ASCII English text
-usr/portage/eclass/rpm.eclass: ASCII English text
+usr/portage/eclass/java-pkg-simple.eclass: ASCII text
+usr/portage/eclass/java-utils-2.eclass: ASCII text
+usr/portage/eclass/java-virtuals-2.eclass: ASCII text
+usr/portage/eclass/java-vm-2.eclass: ASCII text
+usr/portage/eclass/kde4-base.eclass: ASCII text
+usr/portage/eclass/kde4-functions.eclass: ASCII text
+usr/portage/eclass/kde4-meta-pkg.eclass: ASCII text
+usr/portage/eclass/kde4-meta.eclass: ASCII text
+usr/portage/eclass/kernel-2.eclass: ASCII text
+usr/portage/eclass/l10n.eclass: ASCII text
+usr/portage/eclass/latex-package.eclass: ASCII text
+usr/portage/eclass/leechcraft.eclass: ASCII text
+usr/portage/eclass/linux-info.eclass: ASCII text
+usr/portage/eclass/linux-mod.eclass: ASCII text
+usr/portage/eclass/makeedit.eclass: ASCII text
+usr/portage/eclass/mercurial.eclass: ASCII text
+usr/portage/eclass/mono.eclass: ASCII text
+usr/portage/eclass/mount-boot.eclass: ASCII text
+usr/portage/eclass/mozconfig-3.eclass: ASCII text
+usr/portage/eclass/mozcoreconf-2.eclass: ASCII text
+usr/portage/eclass/mozextension.eclass: ASCII text
+usr/portage/eclass/mozilla-launcher.eclass: ASCII text
+usr/portage/eclass/mozlinguas.eclass: ASCII text
+usr/portage/eclass/multiprocessing.eclass: ASCII text
+usr/portage/eclass/myspell-r2.eclass: UTF-8 Unicode text
+usr/portage/eclass/myspell.eclass: ASCII text
+usr/portage/eclass/mysql-autotools.eclass: ASCII text
+usr/portage/eclass/mysql-cmake.eclass: ASCII text
+usr/portage/eclass/mysql-v2.eclass: ASCII text
+usr/portage/eclass/mysql.eclass: ASCII text
+usr/portage/eclass/mysql_fx.eclass: ASCII text
+usr/portage/eclass/mythtv-plugins.eclass: ASCII text
+usr/portage/eclass/mythtv.eclass: ASCII text
+usr/portage/eclass/nsplugins.eclass: ASCII text
+usr/portage/eclass/nvidia-driver.eclass: ASCII text
+usr/portage/eclass/oasis.eclass: ASCII text
+usr/portage/eclass/obs-download.eclass: ASCII text
+usr/portage/eclass/obs-service.eclass: ASCII text
+usr/portage/eclass/office-ext.eclass: UTF-8 Unicode text
+usr/portage/eclass/openib.eclass: ASCII text
+usr/portage/eclass/pam.eclass: UTF-8 Unicode text
+usr/portage/eclass/pax-utils.eclass: ASCII text
+usr/portage/eclass/perl-app.eclass: ASCII text
+usr/portage/eclass/perl-module.eclass: ASCII text
+usr/portage/eclass/php-common-r1.eclass: ASCII text
+usr/portage/eclass/php-ext-base-r1.eclass: ASCII text
+usr/portage/eclass/php-ext-pecl-r1.eclass: ASCII text
+usr/portage/eclass/php-ext-pecl-r2.eclass: ASCII text
+usr/portage/eclass/php-ext-source-r1.eclass: ASCII text
+usr/portage/eclass/php-ext-source-r2.eclass: ASCII text
+usr/portage/eclass/php-ezc.eclass: ASCII text
+usr/portage/eclass/php-lib-r1.eclass: ASCII text
+usr/portage/eclass/php-pear-lib-r1.eclass: ASCII text
+usr/portage/eclass/php-pear-r1.eclass: ASCII text
+usr/portage/eclass/phpconfutils.eclass: ASCII text
+usr/portage/eclass/portability.eclass: UTF-8 Unicode text
+usr/portage/eclass/prefix.eclass: ASCII text
+usr/portage/eclass/python-distutils-ng.eclass: ASCII text
+usr/portage/eclass/python.eclass: ASCII text, with very long lines
+usr/portage/eclass/qmail.eclass: ASCII text
+usr/portage/eclass/qt4-build.eclass: ASCII text
+usr/portage/eclass/qt4-r2.eclass: ASCII text
+usr/portage/eclass/qt4.eclass: ASCII text
+usr/portage/eclass/rox-0install.eclass: ASCII text
+usr/portage/eclass/rox.eclass: ASCII text
+usr/portage/eclass/rpm.eclass: ASCII text
 usr/portage/eclass/ruby-fakegem.eclass: Ruby script, UTF-8 Unicode text
-usr/portage/eclass/ruby-ng-gnome2.eclass: ASCII English text
-usr/portage/eclass/ruby-ng.eclass: UTF-8 Unicode English text
-usr/portage/eclass/ruby.eclass: ASCII English text
-usr/portage/eclass/savedconfig.eclass: ASCII English text
-usr/portage/eclass/scons-utils.eclass: ASCII English text
-usr/portage/eclass/scsh.eclass: ASCII English text
-usr/portage/eclass/selinux-policy-2.eclass: ASCII English text
-usr/portage/eclass/sgml-catalog.eclass: ASCII English text
-usr/portage/eclass/ssl-cert.eclass: ASCII English text
-usr/portage/eclass/stardict.eclass: ASCII English text
-usr/portage/eclass/subversion.eclass: ASCII English text
-usr/portage/eclass/sword-module.eclass: ASCII English text
-usr/portage/eclass/systemd.eclass: ASCII English text
+usr/portage/eclass/ruby-ng-gnome2.eclass: ASCII text
+usr/portage/eclass/ruby-ng.eclass: UTF-8 Unicode text
+usr/portage/eclass/ruby.eclass: ASCII text
+usr/portage/eclass/savedconfig.eclass: ASCII text
+usr/portage/eclass/scons-utils.eclass: ASCII text
+usr/portage/eclass/scsh.eclass: ASCII text
+usr/portage/eclass/selinux-policy-2.eclass: ASCII text
+usr/portage/eclass/sgml-catalog.eclass: ASCII text
+usr/portage/eclass/ssl-cert.eclass: ASCII text
+usr/portage/eclass/stardict.eclass: ASCII text
+usr/portage/eclass/subversion.eclass: ASCII text
+usr/portage/eclass/sword-module.eclass: ASCII text
+usr/portage/eclass/systemd.eclass: ASCII text
 usr/portage/eclass/tests: directory
-usr/portage/eclass/tetex-3.eclass: ASCII English text
-usr/portage/eclass/tetex.eclass: ASCII English text
-usr/portage/eclass/texlive-common.eclass: ASCII English text
-usr/portage/eclass/texlive-module.eclass: ASCII English text
-usr/portage/eclass/tla.eclass: ASCII English text
-usr/portage/eclass/toolchain-binutils.eclass: ASCII English text
+usr/portage/eclass/tetex-3.eclass: ASCII text
+usr/portage/eclass/tetex.eclass: ASCII text
+usr/portage/eclass/texlive-common.eclass: ASCII text
+usr/portage/eclass/texlive-module.eclass: ASCII text
+usr/portage/eclass/tla.eclass: ASCII text
+usr/portage/eclass/toolchain-binutils.eclass: ASCII text
 usr/portage/eclass/twisted.eclass: Python script, ASCII text executable
-usr/portage/eclass/unpacker.eclass: ASCII English text
-usr/portage/eclass/user.eclass: ASCII English text
-usr/portage/eclass/vcs-snapshot.eclass: ASCII English text
-usr/portage/eclass/vdr-plugin-2.eclass: ASCII English text
-usr/portage/eclass/vdr-plugin.eclass: ASCII English text
-usr/portage/eclass/versionator.eclass: ASCII English text
-usr/portage/eclass/vim-doc.eclass: ASCII English text
-usr/portage/eclass/vim-plugin.eclass: ASCII English text
+usr/portage/eclass/unpacker.eclass: ASCII text
+usr/portage/eclass/user.eclass: ASCII text
+usr/portage/eclass/vcs-snapshot.eclass: ASCII text
+usr/portage/eclass/vdr-plugin-2.eclass: ASCII text
+usr/portage/eclass/vdr-plugin.eclass: ASCII text
+usr/portage/eclass/versionator.eclass: ASCII text
+usr/portage/eclass/vim-doc.eclass: ASCII text
+usr/portage/eclass/vim-plugin.eclass: ASCII text
 usr/portage/eclass/vim-spell.eclass: exported SGML document, ASCII text
-usr/portage/eclass/vim.eclass: ASCII English text
-usr/portage/eclass/virtualx.eclass: ASCII English text
-usr/portage/eclass/virtuoso.eclass: ASCII English text
-usr/portage/eclass/vmware-bundle.eclass: ASCII English text
-usr/portage/eclass/vmware-mod.eclass: ASCII English text
-usr/portage/eclass/vmware.eclass: ASCII English text
-usr/portage/eclass/waf-utils.eclass: UTF-8 Unicode English text
-usr/portage/eclass/webapp.eclass: ASCII English text
-usr/portage/eclass/wxwidgets.eclass: ASCII English text
-usr/portage/eclass/x-modular.eclass: ASCII English text
+usr/portage/eclass/vim.eclass: ASCII text
+usr/portage/eclass/virtualx.eclass: C++ source, ASCII text
+usr/portage/eclass/virtuoso.eclass: ASCII text
+usr/portage/eclass/vmware-bundle.eclass: ASCII text
+usr/portage/eclass/vmware-mod.eclass: ASCII text
+usr/portage/eclass/vmware.eclass: ASCII text
+usr/portage/eclass/waf-utils.eclass: UTF-8 Unicode text
+usr/portage/eclass/webapp.eclass: ASCII text
+usr/portage/eclass/wxwidgets.eclass: ASCII text
+usr/portage/eclass/x-modular.eclass: ASCII text
 usr/portage/eclass/xemacs-elisp-common.eclass: Lisp/Scheme program, UTF-8 Unicode text
-usr/portage/eclass/xemacs-elisp.eclass: ASCII English text
-usr/portage/eclass/xemacs-packages.eclass: ASCII English text
-usr/portage/eclass/xfconf.eclass: ASCII English text
-usr/portage/eclass/xorg-2.eclass: UTF-8 Unicode English text
-usr/portage/eclass/zproduct.eclass: ASCII English text
+usr/portage/eclass/xemacs-elisp.eclass: ASCII text
+usr/portage/eclass/xemacs-packages.eclass: ASCII text
+usr/portage/eclass/xfconf.eclass: ASCII text
+usr/portage/eclass/xorg-2.eclass: UTF-8 Unicode text
+usr/portage/eclass/zproduct.eclass: ASCII text
 usr/portage/eclass/ELT-patches/aix-noundef: directory
 usr/portage/eclass/ELT-patches/aixrtl: directory
 usr/portage/eclass/ELT-patches/as-needed: directory
