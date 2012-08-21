@@ -75,7 +75,7 @@ else
 fi
 db_file_i386="/etc/rebase.db.i386"
 db_file_x86_64="/etc/rebase.db.x86_64"
-check_for_dash_only="yes"
+force_dash_only="no"
 case `uname -m` in
     i[3456]86)
 	db_file="${db_file_i386}";
@@ -116,7 +116,7 @@ do
     o)
 	Offset="${OPTARG}";;
     p)
-	check_for_dash_only="no";;
+	force_dash_only="yes";;
     P)
         EPrefix="${OPTARG}";;
     s)
@@ -137,44 +137,54 @@ done
 PATH=$EPrefix/bin:$EPrefix/usr/bin:$EPrefix/sbin:$EPrefix/usr/sbin:/bin
 
 # Verify only ash or dash processes are running
-if [ "${check_for_dash_only}" != "no" ]
+ProcessResult=0
+case $Platform in
+  mingw|msys )
+    /bin/ps -s | /bin/gawk '\
+# Count number of running ash or dash. \
+/\/bin\/(d)?ash(\.exe)?$/{ ash_cnt++; } \
+# Count number of ps and gawk. \
+/\/bin\/ps(\.exe)?$/{ cnt++; } \
+/\/bin\/gawk(\.exe)?$/{ cnt++; } \
+END{ \
+  # Uncomment for testing: \
+  # printf "TOTAL: %d CNT: %d ASH_CNT: %d\n", NR, cnt, ash_cnt; \
+  # Only one of ps and gawk each may run. \
+  if (cnt > 2) \
+    exit 0; \
+  # The total number of allowed processes is one less than the \
+  # number of input lines.  The extra line is the ps header output. \
+  if (NR - cnt - ash_cnt > 1) \
+    exit 0; \
+  # All is well. \
+  exit 1; \
+}'
+    ProcessResult=$?
+    ;;
+  cygwin )
+    grep -E -q -i -v '/d?ash(.exe)?$' /proc/[0-9]*/exename
+    ProcessResult=$?
+    ;;
+esac
+
+if [ $ProcessResult -eq 0 -a -z "${RebaseDebug}" ]
 then
-  ProcessResult=0
-  case $Platform in
-    mingw|msys )
-      /bin/ps -s | /bin/gawk '\
- # Count number of running ash or dash. \
- /\/bin\/(d)?ash(\.exe)?$/{ ash_cnt++; } \
- # Count number of ps and gawk. \
- /\/bin\/ps(\.exe)?$/{ cnt++; } \
- /\/bin\/gawk(\.exe)?$/{ cnt++; } \
- END{ \
-   # Uncomment for testing: \
-   # printf "TOTAL: %d CNT: %d ASH_CNT: %d\n", NR, cnt, ash_cnt; \
-   # Only one of ps and gawk each may run. \
-   if (cnt > 2) \
-     exit 0; \
-   # The total number of allowed processes is one less than the \
-   # number of input lines.  The extra line is the ps header output. \
-   if (NR - cnt - ash_cnt > 1) \
-     exit 0; \
-   # All is well. \
-   exit 1; \
- }'
-      ProcessResult=$?
-      ;;
-    cygwin )
-      grep -E -q -i -v '/d?ash(.exe)?$' /proc/[0-9]*/exename
-      ProcessResult=$?
-      ;;
-  esac
-  if [ $ProcessResult -eq 0 -a -z "${RebaseDebug}" ]
+  if [ $force_dash_only = yes ]
   then
-      echo "${ProgramName}: only ash or dash processes are allowed during rebasing"
-      echo "    Exit all Cygwin processes and stop all Cygwin services."
-      echo "    Execute ash (or dash) from Start/Run... or a cmd or command window."
-      echo "    Execute '/bin/rebaseall' from ash (or dash)."
-      exit 2
+    echo "${ProgramName}: only ash or dash processes are allowed during rebasing"
+  else
+    echo "${ProgramName}: WARNING: non-ash, non-dash processes present during rebasing"
+  fi
+  echo "    Exit all Cygwin processes and stop all Cygwin services."
+  echo "    Execute ash (or dash) from Start/Run... or a cmd or command window."
+  echo "    Execute the rebaseall_pfx script from ash (or dash)."
+  echo
+  echo "The following processes caused this message:"
+  grep -E -i -v '/d?ash(.exe)?$' /proc/[0-9]*/exename
+  echo
+  if [ $force_dash_only = yes ]
+  then
+    exit 2
   fi
 fi
 

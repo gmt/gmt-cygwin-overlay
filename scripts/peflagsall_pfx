@@ -38,6 +38,7 @@ DefaultVerbose=
 DefaultFileList=
 DefaultSuffixes='exe|dll|so'
 ExtraDirList=
+ForceAshOrDashOnly='no'
 TEMP=/tmp
 
 # Define functions
@@ -62,6 +63,7 @@ long_help ()
     echo "   -d bool         set the dynamicbase flag to 'bool' on all specified files"
     echo "   -D extra_dirs   traverse these directories in addition to the standard ones"
     echo "   -t bool         set the tsaware flag to 'bool' on all specified files"
+    echo "   -o              force only ash or dash to be running"
     echo "   -s suffix       search for all files with the specified suffix(es)"
     echo "                     default: 'exe|dll|so'"
     echo "   -T FileList     in addition to files located via the normal search and"
@@ -163,6 +165,36 @@ case $Platform in
     ;;
 esac
 
+# Parse command line arguments
+while getopts $ProgramOptions Option "$@"
+do
+    case $Option in
+    p)  ExtraArgs="$OPTARG";;
+    P)  EPrefix="$OPTARG";;
+    d)  to_bool "$OPTARG"; ArgDynBase=$to_bool_result;;
+    D)  ExtraDirList="$OPTARG";;
+    t)  to_bool "$OPTARG"; ArgTSAware=$to_bool_result;;
+    s)
+	if test -z "$ArgSuffixes"
+        then
+		ArgSuffixes="$OPTARG"
+	else
+		ArgSuffixes="$ArgSuffixes|$OPTARG"
+	fi
+	;;
+    n)  DoNothing=:;;
+    o)  ForceAshOrDashOnly="yes";;
+    k)  Keep=1;;
+    T)  FileList="$OPTARG";;
+    v)  Verbose=-v;;
+    h)  long_help;;
+    \?) short_usage;;
+    esac
+done
+
+PATH=$EPrefix/bin:$EPrefix/usr/bin:$EPrefix/sbin:$EPrefix/usr/sbin:/bin
+export PATH
+
 # Verify only ash or dash processes are running
 ProcessResult=0
 case $Platform in
@@ -195,41 +227,24 @@ case $Platform in
 esac
 if [ $ProcessResult -eq 0 -a -z "$RebaseDebug" ]
 then
-    echo "$ProgramName: only ash or dash processes are allowed during this process."
+    if [ $ForceAshOrDashOnly = yes ]
+    then
+        echo "$ProgramName: only ash or dash processes are allowed during this process."
+    else
+        echo "$ProgramName: WARNING: non-ash, non-dash processes running during peflagsall."
+    fi
     echo "    Exit all Cygwin processes and stop all Cygwin services."
     echo "    Execute ash (or dash) from Start/Run... or a cmd or command window."
     echo "    Execute '/bin/peflagsall' from ash (or dash)."
-    exit 2
+    echo
+    echo "The following processes are responsible for this message:"
+    grep -E -i -v '/d?ash(.exe)?$' /proc/[0-9]*/exename
+    echo
+    if [ $ForceAshOrDashOnly = yes ]
+    then
+        exit 2
+    fi
 fi
-
-# Parse command line arguments
-while getopts $ProgramOptions Option "$@"
-do
-    case $Option in
-    p)  ExtraArgs="$OPTARG";;
-    P)  EPrefix="$OPTARG";;
-    d)  to_bool "$OPTARG"; ArgDynBase=$to_bool_result;;
-    D)  ExtraDirList="$OPTARG";;
-    t)  to_bool "$OPTARG"; ArgTSAware=$to_bool_result;;
-    s)
-	if test -z "$ArgSuffixes"
-        then
-		ArgSuffixes="$OPTARG"
-	else
-		ArgSuffixes="$ArgSuffixes|$OPTARG"
-	fi
-	;;
-    n)  DoNothing=:;;
-    k)  Keep=1;;
-    T)  FileList="$OPTARG";;
-    v)  Verbose=-v;;
-    h)  long_help;;
-    \?) short_usage;;
-    esac
-done
-
-PATH=$EPrefix/bin:$EPrefix/usr/bin:$EPrefix/sbin:$EPrefix/usr/sbin:/bin
-export PATH
 
 # Evaluate command line arguments
 if test -n "$ArgSuffixes" || test -n "$ArgDynBase" || test -n "$ArgTSAware"
