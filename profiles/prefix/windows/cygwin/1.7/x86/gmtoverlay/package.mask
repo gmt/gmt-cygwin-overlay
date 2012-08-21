@@ -15,6 +15,7 @@
 # correct way, by keywording).  Please alphabetize!
 app-arch/bzip2
 app-arch/unzip
+app-arch/zip
 dev-libs/gmp
 sys-apps/coreutils
 sys-devel/binutils-config
