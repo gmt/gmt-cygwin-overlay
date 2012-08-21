@@ -7,3 +7,4 @@
 
 # configure: "cannot build both static and DLL, since gmp.h is different for each."
 dev-libs/gmp -static-libs
+dev-libs/mpc -static-libs

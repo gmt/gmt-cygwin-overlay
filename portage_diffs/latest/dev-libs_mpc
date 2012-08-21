@@ -1,32 +1,22 @@
 ===== mutual sub-directory: "dev-libs/mpc" =====
----("dev-libs/mpc/mpc-0.9-r1.ebuild")--->8--->
---- usr/portage/dev-libs/mpc/mpc-0.9-r1.ebuild [[PORTAGE]]
-+++ overlay/dev-libs/mpc/mpc-0.9-r1.ebuild [[OVERLAY]]
-@@ -5,7 +5,7 @@
- # Unconditional dependency of gcc.  Keep this set to 0.
- EAPI="0"
- 
--inherit eutils libtool
-+inherit eutils libtool flag-o-matic
- 
- DESCRIPTION="A library for multiprecision complex arithmetic with exact rounding."
- HOMEPAGE="http://mpc.multiprecision.org/"
-@@ -30,7 +30,12 @@
+----[ "dev-libs/mpc/mpc-0.9-r1.ebuild" ]----->8----->
+--- PORTAGE/dev-libs/mpc/mpc-0.9-r1.ebuild
++++ OVERLAY/dev-libs/mpc/mpc-0.9-r1.ebuild
+@@ -30,7 +30,11 @@
  }
  
  src_compile() {
 +	if [[ ${CFLAGS} == *-cygwin* ]] ; then
-+		use static-libs && die static-libs not supported on cygwin
-+		econf --disable-static --enable-shared
++		econf $(use_enable static-libs static) --enable-shared || die
 +	else
  	econf $(use_enable static-libs static) || die
 +	fi
  	emake || die
  }
  
-<---8<---
+<-----8<-----
 
 *** The following files appear only in portage ***
-usr/portage/dev-libs/mpc/mpc-0.8.2.ebuild: ASCII English text
-usr/portage/dev-libs/mpc/mpc-0.9.ebuild: ASCII English text
+usr/portage/dev-libs/mpc/mpc-0.8.2.ebuild: ASCII text
+usr/portage/dev-libs/mpc/mpc-0.9.ebuild: ASCII text
 
