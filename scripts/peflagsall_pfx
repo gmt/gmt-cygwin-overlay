@@ -1,5 +1,6 @@
 #!/bin/ash
 
+#
 # Copyright (c) 2009,2011 Charles Wilson
 #               2012 Greg Turner
 # Based on rebaseall by Jason Tishler
@@ -29,14 +30,15 @@ tp2=${tp1:-.}
 
 ProgramName=${0##*/}
 ProgramOptions='p:d:D:t:s:T:P:knvh'
-DefaultExtraArgs="--cygwin-heap=512"
+# DefaultExtraArgs="--cygwin-heap=512"
+DefaultExtraArgs=
 DefaultTSAware=1
-DefaultDynBase=1
+DefaultDynBase=0
 DefaultKeep=
 DefaultDoNothing=
 DefaultVerbose=
 DefaultFileList=
-DefaultSuffixes='exe|dll|so'
+DefaultSuffixes='exe|dll|so|oct'
 ExtraDirList=
 ForceAshOrDashOnly='no'
 TEMP=/tmp
@@ -65,7 +67,7 @@ long_help ()
     echo "   -t bool         set the tsaware flag to 'bool' on all specified files"
     echo "   -o              force only ash or dash to be running"
     echo "   -s suffix       search for all files with the specified suffix(es)"
-    echo "                     default: 'exe|dll|so'"
+    echo "                     default: 'exe|dll|so|oct'"
     echo "   -T FileList     in addition to files located via the normal search and"
     echo "                   suffix list, also operate on files listed in FileList"
     echo "                   May be '-' which indicates stdin"

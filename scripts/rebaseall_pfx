@@ -1,6 +1,6 @@
 #!/bin/ash
 
-# Copyright (c) 2003, 2005, 2006, 2008, 2011 Jason Tishler
+# Copyright (c) 2003, 2005, 2006, 2008, 2011, 2012 Jason Tishler
 #               2012 Greg Turner
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,8 +22,8 @@
 # cygwin-prefix support by Greg Turner <gmturner007@ameritech.net>
 
 # Somehow a lot of /cygdrive/c/cygwin/foo paths end up floating around in Cygwin's brain
-# despite more efficient /foo representations.  This seems sensitive to rebasing so
-# I'm hoping this will fix it. -gmt
+# despite more efficient /foo representations.  It couldn't hurt to keep them out of PWD
+# and PATH.
 cd /bin
 PATH=/bin
 
@@ -33,6 +33,7 @@ tp2=${tp1:-.}
 ProgramName=${0##*/}
 ProgramOptions='48b:o:ps:P:tT:D:v'
 DefaultBaseAddress=0x70000000
+DefaultNoDyn=
 DefaultOffset=0
 DefaultTouch=
 DefaultVerbose=
@@ -65,6 +66,7 @@ trap cleanup 1 2 15
 BaseAddress=""
 Offset="${DefaultOffset}"
 Touch="${DefaultTouch}"
+NoDyn="${DefaultNoDyn}"
 Verbose="${DefaultVerbose}"
 FileList="${DefaultFileList}"
 Suffixes="${DefaultSuffixes}"
@@ -301,6 +303,9 @@ case $Platform in
 	  -e '/ebuild-helpers\/dolib.so$/d' \
 	  -e '/ebuild-helpers\/newlib.so$/d' \
 	  >"${TmpFile}"
+       # Unconditionally add the -n flag so rebased DLLs get the
+       # dynamicbase flag removed.
+       NoDyn='-n'
     ;;
   mingw|msys)
     for f in /bin /lib
@@ -322,9 +327,9 @@ fi
 
 if [ -z "${BaseAddress}" ]
 then
-  rebase "${Verbose}" "${Touch}" -s "${Mach}" -T "${TmpFile}"
+  rebase "${Verbose}" "${Touch}" "${NoDyn}" -s "${Mach}" -T "${TmpFile}"
 else
-  rebase "${Verbose}" "${Touch}" -s "${Mach}" -b "${BaseAddress}" -o "${Offset}" -T "${TmpFile}"
+  rebase "${Verbose}" "${Touch}" "${NoDyn}" -s "${Mach}" -b "${BaseAddress}" -o "${Offset}" -T "${TmpFile}"
 fi
 ExitCode=$?
 
