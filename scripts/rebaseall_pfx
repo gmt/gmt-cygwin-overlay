@@ -31,8 +31,10 @@ PATH=/bin
 tp1=${0%/*}
 tp2=${tp1:-.}
 ProgramName=${0##*/}
-ProgramOptions='48b:o:ps:P:tT:D:v'
+ProgramOptions='48o:ps:P:tT:D:v'
+# by leaving this gap, we leave room for ASLR to work its magic
 DefaultBaseAddress=0x70000000
+PrefixBaseAddress=0x79000000
 DefaultNoDyn=
 DefaultOffset=0
 DefaultTouch=
@@ -44,7 +46,7 @@ ExtraDirList=
 # Define functions
 usage()
 {
-    echo "usage: ${ProgramName} [-P EPREFIX] [-b BaseAddress] [-o Offset] [-s DllSuffix] [-T FileList | -]] [-D ExtraDirList] [-4|-8] [-p] [-t] [-v]"
+    echo "usage: ${ProgramName} [-P EPREFIX] [-o Offset] [-s DllSuffix] [-T FileList | -]] [-D ExtraDirList] [-4|-8] [-p] [-t] [-v]"
 
     echo
     echo '  Separate "ExtraDirList" options with colons like in a ${PATH}'
@@ -113,8 +115,6 @@ do
 	Mach="-8"
 	db_file="${db_file_x86_64}"
 	;;
-    b)
-	BaseAddress="${OPTARG}";;
     o)
 	Offset="${OPTARG}";;
     p)
@@ -190,16 +190,7 @@ then
   fi
 fi
 
-# Check if rebase database already exists.
-database_exists="no"
-[ -f "${db_file}" ] && database_exists="yes"
-
-# If BaseAddress has not been specified, and the rebase database doesn't exist
-# yet, set BaseAddress to default.
-if [ -z "${BaseAddress}" -a "${database_exists}" != "yes" ]
-then
-  BaseAddress=$DefaultBaseAddress
-fi
+BaseAddress=$DefaultBaseAddress
 
 # Set temp directory
 TmpDir="${TMP:-${TEMP:-/tmp}}"
@@ -283,55 +274,158 @@ fi
 # Set temp file
 TmpFile="$TmpDir/rebase.lst"
 
+# filter for suffixes, then remove perl and python library
+# directories, cygwin1.dll, lsa-dll, dash/ash, mingw sysroot,
+# and the dolib.so/newlib.so files, which are actually scripts.
+filter_cygwin_targets()
+{
+  grep -E "\.($Suffixes)\$" | \
+    grep -E -v -e '/lib/(perl|python)[[:digit:].-_]*/' | \
+    sed -e '/cygwin1\.dll$/d' \
+      -e '/cyglsa.*\.dll$/d' \
+      -e '/d?ash\.exe$/d' \
+      -e '/rebase\.exe$/d' \
+      -e '/sys-root\/mingw/d' \
+      -e '/ebuild-helpers\/dolib.so$/d' \
+      -e '/ebuild-helpers\/newlib.so$/d'
+}
+
 # Create rebase list
 case $Platform in
   cygwin)
-    ( if [ -n "${dirlist}" ] ; then echo "${dirlist}" | sed 's/:/\n/g' | while read d ; do
-          echo "Scanning \"${d}\"..." >&2
-          find "${d}" # -name '*.dll' -o -name '*.so'
-      done ; fi
-      if [ -n "$ExtraDirList" ] ; then echo "${ExtraDirList}" | sed 's/:/\n/g' | while read d ; do
-          echo "Scanning \"${d}\"..." >&2
-          find "${d}" -type f # -name '*.dll' -o -name '*.so'
-      done ; fi
-      echo "Scanning /etc/setup/*/*.lst.gz" >&2
-      find /etc/setup -name '*.lst.gz' | xargs gzip -d -c | sed -e 's/^/\//' ) | \
-      grep -E "\.($Suffixes)\$" | \
-      sed -e '/cygwin1\.dll$/d' -e '/cyglsa.*\.dll$/d' \
-	  -e '/d?ash\.exe$/d' -e '/rebase\.exe$/d' \
-          -e '/sys-root\/mingw/d' \
-	  -e '/ebuild-helpers\/dolib.so$/d' \
-	  -e '/ebuild-helpers\/newlib.so$/d' \
-	  >"${TmpFile}"
-       # Unconditionally add the -n flag so rebased DLLs get the
-       # dynamicbase flag removed.
-       NoDyn='-n'
+    if [ -n "${FileList}" ]
+    then
+      if [ -f "${FileList}" ]
+      then
+        echo "Scanning user-provided files in \"${FileList}\" ..." >&2
+        cat "${FileList}"
+      else
+        echo "WARNING: FileList \"${FileList}\" provided but not found." >&2
+      fi
+    fi | filter_cygwin_targets > "${TmpFile}_filelist"
+    if [ -n "${ExtraDirList}" ]
+    then
+      echo "${ExtraDirList}" | sed 's/:/\n/g' | while read d
+      do
+        echo "Scanning \"${d}\" (extra) ..." >&2
+        find "${d}" -type f
+      done
+    fi | filter_cygwin_targets > "${TmpFile}_extra_dirlist"
+    if [ -n "${dirlist}" ]
+    then
+      echo "${dirlist}" | sed 's/:/\n/g' | while read d
+      do
+        echo "Scanning \"${d}\ (built-in) ..." >&2
+        find "${d}" -type f
+      done
+    fi | filter_cygwin_targets > "${TmpFile}_dirlist"
+    first_lstgz=1
+    for lstgz in /etc/setup/*.lst.gz
+    do
+      [ -f "${lstgz}" ] || continue
+      if [ $first_lstgz -eq 1 ]
+      then
+        first_lstgz=0
+	echo -n 'Scanning /etc/setup/*.lst.gz:' >&2
+      fi
+      lstgzbase="${lstgz##*/}"
+      echo -n " ${lstgzbase%.lst.gz}" >&2
+      gzip -d -c "${lstgz}" | sed -e 's/^/\//'
+    done | filter_cygwin_targets > "${TmpFile}_etc_setup"
+
+    # sigh, we have no reliable way to know if 'Scanning /etc...' was displayed
+    echo >&2
+
+    # Merge the lists, prioritizing first, FileList; second, ExtraDirList;
+    # third, dirlist; and fourth, /etc/setup.  Discard non-prioritized duplicate
+    # filenames with a friendly warning.
+    echo "Merging lists ..." >&2
+    merged_basenames=
+    cat "${TmpFile}_filelist" "${TmpFile}_extra_dirlist" "${TmpFile}_dirlist" "${TmpFile}_etc_setup" | \
+      while read filepath ; do
+        case $filepath in
+	  */) echo "WARNING: filepath ending in '/': \"${filepath}\"" >&2 ; continue;;
+	esac
+        filepath_basename="${filepath##*/}"
+	filepath_pathname="${filepath%/*}"
+        case "${merged_basenames}" in
+          *"|${filepath_basename}=/"*)
+	    already_have="$(
+              echo "${merged_basenames}" 2>/dev/null | sed -e 's/|/\n/g' 2>/dev/null | grep -v '^[[:space:]]*$' 2>/dev/null | \
+	        while read haveline
+		do
+		  havebasename="${haveline%=*}"
+		  case x${havebasename}x in
+		    x${filepath_basename}x)
+                      havepathname="${haveline##*=}"
+                      echo "${havepathname}/${havebasename}"
+		      break
+		      ;;
+                  esac
+		done
+            )"
+	    case x"${already_have}"x in
+	      x"${filepath}"x)
+	        what_we_are_gonna_do_about_it=nothing_cause_its_a_pathological_case
+		;;
+	      *)
+                echo "duplicate skipped: ${filepath} (had ${already_have})" >&2
+		;;
+            esac
+            ;;
+          *)
+            echo "${filepath}"
+            merged_basenames="|${filepath_basename}=${filepath_pathname}|${merged_basenames}"
+            ;;
+        esac
+      done > "${TmpFile}"
+  
+    # remove intermediates: they always exist, no need to check
+    rm "${TmpFile}_dirlist"
+    rm "${TmpFile}_extra_dirlist"
+    rm "${TmpFile}_etc_setup"
+    rm "${TmpFile}_filelist"
+
+    # Unconditionally add the -n flag so rebased DLLs get the
+    # dynamicbase flag removed.
+    NoDyn='-n'
     ;;
   mingw|msys)
     for f in /bin /lib
     do
-      find $f -type f |
-        grep -E "\.($Suffixes)\$" |
-	sed -e '/msys-1\.0.*\.dll$/d' -e '/cygwin1\.dll$/d' \
-	    -e '/cyglsa.*\.dll$/d' -e '/d?ash\.exe$/d' \
-	    -e '/rebase\.exe$/d' >>"$TmpFile"
+      find $f -type f | filter_cygwin_targets >> "${TmpFile}"
     done
     ;;
 esac
 
-# Append user supplied file list, if any
-if [ -n "${FileList}" ]
+# first, do a rebase of the non-prefix cygwin system; this helps keep the non-prefix
+# system from getting too fucked up.  We only want the non-prefix files from TmpFile,
+# not the full compliment of files.  If things get goofy, the user can just delete the
+# database file and this will flush out any old non-prefix stuff causing trouble.
+echo "Rebasing non-prefix cygwin files..." >&2
+cat "${TmpFile}" | grep -v '^'"${EPrefix}" > "${TmpFile}_non-prefix"
+if [ -e ${db_file} ]
 then
-    cat "${FileList}" >>"${TmpFile}"
+  PATH=/bin rebase "${Verbose}" "${Touch}" "${NoDyn}" -s "${Mach}" -T "${TmpFile}_non-prefix"
+else
+  PATH=/bin rebase "${Verbose}" "${Touch}" "${NoDyn}" -s "${Mach}" -b "${BaseAddress}" -o "${Offset}" -T "${TmpFile}_non-prefix"
 fi
 
-if [ -z "${BaseAddress}" ]
-then
-  rebase "${Verbose}" "${Touch}" "${NoDyn}" -s "${Mach}" -T "${TmpFile}"
-else
-  rebase "${Verbose}" "${Touch}" "${NoDyn}" -s "${Mach}" -b "${BaseAddress}" -o "${Offset}" -T "${TmpFile}"
-fi
+BaseAddress="${PrefixBaseAddress}"
+
+# now rebase the prefix stuff. ignore the database and place everything above the $BaseAddress
+# cutoff, to minimize conflicts.  The prefix stuff will not stay put the way the non-prefix stuff
+# does so expect running processes to cause more trouble for prefix than -non.
+echo "Rebasing prefix cygwin files..." >&2
+cat "${TmpFile}" | grep '^'"${EPrefix}" > "${TmpFile}_prefix"
+rm "${TmpFile}"
+rebase "${Verbose}" "${Touch}" "${NoDyn}" "${Mach}" "${BaseAddress}" -T "${TmpFile}_prefix"
+
+echo -n "Determining new effective maximum base address: " >&2
+
 ExitCode=$?
 
 # Clean up
 cleanup
+
+# vim: syntax=sh
