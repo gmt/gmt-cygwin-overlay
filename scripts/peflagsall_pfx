@@ -158,9 +158,7 @@ check_args_for_help "$@"
 # Determine platform
 Platform=`uname -s`
 case $Platform in
- *MINGW*  | *mingw*  ) Platform=mingw  ;;
  *CYGWIN* | *cygwin* ) Platform=cygwin ;;
- *MSYS*   | *msys*   ) Platform=msys   ;;
  * )
     echo "Unsupported platform: $Platform" 1>&2
     exit 1
@@ -199,34 +197,8 @@ export PATH
 
 # Verify only ash or dash processes are running
 ProcessResult=0
-case $Platform in
-  mingw|msys )
-    /bin/ps -s | /bin/gawk '\
-      # Count number of running ash or dash. \
-      /\/bin\/(d)?ash(\.exe)?$/{ ash_cnt++; } \
-      # Count number of ps and gawk. \
-      /\/bin\/ps(\.exe)?$/{ cnt++; } \
-      /\/bin\/gawk(\.exe)?$/{ cnt++; } \
-      END{ \
-        # Uncomment for testing: \
-        # printf "TOTAL: %d CNT: %d ASH_CNT: %d\n", NR, cnt, ash_cnt; \
-        # Only one of ps and gawk each may run. \
-        if (cnt > 2) \
-          exit 0; \
-        # The total number of allowed processes is one less than the \
-        # number of input lines.  The extra line is the ps header output. \
-        if (NR - cnt - ash_cnt > 1) \
-          exit 0; \
-        # All is well. \
-        exit 1; \
-      }'
-    ProcessResult=$?
-    ;;
-  cygwin )
-    grep -E -q -i -v '/d?ash(.exe)?$' /proc/[0-9]*/exename
-    ProcessResult=$?
-    ;;
-esac
+stopthese="$( grep -E -i -v '/(d?ash(.exe)?|grep(.exe)?)$' /proc/[0-9]*/exename )"
+ProcessResult=$?
 if [ $ProcessResult -eq 0 -a -z "$RebaseDebug" ]
 then
     if [ $ForceAshOrDashOnly = yes ]
@@ -239,8 +211,8 @@ then
     echo "    Execute ash (or dash) from Start/Run... or a cmd or command window."
     echo "    Execute '/bin/peflagsall' from ash (or dash)."
     echo
-    echo "The following processes are responsible for this message:"
-    grep -E -i -v '/d?ash(.exe)?$' /proc/[0-9]*/exename
+    echo "The following processes should be stopped:"
+    echo "${stopthese}" | sed 's|/proc/\([0-9]*\)/exename:\(.*\)$|\2 (PID: \1)|'
     echo
     if [ $ForceAshOrDashOnly = yes ]
     then
@@ -313,9 +285,9 @@ check_dirs() {
 
 check_dirs "${EPrefix}/bin" "${EPrefix}/usr/bin" "${EPrefix}/sbin" "${EPrefix}/usr/sbin" \
 		"${EPrefix}"/usr/i686-pc-cygwin1.7/binutils-bin/* \
-		"${EPrefix}"/usr/i686-pc-cygwin1.7/gcc-bin/* "/usr/bin"
-
-		# "${EPrefix}/lib" "${EPrefix}/usr/lib" "/usr/lib"
+		"${EPrefix}"/usr/i686-pc-cygwin1.7/gcc-bin/* "/usr/bin" \
+		"${EPrefix}/lib" "${EPrefix}/usr/lib"
+		# "/usr/lib"
 
 # Validate ExtraDirList
 if [ -n "$ExtraDirList" ]
@@ -338,35 +310,22 @@ ExeFile="$TmpDir/peflags_exe.lst"
 DllFile="$TmpDir/peflags_dll.lst"
 
 # Create file list
-case $Platform in
-  cygwin)
-    ( if [ -n "${dirlist}" ] ; then echo "${dirlist}" | sed 's/:/\n/g' | while read d ; do
-          echo "Scanning \"${d}\"..." >&2
-          find "${d}" # -name '*.dll' -o -name '*.so'
-      done ; fi
-      if [ -n "$ExtraDirList" ] ; then echo "${ExtraDirList}" | sed 's/:/\n/g' | while read d ; do
-          echo "Scanning \"${d}\"..." >&2
-          find "${d}" # -name '*.dll' -o -name '*.so'
-      done ; fi ) | \
-      grep -E "\.($Suffixes)\$" | \
-      sed -e '/cygwin1\.dll$/d' -e '/cyglsa.*\.dll$/d' \
-          -e '/sys-root\/mingw/d' \
-	  -e '/\/ebuild-helpers\/dolib.so$/d' \
-	  -e '/\/ebuild-helpers\/newlib.so$/d' \
-          -e '/^\/usr\/bin\/d\?ash\.exe$/d' -e '/^\/usr\/bin\/peflags\.exe$/d' >"${TmpFile}"
-    ;;
-  msys)
-    for f in /bin /lib
-    do
-      find $f -type f |
-        grep -E "\.($Suffixes)\$" |
-        sed -e '/msys-1\.0.*\.dll$/d' -e '/cygwin1\.dll$/d' \
-            -e '/cyglsa.*\.dll$/d' -e '/d?ash\.exe$/d' \
-            -e '/peflags\.exe$/d' >>"$TmpFile"
-    done
-    ;;
-  mingw) ;; # no automatic files; only command line
-esac
+# the following can be used to siphon out python libraries if needed... ?
+# grep -E -v -e '(libpython[[:digit:].-_]*\.dll$|/lib/python[[:digit:].-_]*/)' | \
+( if [ -n "${dirlist}" ] ; then echo "${dirlist}" | sed 's/:/\n/g' | while read d ; do
+      echo "Scanning \"${d}\"..." >&2
+      find "${d}" # -name '*.dll' -o -name '*.so'
+  done ; fi
+  if [ -n "$ExtraDirList" ] ; then echo "${ExtraDirList}" | sed 's/:/\n/g' | while read d ; do
+      echo "Scanning \"${d}\"..." >&2
+      find "${d}" # -name '*.dll' -o -name '*.so'
+  done ; fi ) | \
+  grep -E "\.($Suffixes)\$" | \
+  sed -e '/cygwin1\.dll$/d' -e '/cyglsa.*\.dll$/d' \
+      -e '/sys-root\/mingw/d' \
+      -e '/\/ebuild-helpers\/dolib.so$/d' \
+      -e '/\/ebuild-helpers\/newlib.so$/d' \
+      -e '/^\/usr\/bin\/d\?ash\.exe$/d' -e '/^\/usr\/bin\/peflags\.exe$/d' >"${TmpFile}"
 
 # Append user supplied file list, if any
 if [ -n "$FileList" ]

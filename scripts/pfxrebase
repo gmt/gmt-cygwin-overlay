@@ -2,13 +2,13 @@
 
 # these two variables should be adjusted to match your site
 assumed_eprefix="/g2pfx"
-assumed_overlay_path="/g2pfx/overlay"
+assumed_overlay_scripts_path="/g2pfx/overlay/scripts"
 
 if [ -n $EPREFIX ]
 then
 	echo "WARNING: assuming EPREFIX=${assumed_eprefix}"
-	export EPREFIX=/g2pfx
+	EPREFIX="${assumed_eprefix}"
 fi
 
-PATH=/bin "${assumed_overlay_path}"/scripts/rebaseall_pfx -P "${EPREFIX}"
-PATH=/bin "${assumed_overlay_path}"/scripts/peflagsall_pfx -P "${EPREFIX}"
+PATH=/bin "${assumed_overlay_scripts_path}"/rebaseall_pfx "$@" -P "${EPREFIX}"
+PATH=/bin "${assumed_overlay_scripts_path}"/peflagsall_pfx -P "${EPREFIX}"
