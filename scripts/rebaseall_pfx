@@ -400,27 +400,73 @@ echo "Separating prefix and non-prefix files..." >&2
 cat "${TmpFile}" | grep -v '^'"${EPrefix}" > "${TmpFile}_non-prefix"
 cat "${TmpFile}" | grep '^'"${EPrefix}" > "${TmpFile}_prefix"
 
+# That was the easy part; now it gets complicated :)
+
+filter_rebase_failures()
+{
+  local TempFile="$1"
+  shift
+  rebase "${Touch}" "${NoDyn}" "${Mach}" -o "${Offset}" "$@" -T "${TempFile}" 2>"${TempFile}_err"
+  errorfiles="$( echo $(
+    cat "${TempFile}_err" | {
+      gotinuseline=0
+      while read line
+      do
+        echo "${line}" >&2
+	if echo "${line}" | grep -E -q ': skipped because (could not open|nonexistent\.)$'
+	then
+	  echo ":${line%:*}:"
+	elif echo "${line}" | grep -E -q '^ReBaseImage \(.*\) failed'
+	then
+	  line2="${line#ReBaseImage (}"
+	  echo ":${line2%%)*}:"
+        elif [ ${gotinuseline} -eq 1 ]
+	then
+	  echo ":${line}:"
+	elif echo "${line}" | grep -E -q '^The following DLLs couldn.t be rebased because they were in use:$'
+	then
+	  gotinuseline=1
+        fi
+      done
+    }
+  ) )"
+  rm "${TempFile}_err"
+# if [ x${Verbose} = x-v ]
+# then
+#   echo "DEBUG: errorfiles=\"${errorfiles}\"" >&2
+# fi
+  mv "${TempFile}" "${TempFile}_raw"
+  # note: if rebase decides to dump something other than the original filename to stdout, we
+  # may need to beef this up (i.e., by comparing inode numbers).  So far, this seems to do it.
+  cat "${TempFile}_raw" | grep -v "^[[:space:]]*$" | while read f
+  do
+    case "${errorfiles}" in
+      *":${f}:"*) :; ;; # noop
+      *) echo "${f}" ;;
+    esac
+  done > "${TempFile}"
+  rm "${TempFile}_raw"
+}
+
 # echo "Rebasing non-prefix, non-perl, non-python files..." >&2
 echo "Rebasing non-prefix, non-perl files..." >&2
 if [ -e ${db_file} ]
 then
-  PATH=/bin rebase "${Verbose}" "${Touch}" "${NoDyn}" -s "${Mach}" -o "${Offset}" -T "${TmpFile}_non-prefix"
+  PATH=/bin filter_rebase_failures "${TmpFile}_non-prefix" -s
 else
-  PATH=/bin rebase "${Verbose}" "${Touch}" "${NoDyn}" -s "${Mach}" -b "${BaseAddress}" -o "${Offset}" -T "${TmpFile}_non-prefix"
+  PATH=/bin filter_rebase_failures "${TmpFile}_non-prefix" -b "${BaseAddress}"
 fi
 
 # echo "Rebasing non-prefix perl and python files (in oblivious mode)..." >&2
 echo "Rebasing non-prefix perl files (in oblivious mode)..." >&2
-rebase "${Verbose}" "${Touch}" "${NoDyn}" -O "${Mach}" -o "${Offset}" -T "${TmpFile}_etc_setup_perl"
+filter_rebase_failures "${TmpFile}_etc_setup_perl" -O
 
 BaseAddress="${PrefixBaseAddress}"
 
 # now rebase the prefix stuff. ignore the database and place everything above the $BaseAddress
 # cutoff, to minimize conflicts with the non-prefix cygwin rebasing system.
 echo "Rebasing prefix cygwin files..." >&2
-rebase "${Verbose}" "${Touch}" "${NoDyn}" "${Mach}" -b "${BaseAddress}" -T "${TmpFile}_prefix"
-
-# That was the easy part; now it gets complicated :)
+filter_rebase_failures "${TmpFile}_prefix" -b "${BaseAddress}"
 
 BASE_prefix="${PrefixBaseAddress}"
 basevars="BASE_prefix"
@@ -465,7 +511,13 @@ determine_new_base()
   fudgefactor="$4"
   fudgefactor="${fudgefactor:-1}"
   echo -n "Determining new effective maximum base address (${xbasename}): " >&2
-  bs="$( rebase "${Verbose}" "${Mach}" -i -T "${xbasefile}" | tail -n 1 )"
+# if [ x${Verbose} = x-v ]
+# then
+#   echo "<DEBUG>" >&2
+#   rebase "${Verbose}" "${Mach}" -i -T "${xbasefile}" >&2
+#   echo -n "</DEBUG>: " >&2
+# fi
+  bs="$( rebase "${Mach}" -i -T "${xbasefile}" | tail -n 1 )"
   bs="$( echo "$bs" | \
     sed 's/^.*base \([0-9a-fx]*\)[[:space:]]*size \([0-9a-fx]*\)[[:space:]]*$/\1 \2/' )"
   base="${bs% *}"
@@ -625,7 +677,7 @@ do
   if [ $( cat "${TmpFile}_perl" | wc -l ) -gt 0 ]
   then
     echo "Rebasing perl files for version: \"${perlspec}\"..." >&2
-    rebase "${Verbose}" "${Touch}" "${NoDyn}" "${Mach}" -b "${BaseAddress}" -T "${TmpFile}_perl"
+    filter_rebase_failures "${TmpFile}_perl" -b "${BaseAddress}"
 #   determine_new_base python "${TmpFile}_perl" "${BaseAddress}" 3
     determine_new_base ebuild "${TmpFile}_perl" "${BaseAddress}" 3
   fi
@@ -654,7 +706,7 @@ force_reasonable_base perl ebuild
 #       if [ $( cat "${TmpFile}_python" | wc -l ) -gt 0 ]
 #       then
 #         echo "Rebasing python files in directory: \"${d}\"..." >&2
-# 	rebase "${Verbose}" "${Touch}" "${NoDyn}" "${Mach}" -b "${BaseAddress}" -T "${TmpFile}_python"
+# 	filter_rebase_failures "${TmpFile}_python" -b "${BaseAddress}"
 # 	determine_new_base ebuild "${TmpFile}_python" "${BaseAddress}" 3
 #       fi
 #     fi
