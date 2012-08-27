@@ -21,6 +21,51 @@
 # Written by Jason Tishler <jason@tishler.net>
 # cygwin-prefix support by Greg Turner <gmturner007@ameritech.net>
 
+# ASCII-art cygwin-prefix address-space:
+#
+#   ?
+#   ? ] <- BASE_ebuild (files newly created by portage go here)
+# [ .
+#   .
+#   ! ] <- BASE_perl (prefix perl installs, "slotted")
+# [ .
+#   .
+#   *
+#   * ] <- BASE_prefix (general prefix .exe/.dll's are
+#   .      rebased into this space)
+#   .
+# [ *   <- BASE_non_prefix_union_down (non-prefix stuff,
+#   *      including perl & python; only non-perl, non-python
+#   .      added to database by us -- but setup might, anyhow)
+#   . ]
+# [ !   <- BASE_python_down (prefix python, "slotted")
+#   .
+#   . ]
+# [ ?   <- BASE_ebuild_python_down (python files newly created by
+#   ?      portage go here?)
+#
+# legend:
+#   * used space
+#   ! used by multiple "slots"
+#   . empty space
+#   ? empty space initially, filled later
+#  [] range of addresses
+#
+# NB: The above is the complete "vision" of how things are laid out
+# by this script, and will "eventually" work, once the rebasing
+# code in profile.bashrc is updated to match... as of this writing,
+# that hasn't happened yet.  The recommended solution, for now, is
+# to set "CYG_DONT_REBASE=1", and run this script whenever things
+# go crazy, if neccesary with the "-N" option to nuke the database.
+#
+# example ${EPrefix}/etc/gentoo_prefix_addrspace:
+# BASE_ebuild_python_down="0x39ea0000"
+# BASE_python_down="0x3bc20000"
+# BASE_ebuild="0x83634000"
+# BASE_perl="0x80d28000"
+# BASE_non_prefix_union_down="0x70000000"
+# BASE_prefix="0x79000000"
+
 # Somehow a lot of /cygdrive/c/cygwin/foo paths end up floating around in Cygwin's brain
 # despite more efficient /foo representations.  It couldn't hurt to keep them out of PWD
 # and PATH.
@@ -31,11 +76,12 @@ PATH=/bin
 tp1=${0%/*}
 tp2=${tp1:-.}
 ProgramName=${0##*/}
-ProgramOptions='o:ps:P:tT:D:v'
+ProgramOptions='No:ps:P:tT:D:v'
 # by leaving this gap, we leave room for ASLR to work its magic
 DefaultBaseAddress=0x70000000
 PrefixBaseAddress=0x79000000
 DefaultNoDyn=
+DefaultNuke=no
 DefaultOffset=0
 DefaultTouch=
 DefaultVerbose=
@@ -44,33 +90,34 @@ DefaultSuffixes='dll|so|oct'
 ExtraDirList=
 db_file="/etc/rebase.db.i386"
 Mach="-4"
+# Unconditionally add the -n flag so rebased DLLs get the dynamicbase flag removed.
+NoDyn='-n'
 
 # Define functions
 usage()
 {
     echo "usage: ${ProgramName} [-P EPrefix] [-o Offset] [-s DllSuffix] [-T FileList | -]"
-    echo "                      [-D ExtraDirList] [-p] [-t] [-v]"
+    echo "                      [-D ExtraDirList] [-p] [-t] [-N] [-v]"
     echo
     echo '  Separate "ExtraDirList" options with colons like in a ${PATH}'
     echo '  Either use the -P argument or export the EPREFIX environment variable'
+    echo "  Use '-N' to nuke the ${db_file} database and start fresh."
     echo
     exit 1
 }
 
 cleanup()
 {
-    rm -f "${TmpFile}"
-    rm -f "${TmpFile}_prefix"
-    rm -f "${TmpFile}_non-prefix"
-    rm -f "${TmpFile}_dirlist"
-    rm -f "${TmpFile}_extra_dirlist"
-    rm -f "${TmpFile}_filelist"
-    rm -f "${TmpFile}_perl"
-    # rm -f "${TmpFile}_python"
-    # rm -f "${TmpFile}_etc_setup_perlpython"
-    rm -f "${TmpFile}_etc_setup_perl"
-    rm -f "${TmpFile}_etc_setup_all"
-    rm -f "${TmpFile}_etc_setup"
+    ExitCode=$?
+    if [ -n "${TmpFile}" ]
+    then
+        for ext in "" _prefix _non-prefix _dirlist _extra_dirlist _filelist _perl \
+	              _python _etc_setup _etc_setup_all _etc_setup_perlpython \
+		      _non_prefix_union
+        do
+            rm -f "${TmpFile}${ext}" "${TmpFile}${ext}_tmp"
+        done
+    fi
     exit ${ExitCode}
 }
 
@@ -86,45 +133,37 @@ Verbose="${DefaultVerbose}"
 FileList="${DefaultFileList}"
 Suffixes="${DefaultSuffixes}"
 if [ -n "${EPREFIX}" ] ; then
-  EPrefix="${EPREFIX}"
+    EPrefix="${EPREFIX}"
 else
-  EPrefix=
+    EPrefix=
 fi
+Nuke="${DefaultNuke}"
 force_dash_only="no"
 # db_file_x86_64="/etc/rebase.db.x86_64"
 
 # Determine platform
 Platform=`uname -s`
 case $Platform in
- *CYGWIN* | *cygwin* ) Platform=cygwin ;;
- * )
-    echo "Unsupported platform: $Platform" 1>&2
-    exit 1
-    ;;
+    *CYGWIN* | *cygwin* ) Platform=cygwin ;;
+    * ) echo "Unsupported platform: $Platform" 1>&2
+	exit 1
+	;;
 esac
 
 # Parse command line arguments
 while getopts "${ProgramOptions}" Option "$@"
 do
     case "${Option}" in
-    o)
-	Offset="${OPTARG}";;
-    p)
-	force_dash_only="yes";;
-    P)
-        EPrefix="${OPTARG}";;
-    s)
-	Suffixes="${Suffixes}|${OPTARG}";;
-    t)
-	Touch="-t";;
-    T)
-	FileList="${OPTARG}";;
-    D)
-    	ExtraDirList="${OPTARG}";;
-    v)
-	Verbose="-v";;
-    \?)
-	usage;;
+    N) Nuke="yes";;
+    o) Offset="${OPTARG}";;
+    p) force_dash_only="yes";;
+    P) EPrefix="${OPTARG}";;
+    s) Suffixes="${Suffixes}|${OPTARG}";;
+    t) Touch="-t";;
+    T) FileList="${OPTARG}";;
+    D) ExtraDirList="${OPTARG}";;
+    v) Verbose="-v";;
+    \?) usage;;
     esac
 done
 
@@ -137,23 +176,23 @@ ProcessResult=$?
 
 if [ $ProcessResult -eq 0 -a -z "${RebaseDebug}" ]
 then
-  if [ $force_dash_only = yes ]
-  then
-    echo "${ProgramName}: ERROR: only ash or dash processes are allowed during rebasing"
-  else
-    echo "${ProgramName}: WARNING: non-ash, non-dash processes present during rebasing"
-  fi
-  echo "    Exit all Cygwin processes and stop all Cygwin services."
-  echo "    Execute ash (or dash) from Start/Run... or a cmd or command window."
-  echo "    Execute the rebaseall_pfx script from ash (or dash)."
-  echo
-  echo "The following processes should be stopped:"
-  echo "${stopthese}" | sed 's|/proc/\([0-9]*\)/exename:\(.*\)$|\2 (PID: \1)|'
-  echo
-  if [ $force_dash_only = yes ]
-  then
-    exit 2
-  fi
+    if [ $force_dash_only = yes ]
+    then
+	echo "${ProgramName}: ERROR: only ash or dash processes are allowed during rebasing"
+    else
+	echo "${ProgramName}: WARNING: non-ash, non-dash processes present during rebasing"
+    fi
+    echo "    Exit all Cygwin processes and stop all Cygwin services."
+    echo "    Execute ash (or dash) from Start/Run... or a cmd or command window."
+    echo "    Execute the rebaseall_pfx script from ash (or dash)."
+    echo
+    echo "The following processes should be stopped:"
+    echo "${stopthese}" | sed 's|/proc/\([0-9]*\)/exename:\(.*\)$|\2 (PID: \1)|'
+    echo
+    if [ $force_dash_only = yes ]
+    then
+	exit 2
+    fi
 fi
 
 BaseAddress=$DefaultBaseAddress
@@ -188,12 +227,12 @@ fi
 
 case "${EPrefix}" in
     /*)
-        :; # noop
+	:; # noop
 	;;
     *) 
-        echo "$ProgramName: EPREFIX must start with '/'"
-        exit 2
-        ;;
+	echo "$ProgramName: EPREFIX must start with '/'"
+	exit 2
+	;;
 esac
 
 dirlist=
@@ -202,21 +241,21 @@ check_dirs()
 {
     nupath=
     for d in "$@" ; do
-        if [ ! -d "$d" ] ; then
-            echo "$ProgramName: '$d' is not a directory (ignored)"
-            continue
-        fi
+	if [ ! -d "$d" ] ; then
+	    echo "$ProgramName: '$d' is not a directory (ignored)"
+	    continue
+	fi
 	if [ x${dirlist} = x ] ; then
 	    dirlist="${d}"
-        else
-            dirlist="${dirlist}:${d}"
-        fi
+	else
+	    dirlist="${dirlist}:${d}"
+	fi
     done
 }
 
 check_dirs "${EPrefix}/bin" "${EPrefix}/usr/bin" "${EPrefix}/sbin" "${EPrefix}/usr/sbin" \
-		"${EPrefix}"/usr/i686-pc-cygwin1.7/binutils-bin/* \
-		"${EPrefix}"/usr/i686-pc-cygwin1.7/gcc-bin/*
+	   "${EPrefix}"/usr/i686-pc-cygwin1.7/binutils-bin/* \
+	   "${EPrefix}"/usr/i686-pc-cygwin1.7/gcc-bin/*
 
 PATH="${dirlist}:${PATH}"
 export PATH
@@ -225,116 +264,131 @@ export PATH
 if [ -n "$ExtraDirList" ]
 then
     echo "${ExtraDirList}" | sed 's/:/\n/g' | while read d ; do
-        if [ ! -d "${d}" ] ; then
-		echo "$ProgramName: '$d' is not a directory"
-		exit 7
+	if [ ! -d "${d}" ] ; then
+	    echo "$ProgramName: '$d' is not a directory"
+	    exit 7
 	fi
     done
     # lol /bin/sh
     if [ $? -eq 7 ] ; then
-	    exit 2
+	exit 2
     fi
 fi
 
 # Set temp file
 TmpFile="$TmpDir/rebase.lst"
 
-# filter for suffixes, then remove perl (formerly: and python) library
+# filter for suffixes, then remove perl and python library
 # directories, cygwin1.dll, lsa-dll, dash/ash, mingw sysroot,
 # and the dolib.so/newlib.so files, which are actually scripts.
 filter_cygwin_targets()
 {
-  local filter_perlpython
-  # filter_perlpython="$1"
-  # filter_perlpython="${filter_perlpython:-yes}"
-  filter_perl="$1"
-  filter_perl="${filter_perl:-yes}"
-  grep -E "\.($Suffixes)\$" | \
-    if [ ${filter_perl} = no ] # was: filter_perlpython
+    local filter_perlpython
+    filter_perlpython="$1"
+    filter_perlpython="${filter_perlpython:-yes}"
+    grep -E "\.($Suffixes)\$" | \
+    if [ ${filter_perlpython} = no ]
     then
-      tee /dev/null
+	tee /dev/null
     else
-      # grep -E -v -e '(/(cygperl|libpython)[[:digit:].-_]*\.dll$|/lib/(perl|python)[[:digit:].-_]*/)'
-      grep -E -v -e '(/cygperl[[:digit:].-_]*\.dll$|/lib/perl[[:digit:].-_]*/)'
+	grep -E -v -e '(/(cygperl|libpython)[[:digit:].-_]*\.dll$|/lib/(perl|python)[[:digit:].-_]*/)'
     fi | \
     sed -e '/cygwin1\.dll$/d' \
-      -e '/cyglsa.*\.dll$/d' \
-      -e '/d?ash\.exe$/d' \
-      -e '/rebase\.exe$/d' \
-      -e '/sys-root\/mingw/d' \
-      -e '/ebuild-helpers\/dolib.so$/d' \
-      -e '/ebuild-helpers\/newlib.so$/d'
+        -e '/cyglsa.*\.dll$/d' \
+        -e '/d?ash\.exe$/d' \
+        -e '/rebase\.exe$/d' \
+        -e '/sys-root\/mingw/d' \
+        -e '/ebuild-helpers\/dolib.so$/d' \
+        -e '/ebuild-helpers\/newlib.so$/d'
 }
 
-# select_perlpython_targets ()
-select_perl_targets ()
+select_perlpython_targets ()
 {
-  # grep -E -e '(/(cygperl|libpython)[[:digit:].-_]*\.dll$|/lib/(perl|python)[[:digit:].-_]*/)'
-  grep -E -e '(/cygperl[[:digit:].-_]*\.dll$|/lib/perl[[:digit:].-_]*/)'
+    grep -E -e '(/(cygperl|libpython)[[:digit:].-_]*\.dll$|/lib/(perl|python)[[:digit:].-_]*/)'
 }
 
 if [ -n "${FileList}" ]
 then
-  if [ -f "${FileList}" ]
-  then
-    echo "Scanning user-provided files in \"${FileList}\" ..." >&2
-    cat "${FileList}"
-  else
-    echo "WARNING: FileList \"${FileList}\" provided but not found." >&2
-  fi
+    if [ -f "${FileList}" ]
+    then
+	echo "Scanning user-provided files in \"${FileList}\" ..." >&2
+	cat "${FileList}"
+    else
+	echo "WARNING: FileList \"${FileList}\" provided but not found." >&2
+    fi
 fi | filter_cygwin_targets > "${TmpFile}_filelist"
+
 if [ -n "${ExtraDirList}" ]
 then
-  echo "${ExtraDirList}" | sed 's/:/\n/g' | while read d
-  do
-    echo "Scanning \"${d}\" (extra) ..." >&2
-    find "${d}" -type f
-  done
+    echo "${ExtraDirList}" | sed 's/:/\n/g' | while read d
+    do
+	echo "Scanning \"${d}\" (extra) ..." >&2
+	find "${d}" -type f
+    done
 fi | filter_cygwin_targets > "${TmpFile}_extra_dirlist"
+
 if [ -n "${dirlist}" ]
 then
-  echo "${dirlist}" | sed 's/:/\n/g' | while read d
-  do
-    echo "Scanning \"${d}\ (built-in) ..." >&2
-    find "${d}" -type f
-  done
+    echo "${dirlist}" | sed 's/:/\n/g' | while read d
+    do
+	echo "Scanning \"${d}\" (built-in) ..." >&2
+	find "${d}" -type f
+    done
 fi | filter_cygwin_targets > "${TmpFile}_dirlist"
-first_lstgz=1
+
+lstgz_count=0
+lstgzsize=$( ls -1 /etc/setup/*.lst.gz 2>/dev/null | wc -l )
+lstgzfivepercent=$(( lstgzsize / 20 ))
 for lstgz in /etc/setup/*.lst.gz
 do
-  [ -f "${lstgz}" ] || continue
-  if [ $first_lstgz -eq 1 ]
-  then
-    first_lstgz=0
-    echo -n 'Scanning /etc/setup/*.lst.gz: ' >&2
-  fi
-  lstgzbase="${lstgz##*/}"
-  if [ x${Verbose} = x-v ]
-  then
-    echo -n "${lstgzbase%.lst.gz} " >&2
-  else
-    echo -n "." >&2
-  fi
-  gzip -d -c "${lstgz}" | sed -e 's/^/\//'
-done | filter_cygwin_targets no > "${TmpFile}_etc_setup_all" # perl (and formerly python) allowed
+    [ -f "${lstgz}" ] || continue
+    lstgz_count=$(( lstgz_count + 1 ))
+    if [ ${lstgz_count} -eq 1 ]
+    then
+	echo -n 'Scanning /etc/setup/*.lst.gz: ' >&2
+    fi
+    lstgzbase="${lstgz##*/}"
+    if [ x${Verbose} = x-v ]
+    then
+	echo -n "${lstgzbase%.lst.gz} " >&2
+    else
+	if [ $(( lstgz_count % lstgzfivepercent )) -eq 0 ]
+	then
+	    echo -n "." >&2
+	fi
+    fi
+    gzip -d -c "${lstgz}" | sed -e 's/^/\//'
+done | filter_cygwin_targets no > "${TmpFile}_etc_setup_all" # n.b.: perl/python allowed
 
-if [ $first_lstgz -eq 1 ]
-then
-  echo >&2
-fi
+# it's remarkably difficult to figure out whether the "Scanning /etc/setup..."
+# line was actually printed.  It probably was.  If not, the user will just have
+# to deal with the trauma of this blank line on their screen....
+echo >&2
 
-# imo we don't particularly want perl (and formerly, python) targets in the database since
+# imo we don't particularly want perl/python targets in the database since
+#
 #   o Multiple versions with identical basenames can exist and this would
 #     mess up the merging process
-#   o Installing them will fuck up oblivious mode for future perl (and formerly python) users
-# Non prefix cygwin's rebase will put them in there anyhow, but it's
-# no big deal, the difference is pretty subtle/negligible.
-
-# echo "Cherry-picking non-prefix perl & python targets..." >&2
-echo "Cherry-picking non-prefix perl targets..." >&2
+#   o Installing them will fuck up oblivious mode for future perl/python users,
+#     and for us, below.
+#
+# Non prefix cygwin's rebase will put them in there anyhow, but that's
+# a tolerable outcome (although it will clutter up stderr when the user runs
+# this script).  If non-prefix cygwin's rebase-db is causing too much hassle
+# or confusion, this script can always be invoked with the -N option, which
+# will nuke the database and start fresh.  Thereafter, things will go very
+# smoothly (until cygwin setup is run again, and so on).
+#
+# An alternative, more aggressive approach, would be to nuke the database
+# any time someone other than us touches it, or perhaps to play musical-databases
+# by swapping a prefix-targeted database in during this script and putting
+# the non-prefix database back after.  However such shell games seem pretty
+# misleading and are hopefully unneccesary.  Time will tell, but for now
+# the working hypothesis is that we can tolerate the aftermath of setup.exe.
+#
+echo "Cherry-picking non-prefix perl & python targets..." >&2
 cat "${TmpFile}_etc_setup_all" | filter_cygwin_targets > "${TmpFile}_etc_setup"
-# cat "${TmpFile}_etc_setup_all" | select_perlpython_targets > "${TmpFile}_etc_setup_perlpython"
-cat "${TmpFile}_etc_setup_all" | select_perl_targets > "${TmpFile}_etc_setup_perl"
+cat "${TmpFile}_etc_setup_all" | select_perlpython_targets > "${TmpFile}_etc_setup_perlpython"
 
 # Merge the lists, prioritizing first, FileList; second, ExtraDirList;
 # third, dirlist; and fourth, /etc/setup.  Discard non-prioritized duplicate
@@ -342,58 +396,55 @@ cat "${TmpFile}_etc_setup_all" | select_perl_targets > "${TmpFile}_etc_setup_per
 echo "Merging lists ..." >&2
 merged_basenames=
 cat "${TmpFile}_filelist" "${TmpFile}_extra_dirlist" "${TmpFile}_dirlist" "${TmpFile}_etc_setup" | \
-  while read filepath ; do
-    case $filepath in
-      */) echo "WARNING: filepath ending in '/': \"${filepath}\"" >&2 ; continue;;
-    esac
-    filepath_basename="${filepath##*/}"
-    filepath_pathname="${filepath%/*}"
-    case "${merged_basenames}" in
-      *"|${filepath_basename}=/"*)
-        already_have="$(
-          echo "${merged_basenames}" 2>/dev/null | sed -e 's/|/\n/g' 2>/dev/null | grep -v '^[[:space:]]*$' 2>/dev/null | \
-            while read haveline
-            do
-              havebasename="${haveline%=*}"
-              case x${havebasename}x in
-                x${filepath_basename}x)
-                  havepathname="${haveline##*=}"
-                  echo "${havepathname}/${havebasename}"
-                  break
-                  ;;
-              esac
-            done
-        )"
-        case x"${already_have}"x in
-          x"${filepath}"x)
-            :; # don't warn: not at all interesting.
-            ;;
-          *)
-            # we can still skip the warning if the files are the same
-            fi=$( ls -i "${filepath}" | sed 's/ .*//' )
-            ai=$( ls -i "${already_have}" | sed 's/ .*//' )
-            if [ ${fi} -ne ${ai} ]
-            then
-              echo -n "duplicate: ${filepath}" >&2
-              if [ x${Verbose} = x-v ]
-              then
-                echo " (already had ${already_have})" >&2
-              else
-                echo >&2
-              fi
-            fi
-            ;;
-        esac
-        ;;
-      *)
-        echo "${filepath}"
-        merged_basenames="|${filepath_basename}=${filepath_pathname}|${merged_basenames}"
-        ;;
-    esac
-  done > "${TmpFile}"
-  
-# Unconditionally add the -n flag so rebased DLLs get the dynamicbase flag removed.
-NoDyn='-n'
+    while read filepath ; do
+	case $filepath in
+	    */) echo "WARNING: filepath ending in '/': \"${filepath}\"" >&2 ; continue;;
+	esac
+	filepath_basename="${filepath##*/}"
+	filepath_pathname="${filepath%/*}"
+	case "${merged_basenames}" in
+	    *"|${filepath_basename}=/"*)
+		already_have="$(
+		    echo "${merged_basenames}" 2>/dev/null | sed -e 's/|/\n/g' 2>/dev/null | grep -v '^[[:space:]]*$' 2>/dev/null | \
+			while read haveline
+			do
+			    havebasename="${haveline%=*}"
+			    case x${havebasename}x in
+				x${filepath_basename}x)
+				    havepathname="${haveline##*=}"
+				    echo "${havepathname}/${havebasename}"
+				    break
+				    ;;
+			    esac
+			done
+		)"
+		case x"${already_have}"x in
+		    x"${filepath}"x)
+			:; # don't warn: not at all interesting.
+			;;
+		    *)
+			# we can still skip the warning if the files are the same
+			fi=$( ls -i "${filepath}" | sed 's/ .*//' )
+			ai=$( ls -i "${already_have}" | sed 's/ .*//' )
+			if [ ${fi} -ne ${ai} ]
+			then
+			    echo -n "INFO: duplicate: ${filepath}" >&2
+			    if [ x${Verbose} = x-v ]
+			    then
+				echo " (already had ${already_have})" >&2
+			    else
+				echo >&2
+			    fi
+			fi
+			;;
+		esac
+		;;
+	    *)
+		echo "${filepath}"
+		merged_basenames="|${filepath_basename}=${filepath_pathname}|${merged_basenames}"
+		;;
+	esac
+    done > "${TmpFile}"
 
 echo "Separating prefix and non-prefix files..." >&2
 # split out the prefix and non-prefix stuff from ${TmpFile}
@@ -404,62 +455,70 @@ cat "${TmpFile}" | grep '^'"${EPrefix}" > "${TmpFile}_prefix"
 
 filter_rebase_failures()
 {
-  local TempFile="$1"
-  shift
-  rebase "${Touch}" "${NoDyn}" "${Mach}" -o "${Offset}" "$@" -T "${TempFile}" 2>"${TempFile}_err"
-  errorfiles="$( echo $(
-    cat "${TempFile}_err" | {
-      gotinuseline=0
-      while read line
-      do
-        echo "${line}" >&2
-	if echo "${line}" | grep -E -q ': skipped because (could not open|nonexistent\.)$'
-	then
-	  echo ":${line%:*}:"
-	elif echo "${line}" | grep -E -q '^ReBaseImage \(.*\) failed'
-	then
-	  line2="${line#ReBaseImage (}"
-	  echo ":${line2%%)*}:"
-        elif [ ${gotinuseline} -eq 1 ]
-	then
-	  echo ":${line}:"
-	elif echo "${line}" | grep -E -q '^The following DLLs couldn.t be rebased because they were in use:$'
-	then
-	  gotinuseline=1
-        fi
-      done
-    }
-  ) )"
-  rm "${TempFile}_err"
-# if [ x${Verbose} = x-v ]
-# then
-#   echo "DEBUG: errorfiles=\"${errorfiles}\"" >&2
-# fi
-  mv "${TempFile}" "${TempFile}_raw"
-  # note: if rebase decides to dump something other than the original filename to stdout, we
-  # may need to beef this up (i.e., by comparing inode numbers).  So far, this seems to do it.
-  cat "${TempFile}_raw" | grep -v "^[[:space:]]*$" | while read f
-  do
-    case "${errorfiles}" in
-      *":${f}:"*) :; ;; # noop
-      *) echo "${f}" ;;
-    esac
-  done > "${TempFile}"
-  rm "${TempFile}_raw"
+    local TempFile="$1"
+    shift
+    rebase "${Touch}" "${NoDyn}" "${Mach}" -o "${Offset}" "$@" -T "${TempFile}" 2>"${TempFile}_err"
+    errorfiles="$( echo $(
+	cat "${TempFile}_err" | {
+	    gotinuseline=0
+	    while read line
+	    do
+		echo "${line}" >&2
+		if echo "${line}" | grep -E -q ': skipped because (could not open|nonexistent\.)$'
+		then
+		    echo ":${line%:*}:"
+		elif echo "${line}" | grep -E -q '^ReBaseImage \(.*\) failed'
+		then
+		    line2="${line#ReBaseImage (}"
+		    echo ":${line2%%)*}:"
+		elif [ ${gotinuseline} -eq 1 ]
+		then
+		    echo ":${line}:"
+		elif echo "${line}" | grep -E -q '^The following DLLs couldn.t be rebased because they were in use:$'
+		then
+		    gotinuseline=1
+		fi
+	    done
+	}
+    ) )"
+    rm "${TempFile}_err"
+    # if [ x${Verbose} = x-v ]
+    # then
+    #     echo "DEBUG: errorfiles=\"${errorfiles}\"" >&2
+    # fi
+    mv "${TempFile}" "${TempFile}_raw"
+    # note: if rebase decides to dump something other than the original filename to stdout, we
+    # may need to beef this up (i.e., by comparing inode numbers).  So far, this seems to do it.
+    cat "${TempFile}_raw" | grep -v "^[[:space:]]*$" | while read f
+    do
+	case "${errorfiles}" in
+	    *":${f}:"*) :; ;; # noop
+	    *) echo "${f}" ;;
+	esac
+    done > "${TempFile}"
+    rm "${TempFile}_raw"
 }
 
-# echo "Rebasing non-prefix, non-perl, non-python files..." >&2
-echo "Rebasing non-prefix, non-perl files..." >&2
-if [ -e ${db_file} ]
+if [ ${Nuke} = yes ]
 then
-  PATH=/bin filter_rebase_failures "${TmpFile}_non-prefix" -s
-else
-  PATH=/bin filter_rebase_failures "${TmpFile}_non-prefix" -b "${BaseAddress}"
+    rm "${db_file}"
 fi
 
-# echo "Rebasing non-prefix perl and python files (in oblivious mode)..." >&2
-echo "Rebasing non-prefix perl files (in oblivious mode)..." >&2
-filter_rebase_failures "${TmpFile}_etc_setup_perl" -O
+echo "Rebasing non-prefix, non-perl, non-python files..." >&2
+if [ -e ${db_file} ]
+then
+    PATH=/bin filter_rebase_failures "${TmpFile}_non-prefix" -s
+else
+    PATH=/bin filter_rebase_failures "${TmpFile}_non-prefix" -s -b "${BaseAddress}"
+fi
+
+echo "Rebasing non-prefix perl and python files (in oblivious mode)..." >&2
+filter_rebase_failures "${TmpFile}_etc_setup_perlpython" -O
+
+# later we need the full list of successfully rebased non-prefix files.
+# to get this we need a union of _non-prefix and _etc_setup_perlpython:
+cat "${TmpFile}_non-prefix" "${TmpFile}_etc_setup_perlpython" | sort -u > "${TmpFile}_non_prefix_union"
+BASE_non_prefix_union_down="${BaseAddress}"
 
 BaseAddress="${PrefixBaseAddress}"
 
@@ -469,7 +528,7 @@ echo "Rebasing prefix cygwin files..." >&2
 filter_rebase_failures "${TmpFile}_prefix" -b "${BaseAddress}"
 
 BASE_prefix="${PrefixBaseAddress}"
-basevars="BASE_prefix"
+basevars="BASE_non_prefix_union_down BASE_prefix"
 
 # determine_new_base will parse the output of rebase -i and find the
 # highest address used.  It will then add an optional fudge factor,
@@ -488,7 +547,7 @@ basevars="BASE_prefix"
 # multiple parallel implementations to coexist in the same "slot", so
 # to speak.  Later, we may wish to extend this to effectively create
 # our own extended database.  For now, we just use it to keep parallel
-# implementations of perl (and formerly python) from gobbling up huge
+# implementations of perl and python from gobbling up huge
 # amounts of address space.
 #
 # This is more of a concern for cygwin prefix because somebody might
@@ -503,89 +562,131 @@ basevars="BASE_prefix"
 
 determine_new_base()
 {
-  local xbasename xbasefile oldbase fudgefactor bs base size newbase newbaseoffset newbasepad oldBASE newBASE realnewBASE baseincr
-  xbasename="$1"
-  xbasefile="$2"
-  oldbase="$3"
-  oldbase="${oldbase:-${BaseAddress}}"
-  fudgefactor="$4"
-  fudgefactor="${fudgefactor:-1}"
-  echo -n "Determining new effective maximum base address (${xbasename}): " >&2
-# if [ x${Verbose} = x-v ]
-# then
-#   echo "<DEBUG>" >&2
-#   rebase "${Verbose}" "${Mach}" -i -T "${xbasefile}" >&2
-#   echo -n "</DEBUG>: " >&2
-# fi
-  bs="$( rebase "${Mach}" -i -T "${xbasefile}" | tail -n 1 )"
-  bs="$( echo "$bs" | \
-    sed 's/^.*base \([0-9a-fx]*\)[[:space:]]*size \([0-9a-fx]*\)[[:space:]]*$/\1 \2/' )"
-  base="${bs% *}"
-  size="${bs#* }"
-  if [ x${Verbose} = x-v ]]
-  then
-    echo -n "(top:base=${base};size=${size}) " >&2
-  fi
-  newbase=$(( base + size ))
-  newbaseoffset=$(( newbase - oldbase ))
-  newbasepad=$(( newbase + newbaseoffset * fudgefactor ))
-  if [ $(( newbasepad )) -gt $(( 0xffffffff )) ]
-  then
-    echo "ERROR: 32-bit arithmetic overflow, use less fudge" >&2
-    exit 2
-  fi
-  newBASE="$( printf "0x%08x\n" $newbasepad )"
-  oldBASE="$( eval "echo \$BASE_${xbasename}" )"
-  oldBASE="${oldBASE:-0x00000000}"
-  realnewBASE="$( printf "0x%08x\n" "$(( oldBASE ))" )"
-  if [ $(( newBASE )) -gt $(( oldBASE )) ]
-  then
-    realnewBASE="${newBASE}"
-  fi
-  # crude round up to nearest x s.t. x mod 0x1000(4KiB) = 0
-  if [ ${realnewBASE%???}000 != ${realnewBASE} ]
-  then
-    baseincr=$(( ${realnewBASE%???} + 1 ))
-    realnewBASE="$( printf "0x%05x\n" "$(( baseincr ))" )000"
-  fi
-  eval "BASE_${xbasename}=\"${realnewBASE}\""
-  case "$basevars" in
-    *"BASE_${xbasename}"*) :; ;;
-    *) basevars="BASE_${xbasename}${basevars:+ }${basevars}" ;;
-  esac
-  echo "${realnewBASE}" >&2
+    local xbasename xbasefile oldbase fudgefactor down bs base size newbase newbaseoffset newbasepad oldBASE newBASE realnewBASE baseincr
+    xbasename="$1"
+    xbasefile="$2"
+    oldbase="$3"
+    oldbase="${oldbase:-${BaseAddress:-0xa0000000}}"
+    fudgefactor="$4"
+    fudgefactor="${fudgefactor:-1}"
+    down="$5"
+    down="${down:-no}"
+    if [ ${down} = no ]
+    then
+	echo -n "Determining new effective maximum base address (${xbasename}): " >&2
+	bs="$( rebase "${Mach}" -i -T "${xbasefile}" | grep -E 'base [0-9a-fx]*[[:space:]]*size [0-9a-fx]*[[:space:]]*$' | tail -n 1 )"
+    else
+	echo -n "Determining new effective minimum base address (${xbasename}): " >&2
+	bs="$( rebase "${Mach}" -i -T "${xbasefile}" | grep -E 'base [0-9a-fx]*[[:space:]]*size [0-9a-fx]*[[:space:]]*$' | head -n 1 )"
+    fi
+    # if [ x${Verbose} = x-v ]
+    # then
+    #     echo "<DEBUG>" >&2
+    #     rebase "${Verbose}" "${Mach}" -i -T "${xbasefile}" >&2
+    #     echo -n "</DEBUG>: " >&2
+    # fi
+    bs="$( echo "$bs" | sed 's/^.*base \([0-9a-fx]*\)[[:space:]]*size \([0-9a-fx]*\)[[:space:]]*$/\1 \2/' )"
+    base="${bs% *}"
+    size="${bs#* }"
+    if [ x${Verbose} = x-v ]]
+    then
+        if [ ${down} = no ]
+	then
+	    echo -n "(top:base=${base};size=${size}) " >&2
+	else
+	    echo -n "(bottom:base=${base}) " >&2
+	fi
+    fi
+    if [ ${down} = no ]
+    then
+	newbase=$(( base + size ))
+	newbaseoffset=$(( newbase - oldbase ))
+	newbasepad=$(( newbase + newbaseoffset * fudgefactor ))
+    else
+	newbase=$(( base ))
+	newbaseoffset=$(( oldbase - newbase ))
+	newbasepad=$(( newbase - newbaseoffset * fudgefactor ))
+    fi
+    if [ $(( newbasepad )) -gt $(( 0xffffffff )) -o $(( newbasepad )) -lt $(( 0x00000000 )) ]
+    then
+	echo "ERROR: 32-bit arithmetic overflow, use less fudge" >&2
+	exit 2
+    fi
+    newBASE="$( printf "0x%08x\n" $newbasepad )"
+    oldBASE="$( eval "echo \$BASE_${xbasename}" )"
+    if [ ${down} = no ]
+    then
+	oldBASE="${oldBASE:-0x00000000}"
+    else
+	oldBASE="${oldBASE:-0xffffffff}"
+    fi
+    realnewBASE="$( printf "0x%08x\n" "$(( oldBASE ))" )"
+    if [ $(( newBASE )) -gt $(( oldBASE )) -a ${down} = no ]
+    then
+	realnewBASE="${newBASE}"
+    elif [ $(( newBASE )) -lt $(( oldBASE )) -a ${down} != no ]
+    then
+	realnewBASE="${newBASE}"
+    fi
+    # crude round to nearest x s.t. x mod 0x1000(4KiB) = 0
+    if [ ${realnewBASE%???}000 != ${realnewBASE} ]
+    then
+        if [ ${down} = no ]
+	then
+	    baseincr=$(( ${realnewBASE%???} + 1 ))
+	else
+	    baseincr=$(( ${realnewBASE%???} - 1 ))
+	fi
+	realnewBASE="$( printf "0x%05x\n" "$(( baseincr ))" )000"
+    fi
+    eval "BASE_${xbasename}=\"${realnewBASE}\""
+    case "$basevars" in
+	*"BASE_${xbasename}"*) :; ;;
+	*) basevars="BASE_${xbasename}${basevars:+ }${basevars}" ;;
+    esac
+    echo "${realnewBASE}" >&2
 }
 
 force_reasonable_base()
 {
-  local oldbasename newbasename oldBASE newBASE
-  oldbasename="$1"
-  newbasename="$2"
-  oldBASE="$( printf "0x%08x\n" $( eval "echo \$BASE_${oldbasename}" ) )"
-  oldBASE="${oldBASE:-0x80000000}"
-  newBASE="$( printf "0x%08x\n" $( eval "echo \$BASE_${newbasename}" ) )"
-  newBASE="${newBASE:-0x00000000}"
-  if [ $(( newBASE )) -lt $(( oldBASE )) ]
-  then
-    newBASEaddr=
-    newBASE="$( printf "0x%08x\n" "$(( oldBASE + 0x0A000000 ))" )"
-    echo "Forcing reasonable BASE_${newbasename}: ${newBASE}" >&2
-  fi
-  eval "BASE_${newbasename}=\"${newBASE}\""
-  case "$basevars" in
-    *"BASE_${newbasename}"*) :; ;;
-    *) basevars="BASE_${newbasename}${basevars:+ }${basevars}" ;;
-  esac
+    local oldbasename newbasename oldBASE newBASE down
+    oldbasename="$1"
+    newbasename="$2"
+    down="$3"
+    oldBASE="$( printf "0x%08x\n" $( eval "echo \$BASE_${oldbasename}" ) )"
+    oldBASE="${oldBASE:-0x80000000}"
+    newBASE="$( printf "0x%08x\n" $( eval "echo \$BASE_${newbasename}" ) )"
+    down="${down:-no}"
+    if [ ${down} = no ]
+    then
+	newBASE="${newBASE:-0x00000000}"
+    else
+	newBASE="${newBASE:-0xffffffff}"
+    fi
+    if [ $(( newBASE )) -lt $(( oldBASE )) -a ${down} = no ]
+    then
+	newBASE="$( printf "0x%08x\n" "$(( oldBASE + 0x0A000000 ))" )"
+	echo "Forcing reasonable BASE_${newbasename}: ${newBASE}" >&2
+    elif [ $(( newBASE )) -gt $(( oldBASE )) -a ${down} != no ]
+    then
+	newBASE="$( printf "0x%08x\n" "$(( oldBASE - 0x0A000000 ))" )"
+	echo "Forcing reasonable BASE_${newbasename}: ${newBASE}" >&2
+    fi
+    eval "BASE_${newbasename}=\"${newBASE}\""
+    case "$basevars" in
+	*"BASE_${newbasename}"*) :; ;;
+	*) basevars="BASE_${newbasename}${basevars:+ }${basevars}" ;;
+    esac
 }
 
 dump_basevars()
 {
-  local basevar
-  for basevar in $basevars
-  do
-    varval="$( eval "echo \$${basevar}" )"
-    echo "${basevar}=\"${varval}\""
-  done
+    local basevar
+    for basevar in $basevars
+    do
+	varval="$( eval "echo \$${basevar}" )"
+	echo "${basevar}=\"${varval}\""
+    done
 }
 
 determine_new_base perl "${TmpFile}_prefix"
@@ -597,128 +698,143 @@ BaseAddress="${BASE_perl}"
 echo "Scanning prefix perl directories..." >&2
 # perl
 perldirs="$(
-  for libdir in share lib lib32 lib64
-  do
-    d="${EPrefix}/usr/${libdir}/perl5"
-    [ -d "${d}" ] && \
-      find "${d}" -maxdepth 3 -type d -name 'i686-cygwin*' | \
-      while read d2
-      do
-        [ $( find "${d2}" -type f | filter_cygwin_targets no | wc -l ) -gt 0 ] && echo ${d2}
-      done
-  done
+    for libdir in share lib lib32 lib64
+    do
+	d="${EPrefix}/usr/${libdir}/perl5"
+	[ -d "${d}" ] && \
+	    find "${d}" -maxdepth 3 -type d -name 'i686-cygwin*' | \
+		while read d2
+		do
+		    [ $( find "${d2}" -type f | filter_cygwin_targets no | wc -l ) -gt 0 ] && echo ${d2}
+		done
+    done
 )"
 
 echo "Mapping perl directories to perl versions..." >&2
 perlspecmaps=
 for d in $perldirs
 do
-  p_basename="${d##*/}"
-  p_pathname="${d%/*}"
-  p_version="${p_pathname##*/}"
-  p_spec="${p_version}-${p_basename}"
-  newperlspecmaps=
-  foundspec=0
-  OIFS="${IFS}"
-  IFS=";"
-  for perlspecmap in ${perlspecmaps}
-  do
-    perlspecmapspec="${perlspecmap%%|*}"
-    perlspecmapdirs="${perlspecmap#*|}"
-    case x${perlspecmapspec}x in
-      x${p_spec}x)
-        foundspec=1
-        newperlspecmaps="${newperlspecmaps}${newperlspecmaps:+;}${p_spec}|${perlspecmapdirs}:${d}"
-	;;
-      *)
-        newperlspecmaps="${newperlspecmaps}${newperlspecmaps:+;}${perlspecmap}"
-	;;
-    esac
-  done
-  IFS="${OIFS}"
-  if [ $foundspec -eq 0 ]
-  then
-    newperlspecmaps="${newperlspecmaps}${newperlspecmaps:+;}${p_spec}|${d}"
-  fi
-  perlspecmaps="${newperlspecmaps}"
+    p_basename="${d##*/}"
+    p_pathname="${d%/*}"
+    p_version="${p_pathname##*/}"
+    p_spec="${p_version}-${p_basename}"
+    newperlspecmaps=
+    foundspec=0
+    OIFS="${IFS}"
+    IFS=";"
+    for perlspecmap in ${perlspecmaps}
+    do
+	perlspecmapspec="${perlspecmap%%|*}"
+	perlspecmapdirs="${perlspecmap#*|}"
+	case x${perlspecmapspec}x in
+	    x${p_spec}x)
+		foundspec=1
+		newperlspecmaps="${newperlspecmaps}${newperlspecmaps:+;}${p_spec}|${perlspecmapdirs}:${d}"
+		;;
+	    *)
+		newperlspecmaps="${newperlspecmaps}${newperlspecmaps:+;}${perlspecmap}"
+		;;
+	esac
+    done
+    IFS="${OIFS}"
+    if [ $foundspec -eq 0 ]
+    then
+	newperlspecmaps="${newperlspecmaps}${newperlspecmaps:+;}${p_spec}|${d}"
+    fi
+    perlspecmaps="${newperlspecmaps}"
 done
 
 if [ x${Verbose} = x-v ]
 then
-  echo "perlspecmaps: \"${perlspecmaps}\"" >&2
+    echo "perlspecmaps: \"${perlspecmaps}\"" >&2
 fi
 
 OIFS="${IFS}"
 IFS=";"
 for perlspecmap in $perlspecmaps
 do
-  perlspec="${perlspecmap%%|*}"
-  perlspecdirs="${perlspecmap#*|}"
-  IFS=":"
-  if [ x${Verbose} = x-v ]
-  then
-    for perlspecdir in ${perlspecdirs}
-    do
-      echo "  Processing directory: \"${perlspecdir}\"" >&2
-    done
-  fi
-  find ${perlspecdirs} -type f | filter_cygwin_targets no > "${TmpFile}_perl"
-  IFS=";"
-  cygperl="${EPrefix}/usr/bin/cygperl$( echo "${perlspec%%-*}" | sed 's/\./_/g' ).dll"
-  if [ -f "${cygperl}" ]
-  then
-    echo "${cygperl}" >> "${TmpFile}_perl"
-  else
+    perlspec="${perlspecmap%%|*}"
+    perlspecdirs="${perlspecmap#*|}"
+    IFS=":"
     if [ x${Verbose} = x-v ]
     then
-      echo "INFO: \"${cygperl}\" for perlspec \"${perlspec}\" not found." >&2
+	for perlspecdir in ${perlspecdirs}
+	do
+	    echo "  Processing directory: \"${perlspecdir}\"" >&2
+	done
     fi
-  fi
-  if [ $( cat "${TmpFile}_perl" | wc -l ) -gt 0 ]
-  then
-    echo "Rebasing perl files for version: \"${perlspec}\"..." >&2
-    filter_rebase_failures "${TmpFile}_perl" -b "${BaseAddress}"
-#   determine_new_base python "${TmpFile}_perl" "${BaseAddress}" 3
-    determine_new_base ebuild "${TmpFile}_perl" "${BaseAddress}" 3
-  fi
+    find ${perlspecdirs} -type f | filter_cygwin_targets no > "${TmpFile}_perl"
+    IFS=";"
+    cygperl="${EPrefix}/usr/bin/cygperl$( echo "${perlspec%%-*}" | sed 's/\./_/g' ).dll"
+    if [ -f "${cygperl}" ]
+    then
+	echo "${cygperl}" >> "${TmpFile}_perl"
+    else
+	if [ x${Verbose} = x-v ]
+	then
+	    echo "INFO: \"${cygperl}\" for perlspec \"${perlspec}\" not found." >&2
+	fi
+    fi
+    if [ $( cat "${TmpFile}_perl" | wc -l ) -gt 0 ]
+    then
+	echo "Rebasing perl files for version: \"${perlspec}\"..." >&2
+	filter_rebase_failures "${TmpFile}_perl" -b "${BaseAddress}"
+	determine_new_base ebuild "${TmpFile}_perl" "${BaseAddress}" 3
+    fi
 done
 IFS="${OIFS}"
 
-# force_reasonable_base perl python
 force_reasonable_base perl ebuild
-# BaseAddress="${BASE_python}"
-#
-# for d in "${EPrefix}"/usr/lib/python* ; do
-#   if [ -d "${d}" ]
-#   then
-#     if [ $( echo "${d}/foo/bar.dll" | select_perlpython_targets | wc -l ) -eq 1 ]
-#     then
-#       echo "Scanning python directory: \"${d}\"..." >&2
-#       find ${d} -type f | filter_cygwin_targets no > "${TmpFile}_python"
-#       pythonver="$( echo "${d}" | sed 's/^.*python\([[:digit:].-_]*\)$/\1/' )"
-#       pythondll="${EPrefix}/usr/bin/libpython${pythonver}.dll"
-#       if [ -f "${pythondll}" ]
-#       then
-#         echo "${pythondll}" >> "${TmpFile}_python"
-#       else
-#         echo "WARNING: Expected version \"${pythonver}\" python dll to be \"${pythondll}\" but not found." >&2
-#       fi
-#       if [ $( cat "${TmpFile}_python" | wc -l ) -gt 0 ]
-#       then
-#         echo "Rebasing python files in directory: \"${d}\"..." >&2
-# 	filter_rebase_failures "${TmpFile}_python" -b "${BaseAddress}"
-# 	determine_new_base ebuild "${TmpFile}_python" "${BaseAddress}" 3
-#       fi
-#     fi
-#   fi
-# done
-#
-# force_reasonable_base python ebuild
+
+# python has weird requirements.  For reasons nobody seems to understand,
+# (at least, nobody on #cygwin or #python on a weekend :) ), python will
+# go utterly haywire if it isn't rebased down and below everything else.
+
+BaseAddress="${BASE_non_prefix_union_down}"
+determine_new_base python_down "${TmpFile}_non_prefix_union" "${BASE_non_prefix_union_down}" 0 yes
+force_reasonable_base non_prefix_union_down python_down yes
+# even a fudge-factor of one is likely to be way too large; instead we use a small, hard-coded fudge-constant:
+if [ $(( BASE_python_down )) -lt $(( 0x0a000000 )) ]
+then
+    echo "ERROR: python_down fudge overflow!!  No fudge for you!" >&2
+    exit 2
+fi
+BASE_python_down_fudged=$(( BASE_python_down - 0x0a000000 ))
+BASE_python_down="$( printf "0x%08x\n" "${BASE_python_down_fudged}" )"
+
+BaseAddress="${BASE_python_down}"
+
+for d in "${EPrefix}"/usr/lib/python* ; do
+    if [ -d "${d}" ]
+    then
+	if [ $( echo "${d}/foo/bar.dll" | select_perlpython_targets | wc -l ) -eq 1 ]
+	then
+	    echo "Scanning python directory: \"${d}\"..." >&2
+	    find ${d} -type f | filter_cygwin_targets no > "${TmpFile}_python"
+	    pythonver="$( echo "${d}" | sed 's/^.*python\([[:digit:].-_]*\)$/\1/' )"
+	    pythondll="${EPrefix}/usr/bin/libpython${pythonver}.dll"
+	    if [ -f "${pythondll}" ]
+	    then
+		echo "${pythondll}" >> "${TmpFile}_python"
+	    else
+		echo "WARNING: Expected version \"${pythonver}\" python dll to be \"${pythondll}\" but not found." >&2
+	    fi
+	    if [ $( cat "${TmpFile}_python" | wc -l ) -gt 0 ]
+	    then
+		echo "Rebasing python files in directory: \"${d}\"..." >&2
+		filter_rebase_failures "${TmpFile}_python" -b "${BaseAddress}" -d
+		determine_new_base ebuild_python_down "${TmpFile}_python" "${BaseAddress}" 3 yes
+	    fi
+	fi
+    fi
+done
+
+force_reasonable_base python_down ebuild_python_down yes
 
 if [ x${Verbose} = x-v ]
 then
-  echo "Saving layout to ${EPrefix}/etc/gentoo_prefix_addrspace:" >&2
-  dump_basevars >&2
+    echo "Saving layout to ${EPrefix}/etc/gentoo_prefix_addrspace:" >&2
+    dump_basevars >&2
 fi
 
 dump_basevars > "${EPrefix}"/etc/gentoo_prefix_addrspace
