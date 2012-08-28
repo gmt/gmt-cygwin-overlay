@@ -135,3 +135,6 @@ o There is a cygdll-protect bug in portage which happens when a cygdll_protected
   step shows "!md5" and the old file is orphaned rather than being cygdll-protected.
   (either way the file would remain in the filesystem but it is definitely supposed to
   be cygdll-protected in the normal way (with a null md5 in the cygdll-protect database).
+
+o This should really be tested with layman.  I'm about 95% sure that there
+  is code in scripts/ that breaks if ${OVERLAY_DIR}/.. != ${EPREFIX}.
