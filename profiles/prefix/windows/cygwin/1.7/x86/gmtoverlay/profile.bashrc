@@ -381,7 +381,7 @@ cyg_rebase-dirs() {
 
 	[[ $CYG_DONT_REBASE == 1 || $CYG_DONT_REBASE == [Yy][Ee][Ss] || $CYG_DONT_REBASE == [Tt][Rr][Uu][Ee] ]] && \
 		CYG_DONT_REBASE="1"
-	if [[ ${CYG_DONT_REBASE:-0} == 1 ]] ; then
+	if [[ ${CYG_DONT_REBASE:-1} == 1 ]] ; then
 		return 0
 	fi
 
