@@ -1,4 +1,4 @@
-commit 1e0a389377b9c607a3db3f5b3c1153ad2224a4b7
+commit 2e5368d514b210f531258a24c34e9e0d256cffe1
 Author: Gregory M. Turner <gmturner007@ameritech.net>
 Date:   Thu Aug 2 15:38:31 2012 -0700
 
@@ -52,42 +52,49 @@ Date:   Thu Aug 2 15:38:31 2012 -0700
     Aside from the issue of splitting the patches, however, AFAIK, the
     implementation is correct and working.
     
-    additional git commits squashed into this patch:
+    =================================================================
+    also includes the following commits from cygwin-portage git:
     
     cygdll-protect: cygdll-update: preserve debug mode when reinvoking
     cygdll_protect: cygdll-update: oops, fix master-lock bug
     
-    Silly me, I was releasing the master lock /before/ doing the
-    database operation instead of after.  Not much point in it
-    that way :)
+      Silly me, I was releasing the master lock /before/ doing the
+      database operation instead of after.  Not much point in it
+      that way :)
     
     cygdll_protect: cygdll-update: Support empty files
     
-    If we try to put an empty file in-limbo, cygdll-update was
-    interpreting this as a pending removal.  This is a weird
-    corner-case but if it happens, there is cruft left behind
-    and there's no reason we can't support it.  This changes
-    cygdll-update to check if the corresponding _cygdll_protect_
-    file exists and do the right thing with it.
+      If we try to put an empty file in-limbo, cygdll-update was
+      interpreting this as a pending removal.  This is a weird
+      corner-case but if it happens, there is cruft left behind
+      and there's no reason we can't support it.  This changes
+      cygdll-update to check if the corresponding _cygdll_protect_
+      file exists and do the right thing with it.
     
     cygdll_protect: portageq: query cygdll_protect & cygdll_protected installation
     
-    This adds two new capabilities to portageq:
+      This adds two new capabilities to portageq:
     
-      o The ability to query if a file should be cygdll_protected
-      o The ability to actually install a file as a cygdll_protected
-        replacement for a live file on the filesystem
+        o The ability to query if a file should be cygdll_protected
+        o The ability to actually install a file as a cygdll_protected
+          replacement for a live file on the filesystem
     
-    This can be used by, i.e., gcc-config/binutils-config, or
-    eselect foo utilities, to ensure that they do not trigger
-    rebasing problems.  The files that get protected don't
-    need to be portage files, but they do need to be somewhere
-    under EPREFIX.
+      This can be used by, i.e., gcc-config/binutils-config, or
+      eselect foo utilities, to ensure that they do not trigger
+      rebasing problems.  The files that get protected don't
+      need to be portage files, but they do need to be somewhere
+      under EPREFIX.
     
     cygdll_protect: portageq: in-limbo protections warning
     
-    Adds the ability to dump the standard warning about in-limbo
-    files pending merging.
+      Adds the ability to dump the standard warning about in-limbo
+      files pending merging.
+    
+    portage/util/master_lock: use new python3.2 compatible exception handling style
+    package/ebuild/config: 3.0 support: unicode => str for python3+
+    portage/util/master_lock: avoid dict.iteritems() (python3)
+    portage/util/cygdll_protection: python3: avoid dict.iteritems()
+    portage/emerge/actions: use new python3.2 compatible exception handling style
 
 diff --git a/bin/Makefile.in b/bin/Makefile.in
 index e9bf141..a77335e 100644
@@ -469,23 +476,6 @@ index 04cb4c6..ef5cad6 100755
 +finally:
 +	if we_are_locking:
 +		release_master_lock(asportage=True, direct=True, settings=tmpsettings)
-diff --git a/bin/ebuild-helpers/dosym b/bin/ebuild-helpers/dosym
-index f8cd6e2..0172e67 100755
---- a/bin/ebuild-helpers/dosym
-+++ b/bin/ebuild-helpers/dosym
-@@ -27,6 +27,12 @@ target="${1}"
- # if so, go ahead and see if we can't create the link
- # as foo.exe -> bar.exe instead of foo -> bar.
- #
-+# NOTE: there is an argument to be made that we should really create the link
-+# foo -> bar.exe because someone might try to execute the foo.exe symlink
-+# from windows, which won't work (a fancy solution exists: cygwin could be extended
-+# to create valid executables for such links).  For now, we ignore this issue
-+# but if it became a problem we might want to change our approach.
-+#
- # The insane conditional below says: if we're on cywin, creating a link both
- # to and from files ("foo" and "bar", respectively) that don't include ".exe"
- # at the end, and if bar and bar.exe both exist and have he same inode, and
 diff --git a/bin/portageq b/bin/portageq
 index b07df1d..29f3606 100755
 --- a/bin/portageq
@@ -1064,7 +1054,7 @@ index 9b22ed8..e33c4cd 100644
  Please report any bugs you encounter through our website:
  .LP
 diff --git a/man/make.conf.5 b/man/make.conf.5
-index bf7153f..ed2a922 100644
+index dab6f7d..ce53342 100644
 --- a/man/make.conf.5
 +++ b/man/make.conf.5
 @@ -153,6 +153,14 @@ of \fBemerge\fR(1) for more information.
@@ -1082,7 +1072,7 @@ index bf7153f..ed2a922 100644
  \fBDISTDIR\fR = \fI[path]\fR
  Defines the location of your local source file repository. After packages
  are built, it is safe to remove any and all files from this directory since
-@@ -776,6 +784,28 @@ running ebuild as yourself.
+@@ -793,6 +801,28 @@ running ebuild as yourself.
  .br
  Defaults to 0.
  .TP
@@ -1112,7 +1102,7 @@ index bf7153f..ed2a922 100644
  This variable should contain a command for portage to call in order
  to adjust the io priority of portage and it's subprocesses. The command
 diff --git a/pym/_emerge/actions.py b/pym/_emerge/actions.py
-index 17aed72..5616d75 100644
+index 17aed72..043675c 100644
 --- a/pym/_emerge/actions.py
 +++ b/pym/_emerge/actions.py
 @@ -49,6 +49,7 @@ from portage._sets import load_default_config, SETPREFIX
@@ -1132,6 +1122,24 @@ index 17aed72..5616d75 100644
  		          'PORTDIR_OVERLAY', 'PORTAGE_BUNZIP2_COMMAND',
  		          'PORTAGE_BZIP2_COMMAND',
  		          'USE', 'CHOST', 'CFLAGS', 'CXXFLAGS',
+@@ -2475,7 +2476,7 @@ def action_sync(settings, trees, mtimedb, myopts, myaction):
+ 				sys.exit(1)
+ 			try:
+ 				os.rmdir(myportdir)
+-			except OSError, e:
++			except OSError as e:
+ 				if e.errno != errno.ENOENT:
+ 					sys.stderr.write(
+ 						"!!! existing '%s' directory; exiting.\n" % myportdir)
+@@ -2501,7 +2502,7 @@ def action_sync(settings, trees, mtimedb, myopts, myaction):
+ 			f.write(time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime()))
+ 			f.write('\n')
+ 			f.close()
+-		except IOError, e:
++		except IOError as e:
+ 			# too bad, next time better luck!
+ 			pass
+ 
 @@ -2555,6 +2556,9 @@ def action_sync(settings, trees, mtimedb, myopts, myaction):
  	chk_updated_cfg_files(settings["EROOT"],
  		portage.util.shlex_split(settings.get("CONFIG_PROTECT", "")))
@@ -2059,10 +2067,10 @@ index 6301e4c..fb9a400 100644
  
  # The definitions above will differ between branches, so it's useful to have
 diff --git a/pym/portage/dbapi/bintree.py b/pym/portage/dbapi/bintree.py
-index 3d73a91..044a807 100644
+index a2c4ec4..f9b5250 100644
 --- a/pym/portage/dbapi/bintree.py
 +++ b/pym/portage/dbapi/bintree.py
-@@ -312,7 +312,7 @@ class binarytree(object):
+@@ -313,7 +313,7 @@ class binarytree(object):
  			self._pkgindex_header_keys = set([
  				"ACCEPT_KEYWORDS", "ACCEPT_LICENSE",
  				"ACCEPT_PROPERTIES", "CBUILD",
@@ -2692,7 +2700,7 @@ index 5ccd750..cb43d7c 100644
 +class IllegalMasterLockOperation(PortageException):
 +	"""Attempt to use internal MasterLock API incorrectly"""
 diff --git a/pym/portage/package/ebuild/_config/special_env_vars.py b/pym/portage/package/ebuild/_config/special_env_vars.py
-index 08131dd..5f60533 100644
+index 4aa7107..8fa1f3e 100644
 --- a/pym/portage/package/ebuild/_config/special_env_vars.py
 +++ b/pym/portage/package/ebuild/_config/special_env_vars.py
 @@ -148,6 +148,7 @@ environ_filter += [
@@ -2703,7 +2711,7 @@ index 08131dd..5f60533 100644
  	"EGENCACHE_DEFAULT_OPTS", "EMERGE_DEFAULT_OPTS",
  	"EMERGE_LOG_DIR",
  	"EMERGE_WARNING_DELAY",
-@@ -164,6 +165,7 @@ environ_filter += [
+@@ -165,6 +166,7 @@ environ_filter += [
  	"PORTAGE_FETCH_CHECKSUM_TRY_MIRRORS", "PORTAGE_FETCH_RESUME_MIN_SIZE",
  	"PORTAGE_GPG_DIR",
  	"PORTAGE_GPG_KEY", "PORTAGE_GPG_SIGNING_COMMAND",
@@ -2711,7 +2719,7 @@ index 08131dd..5f60533 100644
  	"PORTAGE_IONICE_COMMAND",
  	"PORTAGE_PACKAGE_EMPTY_ABORT",
  	"PORTAGE_REPO_DUPLICATE_WARN",
-@@ -184,6 +186,7 @@ environ_filter = frozenset(environ_filter)
+@@ -185,6 +187,7 @@ environ_filter = frozenset(environ_filter)
  # settings.
  global_only_vars = frozenset([
  	"CONFIG_PROTECT",
@@ -2719,14 +2727,14 @@ index 08131dd..5f60533 100644
  ])
  
  default_globals = {
-@@ -196,4 +199,4 @@ validate_commands = ('PORTAGE_BZIP2_COMMAND', 'PORTAGE_BUNZIP2_COMMAND',)
+@@ -197,4 +200,4 @@ validate_commands = ('PORTAGE_BZIP2_COMMAND', 'PORTAGE_BUNZIP2_COMMAND',)
  
  # To enhance usability, make some vars case insensitive
  # by forcing them to lower case.
 -case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR',)
 +case_insensitive_vars = ('AUTOCLEAN', 'NOCOLOR', 'PORTAGE_HOSTNAME')
 diff --git a/pym/portage/package/ebuild/config.py b/pym/portage/package/ebuild/config.py
-index b95ed97..49d3272 100644
+index e13522f..36293b7 100644
 --- a/pym/portage/package/ebuild/config.py
 +++ b/pym/portage/package/ebuild/config.py
 @@ -2,7 +2,7 @@
@@ -2738,16 +2746,21 @@ index b95ed97..49d3272 100644
  ]
  
  import copy
-@@ -14,6 +14,8 @@ import pwd
+@@ -14,6 +14,13 @@ import pwd
  import re
  import sys
  import warnings
 +import textwrap
 +from socket import getfqdn
++
++if sys.hexversion >= 0x3000000:
++	_unicode = str
++else:
++	_unicode = unicode
  
  from _emerge.Package import Package
  import portage
-@@ -24,7 +26,7 @@ from portage import bsd_chflags, \
+@@ -24,7 +31,7 @@ from portage import bsd_chflags, \
  	load_mod, os, selinux, _unicode_decode
  from portage.const import CACHE_PATH, \
  	DEPCACHE_PATH, INCREMENTALS, MAKE_CONF_FILE, \
@@ -2756,7 +2769,7 @@ index b95ed97..49d3272 100644
  	PRIVATE_PATH, PROFILE_PATH, USER_CONFIG_PATH, \
  	USER_VIRTUALS_FILE
  from portage.dbapi import dbapi
-@@ -93,6 +95,59 @@ def _lazy_iuse_regex(iuse_implicit):
+@@ -93,6 +100,58 @@ def _lazy_iuse_regex(iuse_implicit):
  	regex = regex.replace("\\.\\*", ".*")
  	return regex
  
@@ -2785,8 +2798,7 @@ index b95ed97..49d3272 100644
 +	respectively, Valid/Invalid.
 +	"""
 +
-+	# (fixme?): is unicode ever not defined here? does it matter?
-+	if type(hostname) not in [str, unicode]:
++	if type(hostname) not in [str, _unicode]:
 +		raise InvalidDataType(_("validate_portage_hostanme: hostname: \"%s\" is not a string type") % \
 +		type(hostname).__name__)
 +
@@ -2816,7 +2828,7 @@ index b95ed97..49d3272 100644
  class _iuse_implicit_match_cache(object):
  
  	def __init__(self, settings):
-@@ -411,6 +466,15 @@ class config(object):
+@@ -411,6 +471,15 @@ class config(object):
  						pass
  				del k, v
  
@@ -2832,7 +2844,7 @@ index b95ed97..49d3272 100644
  			self.configdict["env"] = LazyItemsDict(self.backupenv)
  
  			self.configlist.append(make_globals)
-@@ -743,6 +807,11 @@ class config(object):
+@@ -743,6 +812,11 @@ class config(object):
  					self["USERLAND"] = "GNU"
  				self.backup_changes("USERLAND")
  
@@ -2844,7 +2856,7 @@ index b95ed97..49d3272 100644
  			default_inst_ids = {
  				"PORTAGE_INST_GID": "0",
  				"PORTAGE_INST_UID": "0",
-@@ -872,6 +941,8 @@ class config(object):
+@@ -872,6 +946,8 @@ class config(object):
  			"tmp"             : (         -1, 0o1777,  0,  True),
  			"var/tmp"         : (         -1, 0o1777,  0,  True),
  			PRIVATE_PATH      : (portage_gid, 0o2750, 0o2, False),
@@ -2853,7 +2865,7 @@ index b95ed97..49d3272 100644
  			CACHE_PATH        : (portage_gid,  0o755, 0o2, False)
  		}
  
-@@ -1021,6 +1092,8 @@ class config(object):
+@@ -1021,6 +1097,8 @@ class config(object):
  				writemsg(_("!!! See https://bugs.pypy.org/issue833 for details.\n"),
  					noiselevel=-1)
  
@@ -2864,7 +2876,7 @@ index b95ed97..49d3272 100644
  		mod = None
 diff --git a/pym/portage/util/cygdll_protection.py b/pym/portage/util/cygdll_protection.py
 new file mode 100644
-index 0000000..15269b3
+index 0000000..57f105e
 --- /dev/null
 +++ b/pym/portage/util/cygdll_protection.py
 @@ -0,0 +1,457 @@
@@ -3214,7 +3226,7 @@ index 0000000..15269b3
 +		"""
 +		filesdict = grabdict(self._cygdll_memory_file_path)
 +		result = [ ( os.sep + os.path.relpath(filename, self._raw_eprefix), f_md5[0]) \
-+				for (filename, f_md5) in filesdict.iteritems() ]
++				for (filename, f_md5) in filesdict.items() ]
 +		return result
 +
 +	def limbodb_drop(self, file_list):
@@ -3232,7 +3244,7 @@ index 0000000..15269b3
 +			if filename not in file_list ])
 +		if newfilesdict != oldfilesdict:
 +			prefixed_dict = dict([ (os.path.join(self._raw_eprefix, os.path.relpath(filename, os.sep)), [f_md5]) \
-+						for (filename, f_md5) in newfilesdict.iteritems() ])
++						for (filename, f_md5) in newfilesdict.items() ])
 +			writedict(prefixed_dict, self._cygdll_memory_file_path)
 +			return os.EX_OK
 +		else:
@@ -3300,14 +3312,14 @@ index 0000000..15269b3
 +	# mailing list in order to figure out what the heck is going on with all these cksums
 +	from portage.checksum import perform_all
 +	zero_cksums = frozenset( str(v)
-+				 for (k,v) in perform_all('/dev/null').iteritems()
++				 for (k,v) in perform_all('/dev/null').items()
 +				 if k != 'size' ) # size is pathological (0L) and therefore unsafe.  The
 +						  # rest give us a big plate of delicious, salty hashnoise
 +
 +	cygdll_mem_file = os.path.join(target_root, CYGDLL_MEMORY_FILE);
 +	cygdll_dict = grabdict(cygdll_mem_file)
 +	candidates.extend( (k, v[0])
-+			   for (k,v) in cygdll_dict.iteritems()
++			   for (k,v) in cygdll_dict.items()
 +			   if v[0] is not None ) # avoid spurrious collisions if something goes wrong with perform_all
 +
 +	return frozenset([ x for (x,p,h)
@@ -3340,10 +3352,10 @@ index 1486508..1081dae 100644
  		  "PATH", "PKG_CONFIG_PATH", "PRELINK_PATH", "PRELINK_PATH_MASK",
 diff --git a/pym/portage/util/master_lock.py b/pym/portage/util/master_lock.py
 new file mode 100644
-index 0000000..20c5bbd
+index 0000000..90e0952
 --- /dev/null
 +++ b/pym/portage/util/master_lock.py
-@@ -0,0 +1,788 @@
+@@ -0,0 +1,789 @@
 +# portage: master_lock
 +# Copyright 2012 Gentoo Foundation
 +# Distributed under the terms of the GNU General Public License v2
@@ -3458,8 +3470,9 @@ index 0000000..20c5bbd
 +		yield ( 'waiting', self.waiting )
 +
 +	def items(self):
-+		# ironically, this is lazy in both senses of the term
-+		return [ x for x in self.iteritems() ]
++		return [ ('portagen', self.portagen),
++			 ('nonportage', self.nonportage),
++			 ('waiting', self.waiting) ]
 +
 +	def __del__(self):
 +		self.clear()
@@ -3477,7 +3490,7 @@ index 0000000..20c5bbd
 +			return False
 +		try:
 +			os.kill(pid, 0)
-+		except OSError, e:
++		except OSError as e:
 +			return e.errno != errno.ESRCH
 +		else:
 +			return True

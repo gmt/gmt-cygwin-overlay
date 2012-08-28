@@ -174,7 +174,7 @@ overlay/sys-apps/portage/files/portage-2.2.01.20389-distracting-error-message.pa
 overlay/sys-apps/portage/files/portage-2.2.01.20389-fix-perform-all.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20796-cygdll_protect.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20796-cygwin-revert-problematic-commits.patch: unified diff output, ASCII text
-overlay/sys-apps/portage/files/portage-2.2.01.20837-cygdll_protect.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20837-cygdll_protect.patch: ASCII text
 
 *** The following files appear only in portage ***
 usr/portage/sys-apps/portage/portage-2.2.01.20757.ebuild: ASCII text
