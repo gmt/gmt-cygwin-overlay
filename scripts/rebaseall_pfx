@@ -27,16 +27,16 @@
 #   ? ] <- BASE_ebuild (files newly created by portage go here)
 # [ .
 #   .
-#   ! ] <- BASE_perl (prefix perl installs, "slotted")
-# [ .
-#   .
 #   *
 #   * ] <- BASE_prefix (general prefix .exe/.dll's are
-#   .      rebased into this space)
+#   .      rebased into this space, growing "up"
 #   .
 # [ *   <- BASE_non_prefix_union_down (non-prefix stuff,
 #   *      including perl & python; only non-perl, non-python
 #   .      added to database by us -- but setup might, anyhow)
+#   . ]
+# [ !   <- BASE_perl_down (prefix perl, "slotted")
+#   .
 #   . ]
 # [ !   <- BASE_python_down (prefix python, "slotted")
 #   .
@@ -59,10 +59,10 @@
 # go crazy, if neccesary with the "-N" option to nuke the database.
 #
 # example ${EPrefix}/etc/gentoo_prefix_addrspace:
-# BASE_ebuild_python_down="0x39ea0000"
-# BASE_python_down="0x3bc20000"
-# BASE_ebuild="0x83634000"
-# BASE_perl="0x80d28000"
+# BASE_ebuild_python_down="0x37560000"
+# BASE_python_down="0x392e0000"
+# BASE_perl_down="0x3bc20000"
+# BASE_ebuild="0x80d28000"
 # BASE_non_prefix_union_down="0x70000000"
 # BASE_prefix="0x79000000"
 
@@ -559,6 +559,14 @@ basevars="BASE_non_prefix_union_down BASE_prefix"
 # are going to see a real train-wreck.  If this is seen happening in
 # the wild, we may wish to change our approach to putting everything 
 # in a separate address-space slot.
+#
+# if "down" is anything but blank or "no", (fifth argument),
+# this will assume downward rebasing and reverse all it's math/analysis
+#
+# if "extract_db_files" is anything but blank or "no", (sixth argument),
+# this will additionally extract a list of all files from the database, and
+# choose the highest/lowest base between the provided basefile and the files
+# as listed in the database.
 
 determine_new_base()
 {
@@ -571,6 +579,8 @@ determine_new_base()
     fudgefactor="${fudgefactor:-1}"
     down="$5"
     down="${down:-no}"
+    extract_db_files=$6
+    extract_db_files="${extract_db_files:-no}"
     if [ ${down} = no ]
     then
 	echo -n "Determining new effective maximum base address (${xbasename}): " >&2
@@ -588,6 +598,10 @@ determine_new_base()
     bs="$( echo "$bs" | sed 's/^.*base \([0-9a-fx]*\)[[:space:]]*size \([0-9a-fx]*\)[[:space:]]*$/\1 \2/' )"
     base="${bs% *}"
     size="${bs#* }"
+    if [ ${extract_db_files} = yes ]
+    then
+	echo "FIXME(TODO): extract_db_files unimplemented." >&2
+    fi
     if [ x${Verbose} = x-v ]]
     then
         if [ ${down} = no ]
@@ -689,14 +703,34 @@ dump_basevars()
     done
 }
 
-determine_new_base perl "${TmpFile}_prefix"
+determine_new_base ebuild "${TmpFile}_prefix"
 # in case of disaster (i.e., triggered by empty prefix)
-force_reasonable_base prefix perl
+force_reasonable_base prefix ebuild
 
-BaseAddress="${BASE_perl}"
+# perl and python have weird requirements.  For reasons I don't understand,
+# they tend to give "invalid binary format" (?) errors unless they are based
+# low and downward.  To accomodate this, we first need to find the bottom
+# of the non-prefix based files, and then we map downward (from here on,
+# we're done going "up.")
+#
+# The following fairly obscure stuff resets the system to start working
+# downward.
+BaseAddress="${BASE_non_prefix_union_down}"
+determine_new_base perl_down "${TmpFile}_non_prefix_union" "${BASE_non_prefix_union_down}" 0 yes yes
+force_reasonable_base non_prefix_union_down perl_down yes
+# even a fudge-factor of one is likely to be way too large; instead we use a small, hard-coded fudge-constant:
+if [ $(( BASE_perl_down )) -lt $(( 0x0a000000 )) ]
+then
+    echo "ERROR: perl_down fudge overflow!!  No fudge for you!" >&2
+    exit 2
+fi
+BASE_perl_down_fudged=$(( BASE_perl_down - 0x0a000000 ))
+BASE_perl_down="$( printf "0x%08x\n" "${BASE_perl_down_fudged}" )"
 
+BaseAddress="${BASE_perl_down}"
+
+# OK, off we go in our new downward trajectory....
 echo "Scanning prefix perl directories..." >&2
-# perl
 perldirs="$(
     for libdir in share lib lib32 lib64
     do
@@ -778,29 +812,13 @@ do
     if [ $( cat "${TmpFile}_perl" | wc -l ) -gt 0 ]
     then
 	echo "Rebasing perl files for version: \"${perlspec}\"..." >&2
-	filter_rebase_failures "${TmpFile}_perl" -b "${BaseAddress}"
-	determine_new_base ebuild "${TmpFile}_perl" "${BaseAddress}" 3
+	filter_rebase_failures "${TmpFile}_perl" -d -b "${BaseAddress}"
+	determine_new_base python_down "${TmpFile}_perl" "${BaseAddress}" 3 yes
     fi
 done
 IFS="${OIFS}"
 
-force_reasonable_base perl ebuild
-
-# python has weird requirements.  For reasons nobody seems to understand,
-# (at least, nobody on #cygwin or #python on a weekend :) ), python will
-# go utterly haywire if it isn't rebased down and below everything else.
-
-BaseAddress="${BASE_non_prefix_union_down}"
-determine_new_base python_down "${TmpFile}_non_prefix_union" "${BASE_non_prefix_union_down}" 0 yes
-force_reasonable_base non_prefix_union_down python_down yes
-# even a fudge-factor of one is likely to be way too large; instead we use a small, hard-coded fudge-constant:
-if [ $(( BASE_python_down )) -lt $(( 0x0a000000 )) ]
-then
-    echo "ERROR: python_down fudge overflow!!  No fudge for you!" >&2
-    exit 2
-fi
-BASE_python_down_fudged=$(( BASE_python_down - 0x0a000000 ))
-BASE_python_down="$( printf "0x%08x\n" "${BASE_python_down_fudged}" )"
+force_reasonable_base perl_down python_down yes
 
 BaseAddress="${BASE_python_down}"
 
