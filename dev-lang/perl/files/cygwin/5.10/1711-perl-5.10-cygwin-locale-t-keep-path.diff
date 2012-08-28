@@ -1,0 +1,12 @@
+diff -urN perl-5.12.4.orig/lib/locale.t perl-5.12.4/lib/locale.t
+--- perl-5.12.4.orig/lib/locale.t	2011-06-07 13:04:05.000000000 -0700
++++ perl-5.12.4/lib/locale.t	2012-08-22 02:45:54.628028400 -0700
+@@ -380,7 +380,7 @@
+ # program without the taint mode getting grumpy.
+ 
+ # $ENV{PATH} is special in VMS.
+-delete $ENV{PATH} if $^O ne 'VMS' or $Config{d_setenv};
++delete $ENV{PATH} if ($^O ne 'VMS' && $^O ne 'cygwin') or $Config{d_setenv};
+ 
+ # Other subversive stuff.
+ delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};

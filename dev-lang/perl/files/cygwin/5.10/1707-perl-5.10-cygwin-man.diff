@@ -1,0 +1,20 @@
+diff -urN a/cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm b/cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm
+--- a/cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm	2011-01-09 12:20:53.000000000 -0800
++++ b/cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm	2012-02-12 07:43:49.092298400 -0800
+@@ -116,6 +116,16 @@
+     return $self->SUPER::maybe_command($file);
+ }
+ 
++=item all_target
++
++Build man pages, too
++
++=cut
++
++sub all_target {
++    ExtUtils::MM_Unix::all_target(shift);
++}
++
+ =back
+ 
+ =cut

@@ -1,6 +1,6 @@
-diff -u cygwin/cygwin.c.orig cygwin/cygwin.c
---- cygwin/cygwin.c.orig	2009-05-03 16:54:56.000000000 +0000
-+++ cygwin/cygwin.c	2009-08-29 23:41:12.719875000 +0000
+diff -u a/cygwin/cygwin.c b/cygwin/cygwin.c
+--- a/cygwin/cygwin.c	2009-05-03 16:54:56.000000000 +0000
++++ b/cygwin/cygwin.c	2009-08-29 23:41:12.719875000 +0000
 @@ -10,9 +10,13 @@
  #include <unistd.h>
  #include <process.h>
@@ -356,9 +356,9 @@ diff -u cygwin/cygwin.c.orig cygwin/cygwin.c
      }
  }
  
-diff -u t/lib/cygwin.t.orig t/lib/cygwin.t
---- t/lib/cygwin.t.orig	2009-02-12 22:58:20.000000000 +0000
-+++ t/lib/cygwin.t	2009-08-29 23:32:45.782375000 +0000
+diff -u a/t/lib/cygwin.t b/t/lib/cygwin.t
+--- a/t/lib/cygwin.t	2009-02-12 22:58:20.000000000 +0000
++++ b/t/lib/cygwin.t	2009-08-29 23:32:45.782375000 +0000
 @@ -10,7 +10,7 @@
      require './test.pl';
  }

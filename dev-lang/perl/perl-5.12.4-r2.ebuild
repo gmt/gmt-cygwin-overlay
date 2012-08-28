@@ -1,14 +1,14 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/perl/perl-5.12.3-r1.ebuild,v 1.7 2011/05/07 16:36:19 armin76 Exp $
+# $Header: $
 
-EAPI=3
+EAPI=4
 
-inherit eutils alternatives flag-o-matic toolchain-funcs multilib
+inherit eutils alternatives flag-o-matic toolchain-funcs multilib prefix-gmt
 
-PATCH_VER=4
+PATCH_VER=1
 
-PERL_OLDVERSEN="5.12.2 5.12.1 5.12.0"
+PERL_OLDVERSEN="5.12.3 5.12.2 5.12.1 5.12.0"
 
 SHORT_PV="${PV%.*}"
 MY_P="perl-${PV/_rc/-RC}"
@@ -16,10 +16,9 @@ MY_PV="${PV%_rc*}"
 
 DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
 
-S="${WORKDIR}/${MY_P}"
 SRC_URI="
 	mirror://cpan/src/${MY_P}.tar.bz2
-	mirror://cpan/authors/id/R/RJ/RJBS/${MY_P}.tar.bz2
+	mirror://cpan/authors/id/L/LB/LBROCARD/${MY_P}.tar.bz2
 	mirror://gentoo/${MY_P}-${PATCH_VER}.tar.bz2
 	http://dev.gentoo.org/~tove/distfiles/${CATEGORY}/${PN}/${MY_P}-${PATCH_VER}.tar.bz2"
 #	mirror://cpan/src/${MY_P}.tar.bz2
@@ -28,7 +27,7 @@ HOMEPAGE="http://www.perl.org/"
 
 LICENSE="|| ( Artistic GPL-1 GPL-2 GPL-3 )"
 SLOT="0"
-KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="berkdb build debug doc gdbm ithreads"
 
 COMMON_DEPEND="berkdb? ( sys-libs/db )
@@ -45,17 +44,18 @@ PDEPEND=">=app-admin/perl-cleaner-2.5"
 S="${WORKDIR}/${MY_P}"
 
 dual_scripts() {
-	src_remove_dual_scripts perl-core/Archive-Tar        1.54    ptar ptardiff
-	src_remove_dual_scripts perl-core/Digest-SHA         5.47    shasum
-	src_remove_dual_scripts perl-core/CPAN               1.9456  cpan
-	src_remove_dual_scripts perl-core/CPANPLUS           0.90    cpanp cpan2dist cpanp-run-perl
-	src_remove_dual_scripts perl-core/Encode             2.39    enc2xs piconv
-	src_remove_dual_scripts perl-core/ExtUtils-MakeMaker 6.56    instmodsh
-	src_remove_dual_scripts perl-core/Module-Build       0.3603  config_data
-	src_remove_dual_scripts perl-core/Module-CoreList    2.43    corelist
-	src_remove_dual_scripts perl-core/PodParser          1.37    pod2usage podchecker podselect
-	src_remove_dual_scripts perl-core/Test-Harness       3.17    prove
-	src_remove_dual_scripts perl-core/podlators          2.3.1   pod2man pod2text
+	src_remove_dual_scripts perl-core/Archive-Tar        1.54      ptar ptardiff
+	src_remove_dual_scripts perl-core/Digest-SHA         5.47      shasum
+	src_remove_dual_scripts perl-core/CPAN               1.945.600 cpan
+	src_remove_dual_scripts perl-core/CPANPLUS           0.900.0   cpanp cpan2dist cpanp-run-perl
+	src_remove_dual_scripts perl-core/Encode             2.39      enc2xs piconv
+	src_remove_dual_scripts perl-core/ExtUtils-MakeMaker 6.56      instmodsh
+	src_remove_dual_scripts perl-core/ExtUtils-ParseXS   2.210.0   xsubpp
+	src_remove_dual_scripts perl-core/Module-Build       0.3603    config_data
+	src_remove_dual_scripts perl-core/Module-CoreList    2.500.0   corelist
+	src_remove_dual_scripts perl-core/PodParser          1.370.0   pod2usage podchecker podselect
+	src_remove_dual_scripts perl-core/Test-Harness       3.17      prove
+	src_remove_dual_scripts perl-core/podlators          2.3.1     pod2man pod2text
 }
 
 pkg_setup() {
@@ -124,24 +124,17 @@ pkg_setup() {
 src_prepare_update_patchlevel_h() {
 	[[ -f ${WORKDIR}/perl-patch/series ]] || return 0
 
-	[[ ${CHOST} == *-cygwin* ]] && { while read patch level ; do
-		einfo "Installing patch \"${patch}\" into patchlevel.h"
+	while read patch level; do
 		sed -i -e "s/^\t,NULL$/	,\"${patch//__/_}\"\n&/" "${S}"/patchlevel.h || die
-	done < "${FILESDIR}"/cygwin/series ; }
-
-	while read patch level ; do
-		einfo "Installing patch \"${patch}\" into patchlevel.h"
-		sed -i -e "s/^\t,NULL$/	,\"${patch//__/_}\"\n&/" "${S}"/patchlevel.h || die
-	done < "${WORKDIR}"/perl-patch/series
-	
+	done  < "${WORKDIR}"/perl-patch/series
 }
 
 src_prepare() {
 	if [[ ${CHOST} == *-cygwin* ]] ; then
-		EPATCH_SOURCE="${FILESDIR}"/cygwin \
-		EPATCH_SUFFIX="patch" \
-		EPATCH_FORCE="yes" \
-		epatch
+		mkdir -p "${WORKDIR}"/perl-patch
+		cp "${FILESDIR}"/cygwin/5.10/*.diff "${WORKDIR}"/perl-patch/
+		cat "${FILESDIR}"/cygwin/5.10/series >> "${WORKDIR}"/perl-patch/series
+		eprefixify_patch "${FILESDIR}"/cygwin/${PN}-5.12-cygwin-prefix-test-layout-armageddon.patch
 	fi
 
 	EPATCH_SOURCE="${WORKDIR}/perl-patch" \
@@ -154,7 +147,7 @@ src_prepare() {
 
 	# pod/perltoc.pod fails
 	# lib/ExtUtils/t/Embed.t fails
-	if [[ ${CHOST} != *-mint* ]]; then
+	if ! tc-is-static-only ; then
 		ln -s ${LIBPERL} libperl$(get_libname ${SHORT_PV})
 		ln -s ${LIBPERL} libperl$(get_libname )
 	fi
@@ -167,6 +160,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/${PN}-5.10.1-hpux.patch
 	epatch "${FILESDIR}"/${PN}-5.8.8-darwin-cc-ld.patch
 	epatch "${FILESDIR}"/${PN}-5.12.3-mint.patch
+	epatch "${FILESDIR}"/${PN}-5.12.3-interix.patch
 
 	# Fix build on OSX Lion (10.7)
 	sed -i -e '/^usenm=/s/true/false/' hints/darwin.sh
@@ -177,12 +171,6 @@ src_prepare() {
 		-e '/^loclibpth=/c\loclibpth=""' \
 		-e '/^glibpth=.*\/local\//s: /usr/local/lib.*":":' \
 		Configure || die
-
-	# Also add the directory prefix of the current file when the quote syntax is
-	# used; 'require' will only look in @INC, not the current directory.
-	#epatch "${FILESDIR}"/${PN}-fix_h2ph_include_quote.patch
-
-	epatch "${FILESDIR}"/${P}-interix.patch
 }
 
 myconf() {
@@ -194,6 +182,7 @@ src_configure() {
 	declare -a myconf
 
 	export LC_ALL="C"
+	[[ ${COLUMNS:-1} -ge 1 ]] || unset COLUMNS # bug #394091
 
 	# some arches and -O do not mix :)
 	use ppc && replace-flags -O? -O1
@@ -205,11 +194,6 @@ src_configure() {
 	use ppc && filter-flags "-mpowerpc-gpopt"
 	# Fixes bug #143895 on gcc-4.1.1
 	filter-flags "-fsched2-use-superblocks"
-
-	# this is needed because gcc 3.3-compiled kernels will hang
-	# the machine trying to run this test - check with `Kumba
-	# <rac@gentoo.org> 2003.06.26
-	use mips && myconf -Dd_u32align
 
 	use sparc && myconf -Ud_longdbl
 
@@ -225,16 +209,6 @@ src_configure() {
 		OLD_ZLIB = False
 		GZIP_OS_CODE = AUTO_DETECT
 	EOF
-
-	case ${CHOST} in
-		*-irix*)
-			myconf -Dcc="cc -n32 -mips4"
-			myconf -Dccdlflags='-exports'
-		;;
-		*)
-			myconf -Dccdlflags='-rdynamic'
-		;;
-	esac
 
 	# allow either gdbm to provide ndbm (in <gdbm/ndbm.h>) or db1
 
@@ -297,10 +271,21 @@ src_configure() {
 			fi
 		done
 		myconf "-Dlibpth=${EPREFIX}/$(get_libdir) ${EPREFIX}/usr/$(get_libdir) ${paths:-/lib /usr/lib}"
+		# no need to subject ourselves to the caprice of /bin/sh when we have our own
+		if [[ -x "${EPREFIX}"/bin/sh ]] ; then
+			myconf "-Dsh=${EPREFIX}"'/bin/sh'
+			myconf '-Dstartsh=#!'"${EPREFIX}"'/bin/sh'
+		fi
+		# likewise bash
+		[[ -x "${EPREFIX}"/bin/bash ]] && myconf "-Dbash=${EPREFIX}"'/bin/bash'
+
 	elif [[ $(get_libdir) != "lib" ]] ; then
 		# We need to use " and not ', as the written config.sh use ' ...
 		myconf "-Dlibpth=/usr/local/$(get_libdir) /$(get_libdir) /usr/$(get_libdir)"
 	fi
+
+	# t/op/threads lockups (even with USE=-ithreads :( )
+	[[ ${CHOST} == *-cygwin* ]] && myconf -Uusemymalloc
 
 	# don't try building ODBM, bug #354453
 	myconf -Dnoextensions=ODBM_File
@@ -317,12 +302,12 @@ src_configure() {
 		-Dsiteprefix="${EPREFIX}"'/usr' \
 		-Dvendorprefix="${EPREFIX}"'/usr' \
 		-Dscriptdir="${EPREFIX}"'/usr/bin' \
-		-Dprivlib="${EPREFIX}/usr/$(get_libdir)/perl5/${MY_PV}" \
-		-Darchlib="${EPREFIX}/usr/$(get_libdir)/perl5/${MY_PV}/${myarch}${mythreading}" \
-		-Dsitelib="${EPREFIX}/usr/$(get_libdir)/perl5/site_perl/${MY_PV}" \
-		-Dsitearch="${EPREFIX}/usr/$(get_libdir)/perl5/site_perl/${MY_PV}/${myarch}${mythreading}" \
-		-Dvendorlib="${EPREFIX}/usr/$(get_libdir)/perl5/vendor_perl/${MY_PV}" \
-		-Dvendorarch="${EPREFIX}/usr/$(get_libdir)/perl5/vendor_perl/${MY_PV}/${myarch}${mythreading}" \
+		-Dprivlib="${EPREFIX}${PRIV_LIB}" \
+		-Darchlib="${EPREFIX}${ARCH_LIB}" \
+		-Dsitelib="${EPREFIX}${SITE_LIB}" \
+		-Dsitearch="${EPREFIX}${SITE_ARCH}" \
+		-Dvendorlib="${EPREFIX}${VENDOR_LIB}" \
+		-Dvendorarch="${EPREFIX}${VENDOR_ARCH}" \
 		-Dman1dir="${EPREFIX}"/usr/share/man/man1 \
 		-Dman3dir="${EPREFIX}"/usr/share/man/man3 \
 		-Dsiteman1dir="${EPREFIX}"/usr/share/man/man1 \
@@ -338,7 +323,7 @@ src_configure() {
 		-Dd_semctl_semun \
 		-Dcf_by='Gentoo' \
 		-Dmyhostname='localhost' \
-		-Dperladmin="${PORTAGE_ROOT_USER}@localhost" \
+		-Dperladmin='root@localhost' \
 		-Dinstallusrbinperl='n' \
 		-Ud_csh \
 		-Uusenm \
@@ -377,7 +362,7 @@ src_install() {
 	rm -f "${ED}"/usr/bin/perl
 	ln -s perl${MY_PV} "${ED}"/usr/bin/perl
 
-	if [[ ${CHOST} != *-mint* ]]; then
+	if ! tc-is-static-only ; then
 		dolib.so "${ED}"/${coredir}/${LIBPERL} || die
 		dosym ${LIBPERL} /usr/$(get_libdir)/libperl$(get_libname ${SHORT_PV}) || die
 		dosym ${LIBPERL} /usr/$(get_libdir)/libperl$(get_libname) || die
@@ -456,9 +441,9 @@ pkg_postinst() {
 		fi
 
 		einfo "Converting C header files to the corresponding Perl format (ignore any error)"
-		# unprefixed as this is all kernel/libc stuff that we never provide
+		# Prefix note: unprefixed as this is all kernel/libc stuff that we never provide
 		pushd /usr/include >/dev/null
-			h2ph -Q -a -d "${EPREFIX}${ARCH_LIB}" \
+			h2ph -Q -a -d "${EPREFIX}"${ARCH_LIB} \
 				asm/termios.h syscall.h syslimits.h syslog.h sys/ioctl.h \
 				sys/socket.h sys/time.h wait.h sysexits.h
 		popd >/dev/null

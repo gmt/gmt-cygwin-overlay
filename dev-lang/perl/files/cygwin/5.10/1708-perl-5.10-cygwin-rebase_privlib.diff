@@ -1,6 +1,6 @@
-diff -urN cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm
---- cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm	2012-02-12 07:45:25.224020900 -0800
-+++ cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm	2012-02-12 07:46:50.068486400 -0800
+diff -urN a/cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm b/cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm
+--- a/cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm	2012-02-12 07:45:25.224020900 -0800
++++ b/cpan/ExtUtils-MakeMaker/lib/ExtUtils/MM_Cygwin.pm	2012-02-12 07:46:50.068486400 -0800
 @@ -126,6 +126,29 @@
      ExtUtils::MM_Unix::all_target(shift);
  }

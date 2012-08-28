@@ -1,6 +1,6 @@
-diff -urN cpan/Cwd/lib/File/Spec/Cygwin.pm cpan/Cwd/lib/File/Spec/Cygwin.pm
---- cpan/Cwd/lib/File/Spec/Cygwin.pm	2011-01-09 12:20:53.000000000 -0800
-+++ cpan/Cwd/lib/File/Spec/Cygwin.pm	2012-02-12 07:13:13.310215400 -0800
+diff -urN a/cpan/Cwd/lib/File/Spec/Cygwin.pm b/cpan/Cwd/lib/File/Spec/Cygwin.pm
+--- a/cpan/Cwd/lib/File/Spec/Cygwin.pm	2011-01-09 12:20:53.000000000 -0800
++++ b/cpan/Cwd/lib/File/Spec/Cygwin.pm	2012-02-12 07:13:13.310215400 -0800
 @@ -4,7 +4,7 @@
  use vars qw(@ISA $VERSION);
  require File::Spec::Unix;
@@ -62,9 +62,9 @@ diff -urN cpan/Cwd/lib/File/Spec/Cygwin.pm cpan/Cwd/lib/File/Spec/Cygwin.pm
  }
  
  =back
-diff -urN cpan/Cwd/lib/File/Spec/Win32.pm cpan/Cwd/lib/File/Spec/Win32.pm
---- cpan/Cwd/lib/File/Spec/Win32.pm	2011-01-09 12:20:53.000000000 -0800
-+++ cpan/Cwd/lib/File/Spec/Win32.pm	2012-02-12 07:02:11.126805200 -0800
+diff -urN a/cpan/Cwd/lib/File/Spec/Win32.pm b/cpan/Cwd/lib/File/Spec/Win32.pm
+--- a/cpan/Cwd/lib/File/Spec/Win32.pm	2011-01-09 12:20:53.000000000 -0800
++++ b/cpan/Cwd/lib/File/Spec/Win32.pm	2012-02-12 07:02:11.126805200 -0800
 @@ -5,7 +5,7 @@
  use vars qw(@ISA $VERSION);
  require File::Spec::Unix;
@@ -100,9 +100,9 @@ diff -urN cpan/Cwd/lib/File/Spec/Win32.pm cpan/Cwd/lib/File/Spec/Win32.pm
    my $osFsType = "\0"x256;
    my $osVolName = "\0"x256;
    my $ouFsFlags = 0;
-diff -urN cpan/Cwd/lib/File/Spec.pm cpan/Cwd/lib/File/Spec.pm
---- cpan/Cwd/lib/File/Spec.pm	2011-01-09 12:20:53.000000000 -0800
-+++ cpan/Cwd/lib/File/Spec.pm	2012-02-12 07:02:11.123304500 -0800
+diff -urN a/cpan/Cwd/lib/File/Spec.pm b/cpan/Cwd/lib/File/Spec.pm
+--- a/cpan/Cwd/lib/File/Spec.pm	2011-01-09 12:20:53.000000000 -0800
++++ b/cpan/Cwd/lib/File/Spec.pm	2012-02-12 07:02:11.123304500 -0800
 @@ -3,7 +3,7 @@
  use strict;
  use vars qw(@ISA $VERSION);

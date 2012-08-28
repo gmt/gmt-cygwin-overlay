@@ -1,429 +1,126 @@
 ===== mutual sub-directory: "dev-lang/perl" =====
----("dev-lang/perl/ChangeLog")--->8--->
---- usr/portage/dev-lang/perl/ChangeLog [[PORTAGE]]
-+++ overlay/dev-lang/perl/ChangeLog [[OVERLAY]]
-@@ -1,56 +1,6 @@
- # ChangeLog for dev-lang/perl
--# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/dev-lang/perl/ChangeLog,v 1.380 2012/03/03 12:29:38 grobian Exp $
--
--*perl-5.12.4-r2 (03 Mar 2012)
--
--  03 Mar 2012; Fabian Groffen <grobian@gentoo.org>
--  +files/perl-5.10.1-cleanup-paths.patch, +files/perl-5.10.1-hpux.patch,
--  +files/perl-5.12.3-aix-soname.patch, +files/perl-5.12.3-interix.patch,
--  +files/perl-5.12.3-mint.patch, +files/perl-5.14.1-cleanup-paths.patch,
--  +files/perl-5.8.8-darwin-cc-ld.patch,
--  +files/perl-5.8.8-solaris-relocation.patch, +files/perl-5.8.8-solaris11.patch,
--  +files/perl-5.8.8-usr-local.patch, +perl-5.12.4-r2.ebuild, perl-5.14.2.ebuild:
--  Revbump of 5.12.4 for Prefix changes, same changes in 5.14.2, transferred
--  Prefix keywords, bug #395685
--
--  02 Jan 2012; Zac Medico <zmedico@gentoo.org> perl-5.10.1.ebuild,
--  perl-5.12.3-r1.ebuild, perl-5.12.4-r1.ebuild, perl-5.12.4.ebuild,
--  perl-5.14.1-r1.ebuild, perl-5.14.1.ebuild, perl-5.14.2.ebuild,
--  perl-5.8.8-r8.ebuild:
--  Bug #394091 - Handle invalid COLUMNS.
--
--  07 Nov 2011; Kacper Kowalik <xarthisius@gentoo.org> perl-5.12.4-r1.ebuild:
--  ppc/ppc64 stable wrt #384593
--
--  23 Oct 2011; Raúl Porcel <armin76@gentoo.org> perl-5.12.4-r1.ebuild:
--  alpha/ia64/m68k/s390/sh/sparc stable wrt #384593
--
--  16 Oct 2011; Matt Turner <mattst88@gentoo.org> perl-5.12.4-r1.ebuild,
--  perl-5.14.2.ebuild:
--  Remove mips d_u32align hack from the gcc-3.3 days (circa 2003)
--
--  10 Oct 2011; Markus Meier <maekke@gentoo.org> perl-5.12.4-r1.ebuild:
--  arm/x86 stable, bug #384593
--
--  05 Oct 2011; Jeroen Roovers <jer@gentoo.org> perl-5.12.4-r1.ebuild:
--  Stable for HPPA (bug #384593).
--
--  27 Sep 2011; Tony Vroon <chainsaw@gentoo.org> perl-5.12.4-r1.ebuild:
--  Marked stable on AMD64 based on arch testing by Agostino "ago" Sarubbo &
--  Elijah "Armageddon" El Lazkani in bug #384593.
--
--*perl-5.14.2 (27 Sep 2011)
--
--  27 Sep 2011; Torsten Veller <tove@gentoo.org> +perl-5.14.2.ebuild:
--  Version bump
--
--*perl-5.14.1-r1 (09 Aug 2011)
--*perl-5.12.4-r1 (09 Aug 2011)
--
--  09 Aug 2011; Torsten Veller <tove@gentoo.org> -perl-5.12.2-r6.ebuild,
--  -perl-5.12.3.ebuild, +perl-5.12.4-r1.ebuild, +perl-5.14.1-r1.ebuild:
--  Add xsubpp to the dual-life scripts list. Cleanup
-+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/dev-lang/perl/ChangeLog,v 1.370 2011/06/24 14:48:58 tove Exp $
+----[ "dev-lang/perl/ChangeLog" ]----->8----->
+--- PORTAGE/dev-lang/perl/ChangeLog
++++ OVERLAY/dev-lang/perl/ChangeLog
+@@ -2,6 +2,42 @@
+ # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+ # $Header: $
  
- *perl-5.12.4 (24 Jun 2011)
++  28 Aug 2012; Greg Turner <gmt@be-evil.net>
++  -files/cygwin/perl-5.10.1-cygwin-01-no-bs.patch
++  +files/cygwin/5.10/1701-perl-5.10-cygwin-no-bs.diff,
++  -files/cygwin/perl-5.10.1-cygwin-02-Dynaloader.patch,
++  +files/cygwin/5.10/1702-perl-5.10-cygwin-Dynaloader.diff,
++  -files/cygwin/perl-5.10.1-cygwin-03-static-Win32CORE.patch,
++  +files/cygwin/5.10/1703-perl-5.10-cygwin-static-Win32CORE.diff,
++  -files/cygwin/perl-5.10.1-cygwin-04-utf8-paths.patch,
++  +files/cygwin/5.10/1704-perl-5.10-cygwin-utf8-paths.diff,
++  -files/cygwin/perl-5.10.1-cygwin-05-case_tol-510.patch,
++  +files/cygwin/5.10/1705-perl-5.10-cygwin-case_tol-510.diff,
++  -files/cygwin/perl-5.10.1-cygwin-06-hints17.patch,
++  +files/cygwin/5.10/1706-perl-5.10-cygwin-hints17.diff,
++  -files/cygwin/perl-5.10.1-cygwin-07-man.patch
++  +files/cygwin/5.10/1707-perl-5.10-cygwin-man.diff,
++  -files/cygwin/perl-5.10.1-cygwin-08-rebase_privlib.patch,
++  +files/cygwin/5.10/1708-perl-5.10-cygwin-rebase_privlib.diff,
++  -files/cygwin/perl-5.10.1-cygwin-09-Sys-Syslog.patch,
++  +files/cygwin/5.10/1709-perl-5.10-cygwin-Sys-Syslog.diff,
++  +files/cygwin/5.10/1710-perl-5.10-cygwin-skipstupidtest.diff,
++  +files/cygwin/5.10/1711-perl-5.10-cygwin-locale-t-keep-path.diff,
++  +files/cygwin/perl-5.12-cygwin-prefix-test-layout-armageddon.patch,
++  -files/perl-5.10.1-cygwin-09-Module-Build-0.36_13-disabled.patch,
++  -files/perl-fix_h2ph_include_quote.patch, -files/cygwin/5.10/series,
++  -perl-5.12.3-r1.ebuild, +perl-5.12.4-r2.ebuild:
++  Huge, but largely administrivial perl update.
++  - handle the "cygwin" patch series the right way (or, at least, a
++  less wrong way), by merging it into the series in ${WORKDIR} and
++  leaving the standard epatch from upstream untouched.
++  - take out the trash in ${FILESDIR}
++  - build with -Uusemymalloc on cygwin (makes tests go better, presumably
++  a good thing(?))
++  - avoid non-prefix bash in prefix when possible
++  - fix some tests not to crash due to prefix-PATH issues
++  - skip a too-fragile/ill-concieved cygwin test. 
++
+   13 Aug 2012; Fabian Groffen <grobian@gentoo.org>
+   files/eblits/src_configure-v50160001.eblit:
+   Fix misdetection of lib dirs on certain Prefix hosts, bug #425538
+<-----8<-----
+----[ "dev-lang/perl/perl-5.12.4-r2.ebuild" ]----->8----->
+--- PORTAGE/dev-lang/perl/perl-5.12.4-r2.ebuild
++++ OVERLAY/dev-lang/perl/perl-5.12.4-r2.ebuild
+@@ -4,7 +4,7 @@
  
-<---8<---
----("dev-lang/perl/perl-5.12.3-r1.ebuild")--->8--->
---- usr/portage/dev-lang/perl/perl-5.12.3-r1.ebuild [[PORTAGE]]
-+++ overlay/dev-lang/perl/perl-5.12.3-r1.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
--# Copyright 1999-2012 Gentoo Foundation
-+# Copyright 1999-2011 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/dev-lang/perl/perl-5.12.3-r1.ebuild,v 1.8 2012/01/02 22:52:21 zmedico Exp $
-+# $Header: /var/cvsroot/gentoo-x86/dev-lang/perl/perl-5.12.3-r1.ebuild,v 1.7 2011/05/07 16:36:19 armin76 Exp $
+ EAPI=4
  
- EAPI=3
+-inherit eutils alternatives flag-o-matic toolchain-funcs multilib
++inherit eutils alternatives flag-o-matic toolchain-funcs multilib prefix-gmt
  
-@@ -16,6 +16,7 @@
+ PATCH_VER=1
  
- DESCRIPTION="Larry Wall's Practical Extraction and Report Language"
- 
-+S="${WORKDIR}/${MY_P}"
- SRC_URI="
- 	mirror://cpan/src/${MY_P}.tar.bz2
- 	mirror://cpan/authors/id/R/RJ/RJBS/${MY_P}.tar.bz2
-@@ -27,7 +28,7 @@
- 
- LICENSE="|| ( Artistic GPL-1 GPL-2 GPL-3 )"
- SLOT="0"
--KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
-+KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
- IUSE="berkdb build debug doc gdbm ithreads"
- 
- COMMON_DEPEND="berkdb? ( sys-libs/db )
-@@ -37,7 +38,7 @@
- 	app-arch/bzip2
- 	sys-libs/zlib"
- DEPEND="${COMMON_DEPEND}
--	elibc_FreeBSD? ( sys-freebsd/freebsd-mk-defs )"
-+	!prefix? ( elibc_FreeBSD? ( sys-freebsd/freebsd-mk-defs ) )"
- RDEPEND="${COMMON_DEPEND}"
- PDEPEND=">=app-admin/perl-cleaner-2.5"
- 
-@@ -64,6 +65,8 @@
- 		*-netbsd*)    osname="netbsd" ;;
+@@ -66,6 +66,7 @@
  		*-openbsd*)   osname="openbsd" ;;
  		*-darwin*)    osname="darwin" ;;
-+		*-interix*)   osname="interix" ;;
+ 		*-interix*)   osname="interix" ;;
 +		*-cygwin*)    osname="cygwin" ;;
  		*)            osname="linux" ;;
  	esac
  
-@@ -121,9 +124,16 @@
- src_prepare_update_patchlevel_h() {
- 	[[ -f ${WORKDIR}/perl-patch/series ]] || return 0
- 
-+	[[ ${CHOST} == *-cygwin* ]] && { while read patch level ; do
-+		einfo "Installing patch \"${patch}\" into patchlevel.h"
-+		sed -i -e "s/^\t,NULL$/	,\"${patch//__/_}\"\n&/" "${S}"/patchlevel.h || die
-+	done < "${FILESDIR}"/cygwin/series ; }
-+
- 	while read patch level ; do
-+		einfo "Installing patch \"${patch}\" into patchlevel.h"
- 		sed -i -e "s/^\t,NULL$/	,\"${patch//__/_}\"\n&/" "${S}"/patchlevel.h || die
- 	done < "${WORKDIR}"/perl-patch/series
-+	
- }
- 
- src_prepare() {
-@@ -127,6 +137,13 @@
+@@ -129,6 +130,13 @@
  }
  
  src_prepare() {
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		EPATCH_SOURCE="${FILESDIR}"/cygwin \
-+		EPATCH_SUFFIX="patch" \
-+		EPATCH_FORCE="yes" \
-+		epatch
++		mkdir -p "${WORKDIR}"/perl-patch
++		cp "${FILESDIR}"/cygwin/5.10/*.diff "${WORKDIR}"/perl-patch/
++		cat "${FILESDIR}"/cygwin/5.10/series >> "${WORKDIR}"/perl-patch/series
++		eprefixify_patch "${FILESDIR}"/cygwin/${PN}-5.12-cygwin-prefix-test-layout-armageddon.patch
 +	fi
 +
  	EPATCH_SOURCE="${WORKDIR}/perl-patch" \
  	EPATCH_SUFFIX="diff" \
  	EPATCH_FORCE="yes" \
-@@ -137,8 +154,35 @@
- 
- 	# pod/perltoc.pod fails
- 	# lib/ExtUtils/t/Embed.t fails
-+	if [[ ${CHOST} != *-mint* ]]; then
- 	ln -s ${LIBPERL} libperl$(get_libname ${SHORT_PV})
- 	ln -s ${LIBPERL} libperl$(get_libname )
-+	fi
+@@ -263,11 +271,22 @@
+ 			fi
+ 		done
+ 		myconf "-Dlibpth=${EPREFIX}/$(get_libdir) ${EPREFIX}/usr/$(get_libdir) ${paths:-/lib /usr/lib}"
++		# no need to subject ourselves to the caprice of /bin/sh when we have our own
++		if [[ -x "${EPREFIX}"/bin/sh ]] ; then
++			myconf "-Dsh=${EPREFIX}"'/bin/sh'
++			myconf '-Dstartsh=#!'"${EPREFIX}"'/bin/sh'
++		fi
++		# likewise bash
++		[[ -x "${EPREFIX}"/bin/bash ]] && myconf "-Dbash=${EPREFIX}"'/bin/bash'
 +
-+	epatch "${FILESDIR}"/${PN}-5.12.3-aix-soname.patch
-+	epatch "${FILESDIR}"/${PN}-5.8.8-solaris-relocation.patch
-+	epatch "${FILESDIR}"/${PN}-5.8.8-solaris11.patch
-+	epatch "${FILESDIR}"/${PN}-5.10.1-cleanup-paths.patch
-+	epatch "${FILESDIR}"/${PN}-5.8.8-usr-local.patch
-+	epatch "${FILESDIR}"/${PN}-5.10.1-hpux.patch
-+	epatch "${FILESDIR}"/${PN}-5.8.8-darwin-cc-ld.patch
-+	epatch "${FILESDIR}"/${PN}-5.12.3-mint.patch
-+
-+	# Fix build on OSX Lion (10.7)
-+	sed -i -e '/^usenm=/s/true/false/' hints/darwin.sh
-+
-+	# rest of usr-local patch
-+	sed -i \
-+		-e '/^locincpth=/c\locincpth=""' \
-+		-e '/^loclibpth=/c\loclibpth=""' \
-+		-e '/^glibpth=.*\/local\//s: /usr/local/lib.*":":' \
-+		Configure || die
-+
-+	# Also add the directory prefix of the current file when the quote syntax is
-+	# used; 'require' will only look in @INC, not the current directory.
-+	#epatch "${FILESDIR}"/${PN}-fix_h2ph_include_quote.patch
-+
-+	epatch "${FILESDIR}"/${P}-interix.patch
- }
- 
- myconf() {
-@@ -150,7 +194,6 @@
- 	declare -a myconf
- 
- 	export LC_ALL="C"
--	[[ ${COLUMNS:-1} -ge 1 ]] || unset COLUMNS # bug #394091
- 
- 	# some arches and -O do not mix :)
- 	use ppc && replace-flags -O? -O1
-@@ -172,17 +215,27 @@
- 
- 	# 266337
- 	export BUILD_BZIP2=0
--	export BZIP2_INCLUDE=/usr/include
--	export BZIP2_LIB=/usr/$(get_libdir)
-+	export BZIP2_INCLUDE=${EPREFIX}/usr/include
-+	export BZIP2_LIB=${EPREFIX}/usr/$(get_libdir)
- 	cat <<-EOF > "${S}/cpan/Compress-Raw-Zlib/config.in"
- 		BUILD_ZLIB = False
--		INCLUDE = /usr/include
--		LIB = /usr/$(get_libdir)
-+		INCLUDE = ${EPREFIX}/usr/include
-+		LIB = ${EPREFIX}/usr/$(get_libdir)
- 
- 		OLD_ZLIB = False
- 		GZIP_OS_CODE = AUTO_DETECT
- 	EOF
- 
-+	case ${CHOST} in
-+		*-irix*)
-+			myconf -Dcc="cc -n32 -mips4"
-+			myconf -Dccdlflags='-exports'
-+		;;
-+		*)
-+			myconf -Dccdlflags='-rdynamic'
-+		;;
-+	esac
-+
- 	# allow either gdbm to provide ndbm (in <gdbm/ndbm.h>) or db1
- 
- 	myndbm='U'
-@@ -223,11 +276,35 @@
- 
- 	[[ ${ELIBC} == "FreeBSD" ]] && myconf "-Dlibc=/usr/$(get_libdir)/libc.a"
- 
--	if [[ $(get_libdir) != "lib" ]] ; then
-+	# Prefix: the host system needs not to follow Gentoo multilib stuff, and in
-+	# Prefix itself we don't do multilib either, so make sure perl can find
-+	# something compatible.
-+	if use prefix ; then
-+		local ldir
-+		local llib
-+		local paths=""
-+		echo "int main() {}" > "${T}"/t.c
-+		# need to ensure dirs contain compatible libs, bug #358875
-+		for ldir in /lib64 /lib/64 /usr/lib64 /usr/lib/64 /lib32 /usr/lib32 /lib /usr/lib ; do
-+			[[ -d ${ldir} ]] || continue
-+			# look for libc, which should be somewhere
-+			llib=${ldir}/libc$(get_libname)
-+			[[ -e ${llib} ]] || continue
-+			if $(tc-getCC) -o "${T}"/t "${T}"/t.c ${llib} >& /dev/null ; then
-+				ldir=${ldir#/usr}
-+				paths="${ldir} /usr${ldir}"
-+				break
-+			fi
-+		done
-+		myconf "-Dlibpth=${EPREFIX}/$(get_libdir) ${EPREFIX}/usr/$(get_libdir) ${paths:-/lib /usr/lib}"
-+	elif [[ $(get_libdir) != "lib" ]] ; then
+ 	elif [[ $(get_libdir) != "lib" ]] ; then
  		# We need to use " and not ', as the written config.sh use ' ...
  		myconf "-Dlibpth=/usr/local/$(get_libdir) /$(get_libdir) /usr/$(get_libdir)"
  	fi
  
-+	# don't try building ODBM, bug #354453
-+	myconf -Dnoextensions=ODBM_File
++	# t/op/threads lockups (even with USE=-ithreads :( )
++	[[ ${CHOST} == *-cygwin* ]] && myconf -Uusemymalloc
 +
- 	sh Configure \
- 		-des \
- 		-Duseshrplib \
-@@ -235,31 +312,33 @@
- 		-Dcc="$(tc-getCC)" \
- 		-Doptimize="${CFLAGS}" \
- 		-Dldflags="${LDFLAGS}" \
--		-Dprefix='/usr' \
--		-Dsiteprefix='/usr' \
--		-Dvendorprefix='/usr' \
--		-Dscriptdir='/usr/bin' \
--		-Dprivlib="${PRIV_LIB}" \
--		-Darchlib="${ARCH_LIB}" \
--		-Dsitelib="${SITE_LIB}" \
--		-Dsitearch="${SITE_ARCH}" \
--		-Dvendorlib="${VENDOR_LIB}" \
--		-Dvendorarch="${VENDOR_ARCH}" \
--		-Dman1dir=/usr/share/man/man1 \
--		-Dman3dir=/usr/share/man/man3 \
--		-Dsiteman1dir=/usr/share/man/man1 \
--		-Dsiteman3dir=/usr/share/man/man3 \
--		-Dvendorman1dir=/usr/share/man/man1 \
--		-Dvendorman3dir=/usr/share/man/man3 \
-+		-Dprefix="${EPREFIX}"'/usr' \
-+		-Dinstallprefix="${EPREFIX}"'/usr' \
-+		-Dsiteprefix="${EPREFIX}"'/usr' \
-+		-Dvendorprefix="${EPREFIX}"'/usr' \
-+		-Dscriptdir="${EPREFIX}"'/usr/bin' \
-+		-Dprivlib="${EPREFIX}/usr/$(get_libdir)/perl5/${MY_PV}" \
-+		-Darchlib="${EPREFIX}/usr/$(get_libdir)/perl5/${MY_PV}/${myarch}${mythreading}" \
-+		-Dsitelib="${EPREFIX}/usr/$(get_libdir)/perl5/site_perl/${MY_PV}" \
-+		-Dsitearch="${EPREFIX}/usr/$(get_libdir)/perl5/site_perl/${MY_PV}/${myarch}${mythreading}" \
-+		-Dvendorlib="${EPREFIX}/usr/$(get_libdir)/perl5/vendor_perl/${MY_PV}" \
-+		-Dvendorarch="${EPREFIX}/usr/$(get_libdir)/perl5/vendor_perl/${MY_PV}/${myarch}${mythreading}" \
-+		-Dman1dir="${EPREFIX}"/usr/share/man/man1 \
-+		-Dman3dir="${EPREFIX}"/usr/share/man/man3 \
-+		-Dsiteman1dir="${EPREFIX}"/usr/share/man/man1 \
-+		-Dsiteman3dir="${EPREFIX}"/usr/share/man/man3 \
-+		-Dvendorman1dir="${EPREFIX}"/usr/share/man/man1 \
-+		-Dvendorman3dir="${EPREFIX}"/usr/share/man/man3 \
- 		-Dman1ext='1' \
- 		-Dman3ext='3pm' \
- 		-Dlibperl="${LIBPERL}" \
--		-Dlocincpth=' ' \
-+		-Dlocincpth="${EPREFIX}"'/usr/include ' \
-+		-Dglibpth="${EPREFIX}/$(get_libdir) ${EPREFIX}/usr/$(get_libdir)"' ' \
- 		-Duselargefiles \
- 		-Dd_semctl_semun \
- 		-Dcf_by='Gentoo' \
- 		-Dmyhostname='localhost' \
--		-Dperladmin='root@localhost' \
-+		-Dperladmin="${PORTAGE_ROOT_USER}@localhost" \
- 		-Dinstallusrbinperl='n' \
- 		-Ud_csh \
- 		-Uusenm \
-@@ -295,18 +374,20 @@
- 	fi
- 	make DESTDIR="${D}" ${installtarget} || die "Unable to make ${installtarget}"
+ 	# don't try building ODBM, bug #354453
+ 	myconf -Dnoextensions=ODBM_File
  
--	rm -f "${D}"/usr/bin/perl
--	ln -s perl${MY_PV} "${D}"/usr/bin/perl
-+	rm -f "${ED}"/usr/bin/perl
-+	ln -s perl${MY_PV} "${ED}"/usr/bin/perl
- 
--	dolib.so "${D}"/${coredir}/${LIBPERL} || die
-+	if [[ ${CHOST} != *-mint* ]]; then
-+		dolib.so "${ED}"/${coredir}/${LIBPERL} || die
- 	dosym ${LIBPERL} /usr/$(get_libdir)/libperl$(get_libname ${SHORT_PV}) || die
- 	dosym ${LIBPERL} /usr/$(get_libdir)/libperl$(get_libname) || die
--	rm -f "${D}"/${coredir}/${LIBPERL}
-+		rm -f "${ED}"/${coredir}/${LIBPERL}
- 	dosym ../../../../../$(get_libdir)/${LIBPERL} ${coredir}/${LIBPERL}
- 	dosym ../../../../../$(get_libdir)/${LIBPERL} ${coredir}/libperl$(get_libname ${SHORT_PV})
- 	dosym ../../../../../$(get_libdir)/${LIBPERL} ${coredir}/libperl$(get_libname)
-+	fi
- 
--	rm -rf "${D}"/usr/share/man/man3 || die "Unable to remove module man pages"
-+	rm -rf "${ED}"/usr/share/man/man3 || die "Unable to remove module man pages"
- 
- #	# A poor fix for the miniperl issues
- #	dosed 's:./miniperl:/usr/bin/perl:' /usr/$(get_libdir)/perl5/${MY_PV}/ExtUtils/xsubpp
-@@ -320,11 +401,11 @@
- 		sed -i -e "s:${D}::" "${i}" || die "Sed failed"
- 	done
- 
--	find "${D}" -type f -name .packlist -delete || die
-+	find "${ED}" -type f -name .packlist -delete || die
- 
- 	# Note: find out from psm why we would need/want this.
- 	# ( use berkdb && has_version '=sys-libs/db-1*' ) ||
--	#	find "${D}" -name "*NDBM*" | xargs rm -f
-+	#	find "${ED}" -name "*NDBM*" | xargs rm -f
- 
- 	dodoc Changes* README AUTHORS || die
- 
-@@ -337,7 +418,7 @@
- 			--podroot='.' \
- 			--podpath='lib:ext:pod:vms' \
- 			--recurse \
--			--htmldir="${D}/usr/share/doc/${PF}/html" \
-+			--htmldir="${ED}/usr/share/doc/${PF}/html" \
- 			--libpods='perlfunc:perlguts:perlvar:perlrun:perlop'
- 	fi
- 
-@@ -375,8 +456,9 @@
- 		fi
- 
- 		einfo "Converting C header files to the corresponding Perl format (ignore any error)"
-+		# unprefixed as this is all kernel/libc stuff that we never provide
- 		pushd /usr/include >/dev/null
--			h2ph -Q -a -d ${ARCH_LIB} \
-+			h2ph -Q -a -d "${EPREFIX}${ARCH_LIB}" \
- 				asm/termios.h syscall.h syslimits.h syslog.h sys/ioctl.h \
- 				sys/socket.h sys/time.h wait.h sysexits.h
- 		popd >/dev/null
-@@ -431,27 +513,27 @@
- 		for i in "$@" ; do
- 			alternatives_auto_makesym "/usr/bin/${i}" "/usr/bin/${i}-[0-9]*"
- 			if [[ ${i} != cpanp-run-perl ]] ; then
--				ff=`echo ${ROOT}/usr/share/man/man1/${i}-${ver}-${P}.1*`
-+				ff=`echo ${EROOT}/usr/share/man/man1/${i}-${ver}-${P}.1*`
- 				ff=${ff##*.1}
- 				alternatives_auto_makesym "/usr/share/man/man1/${i}.1${ff}" "/usr/share/man/man1/${i}-[0-9]*"
- 			fi
- 		done
- 	elif has "${EBUILD_PHASE:-none}" "setup" ; then
- 		for i in "$@" ; do
--			if [[ -f ${ROOT}/usr/bin/${i} && ! -h ${ROOT}/usr/bin/${i} ]] ; then
-+			if [[ -f ${EROOT}/usr/bin/${i} && ! -h ${EROOT}/usr/bin/${i} ]] ; then
- 				has_version ${pkg} && ewarn "You must reinstall $pkg !"
- 				break
- 			fi
- 		done
- 	else
- 		for i in "$@" ; do
--			if ! [[ -f "${D}"/usr/bin/${i} ]] ; then
-+			if ! [[ -f "${ED}"/usr/bin/${i} ]] ; then
- 				use build || ewarn "/usr/bin/${i} does not exist!"
- 				continue
- 			fi
--			mv "${D}"/usr/bin/${i}{,-${ver}-${P}} || die
--			if [[ -f ${D}/usr/share/man/man1/${i}.1 ]] ; then
--				mv "${D}"/usr/share/man/man1/${i}{.1,-${ver}-${P}.1} || die
-+			mv "${ED}"/usr/bin/${i}{,-${ver}-${P}} || die
-+			if [[ -f ${ED}/usr/share/man/man1/${i}.1 ]] ; then
-+				mv "${ED}"/usr/share/man/man1/${i}{.1,-${ver}-${P}.1} || die
- 			else
- 				echo "/usr/share/man/man1/${i}.1 does not exist!"
- 			fi
-@@ -622,7 +704,7 @@
- 	.${ARCH_LIB}/threads.pm
- "
- 
--	pushd "${D}" > /dev/null
-+	pushd "${ED}" > /dev/null
- 	# Remove cruft
- 	einfo "Removing files that are not in the minimal install"
- 	echo "${MINIMAL_PERL_INSTALL}"
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "dev-lang/perl/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/dev-lang/perl/files/cygwin: directory
-overlay/dev-lang/perl/files/perl-5.10.1-cygwin-09-Module-Build-0.36_13-disabled.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/dev-lang/perl/perl-5.10.1.ebuild: ASCII English text
-usr/portage/dev-lang/perl/perl-5.12.4-r1.ebuild: ASCII English text
-usr/portage/dev-lang/perl/perl-5.12.4-r2.ebuild: ASCII English text, with very long lines
-usr/portage/dev-lang/perl/perl-5.12.4.ebuild: ASCII English text
-usr/portage/dev-lang/perl/perl-5.14.1-r1.ebuild: ASCII English text
-usr/portage/dev-lang/perl/perl-5.14.1.ebuild: ASCII English text
-usr/portage/dev-lang/perl/perl-5.14.2.ebuild: ASCII English text, with very long lines
-usr/portage/dev-lang/perl/perl-5.8.8-r8.ebuild: ASCII English text
+usr/portage/dev-lang/perl/perl-5.10.1.ebuild: ASCII text
+usr/portage/dev-lang/perl/perl-5.12.3-r1.ebuild: ASCII text
+usr/portage/dev-lang/perl/perl-5.12.4-r1.ebuild: ASCII text
+usr/portage/dev-lang/perl/perl-5.12.4.ebuild: ASCII text
+usr/portage/dev-lang/perl/perl-5.14.1-r1.ebuild: ASCII text
+usr/portage/dev-lang/perl/perl-5.14.1.ebuild: ASCII text
+usr/portage/dev-lang/perl/perl-5.14.2.ebuild: ASCII text, with very long lines
+usr/portage/dev-lang/perl/perl-5.16.0.ebuild: ASCII text, with very long lines
+usr/portage/dev-lang/perl/perl-5.16.1.ebuild: ASCII text, with very long lines
+usr/portage/dev-lang/perl/perl-5.8.8-r8.ebuild: ASCII text
+usr/portage/dev-lang/perl/files/eblits: directory
 usr/portage/dev-lang/perl/files/perl-5.8.7-MakeMaker-RUNPATH.patch: unified diff output, ASCII text
 usr/portage/dev-lang/perl/files/perl-5.8.8-CAN-2005-0448-rmtree-2.patch: unified diff output, ASCII text
 usr/portage/dev-lang/perl/files/perl-5.8.8-CVE-2008-1927.patch: unified diff output, UTF-8 Unicode text
@@ -443,6 +140,7 @@ usr/portage/dev-lang/perl/files/perl-5.8.8-makedepend-syntax.patch: unified diff
 usr/portage/dev-lang/perl/files/perl-5.8.8-perlcc.patch: unified diff output, ASCII text
 usr/portage/dev-lang/perl/files/perl-5.8.8-reorder-INC.patch: unified diff output, ASCII text
 usr/portage/dev-lang/perl/files/perl-5.8.8-utf8-boundary.patch: unified diff output, ASCII text
+usr/portage/dev-lang/perl/files/perl-fix_h2ph_include_quote.patch: unified diff output, ASCII text
 usr/portage/dev-lang/perl/files/perl-h2ph-ansi-header.patch: unified diff output, ASCII text
 usr/portage/dev-lang/perl/files/perl-hppa-pa7200-configure.patch: unified diff output, ASCII text
 usr/portage/dev-lang/perl/files/perl-noksh.patch: unified diff output, ASCII text

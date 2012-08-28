@@ -16,6 +16,7 @@
 app-arch/bzip2
 app-arch/unzip
 app-arch/zip
+dev-lang/perl
 dev-libs/gmp
 dev-libs/mpc
 dev-libs/mpfr

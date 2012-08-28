@@ -1,6 +1,6 @@
-diff -u  ext/DynaLoader/DynaLoader_pm.PL.orig
---- ext/DynaLoader/DynaLoader_pm.PL.orig	2009-06-28 02:11:02.000000000 +0200
-+++ ext/DynaLoader/DynaLoader_pm.PL	2009-08-27 09:04:23.578125000 +0200
+diff -u a/ext/DynaLoader/DynaLoader_pm.PL b/ext/DynaLoader/DynaLoader_pm.PL
+--- a/ext/DynaLoader/DynaLoader_pm.PL	2009-06-28 02:11:02.000000000 +0200
++++ b/ext/DynaLoader/DynaLoader_pm.PL	2009-08-27 09:04:23.578125000 +0200
 @@ -501,6 +501,7 @@
              # these should be ordered with the most likely first
              push(@names,"$_.$dl_dlext")    unless m/\.$dl_dlext$/o;
@@ -9,9 +9,9 @@ diff -u  ext/DynaLoader/DynaLoader_pm.PL.orig
              push(@names,"lib$_.$dl_so")  unless m:/:;
              push(@names,"$_.a")          if !m/\.a$/ and $dlsrc eq "dl_dld.xs";
              push(@names, $_);
-diff -u  ext/DynaLoader/Makefile.PL.orig
---- ext/DynaLoader/Makefile.PL.orig	2009-04-19 19:02:38.000000000 +0200
-+++ ext/DynaLoader/Makefile.PL	2009-08-27 09:04:23.609375000 +0200
+diff -u a/ext/DynaLoader/Makefile.PL b/ext/DynaLoader/Makefile.PL
+--- a/ext/DynaLoader/Makefile.PL	2009-04-19 19:02:38.000000000 +0200
++++ b/ext/DynaLoader/Makefile.PL	2009-08-27 09:04:23.609375000 +0200
 @@ -16,6 +16,15 @@
  			     'XSLoader.pm'},
  );

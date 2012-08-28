@@ -1,9 +1,0 @@
-perl-5.10.1-cygwin-01-no-bs.patch -p0
-perl-5.10.1-cygwin-02-Dynaloader.patch -p0
-perl-5.10.1-cygwin-03-static-Win32CORE.patch -p0
-perl-5.10.1-cygwin-04-utf8-paths.patch -p0
-perl-5.10.1-cygwin-05-case_tol-510.patch -p0
-perl-5.10.1-cygwin-06-hints17.patch -p0
-perl-5.10.1-cygwin-07-man.patch -p0
-perl-5.10.1-cygwin-08-rebase_privlib.patch -p0
-perl-5.10.1-cygwin-09-Sys-Syslog.patch -p0

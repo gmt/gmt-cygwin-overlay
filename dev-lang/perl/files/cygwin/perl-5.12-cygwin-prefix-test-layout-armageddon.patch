@@ -1,0 +1,12 @@
+diff -urN perl-5.12.4.orig/t/op/taint.t perl-5.12.4/t/op/taint.t
+--- perl-5.12.4.orig/t/op/taint.t	2011-06-07 13:04:05.000000000 -0700
++++ perl-5.12.4/t/op/taint.t	2012-08-22 00:19:25.307722500 -0700
+@@ -163,7 +163,7 @@
+ 	    };
+ 	}
+     }
+-    $ENV{PATH} = ($Is_Cygwin) ? '/usr/bin' : '';
++    $ENV{PATH} = ($Is_Cygwin) ? '..:@GENTOO_PORTAGE_EPREFIX@/bin:@GENTOO_PORTAGE_EPREFIX@/usr/bin:/bin' : '';
+     delete @ENV{@MoreEnv};
+     $ENV{TERM} = 'dumb';
+ 

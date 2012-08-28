@@ -1,0 +1,9 @@
+1701-perl-5.10-cygwin-no-bs.diff -p1
+1702-perl-5.10-cygwin-Dynaloader.diff -p1
+1703-perl-5.10-cygwin-static-Win32CORE.diff -p1
+1704-perl-5.10-cygwin-utf8-paths.diff -p1
+1705-perl-5.10-cygwin-case_tol-510.diff -p1
+1706-perl-5.10-cygwin-hints17.diff -p1
+1707-perl-5.10-cygwin-man.diff -p1
+1708-perl-5.10-cygwin-rebase_privlib.diff -p1
+1709-perl-5.10-cygwin-Sys-Syslog.diff -p1

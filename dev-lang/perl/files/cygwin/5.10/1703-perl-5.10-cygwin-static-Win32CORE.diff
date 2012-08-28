@@ -1,8 +1,6 @@
-difforig ext/Win32CORE/Makefile.PL Makefile.SH
-
-diff -u ext/Win32CORE/Makefile.PL.orig ext/Win32CORE/Makefile.PL
---- ext/Win32CORE/Makefile.PL.orig	2009-02-12 22:58:12.000000000 +0000
-+++ ext/Win32CORE/Makefile.PL	2009-11-25 17:33:25.078125000 +0000
+diff -u a/ext/Win32CORE/Makefile.PL b/ext/Win32CORE/Makefile.PL
+--- a/ext/Win32CORE/Makefile.PL	2009-02-12 22:58:12.000000000 +0000
++++ b/ext/Win32CORE/Makefile.PL	2009-11-25 17:33:25.078125000 +0000
 @@ -2,6 +2,7 @@
  
  WriteMakefile(
@@ -35,9 +33,9 @@ diff -u ext/Win32CORE/Makefile.PL.orig ext/Win32CORE/Makefile.PL
 +static :: $(FIRST_MAKEFILE) $(PERL_SRC)/$(OBJECT) $(INST_STATIC)
 +';
 +}
-diff -u Makefile.SH.orig Makefile.SH
---- Makefile.SH.orig	2009-08-03 20:43:30.000000000 +0000
-+++ Makefile.SH	2009-11-25 17:37:43.203125000 +0000
+diff -u a/Makefile.SH b/Makefile.SH
+--- a/Makefile.SH	2009-08-03 20:43:30.000000000 +0000
++++ b/Makefile.SH	2009-11-25 17:37:43.203125000 +0000
 @@ -308,7 +308,7 @@
  static_ext = $static_list
  nonxs_ext = $nonxs_list

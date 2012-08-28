@@ -1,6 +1,135 @@
 # ChangeLog for dev-lang/perl
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/perl/ChangeLog,v 1.370 2011/06/24 14:48:58 tove Exp $
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  28 Aug 2012; Greg Turner <gmt@be-evil.net>
+  -files/cygwin/perl-5.10.1-cygwin-01-no-bs.patch
+  +files/cygwin/5.10/1701-perl-5.10-cygwin-no-bs.diff,
+  -files/cygwin/perl-5.10.1-cygwin-02-Dynaloader.patch,
+  +files/cygwin/5.10/1702-perl-5.10-cygwin-Dynaloader.diff,
+  -files/cygwin/perl-5.10.1-cygwin-03-static-Win32CORE.patch,
+  +files/cygwin/5.10/1703-perl-5.10-cygwin-static-Win32CORE.diff,
+  -files/cygwin/perl-5.10.1-cygwin-04-utf8-paths.patch,
+  +files/cygwin/5.10/1704-perl-5.10-cygwin-utf8-paths.diff,
+  -files/cygwin/perl-5.10.1-cygwin-05-case_tol-510.patch,
+  +files/cygwin/5.10/1705-perl-5.10-cygwin-case_tol-510.diff,
+  -files/cygwin/perl-5.10.1-cygwin-06-hints17.patch,
+  +files/cygwin/5.10/1706-perl-5.10-cygwin-hints17.diff,
+  -files/cygwin/perl-5.10.1-cygwin-07-man.patch
+  +files/cygwin/5.10/1707-perl-5.10-cygwin-man.diff,
+  -files/cygwin/perl-5.10.1-cygwin-08-rebase_privlib.patch,
+  +files/cygwin/5.10/1708-perl-5.10-cygwin-rebase_privlib.diff,
+  -files/cygwin/perl-5.10.1-cygwin-09-Sys-Syslog.patch,
+  +files/cygwin/5.10/1709-perl-5.10-cygwin-Sys-Syslog.diff,
+  +files/cygwin/5.10/1710-perl-5.10-cygwin-skipstupidtest.diff,
+  +files/cygwin/5.10/1711-perl-5.10-cygwin-locale-t-keep-path.diff,
+  +files/cygwin/perl-5.12-cygwin-prefix-test-layout-armageddon.patch,
+  -files/perl-5.10.1-cygwin-09-Module-Build-0.36_13-disabled.patch,
+  -files/perl-fix_h2ph_include_quote.patch, -files/cygwin/5.10/series,
+  -perl-5.12.3-r1.ebuild, +perl-5.12.4-r2.ebuild:
+  Huge, but largely administrivial perl update.
+  - handle the "cygwin" patch series the right way (or, at least, a
+  less wrong way), by merging it into the series in ${WORKDIR} and
+  leaving the standard epatch from upstream untouched.
+  - take out the trash in ${FILESDIR}
+  - build with -Uusemymalloc on cygwin (makes tests go better, presumably
+  a good thing(?))
+  - avoid non-prefix bash in prefix when possible
+  - fix some tests not to crash due to prefix-PATH issues
+  - skip a too-fragile/ill-concieved cygwin test. 
+
+  13 Aug 2012; Fabian Groffen <grobian@gentoo.org>
+  files/eblits/src_configure-v50160001.eblit:
+  Fix misdetection of lib dirs on certain Prefix hosts, bug #425538
+
+*perl-5.16.1 (09 Aug 2012)
+
+  09 Aug 2012; Torsten Veller <tove@gentoo.org> +perl-5.16.1.ebuild:
+  Version bump
+
+  08 Jul 2012; Fabian Groffen <grobian@gentoo.org>
+  files/eblits/src_configure-v50160001.eblit:
+  Adapt library path searching on Prefix for Ubuntu, bug #400839
+
+  07 Jun 2012; Torsten Veller <tove@gentoo.org> perl-5.16.0.ebuild:
+  Inherit new multiprocessing for makeopts_jobs.
+
+  06 Jun 2012; Torsten Veller <tove@gentoo.org> perl-5.16.0.ebuild:
+  Fix IO-Compress version in dual_scripts
+
+*perl-5.16.0 (05 Jun 2012)
+
+  05 Jun 2012; Torsten Veller <tove@gentoo.org>
+  +files/eblits/common-v50160001.eblit,
+  +files/eblits/pkg_postinst-v50160001.eblit,
+  +files/eblits/pkg_postrm-v50160001.eblit,
+  +files/eblits/pkg_setup-v50160001.eblit,
+  +files/eblits/src_configure-v50160001.eblit,
+  +files/eblits/src_install-v50160001.eblit,
+  +files/eblits/src_prepare-v50160001.eblit,
+  +files/eblits/src_test-v50160001.eblit, +perl-5.16.0.ebuild:
+  Version bump.
+  - Use eblits
+  - Move prefix patches to the patchset.
+  - Use debian patch list for -V
+  - Fix Dsiteprefix, Dsiteman1dir and Dsiteman3dir
+  - Move perllocal.pod from site_install to DESTINSTALLSITEARCH
+  - Remove the rebuild-modules-before-system-is-usable-again warning from
+  pkg-pretend again (#389771)
+  - Drop the build useflag
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> perl-5.12.4-r2.ebuild:
+  keyword ~amd64-fbsd
+
+*perl-5.12.4-r2 (03 Mar 2012)
+
+  03 Mar 2012; Fabian Groffen <grobian@gentoo.org>
+  +files/perl-5.10.1-cleanup-paths.patch, +files/perl-5.10.1-hpux.patch,
+  +files/perl-5.12.3-aix-soname.patch, +files/perl-5.12.3-interix.patch,
+  +files/perl-5.12.3-mint.patch, +files/perl-5.14.1-cleanup-paths.patch,
+  +files/perl-5.8.8-darwin-cc-ld.patch,
+  +files/perl-5.8.8-solaris-relocation.patch, +files/perl-5.8.8-solaris11.patch,
+  +files/perl-5.8.8-usr-local.patch, +perl-5.12.4-r2.ebuild, perl-5.14.2.ebuild:
+  Revbump of 5.12.4 for Prefix changes, same changes in 5.14.2, transferred
+  Prefix keywords, bug #395685
+
+  02 Jan 2012; Zac Medico <zmedico@gentoo.org> perl-5.10.1.ebuild,
+  perl-5.12.3-r1.ebuild, perl-5.12.4-r1.ebuild, perl-5.12.4.ebuild,
+  perl-5.14.1-r1.ebuild, perl-5.14.1.ebuild, perl-5.14.2.ebuild,
+  perl-5.8.8-r8.ebuild:
+  Bug #394091 - Handle invalid COLUMNS.
+
+  07 Nov 2011; Kacper Kowalik <xarthisius@gentoo.org> perl-5.12.4-r1.ebuild:
+  ppc/ppc64 stable wrt #384593
+
+  23 Oct 2011; Raúl Porcel <armin76@gentoo.org> perl-5.12.4-r1.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #384593
+
+  16 Oct 2011; Matt Turner <mattst88@gentoo.org> perl-5.12.4-r1.ebuild,
+  perl-5.14.2.ebuild:
+  Remove mips d_u32align hack from the gcc-3.3 days (circa 2003)
+
+  10 Oct 2011; Markus Meier <maekke@gentoo.org> perl-5.12.4-r1.ebuild:
+  arm/x86 stable, bug #384593
+
+  05 Oct 2011; Jeroen Roovers <jer@gentoo.org> perl-5.12.4-r1.ebuild:
+  Stable for HPPA (bug #384593).
+
+  27 Sep 2011; Tony Vroon <chainsaw@gentoo.org> perl-5.12.4-r1.ebuild:
+  Marked stable on AMD64 based on arch testing by Agostino "ago" Sarubbo &
+  Elijah "Armageddon" El Lazkani in bug #384593.
+
+*perl-5.14.2 (27 Sep 2011)
+
+  27 Sep 2011; Torsten Veller <tove@gentoo.org> +perl-5.14.2.ebuild:
+  Version bump
+
+*perl-5.14.1-r1 (09 Aug 2011)
+*perl-5.12.4-r1 (09 Aug 2011)
+
+  09 Aug 2011; Torsten Veller <tove@gentoo.org> -perl-5.12.2-r6.ebuild,
+  -perl-5.12.3.ebuild, +perl-5.12.4-r1.ebuild, +perl-5.14.1-r1.ebuild:
+  Add xsubpp to the dual-life scripts list. Cleanup
 
 *perl-5.12.4 (24 Jun 2011)
 
