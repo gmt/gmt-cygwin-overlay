@@ -180,3 +180,29 @@ o Concievably, a file might somehow be both config-protected and cygdll-protecte
   Given that allowing config-protection as-is provides a reasonable solution
   and that the above represents an awful lot of changes, it's debatable
   whether this is really worth doing.
+
+o Someone needs to investigate what's going on with the gmp/mpc static-libs
+  use-flags, which are currently masked.  The configure scripts bomb out if
+  we try to enable static library building, stating that static and dynamic
+  cannot coexist for these libraries.  I don't remember where but somewhere
+  I read that this is because the header files are generated differently
+  for static and dynamic configurations.  It would be nice to figure out if:
+
+    o This is due to upstream or the patches I've incorporated from cygports,
+      which still need to be vetted for gentoo-appropriateness.
+
+    o If the cygport patches add this limitation and it would not be present
+      otherwise, we should investigate: what cygport innovations cause this
+      conflict and do those innovations bring enough value to gentoo-prefix
+      to justify their inclusion?  Do the cygport patches simply disallow
+      something that was previously allowed, but didn't work correctly? (In
+      which case, they should obviously stay until a better solution can
+      be found).
+
+    o If upstream has the same limitation, is there a reasonable solution
+      to the problem?  Is one in the works already by upstream devs?
+
+  This is a low-priority issue.  Cygwin has been doing fine with dynamic-only
+  gmp and mpc and so does Gentoo... if anyone has a compelling reason to need
+  static versions, please let Greg know so he can at least be aware that
+  it's important to somebody.
