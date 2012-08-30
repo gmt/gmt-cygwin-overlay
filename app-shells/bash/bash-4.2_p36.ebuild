@@ -94,6 +94,7 @@ src_unpack() {
 	if [[ ${CHOST} == *-cygwin* ]] ; then
 		epatch "${FILESDIR}"/${PN}-4.2_p36-cygwin-cache.patch
 		epatch "${FILESDIR}"/${PN}-4.2_p36-cygport-stuff.patch
+		epatch "${FILESDIR}"/${PN}-4.2_p36-cygwin-exe-globfix.patch
 	fi
 
 	# Nasty trick to set bashbug's shebang to bash instead of sh. We don't have

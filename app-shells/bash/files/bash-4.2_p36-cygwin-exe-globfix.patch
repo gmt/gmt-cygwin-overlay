@@ -1,0 +1,131 @@
+In cygwin, we have "the .exe hack" where both foo and foo.exe are treated as
+hardlinks to the same thing if foo is an executable or a symlink to an
+executable.
+
+This doesn't present a problem when globbing for something that matches "foo.exe"
+since readdir() always seems to tack the .exe on to the end.  However, when
+globbing for "foo", we completely fail to find the file, for the same reason.
+The only thing for it is to explicitly check for this circumstance and inject
+a match into our results iff the glob matches "foo" but not "foo.exe".
+
+-gmt
+
+diff -urN bash-4.2.orig/lib/glob/glob.c bash-4.2/lib/glob/glob.c
+--- bash-4.2.orig/lib/glob/glob.c	2012-08-29 14:04:40.707465500 -0700
++++ bash-4.2/lib/glob/glob.c	2012-08-29 14:51:45.275465500 -0700
+@@ -675,6 +675,115 @@
+ 	      bcopy (dp->d_name, nextname, D_NAMLEN (dp) + 1);
+ 	      ++count;
+ 	    }
++#if __CYGWIN__
++	  /* if convfn matches "*.exe" and is an executable, we also need to check
++	     if we would have a match without the .exe extension, as both files
++	     technically exist, but readdir is (presumably) never going to return it */
++	  else if (strmatch ("*.exe", convfn, mflags) != FNM_NOMATCH)
++	    {
++	      /* if sanity checks pass, we assume this is the cygwin .exe hack at
++	         work.  In certain worst-case scenarios, this could probably result in a
++		 duplicate match being returned, which is pretty awful.  But hard-coding
++		 massive amounts of logic about the internals of the cygwin .exe hack
++		 ain't so great either.  If it becomes an issue we can beef this up? */
++	      struct stat finfo;
++	      
++	      /* ".exe" matches *.exe so lets rule that out rather than match '\0' */
++	      if (!(convfn[0] == '.' && convfn[1] == 'e' && convfn[2] == 'x' &&
++		    convfn[3] == 'e' && convfn[4] == '\0'))
++	        {
++		  /* recycling this variable is misleading, oh well */
++		  subdir = sh_makepath (dir, dp->d_name, pflags);
++		  if (!subdir)
++		    {
++		      lose = 1;
++		      break;
++		    }
++	          if (stat (subdir, &finfo) == 0 &&
++		      ((S_ISREG (finfo.st_mode) || S_ISLNK (finfo.st_mode)) &&
++		       (finfo.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH))))
++		    {
++		      /* OK, then lets try chopping that ".exe" off... */
++		      size_t dnamlen = D_NAMLEN (dp) - 4;
++		      /* We can kind-of abuse nextname here -- that's where it's
++		         going, anyhow, if everything checks out OK */
++		      nextname = (char *) malloc (dnamlen + 1);
++		      if (!nextname)
++			{
++			  lose = 1;
++			  break;
++			}
++		      bcopy (dp->d_name, nextname, dnamlen);
++		      *(nextname + dnamlen) = '\0';
++		      convfn = fnx_fromfs (nextname, dnamlen);
++		      /* So, it's executable and ends in .exe -- does it match the
++		         pattern, now that we have stripped the ".exe" off the end? */
++		      if (strmatch (pat, convfn, mflags) != FNM_NOMATCH)
++		        {
++			  /* Great, it matches, but does it actually exist, and is it executable?
++			     Probably yes but this protects against some future cygwin that made
++			     the .exe hack optional or removed it, and against the chance that
++			     we've failed to capture correctly the conditions that trigger the
++			     .exe hack in cygwin.  An even stricter test would be to check if
++			     the inode numbers are the same, except that inodes aren't always
++			     trustworthy in cygwin, so might take some doing (but IIRC, there's
++			     prior inode-reliability-determining art in bash so probably doable). */
++			  free(subdir);
++			  subdir = sh_makepath (dir, convfn, pflags);
++			  if (!subdir)
++			    {
++			      lose = 1;
++			      break;
++			    }
++			  /* TODO: read the cygwin code and figure out if we have this exactly right.
++			     My tests indicate that we can safely rely on the executable bit of a
++			     valid symlink in cygwin, expecting to get the executable bit from the
++			     link target as a result, and that the .exe hack does apply to such links.
++			     I haven't tested various wierd corner cases so we might not have perfect
++			     coverage here, which would result in missed globs, or even duplicate
++			     results when globbing (if we inject here, and then encounter the real file) */
++			  if (stat (subdir, &finfo) == 0 &&
++			      ((S_ISREG (finfo.st_mode) || S_ISLNK (finfo.st_mode)) &&
++			       (finfo.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH))))
++			    {
++			      /* All signs point to cygwin .exe hack.  And pat matches the
++			         filename once we truncate the ".exe".  So: add it, it's a match. */
++			      if (nalloca < ALLOCA_MAX)
++				{
++				  nextlink = (struct globval *) alloca (sizeof (struct globval));
++				  nalloca += sizeof (struct globval);
++				}
++			      else
++				{
++				  nextlink = (struct globval *) malloc (sizeof (struct globval));
++				  if (firstmalloc == 0)
++				  firstmalloc = nextlink;
++				}
++
++			      if (nextlink == 0 || nextname == 0)
++				{
++				  lose = 1;
++				  break;
++				}
++			      nextlink->next = lastlink;
++			      lastlink = nextlink;
++			      nextlink->name = nextname;
++			      ++count;
++			    }
++			  else
++			    {
++			      free(nextname);
++			    }
++			}
++		      else
++			{
++			  free (nextname);
++			}
++		    }
++		  free(subdir);
++	        }
++	    }
++#endif
+ 	}
+ 
+       (void) closedir (d);

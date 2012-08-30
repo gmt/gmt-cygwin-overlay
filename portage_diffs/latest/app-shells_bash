@@ -2,11 +2,12 @@
 ----[ "app-shells/bash/ChangeLog" ]----->8----->
 --- PORTAGE/app-shells/bash/ChangeLog
 +++ OVERLAY/app-shells/bash/ChangeLog
-@@ -1,108 +1,6 @@
+@@ -1,108 +1,12 @@
  # ChangeLog for app-shells/bash
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: $
--
++# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+ # $Header: $
+ 
 -*bash-4.2_p36 (11 Jul 2012)
 -
 -  11 Jul 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p36.ebuild:
@@ -108,8 +109,11 @@
 -  11 Aug 2011; Mike Frysinger <vapier@gentoo.org> bash-4.2_p8-r1.ebuild,
 -  bash-4.2_p10.ebuild:
 -  Pull in yacc due to .y changes #376591 by Bertrand Jacquin.
-+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/app-shells/bash/ChangeLog,v 1.289 2011/05/16 10:36:26 nyhm Exp $
++  29 Aug 2012; Greg Turner <gmturner007@ameritech.net>
++  bash-4.2_p10.ebuild, bash-4.2_p32.ebuild,
++  +files/bash-4.2_p36-cygwin-exe-globfix.patch:
++  Add support for matching globs for executables that don't end
++  in '.exe' in cygwin (formerly this was broken).
  
    16 May 2011; Tristan Heaven <nyhm@gentoo.org> bash-3.2_p51.ebuild,
    bash-4.0_p38.ebuild, bash-4.1_p7.ebuild, bash-4.1_p9.ebuild,
@@ -126,19 +130,20 @@
  	!<sys-apps/paludis-0.26.0_alpha5"
  # we only need yacc when the .y files get patched (bash42-005)
  DEPEND+=" virtual/yacc"
-@@ -87,6 +87,11 @@
+@@ -87,6 +87,12 @@
  		epatch "${FILESDIR}"/${PN}-4.0-interix-x64.patch
  	fi
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-4.1-cygport-src-abridged.patch
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-cache.patch
++		epatch "${FILESDIR}"/${PN}-4.2_p36-cygwin-exe-globfix.patch
 +	fi
 +
  	# Nasty trick to set bashbug's shebang to bash instead of sh. We don't have
  	# sh while bootstrapping for the first time, This works around bug 309825
  	sed -i -e '1s:sh:bash:' support/bashbug.sh || die
-@@ -147,6 +152,12 @@
+@@ -147,6 +153,12 @@
  		#export ac_cv_lib_ncurses_tgetent=no
  	fi
  
@@ -155,19 +160,20 @@
 ----[ "app-shells/bash/bash-4.2_p36.ebuild" ]----->8----->
 --- PORTAGE/app-shells/bash/bash-4.2_p36.ebuild
 +++ OVERLAY/app-shells/bash/bash-4.2_p36.ebuild
-@@ -91,6 +91,11 @@
+@@ -91,6 +91,12 @@
  		epatch "${FILESDIR}"/${PN}-4.0-interix-x64.patch
  	fi
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-4.2_p36-cygwin-cache.patch
 +		epatch "${FILESDIR}"/${PN}-4.2_p36-cygport-stuff.patch
++		epatch "${FILESDIR}"/${PN}-4.2_p36-cygwin-exe-globfix.patch
 +	fi
 +
  	# Nasty trick to set bashbug's shebang to bash instead of sh. We don't have
  	# sh while bootstrapping for the first time, This works around bug 309825
  	sed -i -e '1s:sh:bash:' support/bashbug.sh || die
-@@ -157,6 +162,13 @@
+@@ -157,6 +163,13 @@
  	#use static && export LDFLAGS="${LDFLAGS} -static"
  	use nls || myconf="${myconf} --disable-nls"
  
@@ -189,13 +195,14 @@ overlay/app-shells/bash/files/bash-4.1-cygport-src-abridged.patch: unified diff 
 overlay/app-shells/bash/files/bash-4.2_p10-cygwin-cache.patch: unified diff output, ASCII text
 overlay/app-shells/bash/files/bash-4.2_p36-cygport-stuff.patch: unified diff output, ASCII text
 overlay/app-shells/bash/files/bash-4.2_p36-cygwin-cache.patch: unified diff output, ASCII text
+overlay/app-shells/bash/files/bash-4.2_p36-cygwin-exe-globfix.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/app-shells/bash/bash-4.0_p38.ebuild: ASCII English text
-usr/portage/app-shells/bash/bash-4.1_p10.ebuild: ASCII English text
-usr/portage/app-shells/bash/bash-4.1_p11.ebuild: ASCII English text
-usr/portage/app-shells/bash/bash-4.1_p7.ebuild: ASCII English text
-usr/portage/app-shells/bash/bash-4.2_p20.ebuild: ASCII English text
-usr/portage/app-shells/bash/bash-4.2_p28.ebuild: ASCII English text
-usr/portage/app-shells/bash/bash-4.2_p29.ebuild: ASCII English text
+usr/portage/app-shells/bash/bash-4.0_p38.ebuild: ASCII text
+usr/portage/app-shells/bash/bash-4.1_p10.ebuild: ASCII text
+usr/portage/app-shells/bash/bash-4.1_p11.ebuild: ASCII text
+usr/portage/app-shells/bash/bash-4.1_p7.ebuild: ASCII text
+usr/portage/app-shells/bash/bash-4.2_p20.ebuild: ASCII text
+usr/portage/app-shells/bash/bash-4.2_p28.ebuild: ASCII text
+usr/portage/app-shells/bash/bash-4.2_p29.ebuild: ASCII text
 
