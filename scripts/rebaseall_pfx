@@ -457,14 +457,14 @@ filter_rebase_failures()
 {
     local TempFile="$1"
     shift
-    rebase "${Touch}" "${NoDyn}" "${Mach}" -o "${Offset}" "$@" -T "${TempFile}" 2>"${TempFile}_err"
+    rebase "${Verbose}" "${Touch}" "${NoDyn}" "${Mach}" -o "${Offset}" "$@" -T "${TempFile}" 2>"${TempFile}_err"
     errorfiles="$( echo $(
 	cat "${TempFile}_err" | {
 	    gotinuseline=0
 	    while read line
 	    do
 		echo "${line}" >&2
-		if echo "${line}" | grep -E -q ': skipped because (could not open|nonexistent\.)$'
+		if echo "${line}" | grep -E -q ': skipped because (not rebaseable|could not open|nonexistent\.)$'
 		then
 		    echo ":${line%:*}:"
 		elif echo "${line}" | grep -E -q '^ReBaseImage \(.*\) failed'
