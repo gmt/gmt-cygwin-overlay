@@ -13,20 +13,21 @@ a match into our results iff the glob matches "foo" but not "foo.exe".
 diff -urN bash-4.2.orig/lib/glob/glob.c bash-4.2/lib/glob/glob.c
 --- bash-4.2.orig/lib/glob/glob.c	2012-08-29 14:04:40.707465500 -0700
 +++ bash-4.2/lib/glob/glob.c	2012-08-29 14:51:45.275465500 -0700
-@@ -675,6 +675,102 @@
+@@ -675,6 +675,103 @@
  	      bcopy (dp->d_name, nextname, D_NAMLEN (dp) + 1);
  	      ++count;
  	    }
 +#if __CYGWIN__
 +	  /* if file i.e. foo.exe is executable, see if "foo" matches the glob */
-+	  else if (strmatch ("*.exe", convfn, mflags) != FNM_NOMATCH)
++	  else if (convfn[0] != '\0' && convfn[1] != '\0' && convfn[2] != '\0' &&
++	           convfn[3] != '\0' && convfn[4] != '\0')
 +	    {
++	      char *x = &convfn[0];
 +	      /* if sanity checks pass, assume this is the cygwin .exe hack at work. */
 +	      struct stat finfo;
 +	      
-+	      /* ".exe" matches *.exe so lets rule that out rather than match '\0' */
-+	      if (!(convfn[0] == '.' && convfn[1] == 'e' && convfn[2] == 'x' &&
-+		    convfn[3] == 'e' && convfn[4] == '\0'))
++	      while (*++x != '\0') ;
++	      if (*--x == 'e' && *--x == 'x' && *--x == 'e' && *--x == '.')
 +	        {
 +		  subdir = sh_makepath (dir, dp->d_name, pflags);
 +		  if (!subdir)
@@ -38,7 +39,7 @@ diff -urN bash-4.2.orig/lib/glob/glob.c bash-4.2/lib/glob/glob.c
 +		      ((S_ISREG (finfo.st_mode) || S_ISLNK (finfo.st_mode)) &&
 +		       (finfo.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH))))
 +		    {
-+		      size_t dnamlen = D_NAMLEN (dp) - 4; /* length of ".exe" */
++		      size_t dnamlen = x - convfn;
 +		      /* We can kind-of abuse nextname here -- that's where it's
 +		         going, anyhow, if everything checks out OK */
 +		      nextname = (char *) malloc (dnamlen + 1);
