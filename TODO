@@ -206,3 +206,14 @@ o Someone needs to investigate what's going on with the gmp/mpc static-libs
   gmp and mpc and so does Gentoo... if anyone has a compelling reason to need
   static versions, please let Greg know so he can at least be aware that
   it's important to somebody.
+
+o sys-devel/auto{conf,make} both have a matrix of config.guess patches for
+  matching the i686-pc-cygwin1.7 CHOST (particularly, the nonstandard 1.7 suffix).
+  The real solution is another todo-list item, fixing the CHOST to be
+  i686-pc-cygwin; in the meanwhile, if I am going to be sticking with i686-pc-cygwin1.7,
+  as seems to be the path of least resistance, at this point, then at least
+  investigate why the existing elibtoolize stuff can't take care of this
+  automatically or if not, whether some other automagical solution can't be found?
+  Fix this and almost the entire sys-devel/auto{conf,make} trees can go away
+  (except for the tiny cygports patch in sys-devel/autoconf, which only applies to
+  recent versions).
