@@ -1,0 +1,50 @@
+--- autoconf-2.67.orig/bin/autom4te.in
++++ autoconf-2.67/bin/autom4te.in
+@@ -545,13 +545,21 @@
+   # stdout is to be handled by hand :(.  Don't use fdopen as it means
+   # we will close STDOUT, which we already do in END.
+   my $out = new Autom4te::XFile;
+-  if ($output eq '-')
++  my $atomic_replace;
++  if ($output eq '-' || (-e $output && ! -f $output))
+     {
+       $out->open (">$output");
++      $atomic_replace = 0;
+     }
+   else
+     {
+-      $out->open($output, O_CREAT | O_WRONLY | O_TRUNC, oct ($mode));
++      $out->open("$output.tmp", O_CREAT | O_WRONLY | O_TRUNC, oct ($mode));
++      if ($out) {
++        $atomic_replace = 1;
++      } else {
++        $out->open($output, O_CREAT | O_WRONLY | O_TRUNC, oct ($mode));
++        $atomic_replace = 0;
++      }
+     }
+   fatal "cannot create $output: $!"
+     unless $out;
+@@ -590,6 +598,11 @@
+ 
+   $out->close();
+ 
++  if ($atomic_replace && !rename("$output.tmp", "$output")) {
++    move ("${output}.tmp", "$output")
++      or fatal "cannot rename ${output}.tmp as $output: $!";
++  }
++
+   # If no forbidden words, we're done.
+   return
+     if ! %prohibited;
+--- autoconf-2.67.orig/lib/m4sugar/m4sh.m4
++++ autoconf-2.67/lib/m4sugar/m4sh.m4
+@@ -843,7 +843,7 @@
+ [m4_append_uniq([_AS_CLEANUP],
+   [m4_divert_text([M4SH-INIT-FN], [_AS_ERROR_PREPARE[]])])],
+ [as_fn_error m4_default([$2], [$?]) "_AS_QUOTE([$1])"m4_ifval(AS_MESSAGE_LOG_FD,
+-  [ "$LINENO" AS_MESSAGE_LOG_FD])])
++  [ "$LINENO" AS_MESSAGE_LOG_FD ])])
+ 
+ 
+ # AS_LINENO_PUSH([LINENO])
+

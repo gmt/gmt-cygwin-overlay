@@ -1,55 +1,55 @@
 ===== mutual sub-directory: "sys-devel/autoconf" =====
----("sys-devel/autoconf/autoconf-2.13.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.13.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.13.ebuild [[OVERLAY]]
+----[ "sys-devel/autoconf/autoconf-2.13.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.13.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.13.ebuild
 @@ -24,6 +24,7 @@
  	epatch "${FILESDIR}"/${P}-gentoo.patch
  	epatch "${FILESDIR}"/${P}-destdir.patch
  	epatch "${FILESDIR}"/${P}-test-fixes.patch #146592
-+	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
++	epatch "${FILESDIR}"/${PN}-2.13-config-guess-cygwin1.7-support.patch
  	touch configure # make sure configure is newer than configure.in
  
  	rm -f standards.{texi,info} # binutils installs this infopage
-<---8<---
----("sys-devel/autoconf/autoconf-2.59-r7.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.59-r7.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.59-r7.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.59-r7.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.59-r7.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.59-r7.ebuild
 @@ -22,6 +22,7 @@
  	unpack ${A}
  	cd "${S}"
  	epatch "${FILESDIR}"/${P}-more-quotes.patch
-+	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
++	epatch "${FILESDIR}"/${PN}-2.13-config-guess-cygwin1.7-support.patch
  }
  
  src_compile() {
-<---8<---
----("sys-devel/autoconf/autoconf-2.61-r2.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.61-r2.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.61-r2.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.61-r2.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.61-r2.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.61-r2.ebuild
 @@ -33,6 +33,7 @@
  	if [[ ${CHOST} == *-interix* || ${CHOST} == *-winnt* ]]; then
  		epatch "${FILESDIR}"/${P}-winnt-flip.patch
  	fi
-+	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
++	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
  }
  
  src_compile() {
-<---8<---
----("sys-devel/autoconf/autoconf-2.62-r1.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.62-r1.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.62-r1.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.62-r1.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.62-r1.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.62-r1.ebuild
 @@ -26,6 +26,7 @@
  	epatch "${FILESDIR}"/${P}-revert-AC_C_BIGENDIAN.patch #228825
  	epatch "${FILESDIR}"/${P}-at-keywords.patch
  	epatch "${FILESDIR}"/${P}-fix-multiline-string.patch #217976
-+	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
++	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
  
  	# usr/bin/libtool is provided by binutils-apple
  	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch
-<---8<---
----("sys-devel/autoconf/autoconf-2.63-r01.1.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.63-r01.1.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.63-r01.1.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.63-r01.1.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.63-r01.1.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.63-r01.1.ebuild
 @@ -27,6 +27,7 @@
  
  	# usr/bin/libtool is provided by binutils-apple
@@ -58,10 +58,10 @@
  }
  
  src_compile() {
-<---8<---
----("sys-devel/autoconf/autoconf-2.64.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.64.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.64.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.64.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.64.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.64.ebuild
 @@ -27,6 +27,7 @@
  
  	# usr/bin/libtool is provided by binutils-apple
@@ -70,22 +70,22 @@
  }
  
  src_compile() {
-<---8<---
----("sys-devel/autoconf/autoconf-2.65-r1.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.65-r1.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.65-r1.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.65-r1.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.65-r1.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.65-r1.ebuild
 @@ -28,6 +28,7 @@
  
  	# usr/bin/libtool is provided by binutils-apple
  	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch
-+	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
++	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
  }
  
  src_compile() {
-<---8<---
----("sys-devel/autoconf/autoconf-2.65.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.65.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.65.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.65.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.65.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.65.ebuild
 @@ -27,6 +27,7 @@
  
  	# usr/bin/libtool is provided by binutils-apple
@@ -94,10 +94,10 @@
  }
  
  src_compile() {
-<---8<---
----("sys-devel/autoconf/autoconf-2.67.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.67.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.67.ebuild [[OVERLAY]]
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.67.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.67.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.67.ebuild
 @@ -34,6 +34,7 @@
  src_prepare() {
  	# usr/bin/libtool is provided by binutils-apple
@@ -106,53 +106,39 @@
  
  	if [[ ${PV} == "9999" ]] ; then
  		autoreconf -f -i || die
-<---8<---
----("sys-devel/autoconf/autoconf-2.68.ebuild")--->8--->
---- usr/portage/sys-devel/autoconf/autoconf-2.68.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/autoconf/autoconf-2.68.ebuild [[OVERLAY]]
-@@ -1,10 +1,10 @@
- # Copyright 1999-2010 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.68.ebuild,v 1.2 2010/10/03 07:17:37 vapier Exp $
-+# $Header: $
- 
- EAPI="2"
- 
--inherit eutils
-+inherit eutils prefix-gmt
- 
- if [[ ${PV} == "9999" ]] ; then
- 	EGIT_REPO_URI="git://git.savannah.gnu.org/autoconf.git"
-@@ -22,7 +22,7 @@
- 
- LICENSE="GPL-3"
- SLOT="2.5"
--IUSE="emacs"
-+IUSE="emacs ultra-prefixify"
- 
- DEPEND=">=sys-apps/texinfo-4.3
- 	>=sys-devel/m4-1.4.6
-@@ -34,8 +34,15 @@
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.68.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.68.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.68.ebuild
+@@ -34,6 +34,9 @@
  src_prepare() {
  	# usr/bin/libtool is provided by binutils-apple
  	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch
 +	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
++	[[ ${CHOST} == *-cygwin* ]] && \
++		epatch "${FILESDIR}"/${PN}-2.68-cygport-patches.patch
  
--	if [[ ${PV} == "9999" ]] ; then
-+	if use ultra-prefixify; then
-+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-prefixification.patch
-+		bash_shebang_prefixify build-aux/{config.{guess,sub},elisp-comp,gendocs.sh} \
-+			build-aux/{git-version-gen,gnupload,install-sh,mdate-sh,missing} \
-+			configure tests/mktests.sh
-+		autoreconf -f -i || die
-+	elif [[ ${PV} == "9999" ]] ; then
+ 	if [[ ${PV} == "9999" ]] ; then
  		autoreconf -f -i || die
- 	fi
- }
-<---8<---
+<-----8<-----
+----[ "sys-devel/autoconf/autoconf-2.69.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/autoconf/autoconf-2.69.ebuild
++++ OVERLAY/sys-devel/autoconf/autoconf-2.69.ebuild
+@@ -36,6 +36,9 @@
+ src_prepare() {
+ 	# usr/bin/libtool is provided by binutils-apple
+ 	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch
++	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
++	[[ ${CHOST} == *-cygwin* ]] && \
++		epatch "${FILESDIR}"/${PN}-2.68-cygport-patches.patch
+ 
+ 	if [[ ${PV} == "9999" ]] ; then
+ 		autoreconf -f -i || die
+<-----8<-----
 ===== mutual sub-directory: "sys-devel/autoconf/files" =====
 
 *** The following files appear only in the overlay ***
+overlay/sys-devel/autoconf/files/autoconf-2.13-config-guess-cygwin1.7-support.patch: unified diff output, ASCII text
 overlay/sys-devel/autoconf/files/autoconf-2.68-config-guess-cygwin1.7-support.patch: unified diff output, ASCII text
-overlay/sys-devel/autoconf/files/autoconf-2.68-ultra-prefixification.patch: unified diff output, ASCII text
+overlay/sys-devel/autoconf/files/autoconf-2.68-cygport-patches.patch: unified diff output, ASCII text
 

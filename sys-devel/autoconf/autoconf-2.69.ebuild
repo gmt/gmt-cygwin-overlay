@@ -1,19 +1,21 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI="2"
+EAPI="3"
 
 inherit eutils
 
 if [[ ${PV} == "9999" ]] ; then
-	EGIT_REPO_URI="git://git.savannah.gnu.org/autoconf.git"
-	inherit git
+	EGIT_REPO_URI="git://git.savannah.gnu.org/${PN}.git
+		http://git.savannah.gnu.org/r/${PN}.git"
+
+	inherit git-2
 	SRC_URI=""
 	#KEYWORDS=""
 else
-	SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2
-		ftp://alpha.gnu.org/pub/gnu/${PN}/${P}.tar.bz2"
+	SRC_URI="mirror://gnu/${PN}/${P}.tar.xz
+		ftp://alpha.gnu.org/pub/gnu/${PN}/${P}.tar.xz"
 	KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 fi
 
@@ -26,7 +28,7 @@ IUSE="emacs"
 
 DEPEND=">=sys-apps/texinfo-4.3
 	>=sys-devel/m4-1.4.6
-	dev-lang/perl"
+	>=dev-lang/perl-5.6"
 RDEPEND="${DEPEND}
 	>=sys-devel/autoconf-wrapper-10"
 PDEPEND="emacs? ( app-emacs/autoconf-mode )"

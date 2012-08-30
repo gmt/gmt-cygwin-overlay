@@ -24,6 +24,17 @@
 =sys-apps/coreutils-8.14
 =sys-apps/coreutils-8.15
 =sys-apps/coreutils-8.17
+=sys-devel/autoconf-2.13
+=sys-devel/autoconf-2.59-r7
+=sys-devel/autoconf-2.61-r2
+=sys-devel/autoconf-2.62-r1
+=sys-devel/autoconf-2.63-r01.1
+=sys-devel/autoconf-2.64
+=sys-devel/autoconf-2.65
+=sys-devel/autoconf-2.65-r1
+=sys-devel/autoconf-2.67
+=sys-devel/autoconf-2.68
+=sys-devel/autoconf-2.69
 =sys-devel/binutils-config-3-r3
 =sys-devel/gcc-config-1.4.1-r00.2
 =sys-devel/gcc-config-1.5-r2

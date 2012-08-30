@@ -1,6 +1,6 @@
-# Copyright 1999-2008 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.13.ebuild,v 1.18 2008/06/21 06:27:48 pva Exp $
+# $Header: $
 
 inherit eutils
 
@@ -24,7 +24,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/${P}-gentoo.patch
 	epatch "${FILESDIR}"/${P}-destdir.patch
 	epatch "${FILESDIR}"/${P}-test-fixes.patch #146592
-	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
+	epatch "${FILESDIR}"/${PN}-2.13-config-guess-cygwin1.7-support.patch
 	touch configure # make sure configure is newer than configure.in
 
 	rm -f standards.{texi,info} # binutils installs this infopage
@@ -39,6 +39,10 @@ src_unpack() {
 src_compile() {
 	# need to include --exec-prefix and --bindir or our
 	# DESTDIR patch will trigger sandbox hate :(
+	#
+	# need to force locale to C to avoid bugs in the old
+	# configure script breaking the install paths #351982
+	LC_ALL=C \
 	econf \
 		--exec-prefix="${EPREFIX}"/usr \
 		--bindir="${EPREFIX}"/usr/bin \
@@ -50,8 +54,7 @@ src_compile() {
 src_install() {
 	emake install DESTDIR="${D}" || die
 
-	dodoc AUTHORS NEWS README TODO \
-		ChangeLog ChangeLog.0 ChangeLog.1
+	dodoc AUTHORS NEWS README TODO ChangeLog ChangeLog.0 ChangeLog.1
 
 	mv "${ED}"/usr/share/info/autoconf{,-${PV}}.info
 }

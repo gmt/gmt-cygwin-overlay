@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.62-r1.ebuild,v 1.1 2008/06/29 23:12:05 vapier Exp $
+# $Header: $
 
 inherit eutils
 
@@ -26,7 +26,7 @@ src_unpack() {
 	epatch "${FILESDIR}"/${P}-revert-AC_C_BIGENDIAN.patch #228825
 	epatch "${FILESDIR}"/${P}-at-keywords.patch
 	epatch "${FILESDIR}"/${P}-fix-multiline-string.patch #217976
-	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
+	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
 
 	# usr/bin/libtool is provided by binutils-apple
 	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch

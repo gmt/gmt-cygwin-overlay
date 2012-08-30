@@ -1,6 +1,6 @@
 # Copyright 1999-2009 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.59-r7.ebuild,v 1.16 2009/10/18 07:14:53 vapier Exp $
+# $Header: $
 
 inherit eutils
 
@@ -22,7 +22,7 @@ src_unpack() {
 	unpack ${A}
 	cd "${S}"
 	epatch "${FILESDIR}"/${P}-more-quotes.patch
-	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
+	epatch "${FILESDIR}"/${PN}-2.13-config-guess-cygwin1.7-support.patch
 }
 
 src_compile() {

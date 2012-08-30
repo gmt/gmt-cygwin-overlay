@@ -1,6 +1,6 @@
 # Copyright 1999-2008 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.61-r2.ebuild,v 1.8 2008/09/20 17:51:47 vapier Exp $
+# $Header: $
 
 inherit eutils
 
@@ -33,7 +33,7 @@ src_unpack() {
 	if [[ ${CHOST} == *-interix* || ${CHOST} == *-winnt* ]]; then
 		epatch "${FILESDIR}"/${P}-winnt-flip.patch
 	fi
-	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
+	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
 }
 
 src_compile() {

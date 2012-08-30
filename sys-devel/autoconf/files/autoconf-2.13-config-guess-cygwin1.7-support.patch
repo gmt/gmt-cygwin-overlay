@@ -1,0 +1,13 @@
+diff -urN autoconf-2.59.orig/config/config.guess autoconf-2.59/config/config.guess
+--- autoconf-2.59.orig/config/config.guess	2003-10-23 07:28:51.000000000 -0700
++++ autoconf-2.59/config/config.guess	2012-08-30 05:46:19.081511000 -0700
+@@ -768,6 +768,9 @@
+ 	case ${LIBC} in gnu) kernel_only='k' ;; esac
+ 	echo ${UNAME_MACHINE}-unknown-${kernel_only}freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`${LIBC:+-$LIBC}
+ 	exit 0 ;;
++    i*:CYGWIN*:1.7*:*)
++       echo ${UNAME_MACHINE}-pc-cygwin1.7
++       exit ;;
+     i*:CYGWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+ 	exit 0 ;;

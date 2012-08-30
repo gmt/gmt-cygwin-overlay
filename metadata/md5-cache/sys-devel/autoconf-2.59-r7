@@ -8,5 +8,5 @@ LICENSE=GPL-2
 RDEPEND=>=sys-apps/texinfo-4.3 sys-devel/autoconf-wrapper =sys-devel/m4-1.4* dev-lang/perl
 SLOT=2.5
 SRC_URI=mirror://gnu/autoconf/autoconf-2.59.tar.bz2
-_eclasses_=eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
-_md5_=9ddfb42f79aca003d543d5ba845112b2
+_eclasses_=eutils	de58f96326a651ae957e22b680ad531a	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313
+_md5_=8749139000e1d6a94d4a4fbec6651ecb

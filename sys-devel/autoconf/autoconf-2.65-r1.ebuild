@@ -1,6 +1,6 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/autoconf/autoconf-2.65-r1.ebuild,v 1.7 2010/10/12 11:33:55 armin76 Exp $
+# $Header: $
 
 inherit eutils
 
@@ -28,7 +28,7 @@ src_unpack() {
 
 	# usr/bin/libtool is provided by binutils-apple
 	[[ ${CHOST} == *-darwin* ]] && epatch "${FILESDIR}"/${PN}-2.61-darwin.patch
-	epatch "${FILESDIR}"/${P}-2.68-config-guess-cygwin1.7-support.patch
+	epatch "${FILESDIR}"/${PN}-2.68-config-guess-cygwin1.7-support.patch
 }
 
 src_compile() {
