@@ -138,3 +138,45 @@ o There is a cygdll-protect bug in portage which happens when a cygdll_protected
 
 o This should really be tested with layman.  I'm about 95% sure that there
   is code in scripts/ that breaks if ${OVERLAY_DIR}/.. != ${EPREFIX}.
+
+o Concievably, a file might somehow be both config-protected and cygdll-protected.
+  Although for this to happen one or the other feature must be being used outside
+  of its intended purpose, that doesn't really make it wrong, semantically speaking.
+  At the moment, config-protect has precedence over cygdll-protect within portage code,
+  which is to say that if a file is protected by both mechanisms, portage will act as
+  though only config-protect applied.  Really, this ought to suffice.  We could add
+  cygdll-protect support to the etc-update utility, if we so desired, but what value
+  would this add for the end-user?  They already had their file prevented from
+  merging by config-protect, and in an equivalent limbo to that of cygdll-protect.
+
+  What we may wish to consider is whether cygdll-protect shouldn't be stronger than
+  etc-protect in portage code, such that if both protections are active, cygdll-protect
+  takes precedence.
+
+  If the user has somehow cygdll-protected a non-binary file, however, there is
+  some loss of functionality there, because unlike config-protection, cygdll-
+  protection does not stack up revisions in a queue but merely has a one-file
+  slot that either is or isn't filled.  Even if we added config-protect support
+  to cygdll-update, if portage favored cygdll-protect over config-protect,
+  those stacking revisions would be lost.
+
+  An ideal fix, I think, would be to make these changes:
+
+    o Have cygdll-protect take precedence over config-protect in portage,
+      all things being equal
+
+    o In portage and cygdll-update, when a cygdll-protection is about to
+      be automatically discarded due to a newly merged file or reversion,
+      check for config-protection first.  If the file is config-protected,
+      instead of discarding it, add it into the config-protection queue.
+
+    o When merging cygdll-protections out of limbo in cygdll-update,
+      check for and implement config-protection.
+
+    o Add the ability to warn about pending config-protections to portageq
+      as we have for cygdll-protect, and warn when config-protections
+      have been added by cygdll-update.
+
+  Given that allowing config-protection as-is provides a reasonable solution
+  and that the above represents an awful lot of changes, it's debatable
+  whether this is really worth doing.
