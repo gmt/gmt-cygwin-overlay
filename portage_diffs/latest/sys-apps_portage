@@ -129,10 +129,11 @@
  
  # Import of the io module in python-2.6 raises ImportError for the
  # thread module if threading is disabled.
-@@ -168,6 +168,29 @@
+@@ -168,6 +168,30 @@
  	fi
  
  	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
++	epatch "${FILESDIR}"/portageq_eroot_sanity.patch #433475
 +
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
@@ -175,6 +176,7 @@ overlay/sys-apps/portage/files/portage-2.2.01.20389-fix-perform-all.patch: unifi
 overlay/sys-apps/portage/files/portage-2.2.01.20796-cygdll_protect.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20796-cygwin-revert-problematic-commits.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20837-cygdll_protect.patch: ASCII text
+overlay/sys-apps/portage/files/portageq_eroot_sanity.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
 usr/portage/sys-apps/portage/portage-2.2.01.20757.ebuild: ASCII text

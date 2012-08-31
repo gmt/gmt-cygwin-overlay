@@ -168,6 +168,7 @@ src_prepare() {
 	fi
 
 	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
+	epatch "${FILESDIR}"/portageq_eroot_sanity.patch #433475
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
