@@ -1,0 +1,18 @@
+===== mutual sub-directory: "app-admin/python-updater" =====
+----[ "app-admin/python-updater/python-updater-0.10-r2.ebuild" ]----->8----->
+--- PORTAGE/app-admin/python-updater/python-updater-0.10-r2.ebuild
++++ OVERLAY/app-admin/python-updater/python-updater-0.10-r2.ebuild
+@@ -33,6 +33,7 @@
+ 	epatch "${FILESDIR}"/${P}-only-alias-sed-if-exists.patch
+ 
+ 	epatch "${FILESDIR}"/${P}-prefix.patch
++	epatch "${FILESDIR}"/${P}-prefix2.patch
+ 	ebegin "Adjusting to prefix"
+ 	sed -i \
+ 		-e "s:@GENTOO_PORTAGE_EPREFIX@:${EPREFIX}:g" \
+<-----8<-----
+===== mutual sub-directory: "app-admin/python-updater/files" =====
+
+*** The following files appear only in the overlay ***
+overlay/app-admin/python-updater/files/python-updater-0.10-prefix2.patch: unified diff output, ASCII text
+
