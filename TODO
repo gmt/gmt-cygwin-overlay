@@ -217,3 +217,12 @@ o sys-devel/auto{conf,make} both have a matrix of config.guess patches for
   Fix this and almost the entire sys-devel/auto{conf,make} trees can go away
   (except for the tiny cygports patch in sys-devel/autoconf, which only applies to
   recent versions).
+
+o Implement alternatives (as neccesary) to the various logic in python-updater
+  based on scanelf
+
+o Split-debug (also scanelf trouble; see: cygports)
+
+o revdep-rebuild (more scanelf woes: see: interix port, cygcheck)
+
+o @preserved-libs (again, scanelf trouble here)
