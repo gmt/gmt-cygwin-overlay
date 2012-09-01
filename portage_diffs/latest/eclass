@@ -1,23 +1,4 @@
 ===== mutual sub-directory: "eclass" =====
-----[ "eclass/eutils.eclass" ]----->8----->
---- PORTAGE/eclass/eutils.eclass
-+++ OVERLAY/eclass/eutils.eclass
-@@ -658,7 +658,7 @@
- # @CODE
- # binary:   what command does the app run with ?
- # name:     the name that will show up in the menu
--# icon:     give your little like a pretty little icon ...
-+# icon:     i'm gonna give your little thingy a pretty little icon ...
- #           this can be relative (to /usr/share/pixmaps) or
- #           a full path to an icon
- # type:     what kind of application is this?
-@@ -1488,3 +1488,5 @@
- check_license() { die "you no longer need this as portage supports ACCEPT_LICENSE itself"; }
- 
- fi
-+
-+# vim: syntax=sh
-<-----8<-----
 ----[ "eclass/libtool.eclass" ]----->8----->
 --- PORTAGE/eclass/libtool.eclass
 +++ OVERLAY/eclass/libtool.eclass
@@ -136,6 +117,54 @@
  		*-darwin*)                libname="dylib";;
  		*-mint*)                  libname="irrelevant";;
  		hppa*-hpux*)              libname="sl";;
+<-----8<-----
+----[ "eclass/multiprocessing.eclass" ]----->8----->
+--- PORTAGE/eclass/multiprocessing.eclass
++++ OVERLAY/eclass/multiprocessing.eclass
+@@ -1,6 +1,6 @@
+ # Copyright 1999-2012 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: $
++# $Header: /var/cvsroot/gentoo-x86/eclass/multiprocessing.eclass,v 1.2 2012/07/30 14:52:18 vapier Exp $
+ 
+ # @ECLASS: multiprocessing.eclass
+ # @MAINTAINER:
+@@ -55,6 +55,8 @@
+ 	echo ${jobs:-1}
+ }
+ 
++if [[ ${CHOST} != *-cygwin* ]] ; then
++
+ # @FUNCTION: multijob_init
+ # @USAGE: [${MAKEOPTS}]
+ # @DESCRIPTION:
+@@ -224,4 +226,26 @@
+ 	fi
+ }
+ 
++else
++# Cygwin Host: dummy versions since cygwin can't handle this stuff
++multijob_init() { :; }
++multijob_child_init() {
++	case $1 in
++		--pre)  shift ;;
++		--post) shift ;;
++	esac
++
++	"$@"
++}
++multijob_pre_fork() { :; }
++multijob_post_fork() { :; }
++multijob_finish_one() { return "$?" ; }
++multijob_finish() { :; }
++redirect_alloc_fd() { die "FIXME: unimplemented" ; }
++
++fi # if cygwin (look ma, no indentation!)
++
+ fi
++
++# vim: syntax=sh
++
 <-----8<-----
 ----[ "eclass/toolchain-funcs.eclass" ]----->8----->
 --- PORTAGE/eclass/toolchain-funcs.eclass
@@ -440,6 +469,7 @@ usr/portage/eclass/embassy.eclass: ASCII text
 usr/portage/eclass/emboss.eclass: ASCII text
 usr/portage/eclass/emul-linux-x86.eclass: ASCII text
 usr/portage/eclass/enlightenment.eclass: ASCII text
+usr/portage/eclass/eutils.eclass: ASCII text
 usr/portage/eclass/fdo-mime.eclass: ASCII text
 usr/portage/eclass/findlib.eclass: ASCII text
 usr/portage/eclass/fixheadtails.eclass: ASCII text
@@ -506,7 +536,6 @@ usr/portage/eclass/mozcoreconf-2.eclass: ASCII text
 usr/portage/eclass/mozextension.eclass: ASCII text
 usr/portage/eclass/mozilla-launcher.eclass: ASCII text
 usr/portage/eclass/mozlinguas.eclass: ASCII text
-usr/portage/eclass/multiprocessing.eclass: ASCII text
 usr/portage/eclass/myspell-r2.eclass: UTF-8 Unicode text
 usr/portage/eclass/myspell.eclass: ASCII text
 usr/portage/eclass/mysql-autotools.eclass: ASCII text
