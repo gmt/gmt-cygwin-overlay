@@ -16,6 +16,7 @@ limiting_filepath=
 for arg in "$@" ; do
 	if [[ $arg != -h && $arg != --help && arg != -c && arg != --clean ]] ; then
 		limiting_filepath="${arg}"
+		[[ ${limiting_filepath} == */ ]] && limiting_filepath="${limiting_filepath%/}"
 		if echo "${limiting_filepath}" | grep -s '/.*/.' ; then
 			echo "limiting_filepath \"${limiting_filepath}\" is too deep, shorten it!" >&2
 			exit 1
