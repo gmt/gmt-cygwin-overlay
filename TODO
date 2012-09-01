@@ -230,3 +230,11 @@ o @preserved-libs (again, scanelf trouble here)
 o gettext represents our worst failure to gentooify an ebuild by far.  figure out
   what cygports is accomplishing with their autotools patches and try to eliminate
   the simulated autogen.sh we had to add!
+
+o The overlay-only masking trick we are doing in profile/..../package.{un,}mask is
+  pretty ugly.  Yes it does the trick for users but for me it becomes really difficult
+  to figure out what versions are keyworded for linux-x86 (although, I guess I'll need
+  to get used to that since it will be just as hard once we stop accepting linux-x86
+  for cygwin).  Anyhow there's really no reason for it, as doing keywording properly
+  just isn't that hard, so we should just bite the bullet, sometime soon, before the
+  overlay-only trick becomes any more massive.
