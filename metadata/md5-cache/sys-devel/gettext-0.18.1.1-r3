@@ -3,12 +3,12 @@ DEPEND=virtual/libiconv dev-libs/libxml2 !x86-winnt? ( sys-libs/ncurses ) dev-li
 DESCRIPTION=GNU locale utilities
 EAPI=2
 HOMEPAGE=http://www.gnu.org/software/gettext/
-IUSE=acl doc emacs git java nls +cxx openmp elibc_glibc elibc_FreeBSD java
+IUSE=acl -cvs doc emacs git java nls +cxx openmp static-libs elibc_glibc elibc_FreeBSD java
 KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt
 LICENSE=GPL-3 LGPL-2
 PDEPEND=emacs? ( app-emacs/po-mode )
-RDEPEND=virtual/libiconv dev-libs/libxml2 !x86-winnt? ( sys-libs/ncurses ) dev-libs/expat acl? ( virtual/acl ) java? ( >=virtual/jdk-1.4 ) git? ( dev-vcs/git ) java? ( >=virtual/jre-1.4 ) java? ( !x86-winnt? ( >=dev-java/java-config-2.1.9-r1 ) )
+RDEPEND=virtual/libiconv dev-libs/libxml2 !x86-winnt? ( sys-libs/ncurses ) dev-libs/expat acl? ( virtual/acl ) java? ( >=virtual/jdk-1.4 ) !git? ( cvs? ( dev-vcs/cvs ) ) git? ( dev-vcs/git ) java? ( >=virtual/jre-1.4 ) java? ( !x86-winnt? ( >=dev-java/java-config-2.1.9-r1 ) )
 SLOT=0
 SRC_URI=mirror://gnu/gettext/gettext-0.18.1.1.tar.gz
 _eclasses_=autotools	1361ba45750e15615f1975fec261031a	eutils	24483bd91d3d074753a77bfe3e69993f	flag-o-matic	f8651713795af42726abd3efcd5caad0	java-pkg-opt-2	f9bbbe5092225a2059aa9e6a3a2b52f1	java-utils-2	d4efe7fbe98408edc7b9101d180b119b	libtool	3e3686668a08e02358b8f73f22d37504	mono	203a4295c06155d318bdff9c6b2d5e1c	multilib	8c31e9fc6602c6adc49e9fce1c497a94	multiprocessing	c19bbd16fa556fea1d315d90d39a5823	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313	versionator	6601b4c5b3f019a993db59a50e1854e4
-_md5_=65fa240e91be81d86e8bddced5d8ee44
+_md5_=71f68093d8bf1c4051ba8b3863b33f8c

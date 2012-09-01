@@ -3,8 +3,14 @@
 # $Header: $
 
 # previous versions of the overlay's zlib don't support minizip
-<sys-libs/zlib-1.2.7 -minizip
+<sys-libs/zlib-1.2.7 minizip
 
 # configure: "cannot build both static and DLL, since gmp.h is different for each."
-dev-libs/gmp -static-libs
-dev-libs/mpc -static-libs
+dev-libs/gmp static-libs
+dev-libs/mpc static-libs
+
+# we simply aren't ready for this one!  Not sure there's anything intrinsically
+# wrong with it but good luck making it work.  As I have no way to test it,
+# I'm masking it for now... (also, because I don't "feel lucky" about this one)
+sys-devel/gettext java
+

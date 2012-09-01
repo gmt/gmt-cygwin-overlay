@@ -13,7 +13,7 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
 LICENSE="GPL-3 LGPL-2"
 SLOT="0"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
-IUSE="acl doc emacs git java nls +cxx openmp elibc_glibc"
+IUSE="acl -cvs doc emacs git java nls +cxx openmp static-libs elibc_glibc"
 
 DEPEND="virtual/libiconv
 	dev-libs/libxml2
@@ -22,6 +22,7 @@ DEPEND="virtual/libiconv
 	acl? ( virtual/acl )
 	java? ( >=virtual/jdk-1.4 )"
 RDEPEND="${DEPEND}
+	!git? ( cvs? ( dev-vcs/cvs ) )
 	git? ( dev-vcs/git )
 	java? ( >=virtual/jre-1.4 )"
 PDEPEND="emacs? ( app-emacs/po-mode )"
@@ -39,8 +40,8 @@ src_prepare() {
 	sed -i -e '1c\#!/usr/bin/env sh' \
 		"${S}"/gettext-tools/misc/convert-archive.in || die
 
-	# work around problem in gnulib on OSX Lion
-	if [[ ${CHOST} == *-darwin11 ]] ; then
+	# work around problem in gnulib on OSX Lion and Mountain Lion
+	if [[ ${CHOST} == *-darwin1[12] ]] ; then
 		sed -i -e '/^#ifndef weak_alias$/a\# undef __stpncpy' \
 			gettext-tools/gnulib-lib/stpncpy.c || die
 		sed -i -e '/^# undef __stpncpy$/a\# undef stpncpy' \
@@ -105,9 +106,10 @@ src_prepare() {
 		eautoconf || die
 		eautomake || die
 	else
-		elibtoolize
+	elibtoolize
 	fi
 	epatch "${FILESDIR}"/${P}-uclibc-sched_param-def.patch
+	epatch "${FILESDIR}"/${P}-no-gets.patch
 }
 
 src_configure() {
@@ -133,6 +135,7 @@ src_configure() {
 	# --with-included-libunistring will _disable_ libunistring (since
 	# --it's not bundled), see bug #326477
 	econf \
+		--cache-file="${S}"/config.cache \
 		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 		--without-emacs \
 		--without-lispdir \
@@ -142,13 +145,15 @@ src_configure() {
 		--with-included-libunistring \
 		$(use_enable acl) \
 		$(use_enable openmp) \
+		$(use_enable static-libs static) \
 		$(use_with git) \
-		--without-cvs
+		$(usex git --without-cvs $(use_with cvs))
 }
 
 src_install() {
 	emake install DESTDIR="${D}" || die "install failed"
 	use nls || rm -r "${ED}"/usr/share/locale
+	use static-libs || rm -f "${ED}"/usr/lib*/*.la
 	dosym msgfmt /usr/bin/gmsgfmt #43435
 	dobin gettext-tools/misc/gettextize || die "gettextize"
 

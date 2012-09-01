@@ -226,3 +226,7 @@ o Split-debug (also scanelf trouble; see: cygports)
 o revdep-rebuild (more scanelf woes: see: interix port, cygcheck)
 
 o @preserved-libs (again, scanelf trouble here)
+
+o gettext represents our worst failure to gentooify an ebuild by far.  figure out
+  what cygports is accomplishing with their autotools patches and try to eliminate
+  the simulated autogen.sh we had to add!

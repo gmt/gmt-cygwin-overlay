@@ -1,0 +1,11 @@
+diff -urN gettext-0.18.1.1/gettext-tools/configure.ac gettext-0.18.1.1.orig/gettext-tools/configure.ac
+--- gettext-0.18.1.1.orig/gettext-tools/configure.ac	2012-08-31 12:02:48.648899200 -0700
++++ gettext-0.18.1.1/gettext-tools/configure.ac	2012-08-31 11:48:17.842225500 -0700
+@@ -116,6 +116,7 @@
+ 
+ dnl These are the only lines required to internationalize the package.
+ dnl (OK, not quite, the AC_CONFIG_FILES has also some parts.)
++AM_GNU_GETTEXT_VERSION([0.18])
+ AM_GNU_GETTEXT([use-libtool], [need-ngettext])
+ 
+ dnl This line internationalizes the bison generated parsers.

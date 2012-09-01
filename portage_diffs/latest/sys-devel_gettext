@@ -1,67 +1,11 @@
 ===== mutual sub-directory: "sys-devel/gettext" =====
----("sys-devel/gettext/gettext-0.18.1.1-r2.ebuild")--->8--->
---- usr/portage/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild [[PORTAGE]]
-+++ overlay/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild [[OVERLAY]]
-@@ -4,7 +4,7 @@
- 
- EAPI="2"
- 
--inherit flag-o-matic eutils multilib toolchain-funcs mono libtool java-pkg-opt-2 autotools
-+inherit flag-o-matic eutils multilib toolchain-funcs mono libtool java-pkg-opt-2 autotools prefix-gmt
- 
- DESCRIPTION="GNU locale utilities"
- HOMEPAGE="http://www.gnu.org/software/gettext/"
-@@ -13,7 +13,7 @@
- LICENSE="GPL-3 LGPL-2"
- SLOT="0"
- KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
--IUSE="acl doc emacs +git java nls nocxx openmp elibc_glibc"
-+IUSE="acl doc emacs +git java nls nocxx openmp elibc_glibc ultra-prefixify"
- 
- DEPEND="virtual/libiconv
- 	dev-libs/libxml2
-@@ -28,7 +28,7 @@
- 
- src_prepare() {
- 	java-pkg-opt-2_src_prepare
--	if use m68k-mint ; then #334671
-+	if use m68k-mint && ! use prefix; then #334671
- 		export AT_NO_RECURSIVE=yes
- 		cd "${S}"/gettext-runtime || die
- 		AT_M4DIR="m4 gnulib-m4" eautoreconf
-@@ -36,8 +36,13 @@
- 		AT_M4DIR="../../m4 ../m4" eautoreconf
- 	fi
- 	# this script uses syntax that Solaris /bin/sh doesn't grok
-+	if use ultra-prefixify ; then
-+	sed -i -e '1c\#!'"${EPREFIX}"'/usr/bin/env sh' \
-+		"${S}"/gettext-tools/misc/convert-archive.in || die
-+	else
- 	sed -i -e '1c\#!/usr/bin/env sh' \
- 		"${S}"/gettext-tools/misc/convert-archive.in || die
-+	fi
- 
- 	# work around problem in gnulib on OSX Lion
- 	if [[ ${CHOST} == *-darwin11 ]] ; then
-@@ -48,7 +53,79 @@
+----[ "sys-devel/gettext/gettext-0.18.1.1-r2.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild
++++ OVERLAY/sys-devel/gettext/gettext-0.18.1.1-r2.ebuild
+@@ -48,7 +48,65 @@
  	fi
  
  	epunt_cxx
-+
-+	if use ultra-prefixify ; then
-+		cd "${S}"
-+		# Note: Some of the below may get wiped out during reconfig.  You are welcome to sort that shit
-+		# out for me if you like, patches welcome. in the meanwhile we err on the side of caution :) -gmt
-+		bash_shebang_prefixify $( find . -name 'config.charset' -o -name 'config.guess' -o -name 'config.sub' -o \
-+			-name 'x-to-1.in' -o -name 'autoclean.sh' -o -name 'autogen.sh' ) \
-+			gettext-tools/libgettextpo/exported.sh.in gettext-tools/examples \
-+			gettext-tools/misc/{add-to-archive,autopoint.in,gettextize.in} \
-+			./gettext-tools/src/user-email.sh.in ./gnulib-local/build-aux/moopp \
-+			./gnulib-local/tests/test-term-ostream-xterm
-+		bash_shebang_prefixify_dirs -r gettext-tools/gnulib-tests gettext-tools/projects \
-+			gettext-tools/tests build-aux gettext-tools/examples
-+		eprefixify_patch "${FILESDIR}"/${PN}-${PV}-ultra-eprefixification.patch
-+	fi
 +
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
@@ -71,9 +15,10 @@
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygport-03-locale-tests.patch
 +		epatch "${FILESDIR}"/${PN}-${PV}-woe-is-us.patch
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygwin1.7-hostglob.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-am_gnu_gettext_version.patch
 +	fi
 +
-+	if [[ ${CHOST} == *-cygwin* ]] || use ultra-prefixify ; then
++	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		einfo "running elibtoolize --force in ."
 +		elibtoolize --force || die
 +
@@ -120,16 +65,14 @@
 +	else
  	elibtoolize
 +	fi
+ 	epatch "${FILESDIR}"/${P}-uclibc-sched_param-def.patch
  }
  
- src_configure() {
-@@ -61,6 +138,14 @@
+@@ -62,6 +120,12 @@
  	fi
- 	use nocxx && export CXX=$(tc-getCC)
+ 	use cxx || export CXX=$(tc-getCC)
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
-+#		append-cppflags -I/usr/include/ncursesw
-+#		append-ldflags -L/usr/lib/ncursesw
 +		filter-ldflags -Wl,--disable-auto-import
 +		econf="${econf} --enable-shared --enable-static --enable-silent-rules"
 +		econf="${econf} --with-included-gettext --with-included-libxml --disable-native-java"
@@ -138,7 +81,90 @@
  	# --without-emacs: Emacs support is now in a separate package
  	# --with-included-glib: glib depends on us so avoid circular deps
  	# --with-included-libcroco: libcroco depends on glib which ... ^^^
-<---8<---
+<-----8<-----
+----[ "sys-devel/gettext/gettext-0.18.1.1-r3.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/gettext/gettext-0.18.1.1-r3.ebuild
++++ OVERLAY/sys-devel/gettext/gettext-0.18.1.1-r3.ebuild
+@@ -49,7 +49,65 @@
+ 	fi
+ 
+ 	epunt_cxx
++
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-00-reloc.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-01-reloc.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-02-locale.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-03-locale-tests.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-woe-is-us.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygwin1.7-hostglob.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-am_gnu_gettext_version.patch
++	fi
++
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		einfo "running elibtoolize --force in ."
++		elibtoolize --force || die
++
++		einfo "doing autogen stuff for ./gettext-runtime/libasprintf"
++		cd "${S}"/gettext-runtime/libasprintf || die
++		einfo Running fixaclocal
++		../../build-aux/fixaclocal aclocal -I ../../m4 -I ../m4 -I gnulib-m4 || die
++		eautoconf || die
++		eautoheader || die
++		eautomake || die
++
++		einfo "doing autogen stuff for ./gettext-runtime"
++		cd "${S}"/gettext-runtime || die
++		einfo Running fixaclocal
++		../build-aux/fixaclocal aclocal -I m4 -I ../m4 -I gnulib-m4 || die
++		eautoconf || die
++		eautoheader || die
++		touch config.h.in
++		eautomake || die
++
++		einfo "doing autogen stuff for ./gettext-tools/examples"
++		cd "${S}"/gettext-tools/examples || die
++		eautoconf || die
++		eautomake || die
++		
++		einfo "doing autogen stuff for ./gettext-tools"
++		cd "${S}"/gettext-tools || die
++		einfo Running fixaclocal
++		../build-aux/fixaclocal aclocal -I m4 -I ../gettext-runtime/m4 -I ../m4 \
++                	-I gnulib-m4 -I libgrep/gnulib-m4 -I libgettextpo/gnulib-m4 || die
++		eautoconf || die
++		eautoheader || die
++		touch config.h.in
++		test -d intl || mkdir intl
++		eautomake || die
++
++		einfo "doing autogenstuff for ."
++		cd "${S}" || die
++		cp -pv gettext-runtime/ABOUT-NLS gettext-tools/ABOUT-NLS
++		einfo Running fixaclocal
++		build-aux/fixaclocal aclocal -I m4 || die
++		eautoconf || die
++		eautomake || die
++	else
+ 	elibtoolize
++	fi
+ 	epatch "${FILESDIR}"/${P}-uclibc-sched_param-def.patch
+ 	epatch "${FILESDIR}"/${P}-no-gets.patch
+ }
+@@ -64,6 +122,12 @@
+ 	fi
+ 	use cxx || export CXX=$(tc-getCC)
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		filter-ldflags -Wl,--disable-auto-import
++		econf="${econf} --enable-shared --enable-static --enable-silent-rules"
++		econf="${econf} --with-included-gettext --with-included-libxml --disable-native-java"
++	fi
++
+ 	# --without-emacs: Emacs support is now in a separate package
+ 	# --with-included-glib: glib depends on us so avoid circular deps
+ 	# --with-included-libcroco: libcroco depends on glib which ... ^^^
+<-----8<-----
 ===== mutual sub-directory: "sys-devel/gettext/files" =====
 
 *** The following files appear only in the overlay ***
@@ -148,13 +174,7 @@ overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-01-reloc.patch: unified
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-02-locale.patch: unified diff output, ASCII text
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport-03-locale-tests.patch: unified diff output, ASCII text
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygport.patch: unified diff output, ASCII text
+overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygwin-am_gnu_gettext_version.patch: unified diff output, ASCII text
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-cygwin1.7-hostglob.patch: unified diff output, ASCII text
-overlay/sys-devel/gettext/files/gettext-0.18.1.1-ultra-eprefixification.patch: unified diff output, Non-ISO extended-ASCII text
 overlay/sys-devel/gettext/files/gettext-0.18.1.1-woe-is-us.patch: unified diff output, ASCII text
-
-*** The following files appear only in portage ***
-usr/portage/sys-devel/gettext/gettext-0.16.1-r1.ebuild: ASCII English text
-usr/portage/sys-devel/gettext/gettext-0.17-r1.ebuild: ASCII English text
-usr/portage/sys-devel/gettext/gettext-0.18.1.1-r1.ebuild: ASCII English text
-usr/portage/sys-devel/gettext/gettext-0.18.1.1.ebuild: ASCII English text
 

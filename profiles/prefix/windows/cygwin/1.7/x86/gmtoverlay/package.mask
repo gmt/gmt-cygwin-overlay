@@ -25,6 +25,7 @@ sys-apps/coreutils
 sys-devel/autoconf
 sys-devel/binutils-config
 sys-devel/gcc-config
+sys-devel/gettext
 sys-devel/gnuconfig
 sys-libs/ncurses
 sys-libs/readline
