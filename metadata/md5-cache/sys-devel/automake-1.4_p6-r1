@@ -7,5 +7,5 @@ LICENSE=GPL-2
 RDEPEND=dev-lang/perl sys-devel/automake-wrapper >=sys-devel/autoconf-2.59-r6 sys-devel/gnuconfig
 SLOT=1.4
 SRC_URI=mirror://gnu/automake/automake-1.4-p6.tar.gz
-_eclasses_=eutils	de58f96326a651ae957e22b680ad531a	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313
+_eclasses_=eutils	24483bd91d3d074753a77bfe3e69993f	multilib	8c31e9fc6602c6adc49e9fce1c497a94	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313
 _md5_=7515093d5415f6648989f94ace337563
