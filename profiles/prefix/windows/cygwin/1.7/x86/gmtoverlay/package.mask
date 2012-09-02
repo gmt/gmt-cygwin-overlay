@@ -23,6 +23,7 @@ dev-libs/mpc
 dev-libs/mpfr
 sys-apps/coreutils
 sys-devel/autoconf
+sys-devel/automake
 sys-devel/binutils-config
 sys-devel/gcc-config
 sys-devel/gettext

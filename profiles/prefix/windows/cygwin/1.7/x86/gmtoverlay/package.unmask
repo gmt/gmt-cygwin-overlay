@@ -36,6 +36,16 @@
 =sys-devel/autoconf-2.67
 =sys-devel/autoconf-2.68
 =sys-devel/autoconf-2.69
+=sys-devel/automake-1.10.3
+=sys-devel/automake-1.11.5
+=sys-devel/automake-1.11.6
+=sys-devel/automake-1.12.2
+=sys-devel/automake-1.4_p6-r1
+=sys-devel/automake-1.5
+=sys-devel/automake-1.6.3-r1
+=sys-devel/automake-1.7.9-r2
+=sys-devel/automake-1.8.5-r4
+=sys-devel/automake-1.9.6-r3
 =sys-devel/binutils-config-3-r3
 =sys-devel/gcc-config-1.4.1-r00.2
 =sys-devel/gcc-config-1.5-r2
