@@ -1,5 +1,5 @@
 # ChangeLog for app-shells/bash
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
 # $Header: $
 
   29 Aug 2012; Greg Turner <gmturner007@ameritech.net>
@@ -7,6 +7,108 @@
   +files/bash-4.2_p36-cygwin-exe-globfix.patch:
   Add support for matching globs for executables that don't end
   in '.exe' in cygwin (formerly this was broken).
+
+*bash-4.2_p36 (11 Jul 2012)
+
+  11 Jul 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p36.ebuild:
+  Version bump.
+
+*bash-4.2_p29 (30 May 2012)
+
+  30 May 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p29.ebuild:
+  Version bump #418205 by Lars Wendler (Polynomial-C).
+
+  23 May 2012; Zac Medico <zmedico@gentoo.org> bash-4.1_p10.ebuild,
+  bash-4.1_p11.ebuild, bash-4.1_p7.ebuild, bash-4.1_p9.ebuild,
+  bash-4.2_p10.ebuild, bash-4.2_p20.ebuild, bash-4.2_p24-r1.ebuild,
+  bash-4.2_p24.ebuild, bash-4.2_p28.ebuild, bash-4.2_p8-r1.ebuild:
+  Adjust the portage blocker from bug #297933 to play nicely with
+  portage-2.1.6.7_p1 (which has a backported fix for this bug). This should not
+  hurt people upgrading from later portage-2.1.6.x or 2.1.7.x releases, since
+  the message about BASHOPTS being readonly is only cosmetic.
+
+*bash-4.2_p28 (03 May 2012)
+
+  03 May 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p28.ebuild:
+  Version bump #414449 by Lars Wendler (Polynomial-C).
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> bash-4.2_p24-r1.ebuild:
+  keyword ~amd64-fbsd
+
+*bash-4.2_p24-r1 (23 Apr 2012)
+
+  23 Apr 2012; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p24-r1.ebuild,
+  +files/bash-4.2-extglob-multibyte.patch:
+  Add fix from upstream for multibyte string replaces in extglob mode #412867 by
+  mva.
+
+  03 Apr 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p24.ebuild,
+  +files/bash-4.2-no-readline.patch:
+  More USE=-readline fixes.
+
+  28 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p24.ebuild:
+  Make readline optional.
+
+  28 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild,
+  bash-4.2_p24.ebuild:
+  Fix cross-compiling after move to external readline.
+
+  28 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild:
+  Mark alpha/ia64/m68k/s390/sh/sparc stable #407937.
+
+  25 Mar 2012; Markus Meier <maekke@gentoo.org> bash-4.2_p20.ebuild:
+  arm stable, bug #407937
+
+  18 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild,
+  bash-4.2_p24.ebuild:
+  Use :alpha: rather than a-z in sed #408369 by step.
+
+  14 Mar 2012; Jeroen Roovers <jer@gentoo.org> bash-4.2_p20.ebuild:
+  Stable for HPPA (bug #407937).
+
+  13 Mar 2012; Jeff Horelick <jdhore@gentoo.org> bash-4.2_p20.ebuild:
+  marked x86 per bug 407937
+
+  13 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild,
+  bash-4.2_p24.ebuild:
+  Avoid regenerating bash info page #407985 by Jory A. Pratt.
+
+  13 Mar 2012; Brent Baude <ranger@gentoo.org> bash-4.2_p20.ebuild:
+  Marking bash-4.2_p20 ppc for bug 
+
+  13 Mar 2012; Agostino Sarubbo <ago@gentoo.org> bash-4.2_p20.ebuild:
+  Stable for amd64, wrt bug #407937
+
+  12 Mar 2012; Brent Baude <ranger@gentoo.org> bash-4.2_p20.ebuild:
+  Marking bash-4.2_p20 ppc64 for bug 407937
+
+*bash-4.2_p24 (12 Mar 2012)
+
+  12 Mar 2012; Mike Frysinger <vapier@gentoo.org> bash-4.2_p20.ebuild,
+  +bash-4.2_p24.ebuild:
+  Version bump #407927 by Lars Wendler (Polynomial-C).
+
+*bash-4.2_p20 (24 Nov 2011)
+
+  24 Nov 2011; Mike Frysinger <vapier@gentoo.org> +bash-4.2_p20.ebuild:
+  Version bump.
+
+  01 Nov 2011; Mike Frysinger <vapier@gentoo.org>
+  files/bash-4.2-parallel-build.patch:
+  Fix parallel build failures with mkbuiltin.
+
+  07 Oct 2011; Mike Frysinger <vapier@gentoo.org> bash-4.2_p10.ebuild,
+  +files/bash-4.2-parallel-build.patch:
+  Fix parallel build issues with parse.y and version.h/syntax.c.
+
+  16 Sep 2011; Mike Frysinger <vapier@gentoo.org> bash-4.2_p10.ebuild,
+  +files/bash-4.2-execute-job-control.patch:
+  Fix building when job controls are disabled (like when cross-compiling)
+  #383237 by Maciej Grela.
+
+  11 Aug 2011; Mike Frysinger <vapier@gentoo.org> bash-4.2_p8-r1.ebuild,
+  bash-4.2_p10.ebuild:
+  Pull in yacc due to .y changes #376591 by Bertrand Jacquin.
 
   16 May 2011; Tristan Heaven <nyhm@gentoo.org> bash-3.2_p51.ebuild,
   bash-4.0_p38.ebuild, bash-4.1_p7.ebuild, bash-4.1_p9.ebuild,
