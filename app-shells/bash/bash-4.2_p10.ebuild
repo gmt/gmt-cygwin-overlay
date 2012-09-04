@@ -44,7 +44,7 @@ IUSE="afs bashlogger examples mem-scramble +net nls plugins vanilla"
 DEPEND=">=sys-libs/ncurses-5.2-r2
 	nls? ( virtual/libintl )"
 RDEPEND="${DEPEND}
-	!<sys-apps/portage-2.1.7.16
+	!<sys-apps/portage-2.1.6.7_p1
 	!<sys-apps/paludis-0.26.0_alpha5"
 # we only need yacc when the .y files get patched (bash42-005)
 DEPEND+=" virtual/yacc"

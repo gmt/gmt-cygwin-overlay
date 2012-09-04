@@ -17,6 +17,7 @@ app-admin/python-updater
 app-arch/bzip2
 app-arch/unzip
 app-arch/zip
+app-shells/bash
 dev-lang/perl
 dev-libs/gmp
 dev-libs/mpc
