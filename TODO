@@ -28,11 +28,6 @@ o Somehow we want to get rid of ultra-prefixify, it is a horrible abomination.
   we could put in some prefixification patches to avoid i.e. /bin/sh and
   redirect to EPREFIX.
 
-o libtool patches for fork/subshell avoidance
-
-o fix libtool-2.4.2.ebuild to be merely horrible instead of satanically,
-  rediculously, unspeakably gross.
-
 o As of now, symlinks are ignored, completely, even if you name them explicitly
   in CYGDLL_PROTECT.  I'm pretty sure that rebase errors could be caused this
   way, if not by .dlls, then almost certainly by symlinks to .exe's.
