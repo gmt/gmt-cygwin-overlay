@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -6,7 +6,7 @@ EAPI="2" #356089
 
 LIBTOOLIZE="true" #225559
 WANT_LIBTOOL="none"
-inherit eutils autotools multilib prefix-gmt
+inherit eutils autotools multilib prefix
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://git.savannah.gnu.org/${PN}.git
@@ -22,7 +22,7 @@ HOMEPAGE="http://www.gnu.org/software/libtool/"
 
 LICENSE="GPL-2"
 SLOT="2"
-IUSE="static-libs test vanilla ultra-prefixify"
+IUSE="static-libs test vanilla"
 
 RDEPEND="sys-devel/gnuconfig
 	!<sys-devel/autoconf-2.62:2.5
@@ -52,6 +52,7 @@ src_prepare() {
 		epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-winnt.patch
 	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-mint.patch
 	epatch "${FILESDIR}"/2.2.6b/${PN}-2.2.6b-irix.patch
+	epatch "${FILESDIR}"/2.4/${PN}-2.4.2-solaris-postdeps-no-dedup.patch
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-02-manifest-gen.patch
@@ -59,8 +60,6 @@ src_prepare() {
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-04-fstack-protector.patch
 		epatch "${FILESDIR}"/2.4/${PN}-2.4.2-cygwin-install-sh-unc-suppression.patch
 		epatch "${FILESDIR}"/2.4/${PN}-2.4-cygwin-libtool-unc-suppression.patch
-		epatch "${FILESDIR}"/2.4/${PN}-2.4.2-subshell-avoidance.patch
-		epatch "${FILESDIR}"/2.4/${PN}-2.4.2-install-sh-subshell-avoidance.patch
 	fi
 
 	# seems that libtool has to know about EPREFIX a little bit better,
@@ -70,7 +69,8 @@ src_prepare() {
 	# fixed by making the gcc wrapper return the correct result for
 	# -print-search-dirs (doesn't include prefix dirs ...).
 	if use prefix ; then
-		eprefixify_patch "${FILESDIR}"/2.2.10/${PN}-2.2.10-eprefix.patch
+		epatch "${FILESDIR}"/2.2.10/${PN}-2.2.10-eprefix.patch
+		eprefixify libltdl/m4/libtool.m4
 	fi
 
 	cd libltdl/m4
@@ -78,85 +78,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-module-bundle.patch
 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-use-linux-version.patch
 	epatch "${FILESDIR}"/2.4/${PN}-2.4-interix.patch
-
-	# better to ultra-prefixify after all autotools stuff is over
-	# FIXME: we do this in the cygwin general case because we want to regenerate from
-	# the .m4sh files we modified in the subshell-avoidance patch -- hopefully there is
-	# some less horrific solution to getting those .sh files regenerated?
-	if use ultra-prefixify || [[ ${CHOST} == *-cygwin* ]] ; then
-		# fire up a subshell so we can wreak some havoc
-		(
-		cd "${S}"
-		# avoid maintainer-mode trouble... for the most part
-		epatch "${FILESDIR}"/2.4/${PN}-2.4-anti-maintainer-mode.patch
-		if use ultra-prefixify ; then
-			eprefixify_patch "${FILESDIR}"/2.4/${PN}-2.4.2-ultra-prefixification.patch
-			bash_shebang_prefixify bootstrap libltdl/config/compile \
-				libltdl/config/{config.{guess,sub},depcomp,edit-readme-alpha,missing,mkstamp} \
-				libtoolize.in 
-			bash_shebang_prefixify_dirs tests
-		fi
-		# unfortunately the above touches enough files to cause utter havoc.
-		# for now we take a very crude brute-force approach by aping almost everything
-		# in the bootstrap script.
-		# FIXME: this is horrible, unacceptable, and frankly, kinda embarassing
-		find . -depth \( -name autom4te.cache -o -name libtool \) -print \
-			  | grep -v '{arch}' | xargs rm -rf
-		rm -f acinclude.m4 libltdl/config.h argz.c lt__dirent.c lt__strl.c
-
-  		reconfdirs="$( echo $( for d in . libltdl tests/*demo tests/*demo[0-9] ; do
-						[[ -d "$d" && -f "${d}"/configure.ac ]] || continue
-						echo $d
-			               done ) )"
-		PACKAGE="${PN}"
-		PACKAGE_NAME="${PN:0:1}"
-		PACKAGE_NAME="${PACKAGE_NAME^^}"
-		PACKAGE_NAME="${PACKAGE_NAME}${PN:1}"
-		if grep 'AC_INIT.*GNU' configure.ac >/dev/null; then
-			PACKAGE_NAME="GNU $PACKAGE_NAME"
-			PACKAGE_URL="http://www.gnu.org/software/$PACKAGE/"
-		fi
-		VERSION="${PV}"
-		unset WANT_AUTOCONF
-		unset WANT_AUTOMAKE
-		export WANT_AUTOCONF
-		export WANT_AUTOMAKE
-		# whip up a dirty Makefile: the ... horror ... !
-		sed '/^if /,/^endif$/d;/^else$/,/^endif$/d;/^include /d' Makefile.am libltdl/Makefile.inc > Makefile
-		rm -f libltdl/config/ltmain.sh libltdl/m4/ltversion.m4
-		# note: added libtool.info to avoid maintainer-mode stuff
-		make libltdl/config/ltmain.sh libltdl/m4/ltversion.m4 \
-			./libtoolize.in ./tests/defs.in ./tests/package.m4 \
-			./tests/testsuite ./libltdl/Makefile.am ./doc/notes.txt doc/libtool.info \
-			srcdir=. top_srcdir=. PACKAGE="$PACKAGE" VERSION="$VERSION" \
-			PACKAGE_NAME="$PACKAGE_NAME" PACKAGE_URL="$PACKAGE_URL" \
-			PACKAGE_BUGREPORT="bug-$PACKAGE@gnu.org" M4SH="autom4te --language=m4sh" \
-			AUTOTEST="autom4te --language=autotest" SED="sed" MAKEINFO="makeinfo" \
-			GREP="grep" FGREP="fgrep" EGREP="egrep" LN_S="ln -s"
-		rm -f Makefile
-		cat > libltdl/config/libtoolize <<'EOF'
-#! /bin/sh
-echo "$0: Bootstrap detected, no files installed." | sed 's,^.*/,,g'
-exit 0
-EOF
-		chmod 755 libltdl/config/libtoolize
-		LIBTOOLIZE=`pwd`/libltdl/config/libtoolize
-		export LIBTOOLIZE
-		for sub in $reconfdirs; do
-			# eautoreconf no workee, is it really worth "investigating" this doomed code?  I'm gonna say no.
-			autoreconf --force --verbose --install $sub
-		done
-		sleep 2 && touch libltdl/config-h.in
-		rm -f libltdl/config/libtoolize
-		rm -f Makefile libltdl/Makefile libtool vcl.tmp
-		for macro in LT_INIT AC_PROG_LIBTOOL AM_PROG_LIBTOOL; do
-			if grep $macro aclocal.m4 libltdl/aclocal.m4; then
-				die "Bogus $macro macro contents in an aclocal.m4 file."
-			fi
-		done
-		)
-	fi
-
+	epatch "${FILESDIR}"/2.4/${PN}-2.4.2-solaris_sol2.patch
 	cd ..
 	AT_NOELIBTOOLIZE=yes eautoreconf
 	cd ..
@@ -187,7 +109,9 @@ src_install() {
 	# Building libtool with --disable-static will cause the installed
 	# helper to not build static objects by default.  This is undesirable
 	# for crappy packages that utilize the system libtool, so undo that.
-	dosed '1,/^build_old_libs=/{/^build_old_libs=/{s:=.*:=yes:}}' /usr/bin/libtool || die
+	local g=
+	[[ ${CHOST} == *-darwin* ]] && g=g
+	dosed '1,/^build_old_libs=/{/^build_old_libs=/{s:=.*:=yes:}}' /usr/bin/${g}libtool || die
 
 	for x in $(find "${ED}" -name config.guess -o -name config.sub) ; do
 		rm -f "${x}" ; ln -sf "${EPREFIX}"/usr/share/gnuconfig/${x##*/} "${x}"

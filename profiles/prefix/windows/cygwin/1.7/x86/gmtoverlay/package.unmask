@@ -55,6 +55,8 @@
 =sys-devel/gettext-0.18.1.1-r3
 =sys-devel/gnuconfig-20110814
 =sys-devel/gnuconfig-20120116
+=sys-devel/libtool-2.4-r4
+=sys-devel/libtool-2.4.2
 =sys-libs/ncurses-5.9-r1
 =sys-libs/ncurses-5.9-r2
 =sys-libs/readline-6.2_p1-r1

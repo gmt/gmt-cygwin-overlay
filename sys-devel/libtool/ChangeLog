@@ -1,6 +1,39 @@
 # ChangeLog for sys-devel/libtool
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/libtool/ChangeLog,v 1.196 2011/10/20 03:39:19 vapier Exp $
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  29 Jul 2012; Fabian Groffen <grobian@gentoo.org>
+  files/2.4/libtool-2.4.2-solaris-postdeps-no-dedup.patch,
+  files/2.4/libtool-2.4.2-solaris_sol2.patch:
+  Add refs to upstream posts of the Solaris patches
+
+  26 Jul 2012; Fabian Groffen <grobian@gentoo.org>
+  files/2.4/libtool-2.4.2-solaris-postdeps-no-dedup.patch:
+  Update patch comments, I'm not sure what the reason is for GCC to emit double
+  -lgcc_s.
+
+  26 Jul 2012; Fabian Groffen <grobian@gentoo.org>
+  +files/2.4/libtool-2.4.2-solaris-postdeps-no-dedup.patch,
+  libtool-2.4.2.ebuild:
+  Add fix for Solaris and C++ libraries built by libtool generating aborts as
+  soon as an exception is thrown.
+
+  06 May 2012; Fabian Groffen <grobian@gentoo.org>
+  +files/2.4/libtool-2.4.2-solaris_sol2.patch, libtool-2.4.2.ebuild:
+  Add patch to fix libtool bug causing linker to be transformed into ld_sol2 on
+  Solaris
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> libtool-2.4.2.ebuild,
+  libtool-9999.ebuild:
+  keyword ~amd64-fbsd
+
+  09 Apr 2012; Mike Frysinger <vapier@gentoo.org> libtool-2.2.10.ebuild,
+  libtool-2.4-r1.ebuild, libtool-2.4-r4.ebuild, libtool-2.4.2.ebuild,
+  libtool-9999.ebuild:
+  Drop old epunt_cxx calls #410877 by Greg Turner.
+
+  13 Nov 2011; Mike Frysinger <vapier@gentoo.org> libtool-2.4.2.ebuild:
+  Move into unstable.
 
   07 Nov 2011; Fabian Groffen <grobian@gentoo.org> libtool-2.4-r4.ebuild:
   Fix installation on Darwin (dosed failure)

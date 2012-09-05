@@ -1,5 +1,5 @@
 DEFINED_PHASES=configure install postinst preinst prepare unpack
-DEPEND=sys-devel/gnuconfig !<sys-devel/autoconf-2.62:2.5 !<sys-devel/automake-1.11.1:1.11 !=sys-devel/libtool-2*:1.5 test? ( || ( >=sys-devel/binutils-2.20 sys-devel/binutils-apple sys-devel/native-cctools ) ) app-arch/xz-utils || ( =sys-devel/automake-1.11* ) >=sys-devel/autoconf-2.68
+DEPEND=sys-devel/gnuconfig !<sys-devel/autoconf-2.62:2.5 !<sys-devel/automake-1.11.1:1.11 !=sys-devel/libtool-2*:1.5 test? ( || ( >=sys-devel/binutils-2.20 sys-devel/binutils-apple sys-devel/native-cctools ) ) app-arch/xz-utils || ( >=sys-devel/automake-1.11.1:1.11 >=sys-devel/automake-1.12:1.12 ) >=sys-devel/autoconf-2.68
 DESCRIPTION=A shared library tool for developers
 EAPI=2
 HOMEPAGE=http://www.gnu.org/software/libtool/
@@ -9,5 +9,5 @@ LICENSE=GPL-2
 RDEPEND=sys-devel/gnuconfig !<sys-devel/autoconf-2.62:2.5 !<sys-devel/automake-1.11.1:1.11 !=sys-devel/libtool-2*:1.5
 SLOT=2
 SRC_URI=mirror://gnu/libtool/libtool-2.4.tar.xz
-_eclasses_=autotools	44549e9bf38e512354112caafb24edc9	eutils	f8d5f4dfca8c0f419d4844feb00fb9ef	libtool	3bc75448a5aa60eb4709b1e7b7750de2	multilib	15a218357711389801e17b4064579421	prefix	21058c21ca48453d771df15500873ede	prefix-gmt	5ffcf4fcffb353f2e590d3ac6f8eb17f	toolchain-funcs	08ded9003721cb23bdc03060bb0eb03a	user	434ee230398c7aed452d44332ae3ef89
-_md5_=489178fbe255730f92b2def3c85fb9ba
+_eclasses_=autotools	1361ba45750e15615f1975fec261031a	eutils	24483bd91d3d074753a77bfe3e69993f	libtool	3e3686668a08e02358b8f73f22d37504	multilib	8c31e9fc6602c6adc49e9fce1c497a94	multiprocessing	c19bbd16fa556fea1d315d90d39a5823	prefix	21058c21ca48453d771df15500873ede	toolchain-funcs	a6e291e3aea15accf84972f6fa4544aa	user	caa4a66cca1103139b68c2fad83b8313
+_md5_=1714b3e6d21dfe8a1765619cdfdc84a0

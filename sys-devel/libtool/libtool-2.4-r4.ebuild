@@ -1,4 +1,4 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -6,7 +6,7 @@ EAPI="2" #356089
 
 LIBTOOLIZE="true" #225559
 WANT_LIBTOOL="none"
-inherit eutils autotools multilib prefix-gmt
+inherit eutils autotools multilib prefix
 
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="git://git.savannah.gnu.org/${PN}.git
@@ -71,7 +71,8 @@ src_prepare() {
 	# fixed by making the gcc wrapper return the correct result for
 	# -print-search-dirs (doesn't include prefix dirs ...).
 	if use prefix ; then
-		eprefixify_patch "${FILESDIR}"/2.2.10/${PN}-2.2.10-eprefix.patch
+		epatch "${FILESDIR}"/2.2.10/${PN}-2.2.10-eprefix.patch
+		eprefixify libltdl/m4/libtool.m4
 	fi
 
 	cd libltdl/m4

@@ -29,6 +29,7 @@ sys-devel/binutils-config
 sys-devel/gcc-config
 sys-devel/gettext
 sys-devel/gnuconfig
+sys-devel/libtool
 sys-libs/ncurses
 sys-libs/readline
 sys-libs/zlib
