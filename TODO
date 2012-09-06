@@ -214,13 +214,17 @@ o sys-devel/auto{conf,make} both have a matrix of config.guess patches for
   recent versions).
 
 o Implement alternatives (as neccesary) to the various logic in python-updater
-  based on scanelf
+  based on scanelf:
 
-o Split-debug (also scanelf trouble; see: cygports)
+  o Split-debug (also scanelf trouble; see: cygports)
 
-o revdep-rebuild (more scanelf woes: see: interix port, cygcheck)
+  o revdep-rebuild (more scanelf woes: see: interix port, cygcheck)
 
-o @preserved-libs (again, scanelf trouble here)
+  o @preserved-libs (again, scanelf trouble here)
+
+  o python-updater
+
+  o perl-cleaner (how is it that this is working as well as it does?)
 
 o gettext represents our worst failure to gentooify an ebuild by far.  figure out
   what cygports is accomplishing with their autotools patches and try to eliminate
