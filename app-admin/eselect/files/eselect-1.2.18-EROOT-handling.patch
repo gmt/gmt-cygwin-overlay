@@ -1,0 +1,18 @@
+diff -urN eselect-1.2.18.orig/bin/eselect.in eselect-1.2.18/bin/eselect.in
+--- eselect-1.2.18.orig/bin/eselect.in	2011-09-25 06:34:43.000000000 -0700
++++ eselect-1.2.18/bin/eselect.in	2012-09-06 01:04:20.222921700 -0700
+@@ -46,7 +46,7 @@
+ 
+ # Support variables for Gentoo Prefix
+ EPREFIX="@EPREFIX@"
+-EROOT="${ROOT}${EPREFIX}"
++EROOT="${ROOT%/}/${EPREFIX#/}"
+ 
+ # Remove all alias definitions. Unset functions and variables that are
+ # known to cause trouble.
+@@ -193,3 +194,5 @@
+ else
+ 	es_do_help
+ fi
++
++# vi: syntax=sh

@@ -13,6 +13,7 @@
 # and should go away once we stop accepting x86-linux
 # keywords by default (since we can achieve this the
 # correct way, by keywording).  Please alphabetize!
+app-admin/eselect
 app-admin/python-updater
 app-arch/bzip2
 app-arch/unzip

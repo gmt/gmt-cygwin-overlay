@@ -12,6 +12,8 @@
 # keywords by default (since we can achieve this the
 # correct way, by keywording).  These must be kept in
 # in sync with the ebuilds we support.  Please alphabetize!
+=app-admin/eselect-1.2.18
+=app-admin/eselect-1.3.1
 =app-admin/python-updater-0.10-r2
 =app-arch/bzip2-1.0.6-r3
 =app-arch/unzip-6.0-r2
