@@ -1,272 +1,72 @@
 ===== mutual sub-directory: "sys-apps/coreutils" =====
-----[ "sys-apps/coreutils/ChangeLog" ]----->8----->
---- PORTAGE/sys-apps/coreutils/ChangeLog
-+++ OVERLAY/sys-apps/coreutils/ChangeLog
-@@ -1,66 +1,6 @@
- # ChangeLog for sys-apps/coreutils
--# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: $
--
--  11 Jul 2012; Richard Yao <ryao@gentoo.org> coreutils-8.17.ebuild:
--  Support Gentoo FreeBSD, bug #424856, discussed with ssuominen in IRC
--
--  24 May 2012; Mike Frysinger <vapier@gentoo.org> coreutils-8.17.ebuild:
--  Set gl_cv_func_realpath_works when cross-compiling #416629 by Robin Bankhead.
--
--*coreutils-8.17 (10 May 2012)
--
--  10 May 2012; Mike Frysinger <vapier@gentoo.org> +coreutils-8.17.ebuild:
--  Version bump.
--
--  28 Mar 2012; Mike Frysinger <vapier@gentoo.org> coreutils-8.16.ebuild:
--  Force mknod test to avoid dying when running as root #409919 by Paweł
--  Rumian.
--
--  27 Mar 2012; Mike Frysinger <vapier@gentoo.org> coreutils-8.5.ebuild,
--  coreutils-8.5-r1.ebuild, coreutils-8.7.ebuild, coreutils-8.8.ebuild,
--  coreutils-8.9.ebuild, coreutils-8.10.ebuild, coreutils-8.11.ebuild,
--  coreutils-8.12.ebuild, coreutils-8.13.ebuild, coreutils-8.14.ebuild,
--  coreutils-8.15.ebuild, coreutils-8.16.ebuild:
--  Migrate to gnu-alpha mirror.
--
--*coreutils-8.16 (27 Mar 2012)
--
--  27 Mar 2012; Mike Frysinger <vapier@gentoo.org> +coreutils-8.16.ebuild:
--  Version bump.
--
--  19 Feb 2012; Raúl Porcel <armin76@gentoo.org> coreutils-8.14.ebuild:
--  alpha/ia64/m68k/s390/sh/sparc stable wrt #397929
--
--  14 Feb 2012; Fabian Groffen <grobian@gentoo.org> coreutils-8.15.ebuild:
--  Forcibly use bash, since e.g. dash seems to hang configure
--
--  02 Feb 2012; Samuli Suominen <ssuominen@gentoo.org> coreutils-8.14.ebuild:
--  ppc64 stable wrt #397929
--
--  01 Feb 2012; Brent Baude <ranger@gentoo.org> coreutils-8.14.ebuild:
--  Marking coreutils-8.14 ppc for bug 397929
--
--  21 Jan 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> coreutils-8.14.ebuild:
--  x86 stable wrt bug #397929
--
--  18 Jan 2012; Markus Meier <maekke@gentoo.org> coreutils-8.14.ebuild:
--  arm stable, bug #397929
--
--  17 Jan 2012; Jeroen Roovers <jer@gentoo.org> coreutils-8.14.ebuild:
--  Stable for HPPA (bug #397929).
--
--  07 Jan 2012; Agostino Sarubbo <ago@gentoo.org> coreutils-8.14.ebuild:
--  Stable for AMD64, wrt bug #397929
--
--*coreutils-8.15 (06 Jan 2012)
--
--  06 Jan 2012; Mike Frysinger <vapier@gentoo.org> +coreutils-8.15.ebuild:
--  Version bump.
--
--  10 Dec 2011; Fabian Groffen <grobian@gentoo.org> coreutils-8.14.ebuild:
--  Fix compilation on FreeBSD, override the pthread check which incorrectly
--  concludes no libs are necessary
-+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/sys-apps/coreutils/ChangeLog,v 1.326 2011/10/18 22:47:25 vapier Exp $
- 
-   18 Oct 2011; Mike Frysinger <vapier@gentoo.org> coreutils-8.14.ebuild:
-   Extend man page hack to missing perl #387091 by nzqr.
-<-----8<-----
 ----[ "sys-apps/coreutils/coreutils-8.14.ebuild" ]----->8----->
 --- PORTAGE/sys-apps/coreutils/coreutils-8.14.ebuild
 +++ OVERLAY/sys-apps/coreutils/coreutils-8.14.ebuild
-@@ -1,15 +1,15 @@
--# Copyright 1999-2012 Gentoo Foundation
-+# Copyright 1999-2011 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
- # $Header: $
- 
- EAPI="3"
- 
--inherit eutils flag-o-matic toolchain-funcs
-+inherit eutils flag-o-matic toolchain-funcs autotools
- 
- PATCH_VER="1"
- DESCRIPTION="Standard GNU file utilities (chmod, cp, dd, dir, ls...), text utilities (sort, tr, head, wc..), and shell utilities (whoami, who,...)"
- HOMEPAGE="http://www.gnu.org/software/coreutils/"
--SRC_URI="mirror://gnu-alpha/coreutils/${P}.tar.xz
-+SRC_URI="ftp://alpha.gnu.org/gnu/coreutils/${P}.tar.xz
- 	mirror://gnu/${PN}/${P}.tar.xz
- 	mirror://gentoo/${P}.tar.xz
- 	mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz
-@@ -65,6 +65,15 @@
+@@ -65,6 +65,18 @@
  	[[ ${CHOST} == *-interix* ]] &&
  		epatch "${FILESDIR}"/${PN}-8.5-interix-double.patch
  
 +	[[ ${CHOST} == *-cygwin* ]] && {
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygport-src.patch
 +		epatch "${FILESDIR}"/${PN}-8.14-cygwin-tests.patch
-+		epatch "${FILESDIR}"/${PN}-8.14-scrub-cygwin-unc.patch
-+		eautoreconf
++		epatch "${FILESDIR}"/${PN}-8.14-install-scrub-cygwin-unc.patch
++		epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
++		# avoid maintainer mode
++		touch configure.ac
++		touch aclocal.m4
++		touch Makefile.in configure
++		touch lib/config.hin
 +	}
-+
-+	epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
 +
  	# Since we've patched many .c files, the make process will try to
  	# re-build the manpages by running `./bin --help`.  When doing a
  	# cross-compile, we can't do that since 'bin' isn't a native bin.
-@@ -89,10 +98,6 @@
- 
- 	tc-is-cross-compiler && [[ ${CHOST} == *linux* ]] && export fu_cv_sys_stat_statfs2_bsize=yes #311569
- 
--	# m4/pthread.m4 on FreeBSD thinks pthread_join doesn't need any libaries
--	# sort.c:(.text+0x4f25): undefined reference to `pthread_create'
--	[[ ${CHOST} == *-freebsd* ]] && export gl_cv_search_pthread_join=-pthread
--
- 	use static && append-ldflags -static && sed -i '/elf_sys=yes/s:yes:no:' configure #321821
- 	use selinux || export ac_cv_{header_selinux_{context,flash,selinux}_h,search_setfilecon}=no #301782
- 	# kill/uptime - procps
-@@ -172,14 +177,23 @@
- 
- 		[[ ${CHOST} == *-mint* ]] && fhs="${fhs} hostname"
- 
-+		[[ ${CHOST} == *-cygwin* ]] && \
-+			fhs="$( for x in $fhs; do echo ${x}.exe ; done )"
-+
- 		mv ${fhs} ../../bin/ || die "could not move fhs bins"
- 		# move critical binaries into /bin (common scripts)
- 		local com="basename chroot cut dir dirname du env expr head mkfifo
- 		           mktemp readlink seq sleep sort tail touch tr tty vdir wc yes"
-+		[[ ${CHOST} == *-cygwin* ]] &&
-+			com="$( for x in $com ; do echo ${x}.exe ; done )"
- 		mv ${com} ../../bin/ || die "could not move common bins"
- 		# create a symlink for uname in /usr/bin/ since autotools require it
--		local x
--		for x in ${com} uname ; do
-+		local x unamename
-+		case ${CHOST} in
-+			*-cygwin*) unamename=uname.exe ;;
-+			*) unamename=uname ;;
-+		esac
-+		for x in ${com} ${unamename}; do
- 			dosym /bin/${x} /usr/bin/${x} || die
- 		done
- 	else
 <-----8<-----
 ----[ "sys-apps/coreutils/coreutils-8.15.ebuild" ]----->8----->
 --- PORTAGE/sys-apps/coreutils/coreutils-8.15.ebuild
 +++ OVERLAY/sys-apps/coreutils/coreutils-8.15.ebuild
-@@ -4,12 +4,12 @@
- 
- EAPI="3"
- 
--inherit eutils flag-o-matic toolchain-funcs
-+inherit eutils flag-o-matic toolchain-funcs autotools
- 
- PATCH_VER="1"
- DESCRIPTION="Standard GNU file utilities (chmod, cp, dd, dir, ls...), text utilities (sort, tr, head, wc..), and shell utilities (whoami, who,...)"
- HOMEPAGE="http://www.gnu.org/software/coreutils/"
--SRC_URI="mirror://gnu-alpha/coreutils/${P}.tar.xz
-+SRC_URI="ftp://alpha.gnu.org/gnu/coreutils/${P}.tar.xz
- 	mirror://gnu/${PN}/${P}.tar.xz
- 	mirror://gentoo/${P}.tar.xz
- 	mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz
-@@ -66,6 +66,17 @@
+@@ -66,6 +66,18 @@
  	[[ ${CHOST} == *-interix* ]] &&
  		epatch "${FILESDIR}"/${PN}-8.5-interix-double.patch
  
 +	[[ ${CHOST} == *-cygwin* ]] && {
-+		# avoid maintainer mode
-+		epatch "${FILESDIR}"/${PN}-8.15-am_maintainer_mode.patch
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygport-src.patch
 +		epatch "${FILESDIR}"/${PN}-8.14-cygwin-tests.patch
-+		epatch "${FILESDIR}"/${PN}-8.14-scrub-cygwin-unc.patch
-+		eautoreconf
++		epatch "${FILESDIR}"/${PN}-8.14-install-scrub-cygwin-unc.patch
++		epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
++		# avoid maintainer mode
++		touch configure.ac
++		touch aclocal.m4
++		touch Makefile.in configure
++		touch lib/config.hin
 +	}
-+
-+	epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
 +
  	# Since we've patched many .c files, the make process will try to
  	# re-build the manpages by running `./bin --help`.  When doing a
  	# cross-compile, we can't do that since 'bin' isn't a native bin.
-@@ -176,14 +187,23 @@
- 
- 		[[ ${CHOST} == *-mint* ]] && fhs="${fhs} hostname"
- 
-+		[[ ${CHOST} == *-cygwin* ]] && \
-+			fhs="$( for x in $fhs; do echo ${x}.exe ; done )"
-+
- 		mv ${fhs} ../../bin/ || die "could not move fhs bins"
- 		# move critical binaries into /bin (common scripts)
- 		local com="basename chroot cut dir dirname du env expr head mkfifo
- 		           mktemp readlink seq sleep sort tail touch tr tty vdir wc yes"
-+		[[ ${CHOST} == *-cygwin* ]] &&
-+			com="$( for x in $com ; do echo ${x}.exe ; done )"
- 		mv ${com} ../../bin/ || die "could not move common bins"
- 		# create a symlink for uname in /usr/bin/ since autotools require it
--		local x
--		for x in ${com} uname ; do
-+		local x unamename
-+		case ${CHOST} in
-+			*-cygwin*) unamename=uname.exe ;;
-+			*) unamename=uname ;;
-+		esac
-+		for x in ${com} ${unamename}; do
- 			dosym /bin/${x} /usr/bin/${x} || die
- 		done
- 	else
 <-----8<-----
 ----[ "sys-apps/coreutils/coreutils-8.17.ebuild" ]----->8----->
 --- PORTAGE/sys-apps/coreutils/coreutils-8.17.ebuild
 +++ OVERLAY/sys-apps/coreutils/coreutils-8.17.ebuild
-@@ -4,7 +4,7 @@
- 
- EAPI="3"
- 
--inherit eutils flag-o-matic toolchain-funcs
-+inherit eutils flag-o-matic toolchain-funcs autotools
- 
- PATCH_VER="1.1"
- DESCRIPTION="Standard GNU file utilities (chmod, cp, dd, dir, ls...), text utilities (sort, tr, head, wc..), and shell utilities (whoami, who,...)"
-@@ -48,6 +48,17 @@
+@@ -48,6 +48,18 @@
  
  	epatch "${FILESDIR}"/${PN}-7.2-mint.patch
  
 +	[[ ${CHOST} == *-cygwin* ]] && {
-+		# avoid maintainer mode
-+		epatch "${FILESDIR}"/${PN}-8.15-am_maintainer_mode.patch
-+		epatch "${FILESDIR}"/${PN}-8.17-cygport-src.patch
++		epatch "${FILESDIR}"/${PN}-${PV}-cygport-src.patch
 +		epatch "${FILESDIR}"/${PN}-8.14-cygwin-tests.patch
 +		epatch "${FILESDIR}"/${PN}-8.17-install-scrub-cygwin-unc.patch
-+		eautoreconf
++		epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
++		# avoid maintainer mode
++		touch configure.ac
++		touch aclocal.m4
++		touch Makefile.in configure
++		touch lib/config.hin
 +	}
-+
-+	epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
 +
  	# Since we've patched many .c files, the make process will try to
  	# re-build the manpages by running `./bin --help`.  When doing a
  	# cross-compile, we can't do that since 'bin' isn't a native bin.
-@@ -145,14 +156,23 @@
- 
- 		[[ ${CHOST} == *-mint* ]] && fhs="${fhs} hostname"
- 
-+		[[ ${CHOST} == *-cygwin* ]] && \
-+			fhs="$( for x in $fhs; do echo ${x}.exe ; done )"
-+
- 		mv ${fhs} ../../bin/ || die "could not move fhs bins"
- 		# move critical binaries into /bin (common scripts)
- 		local com="basename chroot cut dir dirname du env expr head mkfifo
- 		           mktemp readlink seq sleep sort tail touch tr tty vdir wc yes"
-+		[[ ${CHOST} == *-cygwin* ]] &&
-+			com="$( for x in $com ; do echo ${x}.exe ; done )"
- 		mv ${com} ../../bin/ || die "could not move common bins"
- 		# create a symlink for uname in /usr/bin/ since autotools require it
--		local x
--		for x in ${com} uname ; do
-+		local x unamename
-+		case ${CHOST} in
-+			*-cygwin*) unamename=uname.exe ;;
-+			*) unamename=uname ;;
-+		esac
-+		for x in ${com} ${unamename}; do
- 			dosym /bin/${x} /usr/bin/${x} || die
- 		done
- 	else
 <-----8<-----
 ===== mutual sub-directory: "sys-apps/coreutils/files" =====
 
@@ -274,14 +74,13 @@
 overlay/sys-apps/coreutils/files/coreutils-8.14-cygport-src.patch: unified diff output, ASCII text
 overlay/sys-apps/coreutils/files/coreutils-8.14-cygwin-hostglob.patch: unified diff output, ASCII text
 overlay/sys-apps/coreutils/files/coreutils-8.14-cygwin-tests.patch: unified diff output, ASCII text
-overlay/sys-apps/coreutils/files/coreutils-8.14-scrub-cygwin-unc.patch: unified diff output, ASCII text
-overlay/sys-apps/coreutils/files/coreutils-8.15-am_maintainer_mode.patch: unified diff output, ASCII text
+overlay/sys-apps/coreutils/files/coreutils-8.14-install-scrub-cygwin-unc.patch: unified diff output, ASCII text
 overlay/sys-apps/coreutils/files/coreutils-8.15-cygport-src.patch: unified diff output, UTF-8 Unicode text
 overlay/sys-apps/coreutils/files/coreutils-8.17-cygport-src.patch: unified diff output, UTF-8 Unicode text
 overlay/sys-apps/coreutils/files/coreutils-8.17-install-scrub-cygwin-unc.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-apps/coreutils/coreutils-8.12.ebuild: ASCII English text
-usr/portage/sys-apps/coreutils/coreutils-8.8.ebuild: ASCII English text
-usr/portage/sys-apps/coreutils/coreutils-8.9.ebuild: ASCII English text
+usr/portage/sys-apps/coreutils/coreutils-8.12.ebuild: ASCII text
+usr/portage/sys-apps/coreutils/coreutils-8.8.ebuild: ASCII text
+usr/portage/sys-apps/coreutils/coreutils-8.9.ebuild: ASCII text
 

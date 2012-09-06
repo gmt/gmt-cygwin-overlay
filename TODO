@@ -228,4 +228,6 @@ o gettext represents our worst failure to gentooify an ebuild by far.  figure ou
 
 o The overlay-only masking trick we are doing in profile/..../package.{un,}mask is
   pretty ugly.  It does the trick for now but the real solution is to implement 
-  proper keywording .
+  proper keywording.
+
+o sys-apps/coreutils has multiple test failures.  Investigate and fix them.

@@ -4,12 +4,12 @@
 
 EAPI="3"
 
-inherit eutils flag-o-matic toolchain-funcs autotools
+inherit eutils flag-o-matic toolchain-funcs
 
 PATCH_VER="1"
 DESCRIPTION="Standard GNU file utilities (chmod, cp, dd, dir, ls...), text utilities (sort, tr, head, wc..), and shell utilities (whoami, who,...)"
 HOMEPAGE="http://www.gnu.org/software/coreutils/"
-SRC_URI="ftp://alpha.gnu.org/gnu/coreutils/${P}.tar.xz
+SRC_URI="mirror://gnu-alpha/coreutils/${P}.tar.xz
 	mirror://gnu/${PN}/${P}.tar.xz
 	mirror://gentoo/${P}.tar.xz
 	mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz
@@ -67,15 +67,16 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-8.5-interix-double.patch
 
 	[[ ${CHOST} == *-cygwin* ]] && {
-		# avoid maintainer mode
-		epatch "${FILESDIR}"/${PN}-8.15-am_maintainer_mode.patch
 		epatch "${FILESDIR}"/${PN}-${PV}-cygport-src.patch
 		epatch "${FILESDIR}"/${PN}-8.14-cygwin-tests.patch
-		epatch "${FILESDIR}"/${PN}-8.14-scrub-cygwin-unc.patch
-		eautoreconf
+		epatch "${FILESDIR}"/${PN}-8.14-install-scrub-cygwin-unc.patch
+		epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
+		# avoid maintainer mode
+		touch configure.ac
+		touch aclocal.m4
+		touch Makefile.in configure
+		touch lib/config.hin
 	}
-
-	epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
 
 	# Since we've patched many .c files, the make process will try to
 	# re-build the manpages by running `./bin --help`.  When doing a
@@ -187,23 +188,14 @@ src_install() {
 
 		[[ ${CHOST} == *-mint* ]] && fhs="${fhs} hostname"
 
-		[[ ${CHOST} == *-cygwin* ]] && \
-			fhs="$( for x in $fhs; do echo ${x}.exe ; done )"
-
 		mv ${fhs} ../../bin/ || die "could not move fhs bins"
 		# move critical binaries into /bin (common scripts)
 		local com="basename chroot cut dir dirname du env expr head mkfifo
 		           mktemp readlink seq sleep sort tail touch tr tty vdir wc yes"
-		[[ ${CHOST} == *-cygwin* ]] &&
-			com="$( for x in $com ; do echo ${x}.exe ; done )"
 		mv ${com} ../../bin/ || die "could not move common bins"
 		# create a symlink for uname in /usr/bin/ since autotools require it
-		local x unamename
-		case ${CHOST} in
-			*-cygwin*) unamename=uname.exe ;;
-			*) unamename=uname ;;
-		esac
-		for x in ${com} ${unamename}; do
+		local x
+		for x in ${com} uname ; do
 			dosym /bin/${x} /usr/bin/${x} || die
 		done
 	else

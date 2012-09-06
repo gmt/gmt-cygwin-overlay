@@ -1341,3 +1341,53 @@
    encrypted = crypt (unencrypted, correct);
    memset (unencrypted, 0, strlen (unencrypted));
    return STREQ (encrypted, correct);
+diff -urN -x autom4te.cache origsrc/coreutils-8.14/lib/Makefile.in src/coreutils-8.14/lib/Makefile.in
+--- origsrc/coreutils-8.14/lib/Makefile.in	2012-09-04 06:44:33.963602000 -0700
++++ src/coreutils-8.14/lib/Makefile.in	2012-09-05 00:08:46.545563600 -0700
+@@ -332,7 +349,7 @@
+ 	xsize.h xstriconv.h xstriconv.c xstrndup.h xstrndup.c \
+ 	xstrtod.c xstrtoimax.c xstrtol.c xstrtoul.c xstrtol-error.c \
+ 	xstrtold.c xstrtoumax.c xvasprintf.h xvasprintf.c xasprintf.c \
+-	yesno.c buffer-lcm.c buffer-lcm.h
++	yesno.c buffer-lcm.c buffer-lcm.h cygwin.c cygwin.h
+ am__dirstamp = $(am__leading_dot)dirstamp
+ @LIBUNISTRING_COMPILE_UNISTR_U8_MBTOUCR_TRUE@am__objects_1 = unistr/u8-mbtoucr.$(OBJEXT)
+ @LIBUNISTRING_COMPILE_UNISTR_U8_UCTOMB_TRUE@am__objects_2 = unistr/u8-uctomb.$(OBJEXT) \
+@@ -402,7 +419,7 @@
+ 	xstrtoimax.$(OBJEXT) xstrtol.$(OBJEXT) xstrtoul.$(OBJEXT) \
+ 	xstrtol-error.$(OBJEXT) xstrtold.$(OBJEXT) \
+ 	xstrtoumax.$(OBJEXT) xvasprintf.$(OBJEXT) xasprintf.$(OBJEXT) \
+-	yesno.$(OBJEXT) buffer-lcm.$(OBJEXT)
++	yesno.$(OBJEXT) buffer-lcm.$(OBJEXT) cygwin.$(OBJEXT)
+ libcoreutils_a_OBJECTS = $(am_libcoreutils_a_OBJECTS)
+ LTLIBRARIES = $(noinst_LTLIBRARIES)
+ DEFAULT_INCLUDES = -I.@am__isrc@
+@@ -1842,7 +1864,7 @@
+ 	xstrndup.h xstrndup.c xstrtod.c xstrtoimax.c xstrtol.c \
+ 	xstrtoul.c xstrtol-error.c xstrtold.c xstrtoumax.c \
+ 	xvasprintf.h xvasprintf.c xasprintf.c yesno.c buffer-lcm.c \
+-	buffer-lcm.h
++	buffer-lcm.h cygwin.c cygwin.h
+ libcoreutils_a_LIBADD = $(gl_LIBOBJS) @ALLOCA@ $(LIBOBJS)
+ libcoreutils_a_DEPENDENCIES = $(gl_LIBOBJS) @ALLOCA@ $(LIBOBJS)
+ EXTRA_libcoreutils_a_SOURCES = acl_entries.c alloca.c btowc.c \
+@@ -2050,6 +2071,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/copy-acl.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/creat-safer.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cycle-check.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cygwin.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/di-set.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/diacrit.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dirchownmod.Po@am__quote@
+diff -urN origsrc/coreutils-8.14/src/Makefile.in src/coreutils-8.14/src/Makefile.in
+--- origsrc/coreutils-8.14/src/Makefile.in	2012-09-05 01:22:34.212120300 -0700
++++ src/coreutils-8.14/src/Makefile.in	2012-09-05 01:26:52.615958100 -0700
+@@ -3184,7 +3184,7 @@
+ 	    && chmod $(setuid_root_mode) $$TMPFILE > /dev/null 2>&1 \
+ 	    && can_create_suid_root_executable=yes;		\
+ 	  rm -f $$TMPFILE;					\
+-	  if test $$can_create_suid_root_executable = yes; then \
++	  if :; then						\
+ 	    $(install_su);					\
+ 	  else							\
+ 	    echo "WARNING: insufficient access; not installing su"; \

@@ -1,6 +1,6 @@
 diff -urN coreutils-8.15.orig/ChangeLog coreutils-8.15/ChangeLog
---- coreutils-8.15.orig/ChangeLog	2012-01-06 09:28:25.000000000 -0800
-+++ coreutils-8.15/ChangeLog	2012-03-06 13:56:02.648531100 -0800
+--- coreutils-8.15.orig/ChangeLog	2012-09-05 04:33:22.875872200 -0700
++++ coreutils-8.15/ChangeLog	2012-09-05 04:35:29.848568200 -0700
 @@ -1029,6 +1029,13 @@
  	to 10 was that tail -f could be killed by the timeout before producing
  	any output.
@@ -234,8 +234,8 @@ diff -urN coreutils-8.15.orig/ChangeLog coreutils-8.15/ChangeLog
 +
 +	* src/install.c (strip): Check for .exe here since strip doesn't.
 diff -urN coreutils-8.15.orig/doc/coreutils.texi coreutils-8.15/doc/coreutils.texi
---- coreutils-8.15.orig/doc/coreutils.texi	2012-01-03 07:48:48.000000000 -0800
-+++ coreutils-8.15/doc/coreutils.texi	2012-03-06 13:42:19.117031100 -0800
+--- coreutils-8.15.orig/doc/coreutils.texi	2012-09-05 04:33:22.896874300 -0700
++++ coreutils-8.15/doc/coreutils.texi	2012-09-05 04:35:29.866570000 -0700
 @@ -7328,6 +7328,14 @@
  
  @table @samp
@@ -267,8 +267,8 @@ diff -urN coreutils-8.15.orig/doc/coreutils.texi coreutils-8.15/doc/coreutils.te
  @itemx --file-system
  @opindex -f
 diff -urN coreutils-8.15.orig/lib/Makefile.am coreutils-8.15/lib/Makefile.am
---- coreutils-8.15.orig/lib/Makefile.am	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/lib/Makefile.am	2012-03-06 13:42:19.120031100 -0800
+--- coreutils-8.15.orig/lib/Makefile.am	2012-09-05 04:33:22.904875100 -0700
++++ coreutils-8.15/lib/Makefile.am	2012-09-05 04:35:29.872570600 -0700
 @@ -33,5 +33,8 @@
  libcoreutils_a_SOURCES += \
    buffer-lcm.c buffer-lcm.h
@@ -278,9 +278,47 @@ diff -urN coreutils-8.15.orig/lib/Makefile.am coreutils-8.15/lib/Makefile.am
 +
  libcoreutils_a_LIBADD += $(LIBOBJS)
  libcoreutils_a_DEPENDENCIES += $(LIBOBJS)
+diff -urN coreutils-8.15.orig/lib/Makefile.in coreutils-8.15/lib/Makefile.in
+--- coreutils-8.15.orig/lib/Makefile.in	2012-09-05 04:34:19.808564900 -0700
++++ coreutils-8.15/lib/Makefile.in	2012-09-05 04:45:25.755700000 -0700
+@@ -350,7 +350,7 @@
+ 	xsize.h xstriconv.h xstriconv.c xstrndup.h xstrndup.c \
+ 	xstrtod.c xstrtoimax.c xstrtol.c xstrtoul.c xstrtol-error.c \
+ 	xstrtold.c xstrtoumax.c xvasprintf.h xvasprintf.c xasprintf.c \
+-	yesno.c buffer-lcm.c buffer-lcm.h
++	yesno.c buffer-lcm.c buffer-lcm.h cygwin.c cygwin.h
+ @LIBUNISTRING_COMPILE_UNISTR_U8_MBTOUCR_TRUE@am__objects_1 = u8-mbtoucr.$(OBJEXT)
+ @LIBUNISTRING_COMPILE_UNISTR_U8_UCTOMB_TRUE@am__objects_2 = u8-uctomb.$(OBJEXT) \
+ @LIBUNISTRING_COMPILE_UNISTR_U8_UCTOMB_TRUE@	u8-uctomb-aux.$(OBJEXT)
+@@ -419,7 +419,7 @@
+ 	xstrtoimax.$(OBJEXT) xstrtol.$(OBJEXT) xstrtoul.$(OBJEXT) \
+ 	xstrtol-error.$(OBJEXT) xstrtold.$(OBJEXT) \
+ 	xstrtoumax.$(OBJEXT) xvasprintf.$(OBJEXT) xasprintf.$(OBJEXT) \
+-	yesno.$(OBJEXT) buffer-lcm.$(OBJEXT)
++	yesno.$(OBJEXT) buffer-lcm.$(OBJEXT) cygwin.$(OBJEXT)
+ libcoreutils_a_OBJECTS = $(am_libcoreutils_a_OBJECTS)
+ DEFAULT_INCLUDES = -I.@am__isrc@
+ depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
+@@ -1840,7 +1840,7 @@
+ 	xstrndup.h xstrndup.c xstrtod.c xstrtoimax.c xstrtol.c \
+ 	xstrtoul.c xstrtol-error.c xstrtold.c xstrtoumax.c \
+ 	xvasprintf.h xvasprintf.c xasprintf.c yesno.c buffer-lcm.c \
+-	buffer-lcm.h
++	buffer-lcm.h cygwin.c cygwin.h
+ libcoreutils_a_LIBADD = $(gl_LIBOBJS) @ALLOCA@ $(LIBOBJS)
+ libcoreutils_a_DEPENDENCIES = $(gl_LIBOBJS) @ALLOCA@ $(LIBOBJS)
+ EXTRA_libcoreutils_a_SOURCES = acl_entries.c alloca.c at-func.c \
+@@ -2000,6 +2000,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/copy-acl.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/creat-safer.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cycle-check.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cygwin.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/di-set.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/diacrit.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dirchownmod.Po@am__quote@
 diff -urN coreutils-8.15.orig/lib/cygwin.c coreutils-8.15/lib/cygwin.c
 --- coreutils-8.15.orig/lib/cygwin.c	1969-12-31 16:00:00.000000000 -0800
-+++ coreutils-8.15/lib/cygwin.c	2012-03-06 13:42:19.122031100 -0800
++++ coreutils-8.15/lib/cygwin.c	2012-09-05 04:35:29.880571400 -0700
 @@ -0,0 +1,73 @@
 +/* cygwin.c - helper functions unique to Cygwin
 +
@@ -357,7 +395,7 @@ diff -urN coreutils-8.15.orig/lib/cygwin.c coreutils-8.15/lib/cygwin.c
 +}
 diff -urN coreutils-8.15.orig/lib/cygwin.h coreutils-8.15/lib/cygwin.h
 --- coreutils-8.15.orig/lib/cygwin.h	1969-12-31 16:00:00.000000000 -0800
-+++ coreutils-8.15/lib/cygwin.h	2012-03-06 13:42:19.123531100 -0800
++++ coreutils-8.15/lib/cygwin.h	2012-09-05 04:35:29.885571900 -0700
 @@ -0,0 +1,38 @@
 +/* cygwin.h - helper functions unique to Cygwin
 +
@@ -398,8 +436,8 @@ diff -urN coreutils-8.15.orig/lib/cygwin.h coreutils-8.15/lib/cygwin.h
 +
 +#endif /* CYGWIN_H */
 diff -urN coreutils-8.15.orig/lib/file-has-acl.c coreutils-8.15/lib/file-has-acl.c
---- coreutils-8.15.orig/lib/file-has-acl.c	2012-01-05 23:20:50.000000000 -0800
-+++ coreutils-8.15/lib/file-has-acl.c	2012-03-06 13:42:19.125531100 -0800
+--- coreutils-8.15.orig/lib/file-has-acl.c	2012-09-05 04:33:22.914876100 -0700
++++ coreutils-8.15/lib/file-has-acl.c	2012-09-05 04:35:29.894572800 -0700
 @@ -551,11 +551,11 @@
              if (count == 0)
                break;
@@ -415,8 +453,8 @@ diff -urN coreutils-8.15.orig/lib/file-has-acl.c coreutils-8.15/lib/file-has-acl
  
              entries = (aclent_t *) malloc (count * sizeof (aclent_t));
 diff -urN coreutils-8.15.orig/lib/hash-pjw.c coreutils-8.15/lib/hash-pjw.c
---- coreutils-8.15.orig/lib/hash-pjw.c	2012-01-05 23:20:50.000000000 -0800
-+++ coreutils-8.15/lib/hash-pjw.c	2012-03-06 13:42:21.906031100 -0800
+--- coreutils-8.15.orig/lib/hash-pjw.c	2012-09-05 04:33:22.918876500 -0700
++++ coreutils-8.15/lib/hash-pjw.c	2012-09-05 04:35:29.900573400 -0700
 @@ -19,6 +19,7 @@
  
  #include "hash-pjw.h"
@@ -443,16 +481,16 @@ diff -urN coreutils-8.15.orig/lib/hash-pjw.c coreutils-8.15/lib/hash-pjw.c
 +  return h % tablesize;
 +}
 diff -urN coreutils-8.15.orig/lib/hash-pjw.h coreutils-8.15/lib/hash-pjw.h
---- coreutils-8.15.orig/lib/hash-pjw.h	2012-01-05 23:20:50.000000000 -0800
-+++ coreutils-8.15/lib/hash-pjw.h	2012-03-06 14:02:01.657031100 -0800
+--- coreutils-8.15.orig/lib/hash-pjw.h	2012-09-05 04:33:22.921876800 -0700
++++ coreutils-8.15/lib/hash-pjw.h	2012-09-05 04:35:29.903573700 -0700
 @@ -21,3 +21,4 @@
     The result is platform dependent: it depends on the size of the 'size_t'
     type and on the signedness of the 'char' type.  */
  extern size_t hash_pjw (void const *x, size_t tablesize) _GL_ATTRIBUTE_PURE;
 +extern size_t hash_pjw_case (void const *x, size_t tablesize) _GL_ATTRIBUTE_PURE;
 diff -urN coreutils-8.15.orig/lib/hash-triple.c coreutils-8.15/lib/hash-triple.c
---- coreutils-8.15.orig/lib/hash-triple.c	2012-01-05 23:20:50.000000000 -0800
-+++ coreutils-8.15/lib/hash-triple.c	2012-03-06 13:42:21.910531100 -0800
+--- coreutils-8.15.orig/lib/hash-triple.c	2012-09-05 04:33:22.924877100 -0700
++++ coreutils-8.15/lib/hash-triple.c	2012-09-05 04:35:29.907574100 -0700
 @@ -34,7 +34,14 @@
  triple_hash (void const *x, size_t table_size)
  {
@@ -469,8 +507,8 @@ diff -urN coreutils-8.15.orig/lib/hash-triple.c coreutils-8.15/lib/hash-triple.c
    /* Ignoring the device number here should be fine.  */
    return (tmp ^ p->st_ino) % table_size;
 diff -urN coreutils-8.15.orig/lib/root-dev-ino.c coreutils-8.15/lib/root-dev-ino.c
---- coreutils-8.15.orig/lib/root-dev-ino.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/lib/root-dev-ino.c	2012-03-06 13:42:21.912031100 -0800
+--- coreutils-8.15.orig/lib/root-dev-ino.c	2012-09-05 04:33:22.929877600 -0700
++++ coreutils-8.15/lib/root-dev-ino.c	2012-09-05 04:35:29.910574400 -0700
 @@ -25,13 +25,17 @@
  /* Call lstat to get the device and inode numbers for `/'.
     Upon failure, return NULL.  Otherwise, set the members of
@@ -494,8 +532,8 @@ diff -urN coreutils-8.15.orig/lib/root-dev-ino.c coreutils-8.15/lib/root-dev-ino
    return root_d_i;
  }
 diff -urN coreutils-8.15.orig/lib/root-dev-ino.h coreutils-8.15/lib/root-dev-ino.h
---- coreutils-8.15.orig/lib/root-dev-ino.h	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/lib/root-dev-ino.h	2012-03-06 13:42:21.914031100 -0800
+--- coreutils-8.15.orig/lib/root-dev-ino.h	2012-09-05 04:33:22.933878000 -0700
++++ coreutils-8.15/lib/root-dev-ino.h	2012-09-05 04:35:29.913574700 -0700
 @@ -21,19 +21,26 @@
  # include "dev-ino.h"
  # include "same-inode.h"
@@ -528,8 +566,8 @@ diff -urN coreutils-8.15.orig/lib/root-dev-ino.h coreutils-8.15/lib/root-dev-ino
                 quote (Dirname));					\
        else								\
 diff -urN coreutils-8.15.orig/lib/same.c coreutils-8.15/lib/same.c
---- coreutils-8.15.orig/lib/same.c	2012-01-05 23:20:50.000000000 -0800
-+++ coreutils-8.15/lib/same.c	2012-03-06 13:42:21.916031100 -0800
+--- coreutils-8.15.orig/lib/same.c	2012-09-05 04:33:22.937878400 -0700
++++ coreutils-8.15/lib/same.c	2012-09-05 04:35:29.917575100 -0700
 @@ -40,6 +40,12 @@
  #include "error.h"
  #include "same-inode.h"
@@ -575,8 +613,8 @@ diff -urN coreutils-8.15.orig/lib/same.c coreutils-8.15/lib/same.c
    bool same = false;
  
 diff -urN coreutils-8.15.orig/lib/xfreopen.c coreutils-8.15/lib/xfreopen.c
---- coreutils-8.15.orig/lib/xfreopen.c	2012-01-05 23:20:50.000000000 -0800
-+++ coreutils-8.15/lib/xfreopen.c	2012-03-06 13:42:21.917531100 -0800
+--- coreutils-8.15.orig/lib/xfreopen.c	2012-09-05 04:33:22.941878800 -0700
++++ coreutils-8.15/lib/xfreopen.c	2012-09-05 04:35:29.919575300 -0700
 @@ -18,6 +18,8 @@
  #include "xfreopen.h"
  
@@ -605,8 +643,8 @@ diff -urN coreutils-8.15.orig/lib/xfreopen.c coreutils-8.15/lib/xfreopen.c
      {
        char const *f = (filename ? filename
 diff -urN coreutils-8.15.orig/src/Makefile.am coreutils-8.15/src/Makefile.am
---- coreutils-8.15.orig/src/Makefile.am	2012-01-03 07:48:48.000000000 -0800
-+++ coreutils-8.15/src/Makefile.am	2012-03-06 13:42:21.921031100 -0800
+--- coreutils-8.15.orig/src/Makefile.am	2012-09-05 04:33:22.949879600 -0700
++++ coreutils-8.15/src/Makefile.am	2012-09-05 04:35:29.930576400 -0700
 @@ -436,7 +436,10 @@
  	    && chmod $(setuid_root_mode) $$TMPFILE > /dev/null 2>&1 \
  	    && can_create_suid_root_executable=yes;		\
@@ -619,9 +657,21 @@ diff -urN coreutils-8.15.orig/src/Makefile.am coreutils-8.15/src/Makefile.am
  	    $(install_su);					\
  	  else							\
  	    echo "WARNING: insufficient access; not installing su"; \
+diff -urN coreutils-8.15.orig/src/Makefile.in coreutils-8.15/src/Makefile.in
+--- coreutils-8.15.orig/src/Makefile.in	2012-09-05 04:34:20.748658900 -0700
++++ coreutils-8.15/src/Makefile.in	2012-09-05 04:45:26.705795000 -0700
+@@ -3224,7 +3224,7 @@
+ 	    && chmod $(setuid_root_mode) $$TMPFILE > /dev/null 2>&1 \
+ 	    && can_create_suid_root_executable=yes;		\
+ 	  rm -f $$TMPFILE;					\
+-	  if test $$can_create_suid_root_executable = yes; then \
++	  if :; then						\
+ 	    $(install_su);					\
+ 	  else							\
+ 	    echo "WARNING: insufficient access; not installing su"; \
 diff -urN coreutils-8.15.orig/src/chcon.c coreutils-8.15/src/chcon.c
---- coreutils-8.15.orig/src/chcon.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/chcon.c	2012-03-06 13:42:21.925031100 -0800
+--- coreutils-8.15.orig/src/chcon.c	2012-09-05 04:33:22.954880100 -0700
++++ coreutils-8.15/src/chcon.c	2012-09-05 04:35:29.937577100 -0700
 @@ -48,7 +48,7 @@
  
  /* Pointer to the device and inode numbers of `/', when --recursive.
@@ -641,8 +691,8 @@ diff -urN coreutils-8.15.orig/src/chcon.c coreutils-8.15/src/chcon.c
        if (root_dev_ino == NULL)
          error (EXIT_FAILURE, errno, _("failed to get attributes of %s"),
 diff -urN coreutils-8.15.orig/src/chgrp.c coreutils-8.15/src/chgrp.c
---- coreutils-8.15.orig/src/chgrp.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/chgrp.c	2012-03-06 13:42:21.927531100 -0800
+--- coreutils-8.15.orig/src/chgrp.c	2012-09-05 04:33:22.959880600 -0700
++++ coreutils-8.15/src/chgrp.c	2012-09-05 04:35:29.944577800 -0700
 @@ -300,7 +300,7 @@
  
    if (chopt.recurse && preserve_root)
@@ -653,8 +703,8 @@ diff -urN coreutils-8.15.orig/src/chgrp.c coreutils-8.15/src/chgrp.c
        if (chopt.root_dev_ino == NULL)
          error (EXIT_FAILURE, errno, _("failed to get attributes of %s"),
 diff -urN coreutils-8.15.orig/src/chmod.c coreutils-8.15/src/chmod.c
---- coreutils-8.15.orig/src/chmod.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/chmod.c	2012-03-06 13:42:21.930031100 -0800
+--- coreutils-8.15.orig/src/chmod.c	2012-09-05 04:33:22.965881200 -0700
++++ coreutils-8.15/src/chmod.c	2012-09-05 04:35:29.950578400 -0700
 @@ -81,7 +81,7 @@
  
  /* Pointer to the device and inode numbers of `/', when --recursive.
@@ -674,8 +724,8 @@ diff -urN coreutils-8.15.orig/src/chmod.c coreutils-8.15/src/chmod.c
        if (root_dev_ino == NULL)
          error (EXIT_FAILURE, errno, _("failed to get attributes of %s"),
 diff -urN coreutils-8.15.orig/src/chown-core.h coreutils-8.15/src/chown-core.h
---- coreutils-8.15.orig/src/chown-core.h	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/chown-core.h	2012-03-06 13:42:21.931531100 -0800
+--- coreutils-8.15.orig/src/chown-core.h	2012-09-05 04:33:22.968881500 -0700
++++ coreutils-8.15/src/chown-core.h	2012-09-05 04:35:29.954578800 -0700
 @@ -50,7 +50,7 @@
  
    /* Pointer to the device and inode numbers of `/', when --recursive.
@@ -686,8 +736,8 @@ diff -urN coreutils-8.15.orig/src/chown-core.h coreutils-8.15/src/chown-core.h
    /* This corresponds to the --dereference (opposite of -h) option.  */
    bool affect_symlink_referent;
 diff -urN coreutils-8.15.orig/src/chown.c coreutils-8.15/src/chown.c
---- coreutils-8.15.orig/src/chown.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/chown.c	2012-03-06 13:42:21.933531100 -0800
+--- coreutils-8.15.orig/src/chown.c	2012-09-05 04:33:22.975882200 -0700
++++ coreutils-8.15/src/chown.c	2012-09-05 04:35:29.960579400 -0700
 @@ -314,7 +314,7 @@
  
    if (chopt.recurse && preserve_root)
@@ -698,8 +748,8 @@ diff -urN coreutils-8.15.orig/src/chown.c coreutils-8.15/src/chown.c
        if (chopt.root_dev_ino == NULL)
          error (EXIT_FAILURE, errno, _("failed to get attributes of %s"),
 diff -urN coreutils-8.15.orig/src/cksum.c coreutils-8.15/src/cksum.c
---- coreutils-8.15.orig/src/cksum.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/cksum.c	2012-03-06 13:42:21.935531100 -0800
+--- coreutils-8.15.orig/src/cksum.c	2012-09-05 04:33:22.982882900 -0700
++++ coreutils-8.15/src/cksum.c	2012-09-05 04:35:29.967580100 -0700
 @@ -298,6 +298,9 @@
  
    have_read_stdin = false;
@@ -711,8 +761,8 @@ diff -urN coreutils-8.15.orig/src/cksum.c coreutils-8.15/src/cksum.c
      ok = cksum ("-", false);
    else
 diff -urN coreutils-8.15.orig/src/copy.c coreutils-8.15/src/copy.c
---- coreutils-8.15.orig/src/copy.c	2012-01-05 06:24:19.000000000 -0800
-+++ coreutils-8.15/src/copy.c	2012-03-06 13:42:21.941531100 -0800
+--- coreutils-8.15.orig/src/copy.c	2012-09-05 04:33:22.991883800 -0700
++++ coreutils-8.15/src/copy.c	2012-09-05 04:35:29.979581300 -0700
 @@ -66,6 +66,10 @@
  # include "verror.h"
  #endif
@@ -863,8 +913,8 @@ diff -urN coreutils-8.15.orig/src/copy.c coreutils-8.15/src/copy.c
  
  /* Set *X to the default options for a value of type struct cp_options.  */
 diff -urN coreutils-8.15.orig/src/dd.c coreutils-8.15/src/dd.c
---- coreutils-8.15.orig/src/dd.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/dd.c	2012-03-06 13:42:21.944531100 -0800
+--- coreutils-8.15.orig/src/dd.c	2012-09-05 04:33:22.999884600 -0700
++++ coreutils-8.15/src/dd.c	2012-09-05 04:35:29.986582000 -0700
 @@ -36,6 +36,10 @@
  #include "xstrtol.h"
  #include "xtime.h"
@@ -909,8 +959,8 @@ diff -urN coreutils-8.15.orig/src/dd.c coreutils-8.15/src/dd.c
        /* Open the output file with *read* access only if we might
           need to read to satisfy a `seek=' request.  If we can't read
 diff -urN coreutils-8.15.orig/src/dircolors.c coreutils-8.15/src/dircolors.c
---- coreutils-8.15.orig/src/dircolors.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/dircolors.c	2012-03-06 13:42:21.947031100 -0800
+--- coreutils-8.15.orig/src/dircolors.c	2012-09-05 04:33:23.007885400 -0700
++++ coreutils-8.15/src/dircolors.c	2012-09-05 04:35:29.992582600 -0700
 @@ -495,8 +495,12 @@
              }
            else
@@ -926,20 +976,9 @@ diff -urN coreutils-8.15.orig/src/dircolors.c coreutils-8.15/src/dircolors.c
            fputs (prefix, stdout);
            fwrite (s, 1, len, stdout);
 diff -urN coreutils-8.15.orig/src/install.c coreutils-8.15/src/install.c
---- coreutils-8.15.orig/src/install.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/install.c	2012-03-06 13:42:21.949531100 -0800
-@@ -44,6 +44,10 @@
- #include "utimens.h"
- #include "xstrtol.h"
- 
-+#if __CYGWIN__
-+# include "cygwin.h"
-+#endif
-+
- /* The official name of this program (e.g., no `g' prefix).  */
- #define PROGRAM_NAME "install"
- 
-@@ -526,6 +530,16 @@
+--- coreutils-8.15.orig/src/install.c	2012-09-05 04:33:23.015886200 -0700
++++ coreutils-8.15/src/install.c	2012-09-05 04:38:00.101592000 -0700
+@@ -624,6 +624,16 @@
        error (EXIT_FAILURE, errno, _("fork system call failed"));
        break;
      case 0:			/* Child. */
@@ -957,8 +996,8 @@ diff -urN coreutils-8.15.orig/src/install.c coreutils-8.15/src/install.c
        error (EXIT_FAILURE, errno, _("cannot run %s"), strip_program);
        break;
 diff -urN coreutils-8.15.orig/src/ls.c coreutils-8.15/src/ls.c
---- coreutils-8.15.orig/src/ls.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/ls.c	2012-03-06 13:42:21.955531100 -0800
+--- coreutils-8.15.orig/src/ls.c	2012-09-05 04:33:23.027887400 -0700
++++ coreutils-8.15/src/ls.c	2012-09-05 04:35:47.370320200 -0700
 @@ -116,6 +116,10 @@
  # include <sys/capability.h>
  #endif
@@ -1072,8 +1111,8 @@ diff -urN coreutils-8.15.orig/src/ls.c coreutils-8.15/src/ls.c
        fputs (VERSION_OPTION_DESCRIPTION, stdout);
        emit_size_note ();
 diff -urN coreutils-8.15.orig/src/md5sum.c coreutils-8.15/src/md5sum.c
---- coreutils-8.15.orig/src/md5sum.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/md5sum.c	2012-03-06 13:42:21.957531100 -0800
+--- coreutils-8.15.orig/src/md5sum.c	2012-09-05 04:33:23.034888100 -0700
++++ coreutils-8.15/src/md5sum.c	2012-09-05 04:35:47.381321300 -0700
 @@ -741,6 +741,9 @@
    if (optind == argc)
      argv[argc++] = bad_cast ("-");
@@ -1085,8 +1124,8 @@ diff -urN coreutils-8.15.orig/src/md5sum.c coreutils-8.15/src/md5sum.c
      {
        char *file = argv[optind];
 diff -urN coreutils-8.15.orig/src/mv.c coreutils-8.15/src/mv.c
---- coreutils-8.15.orig/src/mv.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/mv.c	2012-03-06 13:42:21.959531100 -0800
+--- coreutils-8.15.orig/src/mv.c	2012-09-05 04:33:23.040888700 -0700
++++ coreutils-8.15/src/mv.c	2012-09-05 04:35:47.387321900 -0700
 @@ -90,7 +90,7 @@
    x->require_restore_cwd = true;
  
@@ -1114,8 +1153,8 @@ diff -urN coreutils-8.15.orig/src/mv.c coreutils-8.15/src/mv.c
          target_directory = file[--n_files];
        else if (2 < n_files)
 diff -urN coreutils-8.15.orig/src/pwd.c coreutils-8.15/src/pwd.c
---- coreutils-8.15.orig/src/pwd.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/pwd.c	2012-03-06 13:42:21.961531100 -0800
+--- coreutils-8.15.orig/src/pwd.c	2012-09-05 04:33:23.046889300 -0700
++++ coreutils-8.15/src/pwd.c	2012-09-05 04:35:47.394322600 -0700
 @@ -266,8 +266,8 @@
  robust_getcwd (struct file_name *file_name)
  {
@@ -1147,8 +1186,8 @@ diff -urN coreutils-8.15.orig/src/pwd.c coreutils-8.15/src/pwd.c
  
  
 diff -urN coreutils-8.15.orig/src/remove.h coreutils-8.15/src/remove.h
---- coreutils-8.15.orig/src/remove.h	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/remove.h	2012-03-06 13:42:21.963031100 -0800
+--- coreutils-8.15.orig/src/remove.h	2012-09-05 04:33:23.049889600 -0700
++++ coreutils-8.15/src/remove.h	2012-09-05 04:35:47.397322900 -0700
 @@ -51,7 +51,7 @@
  
    /* Pointer to the device and inode numbers of `/', when --recursive
@@ -1159,8 +1198,8 @@ diff -urN coreutils-8.15.orig/src/remove.h coreutils-8.15/src/remove.h
    /* If nonzero, stdin is a tty.  */
    bool stdin_tty;
 diff -urN coreutils-8.15.orig/src/rm.c coreutils-8.15/src/rm.c
---- coreutils-8.15.orig/src/rm.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/rm.c	2012-03-06 13:42:21.965031100 -0800
+--- coreutils-8.15.orig/src/rm.c	2012-09-05 04:33:23.056890300 -0700
++++ coreutils-8.15/src/rm.c	2012-09-05 04:35:47.405323700 -0700
 @@ -319,7 +319,7 @@
  
    if (x.recursive && preserve_root)
@@ -1171,8 +1210,8 @@ diff -urN coreutils-8.15.orig/src/rm.c coreutils-8.15/src/rm.c
        if (x.root_dev_ino == NULL)
          error (EXIT_FAILURE, errno, _("failed to get attributes of %s"),
 diff -urN coreutils-8.15.orig/src/stat.c coreutils-8.15/src/stat.c
---- coreutils-8.15.orig/src/stat.c	2012-03-06 13:41:53.014031100 -0800
-+++ coreutils-8.15/src/stat.c	2012-03-06 13:42:21.969031100 -0800
+--- coreutils-8.15.orig/src/stat.c	2012-09-05 04:33:23.101894800 -0700
++++ coreutils-8.15/src/stat.c	2012-09-05 04:35:47.413324500 -0700
 @@ -73,6 +73,13 @@
  #include "find-mount-point.h"
  #include "xvasprintf.h"
@@ -1293,8 +1332,8 @@ diff -urN coreutils-8.15.orig/src/stat.c coreutils-8.15/src/stat.c
  
          case_GETOPT_VERSION_CHAR (PROGRAM_NAME, AUTHORS);
 diff -urN coreutils-8.15.orig/src/su.c coreutils-8.15/src/su.c
---- coreutils-8.15.orig/src/su.c	2012-01-01 01:04:06.000000000 -0800
-+++ coreutils-8.15/src/su.c	2012-03-06 13:42:21.973031100 -0800
+--- coreutils-8.15.orig/src/su.c	2012-09-05 04:33:23.107895400 -0700
++++ coreutils-8.15/src/su.c	2012-09-05 04:35:47.420325200 -0700
 @@ -82,6 +82,12 @@
  
  #include "error.h"

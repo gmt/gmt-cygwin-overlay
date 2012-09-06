@@ -1,7 +1,30 @@
+diff -urN coreutils-8.14.orig/build-aux/config.guess coreutils-8.14/build-aux/config.guess
+--- coreutils-8.14.orig/build-aux/config.guess	2011-10-05 08:31:39.000000000 -0700
++++ coreutils-8.14/build-aux/config.guess	2012-09-05 01:49:13.792062300 -0700
+@@ -800,6 +800,9 @@
+ 		echo ${UNAME_PROCESSOR}-unknown-freebsd`echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'` ;;
+ 	esac
+ 	exit ;;
++    i*:CYGWIN*:1.7*:*)
++	echo ${UNAME_MACHINE}-pc-cygwin1.7
++	exit ;;
+     i*:CYGWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+ 	exit ;;
+@@ -840,6 +843,9 @@
+     i*:UWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-uwin
+ 	exit ;;
++    amd64:CYGWIN*:1.7*:* | x86_64:CYGWIN*:1.7*:*)
++	echo x86_64-unknown-cygwin1.7
++	exit ;;
+     amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
+ 	echo x86_64-unknown-cygwin
+ 	exit ;;
 diff -urN coreutils-8.14.orig/configure coreutils-8.14/configure
---- coreutils-8.14.orig/configure	2012-02-24 12:51:15.560830900 -0800
-+++ coreutils-8.14/configure	2012-02-24 13:14:40.656793900 -0800
-@@ -8778,7 +8778,7 @@
+--- coreutils-8.14.orig/configure	2012-09-05 01:41:52.045892100 -0700
++++ coreutils-8.14/configure	2012-09-05 02:00:03.181994800 -0700
+@@ -8831,7 +8831,7 @@
          # special semantics and is distinct from /, please report it to
          # <bug-gnulib@gnu.org>.
          case $host in
@@ -10,7 +33,7 @@ diff -urN coreutils-8.14.orig/configure coreutils-8.14/configure
              gl_cv_double_slash_root=yes ;;
            *)
              # Be optimistic and assume that / and // are the same when we
-@@ -25308,7 +25308,7 @@
+@@ -25361,7 +25361,7 @@
          # special semantics and is distinct from /, please report it to
          # <bug-gnulib@gnu.org>.
          case $host in
@@ -19,7 +42,7 @@ diff -urN coreutils-8.14.orig/configure coreutils-8.14/configure
              gl_cv_double_slash_root=yes ;;
            *)
              # Be optimistic and assume that / and // are the same when we
-@@ -56330,7 +56330,7 @@
+@@ -56383,7 +56383,7 @@
    gnu[0-9]* | \
    linux-* | linux | \
    freebsd2.2* | freebsd[3-9]* | freebsd[1-9][0-9]* | \
@@ -28,9 +51,21 @@ diff -urN coreutils-8.14.orig/configure coreutils-8.14/configure
    mingw*)
  
  $as_echo "#define UNLINK_CANNOT_UNLINK_DIR 1" >>confdefs.h
+diff -urN coreutils-8.14.orig/m4/double-slash-root.m4 coreutils-8.14/m4/double-slash-root.m4
+--- coreutils-8.14.orig/m4/double-slash-root.m4	2011-04-24 10:21:45.000000000 -0700
++++ coreutils-8.14/m4/double-slash-root.m4	2012-09-05 01:55:35.831262400 -0700
+@@ -16,7 +16,7 @@
+         # special semantics and is distinct from /, please report it to
+         # <bug-gnulib@gnu.org>.
+         case $host in
+-          *-cygwin | i370-ibm-openedition)
++          *-cygwin* | i370-ibm-openedition)
+             gl_cv_double_slash_root=yes ;;
+           *)
+             # Be optimistic and assume that / and // are the same when we
 diff -urN coreutils-8.14.orig/m4/unlinkdir.m4 coreutils-8.14/m4/unlinkdir.m4
---- coreutils-8.14.orig/m4/unlinkdir.m4	2011-06-17 01:03:03.000000000 -0700
-+++ coreutils-8.14/m4/unlinkdir.m4	2012-02-24 13:17:02.996256100 -0800
+--- coreutils-8.14.orig/m4/unlinkdir.m4	2012-09-05 01:39:46.021290900 -0700
++++ coreutils-8.14/m4/unlinkdir.m4	2012-09-05 01:57:01.007779200 -0700
 @@ -24,7 +24,7 @@
    gnu[[0-9]]* | \
    linux-* | linux | \

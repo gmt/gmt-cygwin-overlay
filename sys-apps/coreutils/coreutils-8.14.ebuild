@@ -1,15 +1,15 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="3"
 
-inherit eutils flag-o-matic toolchain-funcs autotools
+inherit eutils flag-o-matic toolchain-funcs
 
 PATCH_VER="1"
 DESCRIPTION="Standard GNU file utilities (chmod, cp, dd, dir, ls...), text utilities (sort, tr, head, wc..), and shell utilities (whoami, who,...)"
 HOMEPAGE="http://www.gnu.org/software/coreutils/"
-SRC_URI="ftp://alpha.gnu.org/gnu/coreutils/${P}.tar.xz
+SRC_URI="mirror://gnu-alpha/coreutils/${P}.tar.xz
 	mirror://gnu/${PN}/${P}.tar.xz
 	mirror://gentoo/${P}.tar.xz
 	mirror://gentoo/${P}-patches-${PATCH_VER}.tar.xz
@@ -68,11 +68,14 @@ src_prepare() {
 	[[ ${CHOST} == *-cygwin* ]] && {
 		epatch "${FILESDIR}"/${PN}-${PV}-cygport-src.patch
 		epatch "${FILESDIR}"/${PN}-8.14-cygwin-tests.patch
-		epatch "${FILESDIR}"/${PN}-8.14-scrub-cygwin-unc.patch
-		eautoreconf
+		epatch "${FILESDIR}"/${PN}-8.14-install-scrub-cygwin-unc.patch
+		epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
+		# avoid maintainer mode
+		touch configure.ac
+		touch aclocal.m4
+		touch Makefile.in configure
+		touch lib/config.hin
 	}
-
-	epatch "${FILESDIR}"/${PN}-8.14-cygwin-hostglob.patch
 
 	# Since we've patched many .c files, the make process will try to
 	# re-build the manpages by running `./bin --help`.  When doing a
@@ -97,6 +100,10 @@ src_configure() {
 	fi
 
 	tc-is-cross-compiler && [[ ${CHOST} == *linux* ]] && export fu_cv_sys_stat_statfs2_bsize=yes #311569
+
+	# m4/pthread.m4 on FreeBSD thinks pthread_join doesn't need any libaries
+	# sort.c:(.text+0x4f25): undefined reference to `pthread_create'
+	[[ ${CHOST} == *-freebsd* ]] && export gl_cv_search_pthread_join=-pthread
 
 	use static && append-ldflags -static && sed -i '/elf_sys=yes/s:yes:no:' configure #321821
 	use selinux || export ac_cv_{header_selinux_{context,flash,selinux}_h,search_setfilecon}=no #301782
@@ -177,23 +184,14 @@ src_install() {
 
 		[[ ${CHOST} == *-mint* ]] && fhs="${fhs} hostname"
 
-		[[ ${CHOST} == *-cygwin* ]] && \
-			fhs="$( for x in $fhs; do echo ${x}.exe ; done )"
-
 		mv ${fhs} ../../bin/ || die "could not move fhs bins"
 		# move critical binaries into /bin (common scripts)
 		local com="basename chroot cut dir dirname du env expr head mkfifo
 		           mktemp readlink seq sleep sort tail touch tr tty vdir wc yes"
-		[[ ${CHOST} == *-cygwin* ]] &&
-			com="$( for x in $com ; do echo ${x}.exe ; done )"
 		mv ${com} ../../bin/ || die "could not move common bins"
 		# create a symlink for uname in /usr/bin/ since autotools require it
-		local x unamename
-		case ${CHOST} in
-			*-cygwin*) unamename=uname.exe ;;
-			*) unamename=uname ;;
-		esac
-		for x in ${com} ${unamename}; do
+		local x
+		for x in ${com} uname ; do
 			dosym /bin/${x} /usr/bin/${x} || die
 		done
 	else
