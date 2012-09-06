@@ -1,0 +1,217 @@
+diff -urN tar-1.26.orig/lib/rmt.h tar-1.26/lib/rmt.h
+--- tar-1.26.orig/lib/rmt.h	2009-10-21 09:12:40.000000000 -0700
++++ tar-1.26/lib/rmt.h	2012-09-06 04:15:18.837632300 -0700
+@@ -59,10 +59,18 @@
+ #define rmtstat(dev_name, buffer) \
+   (_remdev (dev_name) ? (errno = EOPNOTSUPP), -1 : stat (dev_name, buffer))
+ 
++#if __CYGWIN__
++  #define __rmtcreat_creat(dev_name, mode) \
++    (open (dev_name, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, mode))
++#else
++  #define __rmtcreat_creat(dev_name, mode) \
++    (creat (dev_name, mode))
++#endif
++
+ #define rmtcreat(dev_name, mode, command) \
+    (_remdev (dev_name) \
+     ? rmt_open__ (dev_name, O_CREAT | O_WRONLY, __REM_BIAS, command) \
+-    : creat (dev_name, mode))
++    : __rmtcreat_creat (dev_name, mode))
+ 
+ #define rmtlstat(dev_name, muffer) \
+   (_remdev (dev_name) ? (errno = EOPNOTSUPP), -1 : lstat (dev_name, buffer))
+diff -urN tar-1.26.orig/rmt/rmt.c tar-1.26/rmt/rmt.c
+--- tar-1.26.orig/rmt/rmt.c	2010-09-14 03:11:10.000000000 -0700
++++ tar-1.26/rmt/rmt.c	2012-09-06 04:16:19.548702800 -0700
+@@ -334,7 +334,11 @@
+       if (device_fd >= 0)
+ 	close (device_fd);
+ 
++#if __CYGWIN__
++      device_fd = open (device, flag | O_BINARY, MODE_RW);
++#else
+       device_fd = open (device, flag, MODE_RW);
++#endif
+       if (device_fd < 0)
+ 	rmt_error (errno);
+       else
+diff -urN tar-1.26.orig/src/buffer.c tar-1.26/src/buffer.c
+--- tar-1.26.orig/src/buffer.c	2010-11-27 04:53:53.000000000 -0800
++++ tar-1.26/src/buffer.c	2012-09-06 04:20:15.154261000 -0700
+@@ -696,6 +696,9 @@
+             enum compress_type type;
+ 
+             archive = STDIN_FILENO;
++#if __CYGWIN__
++	    freopen (NULL, "rb", stdin);
++#endif
+ 
+             type = check_compressed_archive (&shortfile);
+             if (type != ct_tar && type != ct_none)
+@@ -709,12 +712,23 @@
+ 
+         case ACCESS_WRITE:
+           archive = STDOUT_FILENO;
++#if __CYGWIN__
++	  freopen(NULL,
++	  	  fcntl (STDOUT_FILENO, F_GETFL) & O_APPEND ? "ab" : "wb",
++		  stdout);
++#endif
+           if (!index_file_name)
+             stdlis = stderr;
+           break;
+ 
+         case ACCESS_UPDATE:
+           archive = STDIN_FILENO;
++#if __CYGWIN__
++	  freopen (NULL, "rb", stdin);
++	  freopen (NULL,
++	  	   fcntl (STDOUT_FILENO, F_GETFL) & O_APPEND ? "ab" : "wb",
++		   stdout);
++#endif
+           write_archive_to_stdout = true;
+           record_end = record_start; /* set up for 1st record = # 0 */
+           if (!index_file_name)
+@@ -1085,7 +1099,11 @@
+ void
+ closeout_volume_number (void)
+ {
++#if __CYGWIN__
++  FILE *file = fopen (volno_file_option, "wb");
++#else
+   FILE *file = fopen (volno_file_option, "w");
++#endif
+ 
+   if (file)
+     {
+diff -urN tar-1.26.orig/src/extract.c tar-1.26/src/extract.c
+--- tar-1.26.orig/src/extract.c	2012-09-06 03:55:00.203000000 -0700
++++ tar-1.26/src/extract.c	2012-09-06 04:52:39.701696300 -0700
+@@ -118,7 +118,14 @@
+        other process removes the placeholder.  */
+     dev_t dev;
+     ino_t ino;
++#if __CYGWIN__
++    /* for cygwin, we use mtime instead of ctime of the
++       placeholder, because background processes running
++       under Windows may change it */
++    struct timespec mtime0;
++#else
+     struct timespec ctime;
++#endif
+ 
+     /* True if the link is symbolic.  */
+     bool is_symlink;
+@@ -1135,7 +1142,11 @@
+       delayed_link_head = p;
+       p->dev = st.st_dev;
+       p->ino = st.st_ino;
++#if __CYGWIN__
++      p->mtime0 = get_stat_mtime (&st);
++#else
+       p->ctime = get_stat_ctime (&st);
++#endif
+       p->is_symlink = is_symlink;
+       if (is_symlink)
+ 	{
+@@ -1194,7 +1205,11 @@
+ 	      if (ds->change_dir == chdir_current
+ 		  && ds->dev == st1.st_dev
+ 		  && ds->ino == st1.st_ino
++#if __CYGWIN__
++		  && timespec_cmp (ds->mtime0, get_stat_mtime (&st1)) == 0)
++#else
+ 		  && timespec_cmp (ds->ctime, get_stat_ctime (&st1)) == 0)
++#endif
+ 		{
+ 		  struct string_list *p =  xmalloc (offsetof (struct string_list, string)
+ 						    + strlen (file_name) + 1);
+@@ -1560,7 +1575,11 @@
+ 	  if (fstatat (chdir_fd, source, &st, AT_SYMLINK_NOFOLLOW) == 0
+ 	      && st.st_dev == ds->dev
+ 	      && st.st_ino == ds->ino
++#if __CYGWIN__
++	      && timespec_cmp (get_stat_mtime (&st), ds->mtime0) == 0)
++#else
+ 	      && timespec_cmp (get_stat_ctime (&st), ds->ctime) == 0)
++#endif
+ 	    {
+ 	      /* Unlink the placeholder, then create a hard link if possible,
+ 		 a symbolic link otherwise.  */
+diff -urN tar-1.26.orig/src/incremen.c tar-1.26/src/incremen.c
+--- tar-1.26.orig/src/incremen.c	2011-02-16 14:12:16.000000000 -0800
++++ tar-1.26/src/incremen.c	2012-09-06 04:24:20.842827400 -0700
+@@ -992,7 +992,16 @@
+       lineno++;
+ 
+       if (buf[n - 1] == '\n')
++      {
+ 	buf[n - 1] = '\0';
++#if __CYGWIN
++	/* Cygwin hack - older tars created incremental files with \r\n
++	   line endings, so strip the \r.  This breaks on managed mount
++	   on directories with a trailing \r, oh well.  */
++	   if (buf[n - 2] == '\r')
++	     buf[n - 2] = '\0';
++#endif
++      }
+ 
+       if (version == 1)
+ 	{
+@@ -1279,8 +1288,11 @@
+   int fd;
+   char *buf = NULL;
+   size_t bufsize = 0;
++#if __CYGWIN__
++  int flags = O_RDWR | O_CREAT | O_BINARY;
++#else
+   int flags = O_RDWR | O_CREAT;
+-
++#endif
+   if (incremental_level == 0)
+     flags |= O_TRUNC;
+   /* Open the file for both read and write.  That way, we can write
+@@ -1293,7 +1305,11 @@
+       return;
+     }
+ 
++#if __CYGWIN__
++  listed_incremental_stream = fdopen (fd, "rb+");
++#else
+   listed_incremental_stream = fdopen (fd, "r+");
++#endif
+   if (! listed_incremental_stream)
+     {
+       open_error (listed_incremental_option);
+diff -urN tar-1.26.orig/src/system.c tar-1.26/src/system.c
+--- tar-1.26.orig/src/system.c	2010-11-05 01:16:25.000000000 -0700
++++ tar-1.26/src/system.c	2012-09-06 04:28:30.070747700 -0700
+@@ -352,7 +352,12 @@
+ 	 compressor.  */
+       if (strcmp (archive_name_array[0], "-"))
+ 	{
++#if __CYGWIN__
++	  archive = open (archive_name_array[0], 
++	                  O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, MODE_RW);
++#else
+ 	  archive = creat (archive_name_array[0], MODE_RW);
++#endif
+ 	  if (archive < 0)
+ 	    {
+ 	      int saved_errno = errno;
+@@ -396,7 +401,13 @@
+   xclose (child_pipe[PWRITE]);
+ 
+   if (strcmp (archive_name_array[0], "-") == 0)
+-    archive = STDOUT_FILENO;
++    {
++      archive = STDOUT_FILENO;
++#if __CYGWIN__
++      freopen(NULL, fcntl (STDOUT_FILENO, F_GETFL) & O_APPEND ? "ab" : "wb",
++      	      stdout);
++#endif
++    }
+   else
+     {
+       archive = rmtcreat (archive_name_array[0], MODE_RW, rsh_command_option);
