@@ -1,7 +1,7 @@
 ===== mutual sub-directory: "dev-libs/popt" =====
----("dev-libs/popt/popt-1.16-r1.ebuild")--->8--->
---- usr/portage/dev-libs/popt/popt-1.16-r1.ebuild [[PORTAGE]]
-+++ overlay/dev-libs/popt/popt-1.16-r1.ebuild [[OVERLAY]]
+----[ "dev-libs/popt/popt-1.16-r1.ebuild" ]----->8----->
+--- PORTAGE/dev-libs/popt/popt-1.16-r1.ebuild
++++ OVERLAY/dev-libs/popt/popt-1.16-r1.ebuild
 @@ -4,7 +4,7 @@
  
  EAPI=3
@@ -9,12 +9,13 @@
 -inherit eutils libtool
 +inherit eutils libtool autotools
  
- # For bug 349558, epatch
- inherit eutils
-@@ -33,6 +33,11 @@
- src_prepare() {
+ DESCRIPTION="Parse Options - Command line parser"
+ HOMEPAGE="http://rpm5.org/"
+@@ -24,6 +24,12 @@
+ 
  	epatch "${FILESDIR}"/${PN}-1.15-mint.patch
  	epatch "${FILESDIR}"/${PN}-1.13-no-wchar-hack.patch # for Interix and MiNT
++	epatch "${FILESDIR}"/${PN}-1.16-automake-1.12-compatibility.patch
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-1.6.4-cygwin.patch
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-glob_pattern_p.patch
@@ -23,15 +24,11 @@
  	elibtoolize # for FreeMiNT
  }
  
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "dev-libs/popt/files" =====
 
 *** The following files appear only in the overlay ***
+overlay/dev-libs/popt/files/popt-1.16-automake-1.12-compatibility.patch: unified diff output, ASCII text
 overlay/dev-libs/popt/files/popt-1.16-cygwin-glob_pattern_p.patch: unified diff output, ASCII text
 overlay/dev-libs/popt/files/popt-1.6.4-cygwin.patch: unified diff output, ASCII text
-
-*** The following files appear only in portage ***
-usr/portage/dev-libs/popt/ChangeLog: UTF-8 Unicode English text
-usr/portage/dev-libs/popt/popt-1.15.ebuild: ASCII English text
-usr/portage/dev-libs/popt/popt-1.16.ebuild: ASCII English text
 
