@@ -1,0 +1,16 @@
+diff -urN rsync-3.0.9.orig/syscall.c rsync-3.0.9/syscall.c
+--- rsync-3.0.9.orig/syscall.c	2011-02-21 11:32:51.000000000 -0800
++++ rsync-3.0.9/syscall.c	2012-09-06 18:05:53.821939400 -0700
+@@ -29,6 +29,12 @@
+ #include <sys/attr.h>
+ #endif
+ 
++#if __CYGWIN__
++/* We really want to include io.h here, but if we try, we will get
++   rsync's own io.h instead due to -I. on the command-line.  So... */
++extern int setmode (int __fd, int __mode);
++#endif
++
+ extern int dry_run;
+ extern int am_root;
+ extern int read_only;

@@ -6,6 +6,7 @@ dev-lang
 dev-libs
 dev-util
 dev-vcs
+net-misc
 sys-apps
 sys-devel
 sys-libs

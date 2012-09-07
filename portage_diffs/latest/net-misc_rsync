@@ -1,0 +1,78 @@
+===== mutual sub-directory: "net-misc/rsync" =====
+----[ "net-misc/rsync/ChangeLog" ]----->8----->
+--- PORTAGE/net-misc/rsync/ChangeLog
++++ OVERLAY/net-misc/rsync/ChangeLog
+@@ -2,6 +2,12 @@
+ # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+ # $Header: $
+ 
++  06 Sep 2012; Greg Turner <gmt@be-evil.net> rsync-3.0.9-r2.ebuild,
++  +files/rsync-3.0.9-cygport.patch:
++  Patch required for xattr support on cygwin (not currently usable,
++  as right now xattr is masked; however, once we unmask, this will
++  hopefully "do the right thing."
++
+   30 Jun 2012; Fabian Groffen <grobian@gentoo.org> rsync-3.0.9-r2.ebuild:
+   Fix elementary Prefix error using ED for DESTDIR in make install.
+ 
+<-----8<-----
+----[ "net-misc/rsync/rsync-3.0.9-r2.ebuild" ]----->8----->
+--- PORTAGE/net-misc/rsync/rsync-3.0.9-r2.ebuild
++++ OVERLAY/net-misc/rsync/rsync-3.0.9-r2.ebuild
+@@ -1,6 +1,6 @@
+ # Copyright 1999-2012 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: $
++# $Header: /var/cvsroot/gentoo-x86/net-misc/rsync/rsync-3.0.9-r2.ebuild,v 1.5 2012/06/30 11:31:59 grobian Exp $
+ 
+ EAPI="4"
+ 
+@@ -27,6 +27,9 @@
+ S=${WORKDIR}/${P/_/}
+ 
+ src_prepare() {
++	epatch "${FILESDIR}"/${P}-cygport.patch
++	epatch "${FILESDIR}"/${P}-cygwin-setmode.patch
++	touch config.h.in
+ 	epatch_user
+ }
+ 
+<-----8<-----
+===== mutual sub-directory: "net-misc/rsync/files" =====
+----[ "net-misc/rsync/files/rsyncd.init.d" ]----->8----->
+--- PORTAGE/net-misc/rsync/files/rsyncd.init.d
++++ OVERLAY/net-misc/rsync/files/rsyncd.init.d
+@@ -1,7 +1,7 @@
+ #!/sbin/runscript
+ # Copyright 1999-2004 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: $
++# $Header: /var/cvsroot/gentoo-x86/net-misc/rsync/files/rsyncd.init.d,v 1.5 2007/02/23 11:33:59 uberlord Exp $
+ 
+ depend() {
+ 	use net
+<-----8<-----
+----[ "net-misc/rsync/files/rsyncd.init.d-r1" ]----->8----->
+--- PORTAGE/net-misc/rsync/files/rsyncd.init.d-r1
++++ OVERLAY/net-misc/rsync/files/rsyncd.init.d-r1
+@@ -1,7 +1,7 @@
+ #!/sbin/runscript
+ # Copyright 1999-2012 Gentoo Foundation
+ # Distributed under the terms of the GNU General Public License v2
+-# $Header: $
++# $Header: /var/cvsroot/gentoo-x86/net-misc/rsync/files/rsyncd.init.d-r1,v 1.1 2012/03/22 22:01:21 idl0r Exp $
+ 
+ command="/usr/bin/rsync"
+ command_args="--daemon ${RSYNC_OPTS}"
+<-----8<-----
+
+*** The following files appear only in the overlay ***
+overlay/net-misc/rsync/files/rsync-3.0.9-cygport.patch: unified diff output, ASCII text
+overlay/net-misc/rsync/files/rsync-3.0.9-cygwin-setmode.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/net-misc/rsync/rsync-3.0.7-r2.ebuild: ASCII text
+usr/portage/net-misc/rsync/rsync-3.0.7.ebuild: ASCII text
+usr/portage/net-misc/rsync/rsync-3.0.8.ebuild: ASCII text
+usr/portage/net-misc/rsync/rsync-3.0.9.ebuild: ASCII text
+

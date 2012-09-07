@@ -1,0 +1,24 @@
+diff -urN rsync-3.0.9.orig/configure.ac rsync-3.0.9/configure.ac
+--- rsync-3.0.9.orig/configure.ac	2012-09-06 14:06:10.269439400 -0700
++++ rsync-3.0.9/configure.ac	2012-09-06 14:06:42.848439400 -0700
+@@ -966,7 +966,7 @@
+     AC_MSG_RESULT(no)
+ else
+     case "$host_os" in
+-    *linux*)
++    *linux* | *cygwin*)
+ 	AC_MSG_RESULT(Using Linux xattrs)
+ 	AC_DEFINE(HAVE_LINUX_XATTRS, 1, [True if you have Linux xattrs])
+ 	AC_DEFINE(SUPPORT_XATTRS, 1)
+diff -urN rsync-3.0.9.orig/configure.sh rsync-3.0.9/configure.sh
+--- rsync-3.0.9.orig/configure.sh	2012-09-06 14:06:16.570439400 -0700
++++ rsync-3.0.9/configure.sh	2012-09-06 14:06:47.317439400 -0700
+@@ -8422,7 +8422,7 @@
+ $as_echo "no" >&6; }
+ else
+     case "$host_os" in
+-    *linux*)
++    *linux* | *cygwin*)
+ 	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: Using Linux xattrs" >&5
+ $as_echo "Using Linux xattrs" >&6; }
+ 
