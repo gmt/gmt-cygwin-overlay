@@ -36,3 +36,4 @@ sys-devel/libtool
 sys-libs/ncurses
 sys-libs/readline
 sys-libs/zlib
+x11-misc/shared-mime-info

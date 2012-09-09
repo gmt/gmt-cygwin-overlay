@@ -1,0 +1,33 @@
+===== mutual sub-directory: "x11-misc/shared-mime-info" =====
+----[ "x11-misc/shared-mime-info/shared-mime-info-1.0.ebuild" ]----->8----->
+--- PORTAGE/x11-misc/shared-mime-info/shared-mime-info-1.0.ebuild
++++ OVERLAY/x11-misc/shared-mime-info/shared-mime-info-1.0.ebuild
+@@ -3,7 +3,7 @@
+ # $Header: $
+ 
+ EAPI=4
+-inherit fdo-mime
++inherit fdo-mime autotools eutils
+ 
+ DESCRIPTION="The Shared MIME-info Database specification"
+ HOMEPAGE="http://freedesktop.org/wiki/Software/shared-mime-info"
+@@ -24,6 +24,14 @@
+ 
+ DOCS=( ChangeLog HACKING NEWS README )
+ 
++src_prepare() {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		# backport 1f3c3f46e (https://bugs.freedesktop.org/show_bug.cgi?id=42554)
++		epatch "${FILESDIR}"/${P}-fix-exe-platforms.patch
++		eautoreconf
++	fi
++}
++
+ src_configure() {
+ 	econf --disable-update-mimedb
+ }
+<-----8<-----
+
+*** The following files appear only in the overlay ***
+overlay/x11-misc/shared-mime-info/files: directory
+
