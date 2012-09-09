@@ -321,7 +321,5 @@
 overlay/sys-devel/binutils-config/files/binutils-config-3-cygwin-support.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-devel/binutils-config/ChangeLog: UTF-8 Unicode text
 usr/portage/sys-devel/binutils-config/binutils-config-3-r2.ebuild: ASCII text
-usr/portage/sys-devel/binutils-config/metadata.xml: XML document text
 
