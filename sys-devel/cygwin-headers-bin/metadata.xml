@@ -11,5 +11,5 @@
     project's header files from the official "cygwin" package.
   </longdescription>
   <upstream>http://www.gentoo.org/proj/en/gentoo-alt/prefix/</upstream>
+  <bugs-to>https://github.com/gmt/gmt-cygwin-overlay/issues</bugs-to>
 </pkgmetadata>
-<bugs-to>https://github.com/gmt/gmt-cygwin-overlay/issues</bugs-to>
