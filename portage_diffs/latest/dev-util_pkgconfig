@@ -18,7 +18,7 @@
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		epatch "${FILESDIR}"/${PN}-0.23b-cygport.patch
 +		epatch "${FILESDIR}"/${PN}-fix-const.patch
-+		eautoreconf -i
++		eautoreconf
 +	fi
  	elibtoolize # for FreeMiNT, bug #333429
  }
@@ -34,6 +34,21 @@
  
  	econf \
  		--docdir="${EPREFIX}"/usr/share/doc/${PF}/html \
+<-----8<-----
+----[ "dev-util/pkgconfig/pkgconfig-0.27.1.ebuild" ]----->8----->
+--- PORTAGE/dev-util/pkgconfig/pkgconfig-0.27.1.ebuild
++++ OVERLAY/dev-util/pkgconfig/pkgconfig-0.27.1.ebuild
+@@ -57,7 +57,9 @@
+ 
+ 	# Force using all the requirements when linking, so that needed -pthread
+ 	# lines are inherited between libraries
+-	use elibc_FreeBSD && myconf+=' --enable-indirect-deps'
++	if use elibc_FreeBSD || [[ ${CHOST} == *-cygwin* ]] ; then
++		myconf+="--enable-indirect-deps"
++	fi
+ 
+ 	[[ ${PV} == *9999* ]] && myconf+=' --enable-maintainer-mode'
+ 
 <-----8<-----
 
 *** The following files appear only in the overlay ***

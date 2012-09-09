@@ -28,6 +28,8 @@
 =dev-libs/gmp-5.0.5
 =dev-libs/mpc-0.9-r1
 =dev-libs/mpfr-3.0.1_p4-r1
+=dev-util/pkgconfig-0.26
+=dev-util/pkgconfig-0.27.1
 =sys-apps/coreutils-8.14
 =sys-apps/coreutils-8.15
 =sys-apps/coreutils-8.17

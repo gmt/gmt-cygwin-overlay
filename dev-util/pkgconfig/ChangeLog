@@ -1,6 +1,61 @@
 # ChangeLog for dev-util/pkgconfig
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/pkgconfig/ChangeLog,v 1.104 2011/12/02 17:48:28 grobian Exp $
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  03 Sep 2012; Anthony G. Basile <blueness@gentoo.org> pkgconfig-0.27.1.ebuild:
+  Stable ppc64, bug #433780
+
+  03 Sep 2012; Anthony G. Basile <blueness@gentoo.org> pkgconfig-0.27.1.ebuild:
+  Stable ppc, bug #433780
+
+  02 Sep 2012; Raúl Porcel <armin76@gentoo.org> pkgconfig-0.27.ebuild:
+  alpha/ia64/m68k/s390/sh/sparc stable wrt #430814
+
+*pkgconfig-0.27.1 (25 Aug 2012)
+
+  25 Aug 2012; Samuli Suominen <ssuominen@gentoo.org> +pkgconfig-0.27.1.ebuild:
+  Version bump.
+
+  14 Aug 2012; Samuli Suominen <ssuominen@gentoo.org> pkgconfig-9999.ebuild:
+  Remove deletion of 3 .m4 files which belong to >=dev-libs/glib-2 from
+  src_install() because upstream fixed Makefile.am to not install them wrt
+  http://cgit.freedesktop.org/pkg-config/commit/?id=40dc57fb41205c80f5ab6902366
+  9efb31edf840d
+
+  14 Aug 2012; Anthony G. Basile <blueness@gentoo.org> pkgconfig-0.27.ebuild:
+  Stable ppc ppc64, bug #430814
+
+  13 Aug 2012; Johannes Huber <johu@gentoo.org> pkgconfig-0.27.ebuild:
+  Stable for x86, wrt bug #430814
+
+  12 Aug 2012; Markus Meier <maekke@gentoo.org> pkgconfig-0.27.ebuild:
+  arm stable, bug #430814
+
+  12 Aug 2012; Jeroen Roovers <jer@gentoo.org> pkgconfig-0.27.ebuild:
+  Stable for HPPA (bug #430814).
+
+  12 Aug 2012; Agostino Sarubbo <ago@gentoo.org> pkgconfig-0.27.ebuild:
+  Stable for amd64, wrt bug #430814
+
+*pkgconfig-0.27 (13 Jul 2012)
+
+  13 Jul 2012; Samuli Suominen <ssuominen@gentoo.org> +pkgconfig-0.27.ebuild,
+  pkgconfig-9999.ebuild:
+  Version bump. Remove now unnecessary dev-libs/popt dependency which
+  functionality got replaced by dev-libs/glib.
+
+  04 May 2012; Samuli Suominen <ssuominen@gentoo.org> pkgconfig-0.26.ebuild,
+  pkgconfig-9999.ebuild:
+  Block other providers from virtual/pkgconfig.
+
+*pkgconfig-9999 (04 May 2012)
+
+  04 May 2012; Samuli Suominen <ssuominen@gentoo.org> +pkgconfig-9999.ebuild,
+  metadata.xml:
+  Live ebuild with USE="internal-glib" for embedded systems wrt #414101
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> pkgconfig-0.26.ebuild:
+  keyword ~amd64-fbsd
 
   02 Dec 2011; Fabian Groffen <grobian@gentoo.org> pkgconfig-0.26.ebuild:
   Pass correct include and library paths for Prefix, bug #392619

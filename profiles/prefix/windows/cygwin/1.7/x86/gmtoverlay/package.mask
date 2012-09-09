@@ -25,6 +25,7 @@ dev-libs/glib:2
 dev-libs/gmp
 dev-libs/mpc
 dev-libs/mpfr
+dev-util/pkgconfig
 sys-apps/coreutils
 sys-devel/autoconf
 sys-devel/automake
