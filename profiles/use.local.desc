@@ -19,7 +19,6 @@ dev-lang/python:wininst - Install Windows executables required to create an exec
 dev-libs/apr:older-kernels-compatibility - Enable binary compatibility with older kernels
 dev-libs/apr:urandom - Use /dev/urandom instead of /dev/random
 dev-libs/apr:uuid - Enable UUID support
-dev-libs/glib:introspection - Use dev-libs/gobject-introspection for introspection
 dev-libs/glib:systemtap - Build support for profiling and tracing using dev-util/systemtap
 dev-libs/glib:utils - Install gtester-report utility to generate test report files for your software.
 dev-vcs/subversion:ctypes-python - Build and install Ctypes Python bindings

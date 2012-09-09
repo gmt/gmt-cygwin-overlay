@@ -1,7 +1,7 @@
-diff -urN glib-2.30.2.vanilla/configure.ac glib-2.30.2/configure.ac
---- glib-2.30.2.vanilla/configure.ac	2011-11-11 14:11:22.000000000 -0800
-+++ glib-2.30.2/configure.ac	2012-02-12 03:09:41.312174100 -0800
-@@ -2841,9 +2841,6 @@
+diff -urN glib-2.32.4.orig/configure.ac glib-2.32.4/configure.ac
+--- glib-2.32.4.orig/configure.ac	2012-09-07 01:21:39.150655700 -0700
++++ glib-2.32.4/configure.ac	2012-09-07 02:14:09.765788400 -0700
+@@ -2539,9 +2539,6 @@
  dnl **********************
  
  case $host in
@@ -9,23 +9,122 @@ diff -urN glib-2.30.2.vanilla/configure.ac glib-2.30.2/configure.ac
 -	G_LIBS_EXTRA="-luser32 -lkernel32"
 -    ;;
    *-*-mingw*)
- 	G_LIBS_EXTRA="-lws2_32 -lole32"
+ 	G_LIBS_EXTRA="-lws2_32 -lole32 -lwinmm -lshlwapi"
      ;;
-diff -urN glib-2.30.2.vanilla/gio/giomodule.c glib-2.30.2/gio/giomodule.c
---- glib-2.30.2.vanilla/gio/giomodule.c	2011-11-11 10:00:58.000000000 -0800
-+++ glib-2.30.2/gio/giomodule.c	2012-02-12 03:11:03.263674100 -0800
-@@ -647,7 +647,7 @@
- extern GType _g_dummy_proxy_resolver_get_type (void);
- extern GType _g_dummy_tls_backend_get_type (void);
+diff -urN glib-2.32.4.orig/docs/reference/gio/Makefile.am glib-2.32.4/docs/reference/gio/Makefile.am
+--- glib-2.32.4.orig/docs/reference/gio/Makefile.am	2012-09-07 01:21:39.153656000 -0700
++++ glib-2.32.4/docs/reference/gio/Makefile.am	2012-09-07 02:14:09.771789000 -0700
+@@ -77,6 +77,8 @@
+ 	gunixvolume.h			\
+ 	gunixvolumemonitor.h		\
+ 	gwin32appinfo.h			\
++	gwin32inputstream.h		\
++	gwin32outputstream.h		\
+ 	gwin32mount.h			\
+ 	gwin32resolver.h		\
+ 	gwin32volumemonitor.h
+diff -urN glib-2.32.4.orig/gio/gcredentials.c glib-2.32.4/gio/gcredentials.c
+--- glib-2.32.4.orig/gio/gcredentials.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.32.4/gio/gcredentials.c	2012-09-07 02:14:01.505962500 -0700
+@@ -86,7 +86,7 @@
+   /*< private >*/
+   GObject parent_instance;
+ 
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+   struct ucred native;
+ #elif defined(__FreeBSD__)
+   struct cmsgcred native;
+@@ -136,7 +136,7 @@
+ static void
+ g_credentials_init (GCredentials *credentials)
+ {
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+   credentials->native.pid = getpid ();
+   credentials->native.uid = geteuid ();
+   credentials->native.gid = getegid ();
+@@ -192,7 +192,7 @@
+   g_return_val_if_fail (G_IS_CREDENTIALS (credentials), NULL);
+ 
+   ret = g_string_new ("GCredentials:");
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+   g_string_append (ret, "linux-ucred:");
+   if (credentials->native.pid != -1)
+     g_string_append_printf (ret, "pid=%" G_GINT64_FORMAT ",", (gint64) credentials->native.pid);
+@@ -257,7 +257,7 @@
+   g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
+ 
+   ret = FALSE;
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+   if (credentials->native.uid == other_credentials->native.uid)
+     ret = TRUE;
+ #elif defined(__FreeBSD__)
+@@ -305,7 +305,7 @@
+ 
+   ret = NULL;
+ 
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+   if (native_type != G_CREDENTIALS_TYPE_LINUX_UCRED)
+     {
+       g_warning ("g_credentials_get_native: Trying to get credentials of type %d but only "
+@@ -366,7 +366,7 @@
+                           GCredentialsType  native_type,
+                           gpointer          native)
+ {
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+   if (native_type != G_CREDENTIALS_TYPE_LINUX_UCRED)
+     {
+       g_warning ("g_credentials_set_native: Trying to set credentials of type %d "
+@@ -433,7 +433,7 @@
+   g_return_val_if_fail (G_IS_CREDENTIALS (credentials), -1);
+   g_return_val_if_fail (error == NULL || *error == NULL, -1);
+ 
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+   ret = credentials->native.uid;
+ #elif defined(__FreeBSD__)
+   ret = credentials->native.cmcred_euid;
+@@ -479,7 +479,7 @@
+   g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
+ 
+   ret = FALSE;
+-#ifdef __linux__
++#if defined(__linux__) || defined(__CYGWIN__)
+   credentials->native.uid = uid;
+   ret = TRUE;
+ #elif defined(__FreeBSD__)
+diff -urN glib-2.32.4.orig/gio/giomodule-priv.h glib-2.32.4/gio/giomodule-priv.h
+--- glib-2.32.4.orig/gio/giomodule-priv.h	2012-05-14 14:58:06.000000000 -0700
++++ glib-2.32.4/gio/giomodule-priv.h	2012-09-07 02:14:09.813793200 -0700
+@@ -35,7 +35,7 @@
+ 				   const gchar         *envvar,
+ 				   GIOModuleVerifyFunc  verify_func);
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+ void *_g_io_win32_get_module (void);
+ #endif
+ 
+diff -urN glib-2.32.4.orig/gio/giomodule.c glib-2.32.4/gio/giomodule.c
+--- glib-2.32.4.orig/gio/giomodule.c	2012-07-14 05:39:30.000000000 -0700
++++ glib-2.32.4/gio/giomodule.c	2012-09-07 02:14:09.818793700 -0700
+@@ -776,7 +776,7 @@
+ extern GType _g_network_monitor_netlink_get_type (void);
+ #endif
  
 -#ifdef G_PLATFORM_WIN32
 +#ifdef G_OS_WIN32
  
  #include <windows.h>
  
-diff -urN glib-2.30.2.vanilla/gio/tests/live-g-file.c glib-2.30.2/gio/tests/live-g-file.c
---- glib-2.30.2.vanilla/gio/tests/live-g-file.c	2011-08-15 17:51:30.000000000 -0700
-+++ glib-2.30.2/gio/tests/live-g-file.c	2012-02-12 03:11:03.269674100 -0800
+diff -urN glib-2.32.4.orig/gio/tests/live-g-file.c glib-2.32.4/gio/tests/live-g-file.c
+--- glib-2.32.4.orig/gio/tests/live-g-file.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.32.4/gio/tests/live-g-file.c	2012-09-07 02:14:09.853797200 -0700
 @@ -1147,7 +1147,7 @@
  	  write_test = TRUE;
  	  only_create_struct = FALSE;
@@ -35,21 +134,33 @@ diff -urN glib-2.30.2.vanilla/gio/tests/live-g-file.c glib-2.30.2/gio/tests/live
  	  posix_compat = FALSE;
  #else
  	  posix_compat = TRUE;
-diff -urN glib-2.30.2.vanilla/glib/gatomic.c glib-2.30.2/glib/gatomic.c
---- glib-2.30.2.vanilla/glib/gatomic.c	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/glib/gatomic.c	2012-02-12 03:12:03.089674100 -0800
-@@ -455,7 +455,7 @@
+diff -urN glib-2.32.4.orig/glib/gatomic.c glib-2.32.4/glib/gatomic.c
+--- glib-2.32.4.orig/glib/gatomic.c	2012-03-11 17:42:41.000000000 -0700
++++ glib-2.32.4/glib/gatomic.c	2012-09-07 02:14:09.899801800 -0700
+@@ -464,7 +464,7 @@
    return g_atomic_pointer_xor ((volatile gpointer *) atomic, val);
  }
  
--#elif defined (G_PLATFORM_WIN32) && defined(HAVE_WIN32_BUILTINS_FOR_ATOMIC_OPERATIONS)
-+#elif defined (G_OS_WIN32) && defined(HAVE_WIN32_BUILTINS_FOR_ATOMIC_OPERATIONS)
+-#elif defined (G_PLATFORM_WIN32)
++#elif defined (G_OS_WIN32)
  
  #include <windows.h>
  #if !defined(_M_AMD64) && !defined (_M_IA64) && !defined(_M_X64)
-diff -urN glib-2.30.2.vanilla/glib/gconvert.c glib-2.30.2/glib/gconvert.c
---- glib-2.30.2.vanilla/glib/gconvert.c	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/glib/gconvert.c	2012-02-12 03:11:03.282174100 -0800
+diff -urN glib-2.32.4.orig/glib/gcharset.c glib-2.32.4/glib/gcharset.c
+--- glib-2.32.4.orig/glib/gcharset.c	2012-03-11 17:42:41.000000000 -0700
++++ glib-2.32.4/glib/gcharset.c	2012-09-07 02:14:09.904802300 -0700
+@@ -496,7 +496,7 @@
+   if ((retval != NULL) && (retval[0] != '\0'))
+     return retval;
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+   /* g_win32_getlocale() first checks for LC_ALL, LC_MESSAGES and
+    * LANG, which we already did above. Oh well. The main point of
+    * calling g_win32_getlocale() is to get the thread's locale as used
+diff -urN glib-2.32.4.orig/glib/gconvert.c glib-2.32.4/glib/gconvert.c
+--- glib-2.32.4.orig/glib/gconvert.c	2012-07-14 05:39:31.000000000 -0700
++++ glib-2.32.4/glib/gconvert.c	2012-09-07 02:14:09.912803100 -0700
 @@ -33,9 +33,6 @@
  
  #ifdef G_OS_WIN32
@@ -60,7 +171,7 @@ diff -urN glib-2.30.2.vanilla/glib/gconvert.c glib-2.30.2/glib/gconvert.c
  #define STRICT
  #include <windows.h>
  #undef STRICT
-@@ -1261,7 +1258,7 @@
+@@ -1262,7 +1259,7 @@
  		      charset, "UTF-8", bytes_read, bytes_written, error);
  }
  
@@ -69,7 +180,7 @@ diff -urN glib-2.30.2.vanilla/glib/gconvert.c glib-2.30.2/glib/gconvert.c
  
  typedef struct _GFilenameCharsetCache GFilenameCharsetCache;
  
-@@ -1377,7 +1374,7 @@
+@@ -1378,7 +1375,7 @@
    return cache->is_utf8;
  }
  
@@ -78,7 +189,7 @@ diff -urN glib-2.30.2.vanilla/glib/gconvert.c glib-2.30.2/glib/gconvert.c
  
  gboolean
  g_get_filename_charsets (const gchar ***filename_charsets) 
-@@ -1406,7 +1403,7 @@
+@@ -1407,7 +1404,7 @@
  #endif
  }
  
@@ -87,39 +198,49 @@ diff -urN glib-2.30.2.vanilla/glib/gconvert.c glib-2.30.2/glib/gconvert.c
  
  static gboolean
  get_filename_charset (const gchar **filename_charset)
-diff -urN glib-2.30.2.vanilla/glib/glib.h glib-2.30.2/glib/glib.h
---- glib-2.30.2.vanilla/glib/glib.h	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/glib/glib.h	2012-02-12 03:11:03.286174100 -0800
-@@ -91,7 +91,7 @@
- #include <glib/gutils.h>
- #include <glib/gvarianttype.h>
+diff -urN glib-2.32.4.orig/glib/gfileutils.c glib-2.32.4/glib/gfileutils.c
+--- glib-2.32.4.orig/glib/gfileutils.c	2012-07-14 13:33:13.000000000 -0700
++++ glib-2.32.4/glib/gfileutils.c	2012-09-07 02:14:09.942806100 -0700
+@@ -2175,7 +2175,7 @@
+ {
+   g_return_val_if_fail (file_name != NULL, NULL);
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
+   /* Skip \\server\share or //server/share */
+   if (G_IS_DIR_SEPARATOR (file_name[0]) &&
+       G_IS_DIR_SEPARATOR (file_name[1]) &&
+@@ -2185,7 +2185,6 @@
+       gchar *p;
+       p = strchr (file_name + 2, G_DIR_SEPARATOR);
+ 
+-#ifdef G_OS_WIN32
+       {
+         gchar *q;
+ 
+@@ -2193,7 +2192,6 @@
+         if (p == NULL || (q != NULL && q < p))
+         p = q;
+       }
+-#endif
+ 
+       if (p && p > file_name + 2 && p[1])
+         {
+diff -urN glib-2.32.4.orig/glib/glib.h glib-2.32.4/glib/glib.h
+--- glib-2.32.4.orig/glib/glib.h	2012-03-11 17:42:41.000000000 -0700
++++ glib-2.32.4/glib/glib.h	2012-09-07 02:14:09.947806600 -0700
+@@ -96,7 +96,7 @@
  #include <glib/gvariant.h>
+ #include <glib/gversion.h>
+ #include <glib/gversionmacros.h>
 -#ifdef G_PLATFORM_WIN32
 +#ifdef G_OS_WIN32
  #include <glib/gwin32.h>
  #endif
  
-diff -urN glib-2.30.2.vanilla/glib/gstrfuncs.c glib-2.30.2/glib/gstrfuncs.c
---- glib-2.30.2.vanilla/glib/gstrfuncs.c	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/glib/gstrfuncs.c	2012-02-12 03:16:18.992674100 -0800
-@@ -1421,12 +1421,12 @@
- #ifdef HAVE_STRSIGNAL
-   const char *msg_locale;
- 
--#if defined(G_OS_BEOS) || defined(G_WITH_CYGWIN)
-+#if defined(G_OS_BEOS)
- extern const char *strsignal(int);
- #else
-   /* this is declared differently (const) in string.h on BeOS */
-   extern char *strsignal (int sig);
--#endif /* !G_OS_BEOS && !G_WITH_CYGWIN */
-+#endif /* !G_OS_BEOS */
-   msg_locale = strsignal (signum);
-   if (g_get_charset (NULL))
-     return msg_locale;
-diff -urN glib-2.30.2.vanilla/glib/gutf8.c glib-2.30.2/glib/gutf8.c
---- glib-2.30.2.vanilla/glib/gutf8.c	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/glib/gutf8.c	2012-02-12 03:11:03.291174100 -0800
+diff -urN glib-2.32.4.orig/glib/gutf8.c glib-2.32.4/glib/gutf8.c
+--- glib-2.32.4.orig/glib/gutf8.c	2012-07-14 13:33:12.000000000 -0700
++++ glib-2.32.4/glib/gutf8.c	2012-09-07 02:14:09.978809700 -0700
 @@ -27,7 +27,7 @@
  #endif
  #include <string.h>
@@ -129,19 +250,27 @@ diff -urN glib-2.30.2.vanilla/glib/gutf8.c glib-2.30.2/glib/gutf8.c
  #include <stdio.h>
  #define STRICT
  #include <windows.h>
-diff -urN glib-2.30.2.vanilla/glib/gutils.c glib-2.30.2/glib/gutils.c
---- glib-2.30.2.vanilla/glib/gutils.c	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/glib/gutils.c	2012-02-12 03:11:03.300674100 -0800
-@@ -136,7 +136,7 @@
- #define G_PATH_LENGTH   2048
- #endif
+diff -urN glib-2.32.4.orig/glib/gutils.c glib-2.32.4/glib/gutils.c
+--- glib-2.32.4.orig/glib/gutils.c	2012-07-14 13:33:11.000000000 -0700
++++ glib-2.32.4/glib/gutils.c	2012-09-07 02:14:10.005812400 -0700
+@@ -71,7 +71,7 @@
+ #include "garray.h"
+ #include "glibintl.h"
  
 -#ifdef G_PLATFORM_WIN32
 +#ifdef G_OS_WIN32
- #  define STRICT		/* Strict typing, please */
+ #include "gconvert.h"
+ #include "gwin32.h"
+ #endif
+@@ -85,16 +85,13 @@
+  * These are portable utility functions.
+  */
+ 
+-#ifdef G_PLATFORM_WIN32
++#ifdef G_OS_WIN32
  #  include <windows.h>
- #  undef STRICT
-@@ -145,9 +145,6 @@
+ #  ifndef GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
+ #    define GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT 2
  #    define GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS 4
  #  endif
  #  include <lmcons.h>		/* For UNLEN */
@@ -151,51 +280,19 @@ diff -urN glib-2.30.2.vanilla/glib/gutils.c glib-2.30.2/glib/gutils.c
  #  include <direct.h>
  #  include <shlobj.h>
     /* older SDK (e.g. msvc 5.0) does not have these*/
-@@ -189,7 +186,7 @@
- const guint glib_interface_age = GLIB_INTERFACE_AGE;
- const guint glib_binary_age = GLIB_BINARY_AGE;
+@@ -130,7 +127,7 @@
+ #include <langinfo.h>
+ #endif
  
 -#ifdef G_PLATFORM_WIN32
 +#ifdef G_OS_WIN32
  
- static HMODULE glib_dll = NULL;
- 
-@@ -911,7 +908,7 @@
- {
-   g_return_val_if_fail (file_name != NULL, NULL);
-   
--#ifdef G_PLATFORM_WIN32
-+#ifdef G_OS_WIN32
-   /* Skip \\server\share or //server/share */
-   if (G_IS_DIR_SEPARATOR (file_name[0]) &&
-       G_IS_DIR_SEPARATOR (file_name[1]) &&
-@@ -921,13 +918,11 @@
-       gchar *p;
- 
-       p = strchr (file_name + 2, G_DIR_SEPARATOR);
--#ifdef G_OS_WIN32
-       {
- 	gchar *q = strchr (file_name + 2, '/');
- 	if (p == NULL || (q != NULL && q < p))
- 	  p = q;
-       }
--#endif
-       if (p &&
- 	  p > file_name + 2 &&
- 	  p[1])
-@@ -3374,7 +3369,7 @@
-   if ((retval != NULL) && (retval[0] != '\0'))
-     return retval;
- 
--#ifdef G_PLATFORM_WIN32
-+#ifdef G_OS_WIN32
-   /* g_win32_getlocale() first checks for LC_ALL, LC_MESSAGES and
-    * LANG, which we already did above. Oh well. The main point of
-    * calling g_win32_getlocale() is to get the thread's locale as used
-diff -urN glib-2.30.2.vanilla/glib/gutils.h glib-2.30.2/glib/gutils.h
---- glib-2.30.2.vanilla/glib/gutils.h	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/glib/gutils.h	2012-02-12 03:11:03.307174100 -0800
-@@ -495,7 +495,7 @@
+ gchar *
+ _glib_get_dll_directory (void)
+diff -urN glib-2.32.4.orig/glib/gutils.h glib-2.32.4/glib/gutils.h
+--- glib-2.32.4.orig/glib/gutils.h	2012-07-14 12:17:32.000000000 -0700
++++ glib-2.32.4/glib/gutils.h	2012-09-07 02:14:10.010812900 -0700
+@@ -342,7 +342,7 @@
   * On non-Windows platforms, expands to nothing.
   */
  
@@ -204,7 +301,7 @@ diff -urN glib-2.30.2.vanilla/glib/gutils.h glib-2.30.2/glib/gutils.h
  # define G_WIN32_DLLMAIN_FOR_DLL_NAME(static, dll_name)
  #else
  # define G_WIN32_DLLMAIN_FOR_DLL_NAME(static, dll_name)			\
-@@ -523,6 +523,6 @@
+@@ -370,6 +370,6 @@
  
  #endif	/* !G_DISABLE_DEPRECATED */
  
@@ -212,9 +309,9 @@ diff -urN glib-2.30.2.vanilla/glib/gutils.h glib-2.30.2/glib/gutils.h
 +#endif /* G_OS_WIN32 */
  
  #endif /* __G_UTILS_H__ */
-diff -urN glib-2.30.2.vanilla/glib/gwin32.h glib-2.30.2/glib/gwin32.h
---- glib-2.30.2.vanilla/glib/gwin32.h	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/glib/gwin32.h	2012-02-12 03:11:03.312674100 -0800
+diff -urN glib-2.32.4.orig/glib/gwin32.h glib-2.32.4/glib/gwin32.h
+--- glib-2.32.4.orig/glib/gwin32.h	2012-03-11 17:42:42.000000000 -0700
++++ glib-2.32.4/glib/gwin32.h	2012-09-07 02:14:10.017813600 -0700
 @@ -33,7 +33,7 @@
  
  #include <glib/gtypes.h>
@@ -241,7 +338,7 @@ diff -urN glib-2.30.2.vanilla/glib/gwin32.h glib-2.30.2/glib/gwin32.h
  
  /* The MS setlocale uses locale names of the form "English_United
   * States.1252" etc. We want the Unixish standard form "en", "zh_TW"
-@@ -111,6 +108,6 @@
+@@ -113,6 +110,6 @@
  
  G_END_DECLS
  
@@ -249,9 +346,9 @@ diff -urN glib-2.30.2.vanilla/glib/gwin32.h glib-2.30.2/glib/gwin32.h
 +#endif	 /* G_OS_WIN32 */
  
  #endif /* __G_WIN32_H__ */
-diff -urN glib-2.30.2.vanilla/glib/libcharset/localcharset.c glib-2.30.2/glib/libcharset/localcharset.c
---- glib-2.30.2.vanilla/glib/libcharset/localcharset.c	2011-08-15 17:51:30.000000000 -0700
-+++ glib-2.30.2/glib/libcharset/localcharset.c	2012-02-12 03:11:03.317174100 -0800
+diff -urN glib-2.32.4.orig/glib/libcharset/localcharset.c glib-2.32.4/glib/libcharset/localcharset.c
+--- glib-2.32.4.orig/glib/libcharset/localcharset.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.32.4/glib/libcharset/localcharset.c	2012-09-07 02:14:10.047816600 -0700
 @@ -46,10 +46,6 @@
  #   include <locale.h>
  #  endif
@@ -335,9 +432,9 @@ diff -urN glib-2.30.2.vanilla/glib/libcharset/localcharset.c glib-2.30.2/glib/li
  # else
  
    /* On old systems which lack it, use setlocale or getenv.  */
-diff -urN glib-2.30.2.vanilla/glib/tests/uri.c glib-2.30.2/glib/tests/uri.c
---- glib-2.30.2.vanilla/glib/tests/uri.c	2011-08-15 17:51:30.000000000 -0700
-+++ glib-2.30.2/glib/tests/uri.c	2012-02-12 03:14:36.031674100 -0800
+diff -urN glib-2.32.4.orig/glib/tests/uri.c glib-2.32.4/glib/tests/uri.c
+--- glib-2.32.4.orig/glib/tests/uri.c	2012-03-11 17:42:42.000000000 -0700
++++ glib-2.32.4/glib/tests/uri.c	2012-09-07 02:14:10.052817100 -0700
 @@ -56,7 +56,7 @@
    { "c:\\windows", "otherhost", NULL, G_CONVERT_ERROR_NOT_ABSOLUTE_PATH},
  #endif
@@ -347,9 +444,9 @@ diff -urN glib-2.30.2.vanilla/glib/tests/uri.c glib-2.30.2/glib/tests/uri.c
    { "/etc/\xE5\xE4\xF6", NULL, "file:///etc/%E5%E4%F6" },
    { "/etc/\xC3\xB6\xC3\xA4\xC3\xA5", NULL, "file:///etc/%C3%B6%C3%A4%C3%A5"},
  #endif
-diff -urN glib-2.30.2.vanilla/gmodule/gmodule-win32.c glib-2.30.2/gmodule/gmodule-win32.c
---- glib-2.30.2.vanilla/gmodule/gmodule-win32.c	2011-08-15 17:51:30.000000000 -0700
-+++ glib-2.30.2/gmodule/gmodule-win32.c	2012-02-12 03:07:19.530174100 -0800
+diff -urN glib-2.32.4.orig/gmodule/gmodule-win32.c glib-2.32.4/gmodule/gmodule-win32.c
+--- glib-2.32.4.orig/gmodule/gmodule-win32.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.32.4/gmodule/gmodule-win32.c	2012-09-07 02:13:52.707082700 -0700
 @@ -38,8 +38,23 @@
  #include <tlhelp32.h>
  
@@ -479,10 +576,10 @@ diff -urN glib-2.30.2.vanilla/gmodule/gmodule-win32.c glib-2.30.2/gmodule/gmodul
  
    return p;
  }
-diff -urN glib-2.30.2.vanilla/tests/Makefile.am glib-2.30.2/tests/Makefile.am
---- glib-2.30.2.vanilla/tests/Makefile.am	2011-11-11 09:56:52.000000000 -0800
-+++ glib-2.30.2/tests/Makefile.am	2012-02-12 03:11:03.321174100 -0800
-@@ -19,7 +19,9 @@
+diff -urN glib-2.32.4.orig/tests/Makefile.am glib-2.32.4/tests/Makefile.am
+--- glib-2.32.4.orig/tests/Makefile.am	2012-09-07 01:21:38.660606700 -0700
++++ glib-2.32.4/tests/Makefile.am	2012-09-07 02:14:10.057817600 -0700
+@@ -20,7 +20,9 @@
  libadd_libglib = $(libglib)
  if PLATFORM_WIN32
  no_undefined = -no-undefined
@@ -492,9 +589,9 @@ diff -urN glib-2.30.2.vanilla/tests/Makefile.am glib-2.30.2/tests/Makefile.am
  module_test_exp = module-test.exp
  
  module-test.exp: module-test.o
-diff -urN glib-2.30.2.vanilla/tests/module-test.c glib-2.30.2/tests/module-test.c
---- glib-2.30.2.vanilla/tests/module-test.c	2011-08-15 17:51:30.000000000 -0700
-+++ glib-2.30.2/tests/module-test.c	2012-02-12 03:07:45.993174100 -0800
+diff -urN glib-2.32.4.orig/tests/module-test.c glib-2.32.4/tests/module-test.c
+--- glib-2.32.4.orig/tests/module-test.c	2011-08-15 17:51:30.000000000 -0700
++++ glib-2.32.4/tests/module-test.c	2012-09-07 02:13:41.456957800 -0700
 @@ -85,9 +85,15 @@
  
    dir = g_get_current_dir ();
@@ -617,10 +714,10 @@ diff -urN glib-2.30.2.vanilla/tests/module-test.c glib-2.30.2/tests/module-test.
   
    return 0;
  }
-diff -urN glib-2.30.2.vanilla/tests/testglib.c glib-2.30.2/tests/testglib.c
---- glib-2.30.2.vanilla/tests/testglib.c	2011-11-11 09:56:53.000000000 -0800
-+++ glib-2.30.2/tests/testglib.c	2012-02-12 03:12:52.976674100 -0800
-@@ -757,7 +757,7 @@
+diff -urN glib-2.32.4.orig/tests/testglib.c glib-2.32.4/tests/testglib.c
+--- glib-2.32.4.orig/tests/testglib.c	2012-03-11 17:42:43.000000000 -0700
++++ glib-2.32.4/tests/testglib.c	2012-09-07 02:14:10.084820300 -0700
+@@ -776,7 +776,7 @@
  
    if (g_test_verbose())
      {

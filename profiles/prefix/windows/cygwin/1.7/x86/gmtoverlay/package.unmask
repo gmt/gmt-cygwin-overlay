@@ -23,6 +23,7 @@
 =app-shells/bash-4.2_p10
 =app-shells/bash-4.2_p36
 =dev-lang/perl-5.12.4-r2
+=dev-libs/glib-2.32.4
 =dev-libs/gmp-5.0.2_p1
 =dev-libs/gmp-5.0.5
 =dev-libs/mpc-0.9-r1

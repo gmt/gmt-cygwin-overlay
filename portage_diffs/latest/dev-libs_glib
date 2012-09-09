@@ -1,59 +1,37 @@
 ===== mutual sub-directory: "dev-libs/glib" =====
----("dev-libs/glib/glib-2.30.2.ebuild")--->8--->
---- usr/portage/dev-libs/glib/glib-2.30.2.ebuild [[PORTAGE]]
-+++ overlay/dev-libs/glib/glib-2.30.2.ebuild [[OVERLAY]]
-@@ -78,6 +78,13 @@
- 	# Fix test failure when upgrading from 2.22 to 2.24, upstream bug 621368
- 	epatch "${FILESDIR}/${PN}-2.24-assert-test-failure.patch"
+----[ "dev-libs/glib/glib-2.32.4.ebuild" ]----->8----->
+--- PORTAGE/dev-libs/glib/glib-2.32.4.ebuild
++++ OVERLAY/dev-libs/glib/glib-2.32.4.ebuild
+@@ -82,6 +82,9 @@
+ 	# Fix gmodule issues on fbsd; bug #184301
+ 	epatch "${FILESDIR}"/${PN}-2.12.12-fbsd.patch
  
-+	if [[ ${CHOST} == *-cygwin* ]] ; then
++	[[ ${CHOST} == *-cygwin* ]] && \
 +		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
-+		# Fixes link failure against libffi under cygwin -- a candidate for
-+		# all-chost application imo ... but why wasn't it done this way to begin with?
-+		# epatch "${FILESDIR}"/${PN}-${PV}-libffi-ldflags.patch
-+	fi
 +
- 	# Do not try to remove files on live filesystem, upstream bug #619274
- 	sed 's:^\(.*"/desktop-app-info/delete".*\):/*\1*/:' \
- 		-i "${S}"/gio/tests/desktop-app-info.c || die "sed failed"
-@@ -167,9 +174,15 @@
- 			export DBUS1_CFLAGS="-I${EPREFIX}/usr/include/dbus-1.0 -I${EPREFIX}/usr/$(get_libdir)/dbus-1.0/include"
- 			export DBUS1_LIBS="-ldbus-1"
- 		fi
-+		die fixme
-+		local libffi_libdir="${EPREFIX}/usr/$(get_libdir)"
- 		export LIBFFI_CFLAGS="-I$(echo "${EPREFIX}"/usr/$(get_libdir)/libffi-*/include)"
-+		if [[ -f "${libffi_libdir}"/libffi.la ]] ; then
-+			export LIBFFI_LIBADD="${libffi_libdir}/libffi.la"
-+		else
- 		export LIBFFI_LIBS="-lffi"
- 	fi
-+	fi
- 
- 	local myconf
- 
-@@ -196,6 +209,13 @@
+ 	# need to build tests if USE=doc for bug #387385
+ 	if ! use test && ! use doc; then
+ 		# don't waste time building tests
+@@ -199,6 +202,12 @@
  	local mythreads=posix
  	[[ ${CHOST} == *-winnt* ]] && mythreads=win32
  
-+	[[ ${CHOST} == *-cygwin* ]] && {
++	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		export ac_cv_header_winsock2_h=no
 +		export ac_cv_header_mswsock_h=no
 +		mythreads=posix
-+		myconf="${myconf} --enable-static --disable-visibility"
-+	}
++	fi
 +
  	# without this, AIX defines EEXIST and ENOTEMPTY to the same value
  	[[ ${CHOST} == *-aix* ]] && append-cppflags -D_LINUX_SOURCE_COMPAT
  
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "dev-libs/glib/files" =====
 
 *** The following files appear only in the overlay ***
-overlay/dev-libs/glib/files/glib-2.30.2-cygport.patch: unified diff output, ASCII text
-overlay/dev-libs/glib/files/glib-2.30.2-libffi-ldflags.patch: unified diff output, ASCII text
+overlay/dev-libs/glib/files/glib-2.32.4-cygport.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/dev-libs/glib/glib-1.2.10-r5.ebuild: ASCII English text
-usr/portage/dev-libs/glib/glib-2.30.1-r2.ebuild: ASCII English text
+usr/portage/dev-libs/glib/glib-1.2.10-r5.ebuild: ASCII text
+usr/portage/dev-libs/glib/glib-2.32.3.ebuild: ASCII text
 
