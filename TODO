@@ -237,3 +237,5 @@ o The overlay-only masking trick we are doing in profile/..../package.{un,}mask 
 o sys-apps/coreutils has multiple test failures.  Investigate and fix them.
 
 o sys-apps/sed seems not to recognize "\t" as matching "[[:space:]]"!
+
+o scripts/gendiffs: goes haywire in sys-devel/gcc-config when requesting sys-devel/gcc
