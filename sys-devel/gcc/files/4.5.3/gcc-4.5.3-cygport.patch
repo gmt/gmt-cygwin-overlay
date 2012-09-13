@@ -1174,3 +1174,36 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/testsuite/lib/libstdc++.exp gcc-4.5.3/libs
      v3track gccdir 3
  
      # Locate libgomp. This is only required for parallel mode.
+diff -urN gcc-4.5.3.orig/libffi/configure gcc-4.5.3/libffi/configure
+--- gcc-4.5.3.orig/libffi/configure	2012-09-10 03:27:40.186010500 -0700
++++ gcc-4.5.3/libffi/configure	2012-09-10 03:42:47.337249700 -0700
+@@ -11360,7 +11360,7 @@
+   i?86-win32* | i?86-*-cygwin* | i?86-*-mingw*)
+ 	TARGET=X86_WIN32; TARGETDIR=x86
+ 	# All mingw/cygwin/win32 builds require this for sharedlib
+-	AM_LTLDFLAGS="-no-undefined"
++	AM_LTLDFLAGS='-no-undefined -bindir $(bindir)'
+ 	;;
+   i?86-*-darwin*)
+ 	TARGET=X86_DARWIN; TARGETDIR=x86
+@@ -12628,7 +12628,7 @@
+   toolexeclibdir='$(toolexecdir)/lib'
+ else
+   toolexecdir='$(libdir)/gcc-lib/$(target_alias)'
+-  toolexeclibdir='$(libdir)'
++  toolexeclibdir="${host__toolexeclibdir:-\$(libdir)}"
+ fi
+ multi_os_directory=`$CC -print-multi-os-directory`
+ case $multi_os_directory in
+diff -urN gcc-4.5.3.orig/libjava/classpath/configure gcc-4.5.3/libjava/classpath/configure
+--- gcc-4.5.3.orig/libjava/classpath/configure	2012-09-10 03:02:42.580506300 -0700
++++ gcc-4.5.3/libjava/classpath/configure	2012-09-10 03:43:36.375973200 -0700
+@@ -3157,7 +3157,7 @@
+ 	cp_module=""
+ 	;;
+ 	*)
+-	cp_module="-module"
++	cp_module="-module -avoid-version"
+ 	;;
+ esac
+ 

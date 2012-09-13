@@ -1823,27 +1823,6 @@ gcc_quick_unpack() {
 	popd > /dev/null
 }
 
-# Exclude any unwanted patches, as specified by the following variables:
-#
-#	GENTOO_PATCH_EXCLUDE
-#			List of filenames, relative to ${WORKDIR}/patch/
-#
-# FIXME: upstream got rid of this function but we rely on it in gmt-cygwin-overlay
-# (for a bad, kludgy hack that ended up not being important -- really, fix this!)
-#
-exclude_gcc_patches() {
-	local i
-	local hemlock=0
-	for i in ${GENTOO_PATCH_EXCLUDE} ; do
-		if [[ -f ${WORKDIR}/patch/${i} ]] ; then
-			hemlock=1
-			ewarn "Fake exclude_gcc_patches used!  This does nothing."
-			ewarn "!!! NOT Excluding patch ${i}"
-		fi
-	done
-	[[ $hemlock == 1 ]] && die "Fix your ebuild."
-}
-
 do_gcc_HTB_patches() {
 	use_if_iuse boundschecking || return 0
 
@@ -2059,8 +2038,8 @@ fix_libtool_libdir_paths() {
 		./${dir}/*.la
 	sed -i \
 		-e "/^dependency_libs=/s:/[^ ]*/${allarchives}:${EPREFIX}/${LIBPATH##/}/\1:g" \
-		$(find ./${PREFIX#/}/lib* -maxdepth 3 -name '*.la') \
-		./${dir#/}/*.la
+		$(find ./${PREFIX}/lib* -maxdepth 3 -name '*.la') \
+		./${dir}/*.la
 
 	popd >/dev/null
 }

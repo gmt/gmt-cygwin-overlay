@@ -1,6 +1,306 @@
 # ChangeLog for sys-devel/gcc
-# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/ChangeLog,v 1.827 2011/09/26 17:38:49 vapier Exp $
+# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+# $Header: $
+
+  11 Aug 2012; Fabian Groffen <grobian@gentoo.org> gcc-4.1.2.ebuild:
+  backport >=binutils-2.21 backport from 4.2 (4.5) to 4.1
+
+  11 Aug 2012; Fabian Groffen <grobian@gentoo.org>
+  +files/4.2.2/solarisx86.patch, gcc-4.2.4-r01.4.ebuild:
+  Add patch to fix configuring on Solaris x86 working around a weird shell
+  quirk, bug #416577
+
+  01 Aug 2012; Fabian Groffen <grobian@gentoo.org> +files/4.7.1,
+  +files/4.7.1/solaris-searchpath.patch, -gcc-4.7.0.ebuild, gcc-4.7.1.ebuild:
+  Fix unpack of gcc-4.7.1, update Solaris searchpath patch
+
+  23 Jul 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.6.3.ebuild,
+  gcc-4.7.1.ebuild:
+  Drop -Werror while building go #423153 by Tiziano Müller.
+
+  23 Jul 2012; Mike Frysinger <vapier@gentoo.org> gcc-3.3.6-r1.ebuild:
+  Fix building with newer glibc and siginfo changes #427220 by Martin Jansa.
+
+  23 Jul 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.7.1.ebuild:
+  Fix for building libitm on x86 #421305 by Rafał Mużyło.
+
+  23 Jul 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.6.3.ebuild:
+  Fix building with glibc-2.16 #424970 by Chris Smith.
+
+*gcc-4.5.4 (15 Jul 2012)
+
+  15 Jul 2012; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.5.4.ebuild:
+  Version bump.
+
+  28 Jun 2012; Anthony G. Basile <blueness@gentoo.org> gcc-4.6.3.ebuild:
+  PIE and SSP work on mips glibc systems, tested on lemote yeeloong
+
+*gcc-4.7.1 (15 Jun 2012)
+
+  15 Jun 2012; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.7.1.ebuild:
+  Version bump.
+
+  04 Jun 2012; Magnus Granberg <zorry@gentoo.org> gcc-4.6.3.ebuild:
+  Bump of the piepatchset for gcc-4.6.3 to 0.5.2
+
+  03 Jun 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.7.0.ebuild:
+  Apply x32 patch based on target ABIs.
+
+  02 Jun 2012; Magnus Granberg <zorry@gentoo.org> gcc-4.6.3.ebuild,
+  gcc-4.7.0.ebuild:
+  Add support for ssp on uclibc and it need to be >= 0.9.33
+
+  31 May 2012; Ryan Hill <dirtyepic@gentoo.org> gcc-4.6.0.ebuild,
+  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild, gcc-4.6.3.ebuild:
+  Keyword 4.6.* for amd64.
+
+  25 May 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.6.2.ebuild,
+  gcc-4.6.3.ebuild, gcc-4.7.0.ebuild:
+  Update x32 support.
+
+  22 May 2012; Ryan Hill <dirtyepic@gentoo.org> gcc-4.6.0.ebuild,
+  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild, gcc-4.6.3.ebuild:
+  Keyword for all but amd64.
+
+*gcc-4.7.0 (22 May 2012)
+
+  22 May 2012; Ryan Hill <dirtyepic@gentoo.org> -gcc-4.5.3-r1.ebuild,
+  +gcc-4.7.0.ebuild:
+  Version bump (bug #409315).
+
+  18 May 2012; Mike Frysinger <vapier@gentoo.org> files/fix_libtool_files.sh:
+  Use `.` rather than `source` now that we use /bin/sh as pointed out by pesa.
+
+  15 May 2012; Mike Frysinger <vapier@gentoo.org> files/fix_libtool_files.sh:
+  Use awk file in /usr/share/gcc-data and tweak the code to be POSIX since it is
+  so simple. #415947 by Jim Faulkner.
+
+  11 May 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.5.3-r2.ebuild,
+  gcc-4.6.3.ebuild:
+  Push out FreeBSD PIE fix #415185 by Alexis Ballier.
+
+  10 May 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.5.3-r2.ebuild,
+  gcc-4.6.3.ebuild:
+  Push out hppa 64bit fix #382075 by Jeroen Roovers, and new arm hardfp ldso
+  path.
+
+  06 May 2012; Raúl Porcel <armin76@gentoo.org> gcc-4.3.6-r1.ebuild,
+  gcc-4.4.6-r1.ebuild, gcc-4.5.3-r2.ebuild:
+  alpha/ia64/s390/sh/sparc stable wrt #405845, #405849, #402847
+
+  10 May 2012; Fabian Groffen <grobian@gentoo.org>
+  -files/4.4.1/gcc-4.4.1-T-namespace.patch,
+  -files/4.4.4/gcc-4.4.4-T-namespace.patch, gcc-4.4.6-r1.ebuild,
+  gcc-4.5.3-r1.ebuild, gcc-4.5.3-r2.ebuild, gcc-4.6.3.ebuild:
+  Strip -mcpu=/-mtune= flags on PowerPC/Darwin hosts, drop obsolete T-namespace
+  patch (handled better by eclass now), don't override CONFIG_SHELL if it's
+  already set by the user
+
+  08 May 2012; Fabian Groffen <grobian@gentoo.org> gcc-4.6.3.ebuild:
+  Add remark gcc-4.6.3 ebuild is intentionally keyworded in Prefix
+
+  08 May 2012; Fabian Groffen <grobian@gentoo.org> gcc-4.6.3.ebuild:
+  Add back keywords again
+
+  07 May 2012; Fabian Groffen <grobian@gentoo.org>
+  files/4.2.2/solarisx86_64.patch:
+  Work around odd shell quirk for x86_64-pc-solaris2.* builds
+
+  05 May 2012; Fabian Groffen <grobian@gentoo.org> gcc-4.2.4-r01.4.ebuild:
+  Make 4.2.4 request the *_sol2 targets from binutils, if >=2.21 is installed,
+  to ease bootstrapping
+
+  05 May 2012; Fabian Groffen <grobian@gentoo.org> -gcc-4.5.2-r00.1.ebuild,
+  -gcc-4.6.1-r1.ebuild, -gcc-4.6.2.ebuild:
+  cleanup
+
+  05 May 2012; Fabian Groffen <grobian@gentoo.org> +files/4.6.3,
+  +files/4.6.3/solaris-x86_64.patch, gcc-4.6.3.ebuild:
+  Fix x86_64 Solaris patch for 4.6.3
+
+  04 May 2012; Fabian Groffen <grobian@gentoo.org>
+  files/4.2.2/solarisx86_64.patch, files/4.3.0/solarisx86_64.patch,
+  files/4.3.3/solarisx86_64.patch, files/4.5.1/solaris-x86_64.patch:
+  Use link_target_spec from sol2-10.h, instead of defining our own
+
+  04 May 2012; Fabian Groffen <grobian@gentoo.org>
+  files/4.2.2/solarisx86_64.patch, files/4.3.0/solarisx86_64.patch,
+  files/4.3.3/solarisx86_64.patch, files/4.4.0/gcc-4.4.1-solaris-x86_64.patch,
+  files/4.5.1/solaris-x86_64.patch:
+  Fix Solaris GNU ld 2.22 problem not only for 32-bits x86, but also for 64-bits
+  by not explicitly passing the target onto the linker if not requested
+
+  04 May 2012; Fabian Groffen <grobian@gentoo.org>
+  +files/solaris-i386-ld-emulation-4.2.patch, gcc-4.2.4-r01.4.ebuild:
+  Backport GNU ld 2.22 breakage patch to 4.2.2 since we need to bootstrap with
+  that GCC
+
+*gcc-4.6.3 (28 Apr 2012)
+
+  28 Apr 2012; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.6.3.ebuild,
+  metadata.xml:
+  Version bump (bug #406571).
+
+  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> gcc-4.5.3-r2.ebuild:
+  keyword ~amd64-fbsd
+
+  15 Apr 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.5.3-r2.ebuild:
+  Fix from upstream for building gcj with glibc-2.15+.
+
+  28 Mar 2012; Markus Meier <maekke@gentoo.org> gcc-4.3.6-r1.ebuild:
+  arm stable, bug #405845
+
+*gcc-4.4.7 (27 Mar 2012)
+
+  27 Mar 2012; Mike Frysinger <vapier@gentoo.org> +gcc-4.4.7.ebuild:
+  Version bump #409033 by Mr. Anderson.
+
+  15 Mar 2012; Markus Meier <maekke@gentoo.org> gcc-4.4.6-r1.ebuild:
+  arm stable, bug #405849
+
+  15 Mar 2012; Mike Frysinger <vapier@gentoo.org> gcc-4.6.0.ebuild,
+  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild:
+  Drop gcc-config dep now that the toolchain.eclass forces it.
+
+  10 Mar 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> gcc-4.4.6-r1.ebuild:
+  x86 stable wrt bug #405849
+
+  09 Mar 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> gcc-4.3.6-r1.ebuild:
+  x86 stable wrt bug #405845
+
+  03 Mar 2012; Brent Baude <ranger@gentoo.org> gcc-4.5.3-r2.ebuild:
+  Marking gcc-4.5.3-r2 ppc64 for bug 402847
+
+  02 Mar 2012; Brent Baude <ranger@gentoo.org> gcc-4.4.6-r1.ebuild:
+  Marking gcc-4.4.6-r1 ppc64 for bug 405849
+
+  02 Mar 2012; Brent Baude <ranger@gentoo.org> gcc-4.3.6-r1.ebuild:
+  Marking gcc-4.3.6-r1 ppc64 for bug 405845
+
+  29 Feb 2012; Markus Meier <maekke@gentoo.org> gcc-4.5.3-r2.ebuild:
+  arm stable, bug #402847
+
+  29 Feb 2012; Brent Baude <ranger@gentoo.org> gcc-4.5.3-r2.ebuild:
+  Marking gcc-4.5.3-r2 ppc for bug 402847
+
+  28 Feb 2012; Brent Baude <ranger@gentoo.org> gcc-4.4.6-r1.ebuild:
+  Marking gcc-4.4.6-r1 ppc for bug 405849
+
+  28 Feb 2012; Brent Baude <ranger@gentoo.org> gcc-4.3.6-r1.ebuild:
+  Marking gcc-4.3.6-r1 ppc for bug 405845
+
+  27 Feb 2012; Agostino Sarubbo <ago@gentoo.org> gcc-4.4.6-r1.ebuild:
+  Stable for amd64, wrt bug #405849
+
+  27 Feb 2012; Agostino Sarubbo <ago@gentoo.org> gcc-4.3.6-r1.ebuild:
+  Stable for amd64, wrt bug #405845
+
+  24 Feb 2012; Pawel Hajdan jr <phajdan.jr@gentoo.org> gcc-4.5.3-r2.ebuild:
+  x86 stable wrt bug #402847
+
+  22 Feb 2012; Jeroen Roovers <jer@gentoo.org> gcc-4.5.3-r2.ebuild:
+  Stable for HPPA (bug #402847).
+
+  22 Feb 2012; Agostino Sarubbo <ago@gentoo.org> gcc-4.5.3-r2.ebuild:
+  Stable for AMD64, wrt bug #402847
+
+  20 Feb 2012; Ryan Hill <dirtyepic@gentoo.org> gcc-4.5.3-r2.ebuild:
+  Bump to p1.1. Fixes bug #388835 (ICE in move_insn, at haifa-sched.c).
+
+  20 Feb 2012; Ryan Hill <dirtyepic@gentoo.org> gcc-4.6.2.ebuild:
+  Bump to p1.4. Fixes bug #388835 (ICE in move_insn, at haifa-sched.c) and
+  bug #396005 (c-family plugin headers installed to incorrect location).
+
+  02 Jan 2012; Andreas K. Huettel <dilfridge@gentoo.org> +ChangeLog-2006:
+  Split ChangeLog.
+
+  30 Dec 2011; Magnus Granberg <zorry@gentoo.org> gcc-4.5.3-r2.ebuild:
+  Bump the piepatchset to 0.4.7 to fix 394821
+
+*gcc-4.5.3-r2 (13 Dec 2011)
+
+  13 Dec 2011; Magnus Granberg <zorry@gentoo.org> +gcc-4.5.3-r2.ebuild:
+  Bump piepatchset to 0.4.6 and fix bug 393321
+
+  08 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-4.6.2.ebuild:
+  Update x32 snapshot for native x32 support.
+
+  07 Dec 2011; Magnus Granberg <zorry@gentoo.org gcc-4.6.2.ebuild:
+  Bump piepatchset to 0.5.0 to fix 380823 and 393321
+
+  06 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-4.6.2.ebuild:
+  Add x32 ABI backport (for x86-64 targets) from gcc-4.7.
+
+  17 Feb 2012; Fabian Groffen <grobian@gentoo.org>
+  +files/solaris-i386-ld-emulation.patch, -gcc-4.5.1-r1.ebuild,
+  gcc-4.4.6-r1.ebuild, gcc-4.5.2-r00.1.ebuild, gcc-4.5.3-r1.ebuild,
+  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild:
+  Add fix for recent breakage on Solaris using GNU ld 2.22
+
+  06 Dec 2011; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add description for new USE=libssp flag.
+
+  06 Dec 2011; Mike Frysinger <vapier@gentoo.org> -files/3.4.3/libssp.patch,
+  gcc-3.3.6-r1.ebuild, gcc-3.4.6-r2.ebuild, gcc-4.0.4.ebuild:
+  Drop obsolete/unsupported SSP/PIE code in older gcc versions.
+
+  06 Dec 2011; Ryan Hill <dirtyepic@gentoo.org> gcc-4.6.2.ebuild:
+  Bump to patchset 1.1. Fixes compile issues on arm (bug #366253), and enable
+  fortification by default using builtin defines instead of spec rules as the
+  latter may become unsupportable in the future.
+
+  04 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-3.3.6-r1.ebuild,
+  gcc-3.4.6-r2.ebuild:
+  Drop dead MAN_VER code.
+
+  03 Dec 2011; Mike Frysinger <vapier@gentoo.org>
+  -files/stubs/gcc-3.3-htb-stub.patch, -files/stubs/gcc-3.3-ssp-stub.patch,
+  -files/stubs/gcc-3.4-htb-stub.patch, -files/stubs/gcc-3.4-ssp-stub.patch,
+  -files/stubs/gcc-4.0-htb-stub.patch, -files/stubs/gcc-4.0-ssp-stub.patch:
+  Drop now unused stub patches.
+
+  03 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-4.6.0.ebuild,
+  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild:
+  Disable fortify patches with older glibcs #362315 by Leonid Volnitsky.
+
+  03 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-4.0.4.ebuild,
+  gcc-4.3.3-r2.ebuild, gcc-4.3.4.ebuild:
+  Drop obsolete GENTOO_PATCH_EXCLUDE lines.
+
+  02 Dec 2011; Mike Frysinger <vapier@gentoo.org> gcc-2.95.3-r10.ebuild,
+  gcc-3.2.2.ebuild, gcc-3.3.6-r1.ebuild, gcc-3.4.6-r2.ebuild, gcc-4.0.4.ebuild,
+  gcc-4.1.2.ebuild, gcc-4.2.4-r1.ebuild, gcc-4.3.3-r2.ebuild, gcc-4.3.4.ebuild,
+  gcc-4.3.5.ebuild, gcc-4.3.6-r1.ebuild, gcc-4.4.2.ebuild:
+  Delete old hardened logic as we no longer support it (split specs/etc...).
+
+  02 Dec 2011; Mike Frysinger <vapier@gentoo.org> metadata.xml:
+  Add USE=gtk description by Ralph Sennhauser #362799 by Peter Volkov.
+
+  09 Nov 2011; Mike Frysinger <vapier@gentoo.org> gcc-2.95.3-r10.ebuild,
+  gcc-3.3.6-r1.ebuild, gcc-3.4.6-r2.ebuild, gcc-4.0.4.ebuild, gcc-4.1.2.ebuild,
+  gcc-4.2.4-r1.ebuild, gcc-4.3.3-r2.ebuild, gcc-4.3.4.ebuild, gcc-4.3.5.ebuild,
+  gcc-4.3.6-r1.ebuild, gcc-4.4.2.ebuild, gcc-4.4.3-r3.ebuild,
+  gcc-4.4.4-r2.ebuild, gcc-4.4.5.ebuild, gcc-4.4.6-r1.ebuild,
+  gcc-4.5.1-r1.ebuild, gcc-4.5.2.ebuild, gcc-4.5.3-r1.ebuild, gcc-4.6.0.ebuild,
+  gcc-4.6.1-r1.ebuild, gcc-4.6.2.ebuild:
+  Drop most dependencies now that toolchain.eclass takes care of them. Also
+  drop the ncurses dep as that seems to be purely a workaround for an ancient
+  issue #4411 which we have addressed in different ways.
+
+*gcc-4.6.2 (30 Oct 2011)
+
+  30 Oct 2011; Ryan Hill <dirtyepic@gentoo.org> +gcc-4.6.2.ebuild:
+  Version bump. Also fixes bug #364319 (preprocessor flag canonicalization
+  patch broke gcj), and bug #387483 (broken clang++).
+
+  24 Oct 2011; Raúl Porcel <armin76@gentoo.org> gcc-4.5.3-r1.ebuild:
+  alpha/ia64/s390/sh/sparc stable wrt #357478
+
+  09 Oct 2011; Markus Meier <maekke@gentoo.org> gcc-4.5.3-r1.ebuild:
+  arm stable, bug #357479
+
+  04 Oct 2011; Jeroen Roovers <jer@gentoo.org> gcc-4.5.3-r1.ebuild:
+  Stable for HPPA (bug #357479).
 
   30 Nov 2011; Fabian Groffen <grobian@gentoo.org> gcc-4.6.1-r1.ebuild,
   gcc-4.5.3-r1.ebuild:

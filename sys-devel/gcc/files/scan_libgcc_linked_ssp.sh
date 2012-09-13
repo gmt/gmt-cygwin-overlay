@@ -2,7 +2,7 @@
 # Copyright 1999-2004 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # Author:  Martin Schlemmer <azarah@gentoo.org>
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/files/scan_libgcc_linked_ssp.sh,v 1.4 2007/05/05 05:13:15 vapier Exp $
+# $Header: $
 
 usage() {
 cat << "USAGE_END"

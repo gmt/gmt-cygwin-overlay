@@ -3,6 +3,7 @@
 # $Header: $
 
 caps
+hardened
 
 # pending testing
 xattr

@@ -4,7 +4,7 @@
 # Contributor: Ned Ludd <solar@gentoo.org>
 # Contributor: Natanael Copa  <nat@c2i.net>
 # Contributor: Carter Smithhart <derheld42@derheld.net>
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/files/awk/scanforssp.awk,v 1.7 2004/07/15 00:59:02 agriffis Exp $
+# $Header: $
 
 
 # Does not seem to be used in this script.

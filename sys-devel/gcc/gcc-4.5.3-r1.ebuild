@@ -1,6 +1,6 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc/gcc-4.5.3-r1.ebuild,v 1.5 2011/09/26 17:38:49 vapier Exp $
+# $Header: $
 
 PATCH_VER="1.0"
 UCLIBC_VER="1.0"
@@ -24,39 +24,8 @@ DESCRIPTION="The GNU Compiler Collection."
 LICENSE="GPL-3 LGPL-3 || ( GPL-3 libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.2"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
-RDEPEND=">=sys-libs/zlib-1.1.4
-	>=sys-devel/gcc-config-1.4
-	virtual/libiconv
-	>=dev-libs/gmp-4.3.2
-	>=dev-libs/mpfr-2.4.2
-	>=dev-libs/mpc-0.8.1
-	graphite? (
-		>=dev-libs/ppl-0.10
-		>=dev-libs/cloog-ppl-0.15.8
-	)
-	lto? ( || ( >=dev-libs/elfutils-0.143 dev-libs/libelf ) )
-	!build? (
-		gcj? (
-			gtk? (
-				x11-libs/libXt
-				x11-libs/libX11
-				x11-libs/libXtst
-				x11-proto/xproto
-				x11-proto/xextproto
-				=x11-libs/gtk+-2*
-				x11-libs/pango
-			)
-			>=media-libs/libart_lgpl-2.1
-			app-arch/zip
-			app-arch/unzip
-		)
-		>=sys-libs/ncurses-5.2-r2
-		nls? ( sys-devel/gettext )
-	)"
+RDEPEND=""
 DEPEND="${RDEPEND}
-	test? ( >=dev-util/dejagnu-1.4.4 >=sys-devel/autogen-5.5.4 )
-	>=sys-apps/texinfo-4.8
-	>=sys-devel/bison-1.875
 	!prefix? ( elibc_glibc? ( >=sys-libs/glibc-2.8 ) )
 	kernel_Darwin? ( ${CATEGORY}/binutils-apple )
 	kernel_AIX? ( ${CATEGORY}/native-cctools )
@@ -66,48 +35,36 @@ DEPEND="${RDEPEND}
 		ppc64? ( >=${CATEGORY}/binutils-2.17 )
 		>=${CATEGORY}/binutils-2.15.94
 	)"
-PDEPEND=">=sys-devel/gcc-config-1.4"
 if [[ ${CATEGORY} != cross-* ]] ; then
 	PDEPEND="${PDEPEND} !prefix? ( elibc_glibc? ( >=sys-libs/glibc-2.8 ) )"
 fi
-
-# hack: we hook into exclude_gcc_patches because it gives us the opportunity
-# to get our patches in before toolchain.eclass does its own patching.
-# The reason we want to do that is so that toolchain's configure patches
-# go in after our patches to configure (manually rebuilt with cygwin's
-# autotools)
-exclude_gcc_patches() {
-	# <cygwin hacks>
-	if [[ ${CHOST} == *-cygwin* ]] ; then
-		pushd "${S}" || die
-                epatch "${FILESDIR}"/gcc-4.5-cygwin-ada.patch
-                epatch "${FILESDIR}"/gcc-4.5-cygwin-ehdebug.patch
-                epatch "${FILESDIR}"/gcc-4.5.3-cygport.patch
-		epatch "${FILESDIR}"/gcc-4.5.3-cygwin-libffi-config.patch
-		epatch "${FILESDIR}"/gcc-4.5.3-should-be-cygwin-star-ldo.patch
-		popd
-	fi
-	# </cygwin hacks>
-
-	# <"inherited" implementation>
-	local i
-	for i in ${GENTOO_PATCH_EXCLUDE} ; do
-		if [[ -f ${WORKDIR}/patch/${i} ]] ; then
-			einfo "Excluding patch ${i}"
-			rm -f "${WORKDIR}"/patch/${i} || die "failed to delete ${i}"
-		fi
-	done
-
-	use vanilla && return 0
-	# </ "inherited" implementation>
-}
 
 src_unpack() {
 	toolchain_src_unpack
 	use vanilla && return 0
 
+	if [[ ${CHOST} == *-cygwin* ]] ; then
+		# FIXME: what happened to libffi?  Libffi not being built
+		# despire USE since refactored, AFAIK should be supported.
+                epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygwin-ada.patch
+                epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygwin-ehdebug.patch
+                epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygport.patch
+		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygwin-star-glob.patch
+		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygwin-cross-libdir.patch
+		[[ -x contrib/gcc_update ]] || die
+		ebegin "Touching generated files (again)"
+		./contrib/gcc_update --touch | \
+			while read f ; do
+				einfo "  ${f%%...}"
+			done
+		eend
+	fi
+
 	# work around http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33637
 	epatch "${FILESDIR}"/4.3.0/targettools-checks.patch
+
+	# call the linker without explicit target like on sparc
+	epatch "${FILESDIR}"/solaris-i386-ld-emulation.patch
 
 	# add support for 64-bits native target on Solaris
 	epatch "${FILESDIR}"/4.5.1/solaris-x86_64.patch
@@ -138,21 +95,13 @@ src_unpack() {
 	epatch "${FILESDIR}"/4.5.1/aix-force-pthread.patch
 	epatch "${FILESDIR}"/4.5.1/ia64-hpux-always-pthread.patch
 
-	# http://gcc.gnu.org/ml/gcc-patches/2011-01/msg02172.html
-	# http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21206
-	epatch "${FILESDIR}"/gcj-4.6.0-iconvlink.patch
-
+	epatch "${FILESDIR}"/gcj-4.3.1-iconvlink.patch
 	epatch "${FILESDIR}"/4.5.2/solaris-pthread.patch
 
-	# libgcc's Makefiles reuses $T, work around that :(
-	# only necessary on x86/x64, breaks on sparc
-	[[ ${CHOST} == *86-*-solaris* ]] && \
-		epatch "${FILESDIR}"/4.4.4/${PN}-4.4.4-T-namespace.patch
-		
 	# libgcj fails to link during bootstrap on win32 platfoms due to unresolved
 	# import symbols GC_{un,}register_my_thread -- they are #ifdef'd to oblivion
 	# in boehm-gc/pthread_support.c.  Hopefully this is the right fix.
-	epatch "${FILESDIR}"/${PN}-4.5.3-fix-GC_WIN32_THREADS-boehm_gc-bootstrap.patch
+	epatch "${FILESDIR}"/4.5.3/${PN}-4.5.3-fix-GC_WIN32_THREADS-boehm_gc-bootstrap.patch
 
 	sed -i 's/use_fixproto=yes/:/' gcc/config.gcc #PR33200
 
@@ -168,26 +117,6 @@ pkg_setup() {
 		ewarn "Any bugs resulting from the use of LTO will not be fixed."
 		ewarn
 	fi
-}
-
-# Remove occurrences of strings from variable given in $1
-# Strings removed are matched as globs, so for example
-# '-O*' would remove -O1, -O2 etc.
-my_filter_var() {
-        local f x VAR VAL
-        declare -a new
-
-        VAR=$1
-        shift
-        eval VAL=\${${VAR}}
-        for f in ${VAL}; do
-                for x in "$@"; do
-                        # Note this should work with globs like -O*
-                        [[ ${f} == ${x} ]] && continue 2
-                done
-                eval new\[\${\#new\[@]}]=\${f}
-        done
-        eval export ${VAR}=\${new\[*]}
 }
 
 src_compile() {
@@ -238,9 +167,6 @@ src_compile() {
 			EXTRA_ECONF="${EXTRA_ECONF} --with-mpfr=${EPREFIX}/usr"
 			EXTRA_ECONF="${EXTRA_ECONF} --enable-static"
 			use gcj && EXTRA_ECONF="${EXTRA_ECONF} --enable-libgcj-sublibs"
-			# reportedly problematic (cant reproduce however)
-			# my_filter_var MAKEOPTS '-j*'
-			# MAKEOPTS="${MAKEOPTS} -j1"
 			;;
 		i[34567]86-*-linux*:*" prefix "*)
 			# to allow the linux-x86-on-amd64.patch become useful, we need
@@ -295,7 +221,7 @@ src_install() {
 	# Maybe there is a better location for doing this ...? Feel free to move
 	# it there if you want to.
 
-	cat > "${T%/}"/00-gcc-paths.sh <<- _EOF
+	cat > "${T}"/00-gcc-paths.sh <<- _EOF
 		#!/bin/env bash
 		# GCC specific variables
 		unset GCC_SPECS GCC_EXEC_PREFIX
@@ -306,7 +232,7 @@ src_install() {
 	_EOF
 
 	insinto /etc/profile.d
-	doins "${T%/}"/00-gcc-paths.sh
+	doins "${T}"/00-gcc-paths.sh
 
 }
 

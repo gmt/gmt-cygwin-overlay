@@ -14,3 +14,7 @@ dev-libs/mpc static-libs
 # I'm masking it for now... (also, because I don't "feel lucky" about this one)
 sys-devel/gettext java
 
+# this can't possibly do anything useful... can it?  Untested & expected not to
+# work, so masked.  Cygwin does have -lpthread support; where does this come
+# from, and how related to USE-flag here?  Need to investigate.
+sys-devel/gcc nptl
