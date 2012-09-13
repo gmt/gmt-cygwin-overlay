@@ -30,10 +30,10 @@
  	epatch "${FILESDIR}"/gcj-4.3.1-iconvlink.patch
  	epatch "${FILESDIR}"/4.5.2/solaris-pthread.patch
  
-+	# libgcj fails to link during bootstrap on win32 platfoms due to unresolved
-+	# import symbols GC_{un,}register_my_thread -- they are #ifdef'd to oblivion
-+	# in boehm-gc/pthread_support.c.  Hopefully this is the right fix.
-+	epatch "${FILESDIR}"/4.5.3/${PN}-4.5.3-fix-GC_WIN32_THREADS-boehm_gc-bootstrap.patch
++	# libgcj fails to link on win32 platfoms (including cygwin) due to
++	# unresolved import symbols GC_{un,}register_my_thread (they are #ifdef'd
++	# to oblivion in boehm-gc/pthread_support.c).  Hopefully the right fix.
++	epatch "${FILESDIR}"/4.5.3/${PN}-4.5.3-fix-GC_WIN32_THREADS-boehm_gc.patch
 +
  	sed -i 's/use_fixproto=yes/:/' gcc/config.gcc #PR33200
  
