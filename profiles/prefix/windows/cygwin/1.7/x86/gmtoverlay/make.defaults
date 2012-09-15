@@ -28,6 +28,4 @@ CYGDLL_PROTECT="/bin/bash.exe /bin/sh.exe /bin/rbash.exe /bin/cygreadline6.dll
 		/usr/bin/cyggmpxx-4.dll /usr/bin/cygmp-3.dll /usr/bin/cygmpfr-4.dll
 		/usr/bin/cygmpc-2.dll"
 
-KERNEL="Cygwin Cygwin17"
-
 # vim: syntax=sh

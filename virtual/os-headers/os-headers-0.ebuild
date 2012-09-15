@@ -19,6 +19,6 @@ DEPEND=""
 RDEPEND="
 	|| (
 		kernel_linux? ( sys-kernel/linux-headers:0 )
-		kernel_Cygwin17? ( sys-devel/cygwin-headers-bin:1.7 )
+		kernel_Cygwin? ( sys-devel/cygwin-headers-bin:1.7 )
 		!prefix? ( sys-freebsd/freebsd-lib )
 	)"
