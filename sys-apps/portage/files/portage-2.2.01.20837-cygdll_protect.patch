@@ -95,6 +95,7 @@ Date:   Thu Aug 2 15:38:31 2012 -0700
     portage/util/master_lock: avoid dict.iteritems() (python3)
     portage/util/cygdll_protection: python3: avoid dict.iteritems()
     portage/emerge/actions: use new python3.2 compatible exception handling style
+    bin/portageq: fix outdated references to uses_root
 
 diff --git a/bin/Makefile.in b/bin/Makefile.in
 index e9bf141..a77335e 100644
@@ -541,7 +542,7 @@ index b07df1d..29f3606 100755
 +		return 0
 +	else:
 +		return 1
-+cygdll_protect_list.uses_root = True
++cygdll_protect_list.uses_eroot = True
 +
 +def cygdll_protect_clear(argv):
 +	"""<eroot> <cygdll_in-limbo_file>+
@@ -565,7 +566,7 @@ index b07df1d..29f3606 100755
 +		print("ERROR: wrong number of arguments")
 +		sys.exit(2)
 +	return portage.db[argv[0]]["vartree"].dbapi._cygdllprotect.limbodb_drop(argv[1:])
-+cygdll_protect_clear.uses_root = True
++cygdll_protect_clear.uses_eroot = True
 +
 +def master_lock_acquire(argv):
 +	"""[--as-portage]
@@ -652,7 +653,7 @@ index b07df1d..29f3606 100755
 +		return 0
 +	else:
 +		return 1
-+is_cygdll_protected.uses_root = True
++is_cygdll_protected.uses_eroot = True
 +
 +def cygdll_install_protected_file(argv):
 +	"""<eroot> <source> <dest>
@@ -777,7 +778,7 @@ index b07df1d..29f3606 100755
 +		cygdllprotect.limbodb_add(dest, sourcemd5)
 +
 +	return 0
-+cygdll_install_protected_file.uses_root = True
++cygdll_install_protected_file.uses_eroot = True
 +
 +def cygdll_show_in_limbo_updates(argv):
 +	"""<eroot>
@@ -791,7 +792,7 @@ index b07df1d..29f3606 100755
 +	settings = portage.db[argv[0]]["vartree"].settings
 +	chk_updated_cygdll_files(settings["EROOT"], settings.get("CYGDLL_PROTECT", ""))
 +	return 0
-+cygdll_show_in_limbo_updates.uses_root = True
++cygdll_show_in_limbo_updates.uses_eroot = True
 +
  #-----------------------------------------------------------------------------
  #

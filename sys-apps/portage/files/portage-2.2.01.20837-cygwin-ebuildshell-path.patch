@@ -1,0 +1,12 @@
+diff -urN prefix-portage-2.2.01.20837.orig/bin/ebuild.sh prefix-portage-2.2.01.20837/bin/ebuild.sh
+--- prefix-portage-2.2.01.20837.orig/bin/ebuild.sh	2012-09-15 12:38:32.112062900 -0700
++++ prefix-portage-2.2.01.20837/bin/ebuild.sh	2012-09-15 12:42:56.752062900 -0700
+@@ -512,7 +512,7 @@
+ 	rm -f "${T}/ebuildshell-environment-outcome" >&/dev/null
+ 
+ 	unset BASH_ENV
+-	env -i ${BASH} --rcfile "${T}/ebuildshell-environment"  -i || die
++	env -i PATH="${EPREFIX}/bin:${EPREFIX}/usr/bin:/bin" ${BASH} --rcfile "${T}/ebuildshell-environment"  -i || die
+ 
+ 	chown ${PORTAGE_USER:-portage}:${PORTAGE_GROUP:-portage} "${T}/ebuildshell-environment-outcome" &>/dev/null
+ 	chmod g+w "${T}/ebuildshell-environment-outcome" &>/dev/null

@@ -175,6 +175,7 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
 		epatch "${FILESDIR}"/${PN}-2.2.01.20389-cygwin-dosym-exe-hack.patch
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-unc-prevention.patch
+		epatch "${FILESDIR}"/${PN}-2.2.01.20837-cygwin-ebuildshell-path.patch
 	else
 		use cygdll-protect && {
 			ewarn "cygdll-protect outside of cygwin?  Hope you"
