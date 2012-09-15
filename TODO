@@ -239,3 +239,13 @@ o sys-apps/coreutils has multiple test failures.  Investigate and fix them.
 o sys-apps/sed seems not to recognize "\t" as matching "[[:space:]]"!
 
 o scripts/gendiffs: goes haywire in sys-devel/gcc-config when requesting sys-devel/gcc
+
+o portage_master_lock is not using a very clear naming scheme -- in fact it's downright
+  misleading to the extent that I'd even managed to confuse myself about it.
+
+  The only semantic that can possibly make any sense for it is to make it a
+  cygdll_protect-specific mechanism, and to rename it to reflect this.  Secondly, the
+  locking type we are reffering to as "as_portage" should really be called
+  "as non-cygdll-update", and the locking type we are referring to as "as_non_portage"
+  shoud be "as_cygdll_update".  This could be fixed with sed, it's a cosmetic naming
+  problem -- but it really is quite confusing as is and ought to be fixed.
