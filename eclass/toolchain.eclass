@@ -1187,9 +1187,7 @@ gcc_do_configure() {
 			confgcc+=" --enable-shared"
 		fi
 		case ${CHOST} in
-			# FIXME on *-cygwin1.7 we want posix threads, so this only does the right thing
-			# until we fix the *-cygwin1.7 suffix, which presumably will be soon.
-			mingw*|*-mingw*|*-cygwin)
+			mingw*|*-mingw*)
 				confgcc+=" --enable-threads=win32" ;;
 			*)
 				confgcc+=" --enable-threads=posix" ;;
@@ -1879,12 +1877,27 @@ should_we_gcc_config() {
 	# if the current config is invalid, we definitely want a new one
 	# Note: due to bash quirkiness, the following must not be 1 line
 	local curr_config
-	curr_config=$(env -i ROOT="${ROOT}" "${EPREFIX}"/usr/bin/gcc-config -c ${CTARGET} 2>&1) || return 0
+	if [[ ${CHOST} == *-cygwin* ]] ; then
+		curr_config=$(env -i ROOT="${ROOT}" \
+				     PATH="${EPREFIX}/bin:${EPREFIX}/usr/bin:/bin" \
+				"${EPREFIX}"/usr/bin/gcc-config -c ${CTARGET} 2>&1) || return 0
+	else
+		curr_config=$(env -i ROOT="${ROOT}" \
+				"${EPREFIX}"/usr/bin/gcc-config -c ${CTARGET} 2>&1) || return 0
+	fi
 
 	# if the previously selected config has the same major.minor (branch) as
 	# the version we are installing, then it will probably be uninstalled
 	# for being in the same SLOT, make sure we run gcc-config.
-	local curr_config_ver=$(env -i ROOT="${ROOT}" "${EPREFIX}"/usr/bin/gcc-config -S ${curr_config} | awk '{print $2}')
+	local curr_config_ver
+	if [[ ${CHOST} == *-cygwin* ]] ; then
+		curr_config_ver=$(env -i ROOT="${ROOT}" \
+					 PATH="${EPREFIX}/bin:${EPREFIX}/usr/bin:/bin" \
+				"${EPREFIX}"/usr/bin/gcc-config -S ${curr_config} | awk '{print $2}')
+	else
+		curr_config_ver=$(env -i ROOT="${ROOT}" \
+				"${EPREFIX}"/usr/bin/gcc-config -S ${curr_config} | awk '{print $2}')
+	fi
 
 	local curr_branch_ver=$(get_version_component_range 1-2 ${curr_config_ver})
 
@@ -1916,13 +1929,26 @@ should_we_gcc_config() {
 
 do_gcc_config() {
 	if ! should_we_gcc_config ; then
-		env -i ROOT="${ROOT}" "${EPREFIX}"/usr/bin/gcc-config --use-old --force
+		if [[ ${CHOST} == *-cygwin* ]] ; then
+			env -i ROOT="${ROOT}" PATH="${EPREFIX}/bin:${EPREFIX}/usr/bin:/bin" \
+				"${EPREFIX}"/usr/bin/gcc-config -q --use-old --force
+		else
+			env -i ROOT="${ROOT}" \
+				"${EPREFIX}"/usr/bin/gcc-config -q --use-old --force
+		fi
 		return 0
 	fi
 
 	local current_gcc_config="" current_specs="" use_specs=""
 
-	current_gcc_config=$(env -i ROOT="${ROOT}" "${EPREFIX}"/usr/bin/gcc-config -c ${CTARGET} 2>/dev/null)
+	if [[ ${CHOST} == *-cygwin* ]] ; then
+		current_gcc_config=$(env -i ROOT="${ROOT}" \
+					    PATH="${EPREFIX}/bin:${EPREFIX}/usr/bin:/bin" \
+					"${EPREFIX}"/usr/bin/gcc-config -c ${CTARGET} 2>/dev/null)
+	else
+		current_gcc_config=$(env -i ROOT="${ROOT}" \
+					"${EPREFIX}"/usr/bin/gcc-config -c ${CTARGET} 2>/dev/null)
+	fi
 	if [[ -n ${current_gcc_config} ]] ; then
 		# figure out which specs-specific config is active
 		current_specs=$(gcc-config -S ${current_gcc_config} | awk '{print $3}')
@@ -1941,7 +1967,7 @@ do_gcc_config() {
 		use_specs=""
 	fi
 
-	gcc-config ${CTARGET}-${GCC_CONFIG_VER}${use_specs}
+	gcc-config -q ${CTARGET}-${GCC_CONFIG_VER}${use_specs}
 }
 
 # This function allows us to gentoo-ize gcc's version number and bugzilla
