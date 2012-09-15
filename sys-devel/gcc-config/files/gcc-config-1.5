@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright 1999-2011 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-devel/gcc-config/files/gcc-config-1.5,v 1.7 2011/12/07 05:42:19 vapier Exp $
+# $Header: $
 
 # Format of /etc/env.d/gcc/:
 #  config-TARGET:	CURRENT=version for TARGET
@@ -69,6 +69,9 @@ Options:
                              profile are located.
   -L, --get-lib-path         Print path where libraries of the given/current
                              profile are located.
+  -q, --quiet-cygdll-warning Do not dump a warning message if cygdll
+                             protections are applied (i.e.: use in ebuilds
+							 to avoid redundant warnings).
 
 Profile names are of the form:  <CHOST>-<gcc version>
 For example:                    i686-pc-linux-gnu-3.2.1
@@ -137,20 +140,31 @@ get_real_chost() {
 
 	# make sure portage isnt broken
 	if python -V &>/dev/null ; then
-		local myportageq=$(PATH="${EPREFIX}/usr/bin:${PATH}" type -P portageq)
-		if [[ $( "${myportageq}" envvar KERNEL) == Cygwin* ]] ; then
-		    # on Cygwin we simply cannot function without cygwin1.dll somewhere in
-			# our path.  For the forseeable future, we will take cygwin1.dll from
-			# upstream, so we at least need "/bin" in the PATH, which is where it's
-			# 'supposed' to be.  If you put it somewhere else, I guess you'd better change
-			# this script!  (Actually since multiple cygwin1.dll's aren't supported,
-			# a way better solution would be to parse cygcheck output (i.e.:
-			# something like cygcheck @EPREFIX@/bin/bash.exe), and, after translating to
-			# UNIX-style paths, use PATH=<that cygwin1.dll's path> below... PITA tho.
-			export REAL_CHOST=$(env -i EPREFIX="${EPREFIX}" PATH=/bin "${myportageq}" envvar CHOST 2>/dev/null)
-		else
-			export REAL_CHOST=$(env -i EPREFIX="${EPREFIX}" "${myportageq}" envvar CHOST 2>/dev/null)
-		fi
+		local myportageq=$( PATH="${EPREFIX}/usr/bin:/usr/bin:${PATH}" type -P portageq )
+		local myuname=$( PATH="${EPREFIX}/usr/bin:/usr/bin:${PATH}" type -P uname )
+		case x"$( "${myuname}" -o )" in
+			xCygwin*)
+			    # on Cygwin we simply cannot function without cygwin1.dll somewhere in
+				# our path.  For the forseeable future, we will take cygwin1.dll from
+				# upstream, so we at least need "/bin" in the PATH, which is where it's
+				# 'supposed' to be.  If you put it somewhere else, I guess you'd better change
+				# this script!  (Actually since multiple cygwin1.dll's aren't supported,
+				# a better solution would be to parse cygcheck output (i.e.:
+				# something like cygcheck @EPREFIX@/bin/bash.exe), and, after translating to
+				# UNIX-style paths, use PATH=<that cygwin1.dll's path> below...
+				# plus for /true/ equivalence to what this accomplishes on linux, we would
+				# also need to set PATH s.t. the entire .dll-dependency-tree of bash, env,
+				# and ${myportageq} were also found.  This could get very difficult!  So for
+				# now we assume that a basic $EPREFIX/{usr/,}bin:/bin will work.  yuck.)
+				export REAL_CHOST=$( env -i EPREFIX="${EPREFIX}" \
+											PATH="${EPREFIX}/bin:${EPREFIX}/usr/bin:/bin" \
+									 "${myportageq}" envvar CHOST 2>/dev/null )
+				;;
+			*)
+				export REAL_CHOST=$( env -i EPREFIX="${EPREFIX}" \
+									 "${myportageq}" envvar CHOST 2>/dev/null )
+				;;
+		esac
 	else
 		ewarn "Python seems to be broken, attempting to locate CHOST ourselves ..."
 		export REAL_CHOST=$(try_real_hard_to_find_CHOST)
@@ -168,6 +182,28 @@ get_real_chost() {
 is_cross_compiler() {
 	get_real_chost
 	[[ ${CC_COMP/${REAL_CHOST}} == ${CC_COMP} ]]
+}
+
+portage_supports_cygdll_protect() {
+    case x${__portage_supports_cygdll_protect} in
+		xyes)
+			return 0
+			;;
+		xno)
+			return 1
+			;;
+		x)
+			__portage_supports_cygdll_protect=no
+			# Note that in case python is broken this will correctly give a negative answer
+		    CYGDLL_PROTECT="/foo" portageq is_cygdll_protected "${EROOT}" "${EPREFIX}"/foo 2>&1 >/dev/null && \
+				__portage_supports_cygdll_protect=yes
+			[[ ${__portage_supports_cygdll_protect} == yes ]] && return 0
+			return 1
+			;;
+		*)
+			die
+			;;
+	esac
 }
 
 convert_profile_paths() {
@@ -527,10 +563,9 @@ switch_profile() {
 				local targetdir="$2"
 				local cleanup="$3"
 
-				# make sure that portageq has the needed features -- this will only be the case
-				# if it was merged with the cygdll_protect flag, python works right, etc...
-			    CYGDLL_PROTECT="/foo" portageq is_cygdll_protected "${EROOT}" \
-														"${EPREFIX}"/foo 2>&1 >/dev/null || {
+				# if there is no cygdll_protect support, just use the standard
+				# finish_runtime_dir_elf implementation.
+				portage_supports_cygdll_protect || {
 					finish_runtime_dir_elf "$@"
 					return $?
 				}
@@ -552,7 +587,7 @@ switch_profile() {
 							[[ -e "${sourcedir}/${f##*/}" ]] && continue
 							if portageq is_cygdll_protected "${EROOT}" "${f}" ; then
 								if [[ ${cygdll_protections} == no ]] ; then
-									portageq master_lock_acquire
+									portageq master_lock_acquire --as-portage
 									cygdll_protections=yes
 								fi
 								portageq cygdll_install_protected_file "${EROOT}" /dev/null "${f}"
@@ -567,7 +602,7 @@ switch_profile() {
 					targetfile="${targetdir}"/${f##*/}
 					if portageq is_cygdll_protected "${EROOT}" "${targetfile}" ; then
 						if [[ ${cygdll_protections} == no ]] ; then
-							portageq master_lock_acquire
+							portageq master_lock_acquire --as-portage
 							cygdll_protections=yes
 						fi
 						portageq cygdll_install_protected_file "${EROOT}" "${f}" "${targetfile}"
@@ -868,12 +903,13 @@ switch_profile() {
 	# if, for example, a file with a pending in-limbo update was reverted).
 	# Note that, if, for any reason, this script died while holding the master lock,
 	# the PID would be left in the database; however, this only presents a problem if
-	# the database wash shared across multiple hosts -- otherwise, the lock would be
+	# the database were shared across multiple hosts -- otherwise, the lock would be
 	# automatically cleaned as soon as the next time the master lock was accessed.
 	# TODO: It would be better if a trap were implemented to prevent this nevertheless.
 	if [[ ${cygdll_protections} == yes ]] ; then
-		portageq master_lock_release
-		portageq cygdll_show_in_limbo_updates "${EROOT}"
+		portageq master_lock_release --as-portage
+		[[ ${QUIET_CYGDLL_WARNING} == no ]] && \
+			portageq cygdll_show_in_limbo_updates "${EROOT}"
 	fi
 
 	return 0
@@ -1052,6 +1088,7 @@ FORCE="no"
 CC_COMP=
 ENV_D="${EROOT}etc/env.d"
 GCC_ENV_D="${ENV_D}/gcc"
+QUIET_CYGDLL_WARNING=no
 
 for x in "$@" ; do
 	case "${x}" in
@@ -1109,6 +1146,9 @@ for x in "$@" ; do
 				NEED_ACTION="no"
 				DOIT="get_lib_path"
 			fi
+			;;
+		-q|--quiet-cygdll-warning)
+			QUIET_CYGDLL_WARNING=yes
 			;;
 		-x|--debug)
 			SET_X=true

@@ -35,7 +35,6 @@ src_compile() {
 
 src_install() {
 	newbin ${PN}-${PV} ${PN} || die "install gcc-config"
-
 	sed -i \
 		-e "s:@GENTOO_LIBDIR@:$(get_libdir):g" \
 		"${ED}"usr/bin/${PN}
