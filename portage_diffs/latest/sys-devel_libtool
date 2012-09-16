@@ -37,6 +37,20 @@
  	# seems that libtool has to know about EPREFIX a little bit better,
  	# since it fails to find prefix paths to search libs from, resulting in
  	# some packages building static only, since libtool is fooled into
+@@ -65,6 +73,13 @@
+ 		eprefixify libltdl/m4/libtool.m4
+ 	fi
+ 
++	# On cygwin, subshell creation can be extremely expensive, and, under
++	# the right circumstances, can even cause difficult-to-fix crashes,
++	# Unfortunately, Gentoo triggers precisely such problems.  Here we
++	# simply rewrite some libtool code to use in-process shell capabilities
++	# instead of subshells to achieve identical results.
++	epatch "${FILESDIR}"/2.4/${PN}-2.4.2-avoid-frivolous-subshells.patch
++
+ 	cd libltdl/m4
+ 	epatch "${FILESDIR}"/1.5.20/${PN}-1.5.20-use-linux-version-in-fbsd.patch #109105
+ 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-module-bundle.patch
 <-----8<-----
 ===== mutual sub-directory: "sys-devel/libtool/files" =====
 ===== mutual sub-directory: "sys-devel/libtool/files/1.5.10" =====
@@ -55,6 +69,7 @@ overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-03-gcc-flags.patch: unifi
 overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-04-fstack-protector.patch: unified diff output, ASCII text
 overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-install-sh-unc-suppression.patch: unified diff output, ASCII text
 overlay/sys-devel/libtool/files/2.4/libtool-2.4-cygwin-libtool-unc-suppression.patch: unified diff output, ASCII text
+overlay/sys-devel/libtool/files/2.4/libtool-2.4.2-avoid-frivolous-subshells.patch: unified diff output, ASCII text
 overlay/sys-devel/libtool/files/2.4/libtool-2.4.2-cygwin-install-sh-unc-suppression.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***

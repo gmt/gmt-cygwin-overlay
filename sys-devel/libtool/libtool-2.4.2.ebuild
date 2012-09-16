@@ -73,6 +73,13 @@ src_prepare() {
 		eprefixify libltdl/m4/libtool.m4
 	fi
 
+	# On cygwin, subshell creation can be extremely expensive, and, under
+	# the right circumstances, can even cause difficult-to-fix crashes,
+	# Unfortunately, Gentoo triggers precisely such problems.  Here we
+	# simply rewrite some libtool code to use in-process shell capabilities
+	# instead of subshells to achieve identical results.
+	epatch "${FILESDIR}"/2.4/${PN}-2.4.2-avoid-frivolous-subshells.patch
+
 	cd libltdl/m4
 	epatch "${FILESDIR}"/1.5.20/${PN}-1.5.20-use-linux-version-in-fbsd.patch #109105
 	epatch "${FILESDIR}"/2.2.6a/${PN}-2.2.6a-darwin-module-bundle.patch

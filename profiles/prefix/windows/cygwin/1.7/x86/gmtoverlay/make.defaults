@@ -26,6 +26,6 @@ USE="ultra-prefixify"
 CYGDLL_PROTECT="/bin/bash.exe /bin/sh.exe /bin/rbash.exe /bin/cygreadline6.dll
                 /bin/cygreadline7.dll /bin/cyggcc_s-1.dll /usr/bin/cyggmp-10.dll
 		/usr/bin/cyggmpxx-4.dll /usr/bin/cygmp-3.dll /usr/bin/cygmpfr-4.dll
-		/usr/bin/cygmpc-2.dll"
+		/usr/bin/cygmpc-2.dll /usr/bin/cygltdl-7.dll"
 
 # vim: syntax=sh
