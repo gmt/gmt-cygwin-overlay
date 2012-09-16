@@ -59,54 +59,33 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-${PV}-woe-is-us.patch
 		epatch "${FILESDIR}"/${PN}-${PV}-cygwin1.7-hostglob.patch
 		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-am_gnu_gettext_version.patch
-	fi
 
-	if [[ ${CHOST} == *-cygwin* ]] ; then
-		einfo "running elibtoolize --force in ."
-		elibtoolize --force || die
-
-		einfo "doing autogen stuff for ./gettext-runtime/libasprintf"
+		einfo "=-=-=-=-= Welcome to GNU autohell...  TIP: a watched ebuild never merges =-=-=-=-="
+		# TODO: audit to ensure that all files are being regenerated that
+		# should be from the cygport patches, which is the point, after all.
+		AT_NO_RECURSIVE=yes
 		cd "${S}"/gettext-runtime/libasprintf || die
-		einfo Running fixaclocal
-		../../build-aux/fixaclocal aclocal -I ../../m4 -I ../m4 -I gnulib-m4 || die
-		eautoconf || die
-		eautoheader || die
-		eautomake || die
-
-		einfo "doing autogen stuff for ./gettext-runtime"
+		eautoreconf
 		cd "${S}"/gettext-runtime || die
-		einfo Running fixaclocal
-		../build-aux/fixaclocal aclocal -I m4 -I ../m4 -I gnulib-m4 || die
-		eautoconf || die
-		eautoheader || die
-		touch config.h.in
-		eautomake || die
-
-		einfo "doing autogen stuff for ./gettext-tools/examples"
+		eautoreconf
 		cd "${S}"/gettext-tools/examples || die
-		eautoconf || die
-		eautomake || die
-		
-		einfo "doing autogen stuff for ./gettext-tools"
+		AT_NOELIBTOOLIZE=yes eautoreconf
 		cd "${S}"/gettext-tools || die
-		einfo Running fixaclocal
-		../build-aux/fixaclocal aclocal -I m4 -I ../gettext-runtime/m4 -I ../m4 \
-                	-I gnulib-m4 -I libgrep/gnulib-m4 -I libgettextpo/gnulib-m4 || die
-		eautoconf || die
-		eautoheader || die
-		touch config.h.in
-		test -d intl || mkdir intl
-		eautomake || die
-
-		einfo "doing autogenstuff for ."
+		eautoreconf
 		cd "${S}" || die
-		cp -pv gettext-runtime/ABOUT-NLS gettext-tools/ABOUT-NLS
-		einfo Running fixaclocal
-		build-aux/fixaclocal aclocal -I m4 || die
-		eautoconf || die
-		eautomake || die
+		AT_NOELIBTOOLIZE=yes eautoreconf
+		cd "${S}"/build-aux || die
+		elibtoolize
+		cd "${S}" || die
+		ebegin "Touching generated files (avoid maintainer-mode)"
+		for f in gettext-runtime/{,libasprintf/}config.h.in ; do
+			einfo "  ${f}"
+			touch ./${f} || die
+		done
+		eend 0
+		einfo "=-=-=-=-= Now resuming your regularly scheduled ebuild.  Sorry for the delay! =-=-=-=-="
 	else
-	elibtoolize
+		elibtoolize
 	fi
 	epatch "${FILESDIR}"/${P}-uclibc-sched_param-def.patch
 	epatch "${FILESDIR}"/${P}-no-gets.patch
