@@ -1,0 +1,9 @@
+--- gcc-4.5.3.orig/gcc/testsuite/gcc.target/i386/pr25993.c	2010-06-04 07:37:50.000000000 -0700
++++ gcc-4.5.3/gcc/testsuite/gcc.target/i386/pr25993.c	2012-09-23 15:14:48.307082500 -0700
+@@ -1,5 +1,5 @@
+ /* { dg-do assemble } */
+-/* { dg-skip-if "" { "*-*-darwin*" "*-*-mingw*" } { "*" } { "" } } */
++/* { dg-skip-if "" { "*-*-darwin*" "*-*-mingw*" "*-*-cygwin*" } { "*" } { "" } } */
+ /* { dg-options "-std=c99 -x assembler-with-cpp" } */
+ 
+ #ifndef __ASSEMBLER__

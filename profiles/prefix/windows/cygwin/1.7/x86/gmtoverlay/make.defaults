@@ -23,9 +23,22 @@ USE="ultra-prefixify"
 # Finally, if until symlinks are implemented be aware that these won't work when, i.e.
 # ${EPREFIX}/bin/sh.exe is symlink (which it probably is!!!), so we are predicting the
 # future here but if our prediction turns out wrong we should get rid of /bin/sh below.
-CYGDLL_PROTECT="/bin/bash.exe /bin/sh.exe /bin/rbash.exe /bin/cygreadline6.dll
-                /bin/cygreadline7.dll /bin/cyggcc_s-1.dll /usr/bin/cyggmp-10.dll
-		/usr/bin/cyggmpxx-4.dll /usr/bin/cygmp-3.dll /usr/bin/cygmpfr-4.dll
-		/usr/bin/cygmpc-2.dll /usr/bin/cygltdl-7.dll"
+CYGDLL_PROTECT=""
+
+# bash executables
+CYGDLL_PROTECT="${CYGDLL_PROTECT} /bin/bash.exe /bin/sh.exe /bin/rbash.exe"
+
+# readline
+CYGDLL_PROTECT="${CYGDLL_PROTECT} /bin/cygreadline6.dll /bin/cygreadline7.dll"
+
+# cyggcc_s is quite important & particularly prone to basing issues
+CYGDLL_PROTECT="${CYGDLL_PROTECT} /bin/cyggcc_s-1.dll /bin/cyggcc_s-sjlj-1"
+
+# gmp/mpfr/mpc
+CYGDLL_PROTECT="${CYGDLL_PROTECT} /usr/bin/cyggmp-10.dll /usr/bin/cyggmpxx-4.dll /usr/bin/cygmp-3.dll
+				  /usr/bin/cygmpfr-4.dll /usr/bin/cygmpc-2.dll"
+
+# breaking libtool can stop portage in its tracks: wall it off.
+CYGDLL_PROTECT="${CYGDLL_PROTECT} /usr/bin/cygltdl-7.dll"
 
 # vim: syntax=sh

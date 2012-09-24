@@ -1,0 +1,12 @@
+diff -urN gcc-4.5.3.orig/libjava/gnu/java/nio/channels/natFileChannelPosix.cc gcc-4.5.3/libjava/gnu/java/nio/channels/natFileChannelPosix.cc
+--- gcc-4.5.3.orig/libjava/gnu/java/nio/channels/natFileChannelPosix.cc	2007-04-02 18:05:50.000000000 -0700
++++ gcc-4.5.3/libjava/gnu/java/nio/channels/natFileChannelPosix.cc	2012-09-23 05:25:24.129415700 -0700
+@@ -386,7 +386,7 @@
+ 
+ #if defined (FIONREAD)
+   r = ::ioctl (fd, FIONREAD, &num);
+-  if (r == -1 && errno == ENOTTY)
++  if (r == -1 && (errno == ENOTTY || errno == EINVAL))
+     {
+       // If the ioctl doesn't work, we don't care.
+       r = 0;

@@ -249,3 +249,16 @@ o portage_master_lock is not using a very clear naming scheme -- in fact it's do
   "as non-cygdll-update", and the locking type we are referring to as "as_non_portage"
   shoud be "as_cygdll_update".  This could be fixed with sed, it's a cosmetic naming
   problem -- but it really is quite confusing as is and ought to be fixed.
+
+o There is a very serious bug in gcc-config: it will always put the .dll's of the
+  highest-numbered (technically, whatever is last in
+
+	ls ${EPREFIX}/etc/env.d/gcc/i686-pc-cygwin*
+
+  as put into the GCC_PROFILES variable) gcc into ${EPREFIX}/{usr/,}lib.  A reasonable
+  fix for this, perhaps, would be to simply reorder GCC_PROFILES to ensure that the
+  currently-being-selected profile ends up last -- this would seem to be consistent
+  with the in-source comments ... it is worth investigating whether the failure to
+  implement what the comment says is some kind of upstream bug or a bug in our
+  code.  For now we are "solving" this problem by ensuring that 4.5.3 is the only
+  gcc in the system, which is obviously a piss-poor non-solution.

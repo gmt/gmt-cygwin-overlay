@@ -1,17 +1,48 @@
 ===== mutual sub-directory: "sys-devel/gcc" =====
+----[ "sys-devel/gcc/ChangeLog" ]----->8----->
+--- PORTAGE/sys-devel/gcc/ChangeLog
++++ OVERLAY/sys-devel/gcc/ChangeLog
+@@ -2,17 +2,6 @@
+ # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
+ # $Header: $
+ 
+-  02 Sep 2012; Fabian Groffen <grobian@gentoo.org> gcc-4.6.3.ebuild,
+-  gcc-4.7.1.ebuild:
+-  Disable default fortify-source when glibc's features.h generates warnings when
+-  this isn't used with optimisation (Such as on Fedora 17), bug #433333
+-
+-  30 Aug 2012; Fabian Groffen <grobian@gentoo.org> gcc-4.6.3.ebuild:
+-  Remove coldfire patch from 4.6.3 by Alan Hourihane, bug #433369
+-
+-  15 Aug 2012; Fabian Groffen <grobian@gentoo.org> gcc-4.2.4-r01.4.ebuild:
+-  Extend Solaris GNU ld target fix to sparc targets for sparcv9-solaris
+-
+   11 Aug 2012; Fabian Groffen <grobian@gentoo.org> gcc-4.1.2.ebuild:
+   backport >=binutils-2.21 backport from 4.2 (4.5) to 4.1
+ 
+<-----8<-----
 ----[ "sys-devel/gcc/gcc-4.5.3-r1.ebuild" ]----->8----->
 --- PORTAGE/sys-devel/gcc/gcc-4.5.3-r1.ebuild
 +++ OVERLAY/sys-devel/gcc/gcc-4.5.3-r1.ebuild
-@@ -43,6 +43,23 @@
+@@ -43,6 +43,32 @@
  	toolchain_src_unpack
  	use vanilla && return 0
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
 +		# FIXME: what happened to libffi?  Libffi not being built
-+		# despire USE since refactored, AFAIK should be supported.
-+                epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygwin-ada.patch
-+                epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygwin-ehdebug.patch
-+                epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygport.patch
++		# despite USE since refactored, AFAIK should be supported.
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygport-classpath-0.98-build-abridged.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygport-classpath-0.98-awt.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-ada.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-ehdebug.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-java-FIONREAD.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-libffi.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-libstdc.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-misc-core.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-mnocygwin.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-sig-unwind.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-skiptest.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-peflags.patch
 +		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygwin-star-glob.patch
 +		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygwin-cross-libdir.patch
 +		[[ -x contrib/gcc_update ]] || die
@@ -26,7 +57,7 @@
  	# work around http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33637
  	epatch "${FILESDIR}"/4.3.0/targettools-checks.patch
  
-@@ -81,6 +98,11 @@
+@@ -81,6 +107,11 @@
  	epatch "${FILESDIR}"/gcj-4.3.1-iconvlink.patch
  	epatch "${FILESDIR}"/4.5.2/solaris-pthread.patch
  
@@ -38,7 +69,77 @@
  	sed -i 's/use_fixproto=yes/:/' gcc/config.gcc #PR33200
  
  	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
-@@ -132,6 +154,20 @@
+@@ -132,6 +163,20 @@
+ 				export gcc_cv_as_lcomm_with_alignment=no
+ 			fi
+ 		;;
++		*-cygwin*)
++			EXTRA_ECONF="${EXTRA_ECONF} --disable-sjlj-exceptions"
++			EXTRA_ECONF="${EXTRA_ECONF} --enable-version-specific-runtime-libs"
++			EXTRA_ECONF="${EXTRA_ECONF} --enable-shared-libgcc"
++			EXTRA_ECONF="${EXTRA_ECONF} --disable-__cxa_atexit"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-gnu-ld"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-gnu-as"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-dwarf2"
++			EXTRA_ECONF="${EXTRA_ECONF} --disable-symvers"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-gmp=${EPREFIX}/usr"
++			EXTRA_ECONF="${EXTRA_ECONF} --with-mpfr=${EPREFIX}/usr"
++			EXTRA_ECONF="${EXTRA_ECONF} --enable-static"
++			use gcj && EXTRA_ECONF="${EXTRA_ECONF} --enable-libgcj-sublibs"
++			;;
+ 		i[34567]86-*-linux*:*" prefix "*)
+ 			# to allow the linux-x86-on-amd64.patch become useful, we need
+ 			# to enable multilib, even if there is just one multilib option.
+<-----8<-----
+----[ "sys-devel/gcc/gcc-4.5.3-r2.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/gcc/gcc-4.5.3-r2.ebuild
++++ OVERLAY/sys-devel/gcc/gcc-4.5.3-r2.ebuild
+@@ -43,6 +43,32 @@
+ 	toolchain_src_unpack
+ 	use vanilla && return 0
+ 
++	if [[ ${CHOST} == *-cygwin* ]] ; then
++		# FIXME: what happened to libffi?  Libffi not being built
++		# despite USE since refactored, AFAIK should be supported.
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygport-classpath-0.98-build-abridged.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygport-classpath-0.98-awt.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-ada.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-ehdebug.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-java-FIONREAD.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-libffi.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-libstdc.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-misc-core.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-mnocygwin.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-sig-unwind.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-skiptest.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5-cygport-peflags.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygwin-star-glob.patch
++		epatch "${FILESDIR}"/4.5.3/gcc-4.5.3-cygwin-cross-libdir.patch
++		[[ -x contrib/gcc_update ]] || die
++		ebegin "Touching generated files (again)"
++		./contrib/gcc_update --touch | \
++			while read f ; do
++				einfo "  ${f%%...}"
++			done
++		eend
++	fi
++
+ 	# work around http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33637
+ 	epatch "${FILESDIR}"/4.3.0/targettools-checks.patch
+ 
+@@ -81,6 +107,11 @@
+ 	epatch "${FILESDIR}"/gcj-4.3.1-iconvlink.patch
+ 	epatch "${FILESDIR}"/4.5.2/solaris-pthread.patch
+ 
++	# libgcj fails to link on win32 platfoms (including cygwin) due to
++	# unresolved import symbols GC_{un,}register_my_thread (they are #ifdef'd
++	# to oblivion in boehm-gc/pthread_support.c).  Hopefully the right fix.
++	epatch "${FILESDIR}"/4.5.3/${PN}-4.5.3-fix-GC_WIN32_THREADS-boehm_gc.patch
++
+ 	sed -i 's/use_fixproto=yes/:/' gcc/config.gcc #PR33200
+ 
+ 	[[ ${CHOST} == ${CTARGET} ]] && epatch "${FILESDIR}"/gcc-spec-env.patch
+@@ -132,6 +163,20 @@
  				export gcc_cv_as_lcomm_with_alignment=no
  			fi
  		;;
@@ -91,7 +192,6 @@ usr/portage/sys-devel/gcc/gcc-4.1.2.ebuild: ASCII text
 usr/portage/sys-devel/gcc/gcc-4.2.4-r01.4.ebuild: ASCII text
 usr/portage/sys-devel/gcc/gcc-4.3.6-r1.ebuild: ASCII text
 usr/portage/sys-devel/gcc/gcc-4.4.6-r1.ebuild: ASCII text
-usr/portage/sys-devel/gcc/gcc-4.5.3-r2.ebuild: ASCII text
 usr/portage/sys-devel/gcc/gcc-4.5.4.ebuild: ASCII text
 usr/portage/sys-devel/gcc/gcc-4.6.3.ebuild: ASCII text
 usr/portage/sys-devel/gcc/gcc-4.7.1.ebuild: ASCII text

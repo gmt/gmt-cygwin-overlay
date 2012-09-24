@@ -1,0 +1,84 @@
+diff -urN gcc-4.5.3.orig/libffi/Makefile.am gcc-4.5.3/libffi/Makefile.am
+--- gcc-4.5.3.orig/libffi/Makefile.am	2010-07-02 09:53:11.000000000 -0700
++++ gcc-4.5.3/libffi/Makefile.am	2012-09-23 05:33:32.009064400 -0700
+@@ -32,6 +32,11 @@
+ 	src/pa/ffitarget.h src/pa/ffi.c src/pa/linux.S src/pa/hpux32.S \
+ 	src/frv/ffi.c src/frv/eabi.S src/frv/ffitarget.h src/dlmalloc.c
+ 
++# Where generated headers like ffitarget.h get installed.
++gcc_version   := $(shell cat $(top_srcdir)/../gcc/BASE-VER)
++# There's probably already some other name for this directory.
++toollibffidir := $(libdir)/gcc/$(target_alias)/$(gcc_version)
++
+ ## ################################################################
+ 
+ ##
+diff -urN gcc-4.5.3.orig/libffi/Makefile.in gcc-4.5.3/libffi/Makefile.in
+--- gcc-4.5.3.orig/libffi/Makefile.in	2012-09-23 03:19:24.796669700 -0700
++++ gcc-4.5.3/libffi/Makefile.in	2012-09-23 05:47:07.552552200 -0700
+@@ -417,6 +417,11 @@
+ 	src/frv/ffi.c src/frv/eabi.S src/frv/ffitarget.h src/dlmalloc.c
+ 
+ 
++# Where generated headers like ffitarget.h get installed.
++gcc_version := $(shell cat $(top_srcdir)/../gcc/BASE-VER)
++# There's probably already some other name for this directory.
++toollibffidir := $(libdir)/gcc/$(target_alias)/$(gcc_version)
++
+ # Work around what appears to be a GNU make bug handling MAKEFLAGS
+ # values defined in terms of make variables, as is the case for CC and
+ # friends when we are called from the top level Makefile.
+diff -urN gcc-4.5.3.orig/libffi/configure gcc-4.5.3/libffi/configure
+--- gcc-4.5.3.orig/libffi/configure	2011-04-28 07:31:38.000000000 -0700
++++ gcc-4.5.3/libffi/configure	2012-09-23 05:35:37.283181800 -0700
+@@ -11360,7 +11360,7 @@
+   i?86-win32* | i?86-*-cygwin* | i?86-*-mingw*)
+ 	TARGET=X86_WIN32; TARGETDIR=x86
+ 	# All mingw/cygwin/win32 builds require this for sharedlib
+-	AM_LTLDFLAGS="-no-undefined"
++	AM_LTLDFLAGS='-no-undefined -bindir $(bindir)'
+ 	;;
+   i?86-*-darwin*)
+ 	TARGET=X86_DARWIN; TARGETDIR=x86
+@@ -12628,7 +12628,7 @@
+   toolexeclibdir='$(toolexecdir)/lib'
+ else
+   toolexecdir='$(libdir)/gcc-lib/$(target_alias)'
+-  toolexeclibdir='$(libdir)'
++  toolexeclibdir="${host__toolexeclibdir:-\$(libdir)}"
+ fi
+ multi_os_directory=`$CC -print-multi-os-directory`
+ case $multi_os_directory in
+diff -urN gcc-4.5.3.orig/libffi/configure.ac gcc-4.5.3/libffi/configure.ac
+--- gcc-4.5.3.orig/libffi/configure.ac	2010-12-06 08:18:57.000000000 -0800
++++ gcc-4.5.3/libffi/configure.ac	2012-09-23 05:33:32.012065000 -0700
+@@ -83,7 +83,7 @@
+   i?86-win32* | i?86-*-cygwin* | i?86-*-mingw*)
+ 	TARGET=X86_WIN32; TARGETDIR=x86
+ 	# All mingw/cygwin/win32 builds require this for sharedlib
+-	AM_LTLDFLAGS="-no-undefined"
++	AM_LTLDFLAGS='-no-undefined -bindir $(bindir)'
+ 	;;
+   i?86-*-darwin*)
+ 	TARGET=X86_DARWIN; TARGETDIR=x86
+@@ -416,7 +416,7 @@
+   toolexeclibdir='$(toolexecdir)/lib'
+ else
+   toolexecdir='$(libdir)/gcc-lib/$(target_alias)'
+-  toolexeclibdir='$(libdir)'
++  toolexeclibdir="${host__toolexeclibdir:-\$(libdir)}"
+ fi
+ multi_os_directory=`$CC -print-multi-os-directory`
+ case $multi_os_directory in
+diff -urN gcc-4.5.3.orig/libffi/configure.host gcc-4.5.3/libffi/configure.host
+--- gcc-4.5.3.orig/libffi/configure.host	2004-08-30 08:43:03.000000000 -0700
++++ gcc-4.5.3/libffi/configure.host	2012-09-23 05:33:32.015065600 -0700
+@@ -8,4 +8,8 @@
+   frv*-elf)
+     LDFLAGS=`echo $LDFLAGS | sed "s/\-B[^ ]*libgloss\/frv\///"`\ -B`pwd`/../libgloss/frv/
+     ;;
++  i?86-*-cygwin*)
++    # Redirect installation to gcc private dir.
++    host__toolexeclibdir='$(toollibffidir)'
++    ;;
+ esac

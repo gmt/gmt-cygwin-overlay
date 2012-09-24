@@ -55,6 +55,8 @@
 =sys-devel/automake-1.8.5-r4
 =sys-devel/automake-1.9.6-r3
 =sys-devel/binutils-config-3-r3
+=sys-devel/gcc-4.5.3-r1
+=sys-devel/gcc-4.5.3-r2
 =sys-devel/gcc-config-1.4.1-r00.2
 =sys-devel/gcc-config-1.5-r2
 =sys-devel/gettext-0.18.1.1-r2

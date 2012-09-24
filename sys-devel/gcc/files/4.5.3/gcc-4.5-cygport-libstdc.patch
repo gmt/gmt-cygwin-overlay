@@ -1,391 +1,6 @@
-diff -urN gcc-4.5.3.orig/config.rpath gcc-4.5.3/config.rpath
---- gcc-4.5.3.orig/config.rpath	2008-03-13 11:55:20.000000000 -0700
-+++ gcc-4.5.3/config.rpath	2012-02-20 04:28:48.526771100 -0800
-@@ -441,7 +441,7 @@
-   bsdi4*)
-     ;;
-   cygwin* | mingw* | pw32*)
--    shrext=.dll
-+    shrext=.dll.a
-     ;;
-   darwin* | rhapsody*)
-     shrext=.dylib
-diff -urN gcc-4.5.3.orig/gcc/config/i386/cygwin.h gcc-4.5.3/gcc/config/i386/cygwin.h
---- gcc-4.5.3.orig/gcc/config/i386/cygwin.h	2010-04-02 12:54:46.000000000 -0700
-+++ gcc-4.5.3/gcc/config/i386/cygwin.h	2012-02-20 05:22:03.669671900 -0800
-@@ -126,7 +126,8 @@
-   %{shared|mdll: --enable-auto-image-base -e \
-     %{mno-cygwin:_DllMainCRTStartup@12} \
-     %{!mno-cygwin:__cygwin_dll_entry@12}}\
--  %{!mno-cygwin:--dll-search-prefix=cyg -tsaware}"
-+  %{!mno-cygwin:--dll-search-prefix=cyg \
-+    %{!shared: %{!mdll: --large-address-aware --tsaware}}}"
- 
- /* Allocate space for all of the machine-spec-specific stuff.
-    Allocate enough space for cygwin -> mingw32  munging plus
-@@ -303,3 +304,23 @@
- /* We should find a way to not have to update this manually.  */
- #define LIBGCJ_SONAME "cyggcj" /*LIBGCC_EH_EXTN*/ "-11.dll"
- 
-+/* Make stack executable to avoid DEP problems with trampolines.  */
-+#undef CYGWIN_ENABLE_EXECUTE_STACK
-+#define CYGWIN_ENABLE_EXECUTE_STACK     \
-+extern void __enable_execute_stack (void *);    \
-+void         \
-+__enable_execute_stack (void *addr)					\
-+{									\
-+  MEMORY_BASIC_INFORMATION b;						\
-+  if (!VirtualQuery (addr, &b, sizeof(b)))				\
-+    abort ();								\
-+  VirtualProtect (b.BaseAddress, b.RegionSize, PAGE_EXECUTE_READWRITE,	\
-+		  &b.Protect);						\
-+}
-+
-+#undef ENABLE_EXECUTE_STACK
-+#define ENABLE_EXECUTE_STACK CYGWIN_ENABLE_EXECUTE_STACK
-+
-+#ifdef IN_LIBGCC2
-+#include <windows.h>
-+#endif
-diff -urN gcc-4.5.3.orig/gcc/config/i386/cygwin1.c gcc-4.5.3/gcc/config/i386/cygwin1.c
---- gcc-4.5.3.orig/gcc/config/i386/cygwin1.c	2009-02-20 07:20:38.000000000 -0800
-+++ gcc-4.5.3/gcc/config/i386/cygwin1.c	2012-02-20 05:19:47.424428300 -0800
-@@ -38,16 +38,8 @@
-       putenv (xstrdup ("GCC_CYGWIN_WIN32=1"));
-     else if (strcmp (*argv, "-mno-cygwin") == 0)
-       {
--	char *p = strstr (*spec_machine, "-cygwin");
--	if (p)
--	  {
--	    int len = p - *spec_machine;
--	    char *s = XNEWVEC (char, strlen (*spec_machine) + 3);
--	    memcpy (s, *spec_machine, len);
--	    strcpy (s + len, "-mingw32");
--	    *spec_machine = s;
--	  }
--	putenv (xstrdup ("GCC_CYGWIN_MINGW=1"));
-+	fatal ("The -mno-cygwin flag has been removed; use a "
-+	  "mingw-targeted cross-compiler.\n");
-       }
-   return;
- }
-diff -urN gcc-4.5.3.orig/gcc/config/i386/cygwin2.c gcc-4.5.3/gcc/config/i386/cygwin2.c
---- gcc-4.5.3.orig/gcc/config/i386/cygwin2.c	2007-08-02 03:49:31.000000000 -0700
-+++ gcc-4.5.3/gcc/config/i386/cygwin2.c	1969-12-31 16:00:00.000000000 -0800
-@@ -1,66 +0,0 @@
--/* Helper routines for cygwin-specific command-line parsing.
--   Contributed by Christopher Faylor (cgf@redhat.com)
--   Copyright 2003, 2007 Free Software Foundation, Inc.
--
--This file is part of GCC.
--
--GCC is free software; you can redistribute it and/or modify
--it under the terms of the GNU General Public License as published by
--the Free Software Foundation; either version 3, or (at your option)
--any later version.
--
--GCC is distributed in the hope that it will be useful,
--but WITHOUT ANY WARRANTY; without even the implied warranty of
--MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--GNU General Public License for more details.
--
--You should have received a copy of the GNU General Public License
--along with GCC; see the file COPYING3.  If not see
--<http://www.gnu.org/licenses/>.  */
--
--#include "config.h"
--#include "system.h"
--#include "coretypes.h"
--#include "tm.h"
--
--#include "safe-ctype.h"
--#include <string.h>
--
--/*
--static void remove_w32api (void);
--*/
--static void add_mingw (void);
--static void set_mingw (void) __attribute__ ((constructor));
--
--static void
--add_mingw (void)
--{
--  char **av;
--  char *p;
--  for (av = cvt_to_mingw; *av; av++)
--    {
--      int sawcygwin = 0;
--      while ((p = strstr (*av, "-cygwin")))
--	{
--	  char *over = p + sizeof ("-cygwin") - 1;
--	  memmove (over + 1, over, strlen (over));
--	  memcpy (p, "-mingw32", sizeof("-mingw32") - 1);
--	  p = ++over;
--	  while (ISALNUM (*p))
--	    p++;
--	  strcpy (over, p);
--	  sawcygwin = 1;
--	}
--      if (!sawcygwin && !strstr (*av, "mingw"))
--	strcat (*av, CYGWIN_MINGW_SUBDIR);
--    }
--}
--
--
--static void
--set_mingw (void)
--{
--  char *env = getenv ("GCC_CYGWIN_MINGW");
--  if (env && *env == '1')
--    add_mingw ();
--}
-diff -urN gcc-4.5.3.orig/gcc/config/i386/t-cygwin gcc-4.5.3/gcc/config/i386/t-cygwin
---- gcc-4.5.3.orig/gcc/config/i386/t-cygwin	2009-05-26 07:02:04.000000000 -0700
-+++ gcc-4.5.3/gcc/config/i386/t-cygwin	2012-02-20 05:19:47.428929200 -0800
-@@ -28,10 +28,6 @@
- 	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) \
- 	$(srcdir)/config/i386/cygwin1.c
- 
--cygwin2.o: $(srcdir)/config/i386/cygwin2.c $(CONFIG_H) $(SYSTEM_H) coretypes.h \
--  $(TM_H) $(TM_P_H)
--	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) \
--	$(srcdir)/config/i386/cygwin2.c
- 
- # Cygwin-specific parts of LIB_SPEC
- SHLIB_LC = -lcygwin -luser32 -lkernel32 -ladvapi32 -lshell32
-diff -urN gcc-4.5.3.orig/gcc/config/i386/w32-unwind.h gcc-4.5.3/gcc/config/i386/w32-unwind.h
---- gcc-4.5.3.orig/gcc/config/i386/w32-unwind.h	2009-04-09 08:00:19.000000000 -0700
-+++ gcc-4.5.3/gcc/config/i386/w32-unwind.h	2012-02-20 05:20:41.905322300 -0800
-@@ -1,5 +1,5 @@
--/* Definitions for Dwarf2 EH unwind support for Windows32 targets 
--   Copyright (C) 2007, 2009
-+/* Definitions for Dwarf2 EH unwind support for Windows32 targets
-+   Copyright (C) 2007, 2009, 2010
-    Free Software Foundation, Inc.
-    Contributed by Pascal Obry  <obry@adacore.com>
- 
-@@ -129,7 +129,6 @@
- 
-   /* In the test below we look for two specific patterns found
-      experimentally to be in the Windows signal handler.  */
--
-   if (SIG_PAT1 || SIG_PAT2 || SIG_SEH1 || SIG_SEH2)
-     {
-       PEXCEPTION_POINTERS weinfo_;
-@@ -147,14 +146,12 @@
- 	}
- 
-       /* The new context frame address is the stack pointer.  */
--
-       new_cfa_ = proc_ctx_->Esp;
-       fs->regs.cfa_how = CFA_REG_OFFSET;
-       fs->regs.cfa_reg = __builtin_dwarf_sp_column();
-       fs->regs.cfa_offset = new_cfa_ - (long) ctx_cfa_;
- 
--      /* Save some registers.  */
--
-+      /* Restore registers.  */
-       fs->regs.reg[0].how = REG_SAVED_OFFSET;
-       fs->regs.reg[0].loc.offset = (long)&proc_ctx_->Eax - new_cfa_;
-       fs->regs.reg[3].how = REG_SAVED_OFFSET;
-@@ -167,18 +164,13 @@
-       fs->regs.reg[6].loc.offset = (long)&proc_ctx_->Esi - new_cfa_;
-       fs->regs.reg[7].how = REG_SAVED_OFFSET;
-       fs->regs.reg[7].loc.offset = (long)&proc_ctx_->Edi - new_cfa_;
--      fs->regs.reg[9].how = REG_SAVED_OFFSET;
--      fs->regs.reg[9].loc.offset = (long)&proc_ctx_->Eip - new_cfa_;
--      fs->regs.reg[4].how = REG_SAVED_OFFSET;
--      fs->regs.reg[4].loc.offset = (long)&proc_ctx_->Ebp - new_cfa_;
--
--      /* Set the return address to Eip + 1. As we can be called multiple
--	 times we use another register for this.  */
--      
--      proc_ctx_->Dr0 = proc_ctx_->Eip + 1;
-+      fs->regs.reg[5].how = REG_SAVED_OFFSET;
-+      fs->regs.reg[5].loc.offset = (long)&proc_ctx_->Ebp - new_cfa_;
-       fs->regs.reg[8].how = REG_SAVED_OFFSET;
--      fs->regs.reg[8].loc.offset = (long)&proc_ctx_->Dr0 - new_cfa_;
-+      fs->regs.reg[8].loc.offset = (long)&proc_ctx_->Eip - new_cfa_;
-       fs->retaddr_column = 8;
-+      fs->signal_frame = 1;
-+
-       return _URC_NO_REASON;
-     }
- 
-@@ -186,7 +178,6 @@
-      one of it's probes prior to the real SP adjustment. The only
-      operations of interest performed is "pushl %ecx", followed by
-      ecx clobbering.  */
--
-   else if (SIG_ALLOCA) 
-     {
-       /* Only one push between entry in _alloca and the probe trap.  */ 
-@@ -204,7 +195,8 @@
-       fs->retaddr_column = 8;
-       fs->regs.reg[8].how = REG_SAVED_OFFSET;
-       fs->regs.reg[8].loc.offset = 0;
-- 
-+      fs->signal_frame = 1;
-+
-       return _URC_NO_REASON;
-     }
-   else
-diff -urN gcc-4.5.3.orig/gcc/config.gcc gcc-4.5.3/gcc/config.gcc
---- gcc-4.5.3.orig/gcc/config.gcc	2012-02-20 04:18:54.831055700 -0800
-+++ gcc-4.5.3/gcc/config.gcc	2012-02-20 05:19:47.421427700 -0800
-@@ -1411,8 +1411,8 @@
- 	target_gtfiles="\$(srcdir)/config/i386/winnt.c"
- 	extra_options="${extra_options} i386/cygming.opt"
- 	extra_objs="winnt.o winnt-stubs.o"
--	c_target_objs="${c_target_objs} cygwin2.o msformat-c.o"
--	cxx_target_objs="${cxx_target_objs} cygwin2.o winnt-cxx.o msformat-c.o"
-+	c_target_objs="${c_target_objs} msformat-c.o"
-+	cxx_target_objs="${cxx_target_objs} winnt-cxx.o msformat-c.o"
- 	extra_gcc_objs=cygwin1.o
- 	if test x$enable_threads = xyes; then
- 		thread_file='posix'
-diff -urN gcc-4.5.3.orig/gcc/cppdefault.c gcc-4.5.3/gcc/cppdefault.c
---- gcc-4.5.3.orig/gcc/cppdefault.c	2007-07-26 01:37:01.000000000 -0700
-+++ gcc-4.5.3/gcc/cppdefault.c	2012-02-20 05:18:39.089764100 -0800
-@@ -39,6 +39,8 @@
- # undef STANDARD_INCLUDE_DIR
- #else
- # undef CROSS_INCLUDE_DIR
-+# undef CROSS_INCLUDE_DIR_1
-+# undef CROSS_INCLUDE_DIR_2
- #endif
- 
- const struct default_include cpp_include_defaults[]
-@@ -85,6 +87,14 @@
-     /* One place the target system's headers might be.  */
-     { CROSS_INCLUDE_DIR, "GCC", 0, 0, 0, 0 },
- #endif
-+#ifdef CROSS_INCLUDE_DIR_1
-+    /* One more place the target system's headers might be.  */
-+    { CROSS_INCLUDE_DIR_1, "GCC", 0, 0, 0, 0 },
-+#endif
-+#ifdef CROSS_INCLUDE_DIR_2
-+    /* One more place the target system's headers might be.  */
-+    { CROSS_INCLUDE_DIR_2, "GCC", 0, 0, 0, 0 },
-+#endif
- #ifdef TOOL_INCLUDE_DIR
-     /* Another place the target system's headers might be.  */
-     { TOOL_INCLUDE_DIR, "BINUTILS", 0, 1, 0, 0 },
-diff -urN gcc-4.5.3.orig/gcc/testsuite/gcc.target/i386/pr25993.c gcc-4.5.3/gcc/testsuite/gcc.target/i386/pr25993.c
---- gcc-4.5.3.orig/gcc/testsuite/gcc.target/i386/pr25993.c	2010-06-04 07:37:50.000000000 -0700
-+++ gcc-4.5.3/gcc/testsuite/gcc.target/i386/pr25993.c	2012-02-20 05:21:23.277595100 -0800
-@@ -1,5 +1,5 @@
- /* { dg-do assemble } */
--/* { dg-skip-if "" { "*-*-darwin*" "*-*-mingw*" } { "*" } { "" } } */
-+/* { dg-skip-if "" { "*-*-darwin*" "*-*-mingw*" "*-*-cygwin*" } { "*" } { "" } } */
- /* { dg-options "-std=c99 -x assembler-with-cpp" } */
- 
- #ifndef __ASSEMBLER__
-diff -urN gcc-4.5.3.orig/libffi/configure.ac gcc-4.5.3/libffi/configure.ac
---- gcc-4.5.3.orig/libffi/configure.ac	2010-12-06 08:18:57.000000000 -0800
-+++ gcc-4.5.3/libffi/configure.ac	2012-02-20 05:15:43.575168200 -0800
-@@ -83,7 +83,7 @@
-   i?86-win32* | i?86-*-cygwin* | i?86-*-mingw*)
- 	TARGET=X86_WIN32; TARGETDIR=x86
- 	# All mingw/cygwin/win32 builds require this for sharedlib
--	AM_LTLDFLAGS="-no-undefined"
-+	AM_LTLDFLAGS='-no-undefined -bindir $(bindir)'
- 	;;
-   i?86-*-darwin*)
- 	TARGET=X86_DARWIN; TARGETDIR=x86
-@@ -416,7 +416,7 @@
-   toolexeclibdir='$(toolexecdir)/lib'
- else
-   toolexecdir='$(libdir)/gcc-lib/$(target_alias)'
--  toolexeclibdir='$(libdir)'
-+  toolexeclibdir="${host__toolexeclibdir:-\$(libdir)}"
- fi
- multi_os_directory=`$CC -print-multi-os-directory`
- case $multi_os_directory in
-diff -urN gcc-4.5.3.orig/libffi/configure.host gcc-4.5.3/libffi/configure.host
---- gcc-4.5.3.orig/libffi/configure.host	2004-08-30 08:43:03.000000000 -0700
-+++ gcc-4.5.3/libffi/configure.host	2012-02-20 05:15:43.577668700 -0800
-@@ -8,4 +8,8 @@
-   frv*-elf)
-     LDFLAGS=`echo $LDFLAGS | sed "s/\-B[^ ]*libgloss\/frv\///"`\ -B`pwd`/../libgloss/frv/
-     ;;
-+  i?86-*-cygwin*)
-+    # Redirect installation to gcc private dir.
-+    host__toolexeclibdir='$(toollibffidir)'
-+    ;;
- esac
-diff -urN gcc-4.5.3.orig/libffi/Makefile.am gcc-4.5.3/libffi/Makefile.am
---- gcc-4.5.3.orig/libffi/Makefile.am	2010-07-02 09:53:11.000000000 -0700
-+++ gcc-4.5.3/libffi/Makefile.am	2012-02-20 05:15:43.571167400 -0800
-@@ -32,6 +32,11 @@
- 	src/pa/ffitarget.h src/pa/ffi.c src/pa/linux.S src/pa/hpux32.S \
- 	src/frv/ffi.c src/frv/eabi.S src/frv/ffitarget.h src/dlmalloc.c
- 
-+# Where generated headers like ffitarget.h get installed.
-+gcc_version   := $(shell cat $(top_srcdir)/../gcc/BASE-VER)
-+# There's probably already some other name for this directory.
-+toollibffidir := $(libdir)/gcc/$(target_alias)/$(gcc_version)
-+
- ## ################################################################
- 
- ##
-diff -urN gcc-4.5.3.orig/libffi/Makefile.in gcc-4.5.3/libffi/Makefile.in
---- gcc-4.5.3.orig/libffi/Makefile.in	2011-04-28 07:31:38.000000000 -0700
-+++ gcc-4.5.3/libffi/Makefile.in	2012-02-20 05:15:43.583669900 -0800
-@@ -417,6 +417,11 @@
- 	src/frv/ffi.c src/frv/eabi.S src/frv/ffitarget.h src/dlmalloc.c
- 
- 
-+# Where generated headers like ffitarget.h get installed.
-+gcc_version := $(shell cat $(top_srcdir)/../gcc/BASE-VER)
-+# There's probably already some other name for this directory.
-+toollibffidir := $(libdir)/gcc/$(target_alias)/$(gcc_version)
-+
- # Work around what appears to be a GNU make bug handling MAKEFLAGS
- # values defined in terms of make variables, as is the case for CC and
- # friends when we are called from the top level Makefile.
-diff -urN gcc-4.5.3.orig/libjava/classpath/configure.ac gcc-4.5.3/libjava/classpath/configure.ac
---- gcc-4.5.3.orig/libjava/classpath/configure.ac	2010-06-03 10:13:04.000000000 -0700
-+++ gcc-4.5.3/libjava/classpath/configure.ac	2012-02-20 04:34:44.901531800 -0800
-@@ -63,7 +63,7 @@
- 	cp_module=""
- 	;;
- 	*)
--	cp_module="-module"
-+	cp_module="-module -avoid-version"
- 	;;
- esac
- 
-diff -urN gcc-4.5.3.orig/libjava/classpath/gnu/java/awt/peer/ClasspathDesktopPeer.java gcc-4.5.3/libjava/classpath/gnu/java/awt/peer/ClasspathDesktopPeer.java
---- gcc-4.5.3.orig/libjava/classpath/gnu/java/awt/peer/ClasspathDesktopPeer.java	2007-06-03 16:18:43.000000000 -0700
-+++ gcc-4.5.3/libjava/classpath/gnu/java/awt/peer/ClasspathDesktopPeer.java	2012-02-20 04:46:09.489422000 -0800
-@@ -58,7 +58,7 @@
-     implements DesktopPeer
- {
-   /** This is the fallback browser, if no desktop was detected. */
--  protected static final String _DEFAULT_BROWSER = "firefox";
-+  protected static final String _DEFAULT_BROWSER = "xdg-open";
-   
-   /** gnu.java.awt.peer.Desktop.html.command */
-   protected static final String _BROWSE = "html";
-diff -urN gcc-4.5.3.orig/libjava/gnu/java/nio/channels/natFileChannelPosix.cc gcc-4.5.3/libjava/gnu/java/nio/channels/natFileChannelPosix.cc
---- gcc-4.5.3.orig/libjava/gnu/java/nio/channels/natFileChannelPosix.cc	2007-04-02 18:05:50.000000000 -0700
-+++ gcc-4.5.3/libjava/gnu/java/nio/channels/natFileChannelPosix.cc	2012-02-20 05:13:56.285714600 -0800
-@@ -386,7 +386,11 @@
- 
- #if defined (FIONREAD)
-   r = ::ioctl (fd, FIONREAD, &num);
-+#if defined (__CYGWIN__)
-+  if (r == -1 && (errno == ENOTTY || errno == EINVAL))
-+#else
-   if (r == -1 && errno == ENOTTY)
-+#endif
-     {
-       // If the ioctl doesn't work, we don't care.
-       r = 0;
 diff -urN gcc-4.5.3.orig/libstdc++-v3/config/os/mingw32/os_defines.h gcc-4.5.3/libstdc++-v3/config/os/mingw32/os_defines.h
 --- gcc-4.5.3.orig/libstdc++-v3/config/os/mingw32/os_defines.h	2009-11-30 15:22:04.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/config/os/mingw32/os_defines.h	2012-02-20 05:17:51.528753800 -0800
++++ gcc-4.5.3/libstdc++-v3/config/os/mingw32/os_defines.h	2012-09-23 13:04:58.495582600 -0700
 @@ -60,4 +60,10 @@
  // See  libstdc++/37522.
  #define _GLIBCXX_HAVE_BROKEN_VSWPRINTF 1
@@ -399,7 +14,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/config/os/mingw32/os_defines.h gcc-4.5.3/l
  #endif
 diff -urN gcc-4.5.3.orig/libstdc++-v3/config/os/newlib/os_defines.h gcc-4.5.3/libstdc++-v3/config/os/newlib/os_defines.h
 --- gcc-4.5.3.orig/libstdc++-v3/config/os/newlib/os_defines.h	2009-11-30 15:22:04.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/config/os/newlib/os_defines.h	2012-02-20 05:17:51.531254300 -0800
++++ gcc-4.5.3/libstdc++-v3/config/os/newlib/os_defines.h	2012-09-23 13:04:58.498582900 -0700
 @@ -35,6 +35,8 @@
  
  #ifdef __CYGWIN__
@@ -425,7 +40,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/config/os/newlib/os_defines.h gcc-4.5.3/li
  #endif
 diff -urN gcc-4.5.3.orig/libstdc++-v3/configure.host gcc-4.5.3/libstdc++-v3/configure.host
 --- gcc-4.5.3.orig/libstdc++-v3/configure.host	2010-12-03 04:46:12.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/configure.host	2012-02-20 05:17:51.534755000 -0800
++++ gcc-4.5.3/libstdc++-v3/configure.host	2012-09-23 13:04:58.500583100 -0700
 @@ -209,6 +209,7 @@
      ;;
    cygwin*)
@@ -436,7 +51,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/configure.host gcc-4.5.3/libstdc++-v3/conf
    darwin | darwin[1-7] | darwin[1-7].*)
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/backward/strstream gcc-4.5.3/libstdc++-v3/include/backward/strstream
 --- gcc-4.5.3.orig/libstdc++-v3/include/backward/strstream	2010-03-16 15:34:53.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/backward/strstream	2012-02-20 05:17:51.538255700 -0800
++++ gcc-4.5.3/libstdc++-v3/include/backward/strstream	2012-09-23 13:04:58.503583400 -0700
 @@ -55,7 +55,7 @@
  
    // Class strstreambuf, a streambuf class that manages an array of char.
@@ -475,7 +90,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/backward/strstream gcc-4.5.3/libst
      typedef char                        char_type;
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/basic_ios.tcc gcc-4.5.3/libstdc++-v3/include/bits/basic_ios.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/basic_ios.tcc	2009-04-09 08:00:19.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/bits/basic_ios.tcc	2012-02-20 05:17:51.542256500 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/basic_ios.tcc	2012-09-23 13:04:58.505583600 -0700
 @@ -175,10 +175,10 @@
    // which are defined via explicit instantiations elsewhere.
    // NB:  This syntax is a GNU extension.
@@ -491,7 +106,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/basic_ios.tcc gcc-4.5.3/libst
  
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/c++config gcc-4.5.3/libstdc++-v3/include/bits/c++config
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/c++config	2009-11-30 15:22:04.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/include/bits/c++config	2012-02-20 05:17:51.546757400 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/c++config	2012-09-23 13:04:58.508583900 -0700
 @@ -376,4 +376,8 @@
  # endif
  #endif
@@ -503,7 +118,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/c++config gcc-4.5.3/libstdc++
  // End of prewritten config; the discovered settings follow.
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/codecvt.h gcc-4.5.3/libstdc++-v3/include/bits/codecvt.h
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/codecvt.h	2010-02-09 21:45:24.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/include/bits/codecvt.h	2012-02-20 05:17:51.550758200 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/codecvt.h	2012-09-23 13:04:58.512584300 -0700
 @@ -476,7 +476,7 @@
    // which are defined via explicit instantiations elsewhere.
    // NB: This syntax is a GNU extension.
@@ -524,7 +139,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/codecvt.h gcc-4.5.3/libstdc++
      const codecvt<wchar_t, char, mbstate_t>&
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/fstream.tcc gcc-4.5.3/libstdc++-v3/include/bits/fstream.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/fstream.tcc	2009-04-09 08:00:19.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/bits/fstream.tcc	2012-02-20 05:17:51.554759000 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/fstream.tcc	2012-09-23 13:04:58.516584700 -0700
 @@ -908,16 +908,16 @@
    // which are defined via explicit instantiations elsewhere.
    // NB:  This syntax is a GNU extension.
@@ -552,7 +167,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/fstream.tcc gcc-4.5.3/libstdc
  
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/ios_base.h gcc-4.5.3/libstdc++-v3/include/bits/ios_base.h
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/ios_base.h	2010-02-16 21:43:24.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/include/bits/ios_base.h	2012-02-20 05:17:51.558259700 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/ios_base.h	2012-09-23 13:04:58.520585100 -0700
 @@ -204,7 +204,7 @@
     *  people will only see @c ios_base when they need to specify the full
     *  name of the various I/O flags (e.g., the openmodes).
@@ -582,7 +197,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/ios_base.h gcc-4.5.3/libstdc+
      public:
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/istream.tcc gcc-4.5.3/libstdc++-v3/include/bits/istream.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/istream.tcc	2009-09-04 17:18:07.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/bits/istream.tcc	2012-02-20 05:17:51.563260700 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/istream.tcc	2012-09-23 13:04:58.523585400 -0700
 @@ -1018,7 +1018,7 @@
    // which are defined via explicit instantiations elsewhere.
    // NB:  This syntax is a GNU extension.
@@ -616,7 +231,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/istream.tcc gcc-4.5.3/libstdc
  
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_classes.h gcc-4.5.3/libstdc++-v3/include/bits/locale_classes.h
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_classes.h	2010-02-16 21:43:24.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/include/bits/locale_classes.h	2012-02-20 05:17:51.567261500 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/locale_classes.h	2012-09-23 13:04:58.526585700 -0700
 @@ -59,7 +59,7 @@
     *  This library supports efficient construction and copying of locales
     *  through a reference counting implementation of the locale class.
@@ -668,7 +283,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_classes.h gcc-4.5.3/li
      // Friends.
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_classes.tcc gcc-4.5.3/libstdc++-v3/include/bits/locale_classes.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_classes.tcc	2009-04-18 14:19:18.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/bits/locale_classes.tcc	2012-02-20 05:17:51.570262100 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/locale_classes.tcc	2012-09-23 13:04:58.529586000 -0700
 @@ -241,8 +241,8 @@
    // which are defined via explicit instantiations elsewhere.
    // NB: This syntax is a GNU extension.
@@ -693,7 +308,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_classes.tcc gcc-4.5.3/
      const collate<wchar_t>&
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets.h gcc-4.5.3/libstdc++-v3/include/bits/locale_facets.h
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets.h	2010-02-18 19:30:46.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/include/bits/locale_facets.h	2012-02-20 05:17:51.574262900 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/locale_facets.h	2012-09-23 13:04:58.533586400 -0700
 @@ -670,7 +670,7 @@
     *  optimizations as well.
    */
@@ -714,7 +329,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets.h gcc-4.5.3/lib
        // Types:
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets.tcc gcc-4.5.3/libstdc++-v3/include/bits/locale_facets.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets.tcc	2009-07-18 15:58:10.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/bits/locale_facets.tcc	2012-02-20 05:17:51.579263900 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/locale_facets.tcc	2012-09-23 13:04:58.537586800 -0700
 @@ -1276,11 +1276,11 @@
    // which are defined via explicit instantiations elsewhere.
    // NB: This syntax is a GNU extension.
@@ -751,7 +366,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets.tcc gcc-4.5.3/l
      const ctype<wchar_t>&
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets_nonio.tcc gcc-4.5.3/libstdc++-v3/include/bits/locale_facets_nonio.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets_nonio.tcc	2010-01-07 09:20:45.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/include/bits/locale_facets_nonio.tcc	2012-02-20 05:17:51.583264700 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/locale_facets_nonio.tcc	2012-09-23 13:04:58.542587300 -0700
 @@ -1214,19 +1214,19 @@
    // which are defined via explicit instantiations elsewhere.
    // NB: This syntax is a GNU extension.
@@ -820,7 +435,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/locale_facets_nonio.tcc gcc-4
      const moneypunct<wchar_t, true>&
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/ostream.tcc gcc-4.5.3/libstdc++-v3/include/bits/ostream.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/ostream.tcc	2009-09-04 17:18:07.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/bits/ostream.tcc	2012-02-20 05:17:51.586265300 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/ostream.tcc	2012-09-23 13:04:58.545587600 -0700
 @@ -357,7 +357,7 @@
    // which are defined via explicit instantiations elsewhere.
    // NB:  This syntax is a GNU extension.
@@ -841,7 +456,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/ostream.tcc gcc-4.5.3/libstdc
    extern template wostream& flush(wostream&);
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/sstream.tcc gcc-4.5.3/libstdc++-v3/include/bits/sstream.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/sstream.tcc	2009-04-09 08:00:19.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/bits/sstream.tcc	2012-02-20 05:17:51.589766000 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/sstream.tcc	2012-09-23 13:04:58.548587900 -0700
 @@ -255,16 +255,16 @@
    // which are defined via explicit instantiations elsewhere.
    // NB:  This syntax is a GNU extension.
@@ -869,7 +484,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/sstream.tcc gcc-4.5.3/libstdc
  
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/streambuf.tcc gcc-4.5.3/libstdc++-v3/include/bits/streambuf.tcc
 --- gcc-4.5.3.orig/libstdc++-v3/include/bits/streambuf.tcc	2009-04-09 08:00:19.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/bits/streambuf.tcc	2012-02-20 05:17:51.592766600 -0800
++++ gcc-4.5.3/libstdc++-v3/include/bits/streambuf.tcc	2012-09-23 13:04:58.550588100 -0700
 @@ -146,7 +146,7 @@
    // which are defined via explicit instantiations elsewhere.
    // NB:  This syntax is a GNU extension.
@@ -890,7 +505,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/bits/streambuf.tcc gcc-4.5.3/libst
      __copy_streambufs(basic_streambuf<wchar_t>*,
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/ext/concurrence.h gcc-4.5.3/libstdc++-v3/include/ext/concurrence.h
 --- gcc-4.5.3.orig/libstdc++-v3/include/ext/concurrence.h	2009-04-09 08:00:19.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/ext/concurrence.h	2012-02-20 05:17:51.595767200 -0800
++++ gcc-4.5.3/libstdc++-v3/include/ext/concurrence.h	2012-09-23 13:04:58.554588500 -0700
 @@ -60,7 +60,7 @@
  
    // NB: As this is used in libsupc++, need to only depend on
@@ -911,7 +526,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/ext/concurrence.h gcc-4.5.3/libstd
      virtual char const*
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/std/iostream gcc-4.5.3/libstdc++-v3/include/std/iostream
 --- gcc-4.5.3.orig/libstdc++-v3/include/std/iostream	2010-02-04 10:20:34.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/include/std/iostream	2012-02-20 05:17:51.598767800 -0800
++++ gcc-4.5.3/libstdc++-v3/include/std/iostream	2012-09-23 13:04:58.557588800 -0700
 @@ -56,16 +56,16 @@
     *  linked to above.
    */
@@ -939,7 +554,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/std/iostream gcc-4.5.3/libstdc++-v
  
 diff -urN gcc-4.5.3.orig/libstdc++-v3/include/std/stdexcept gcc-4.5.3/libstdc++-v3/include/std/stdexcept
 --- gcc-4.5.3.orig/libstdc++-v3/include/std/stdexcept	2009-04-09 08:00:19.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/include/std/stdexcept	2012-02-20 05:17:51.602268500 -0800
++++ gcc-4.5.3/libstdc++-v3/include/std/stdexcept	2012-09-23 13:04:58.561589200 -0700
 @@ -50,7 +50,7 @@
     *  program runs (e.g., violations of class invariants).
     *  @brief One of two subclasses of exception.
@@ -1011,9 +626,36 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/include/std/stdexcept gcc-4.5.3/libstdc++-
    {
    public:
      explicit underflow_error(const string& __arg);
+diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/Makefile.am gcc-4.5.3/libstdc++-v3/libsupc++/Makefile.am
+--- gcc-4.5.3.orig/libstdc++-v3/libsupc++/Makefile.am	2009-08-23 00:28:35.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/libsupc++/Makefile.am	2012-09-23 13:04:58.563589400 -0700
+@@ -154,7 +154,8 @@
+ 	       --mode=compile $(CXX) $(TOPLEVEL_INCLUDES) \
+ 	       $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) 
+ 
+-LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS))
++LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS)) \
++		-no-undefined -bindir $(bindir)
+ 
+ # 3) We'd have a problem when building the shared libstdc++ object if
+ # the rules automake generates would be used.  We cannot allow g++ to
+diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/Makefile.in gcc-4.5.3/libstdc++-v3/libsupc++/Makefile.in
+--- gcc-4.5.3.orig/libstdc++-v3/libsupc++/Makefile.in	2010-04-02 11:18:06.000000000 -0700
++++ gcc-4.5.3/libstdc++-v3/libsupc++/Makefile.in	2012-09-23 13:05:50.711803700 -0700
+@@ -466,7 +466,9 @@
+ 	       --mode=compile $(CXX) $(TOPLEVEL_INCLUDES) \
+ 	       $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) 
+ 
+-LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS))
++LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS)) \
++		-no-undefined -bindir $(bindir)
++
+ 
+ # 3) We'd have a problem when building the shared libstdc++ object if
+ # the rules automake generates would be used.  We cannot allow g++ to
 diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/exception gcc-4.5.3/libstdc++-v3/libsupc++/exception
 --- gcc-4.5.3.orig/libstdc++-v3/libsupc++/exception	2010-02-18 09:58:53.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/libsupc++/exception	2012-02-20 05:17:51.614270900 -0800
++++ gcc-4.5.3/libstdc++-v3/libsupc++/exception	2012-09-23 13:04:58.568589900 -0700
 @@ -58,7 +58,7 @@
     *  your own %exception classes, or use a different hierarchy, or to
     *  throw non-class data (e.g., fundamental types).
@@ -1032,36 +674,9 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/exception gcc-4.5.3/libstdc++-v3
    {
    public:
      bad_exception() throw() { }
-diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/Makefile.am gcc-4.5.3/libstdc++-v3/libsupc++/Makefile.am
---- gcc-4.5.3.orig/libstdc++-v3/libsupc++/Makefile.am	2009-08-23 00:28:35.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/libsupc++/Makefile.am	2012-02-20 05:17:51.605769200 -0800
-@@ -154,7 +154,8 @@
- 	       --mode=compile $(CXX) $(TOPLEVEL_INCLUDES) \
- 	       $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) 
- 
--LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS))
-+LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS)) \
-+		-no-undefined -bindir $(bindir)
- 
- # 3) We'd have a problem when building the shared libstdc++ object if
- # the rules automake generates would be used.  We cannot allow g++ to
-diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/Makefile.in gcc-4.5.3/libstdc++-v3/libsupc++/Makefile.in
---- gcc-4.5.3.orig/libstdc++-v3/libsupc++/Makefile.in	2010-04-02 11:18:06.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/libsupc++/Makefile.in	2012-02-20 05:17:51.610770200 -0800
-@@ -466,7 +466,9 @@
- 	       --mode=compile $(CXX) $(TOPLEVEL_INCLUDES) \
- 	       $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) 
- 
--LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS))
-+LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS)) \
-+		-no-undefined -bindir $(bindir)
-+
- 
- # 3) We'd have a problem when building the shared libstdc++ object if
- # the rules automake generates would be used.  We cannot allow g++ to
 diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/new gcc-4.5.3/libstdc++-v3/libsupc++/new
 --- gcc-4.5.3.orig/libstdc++-v3/libsupc++/new	2010-02-18 09:58:53.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/libsupc++/new	2012-02-20 05:17:51.617271500 -0800
++++ gcc-4.5.3/libstdc++-v3/libsupc++/new	2012-09-23 13:04:58.571590200 -0700
 @@ -53,7 +53,7 @@
     *
     *  @c bad_alloc (or classes derived from it) is used to report allocation
@@ -1073,7 +688,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/new gcc-4.5.3/libstdc++-v3/libsu
      bad_alloc() throw() { }
 diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/typeinfo gcc-4.5.3/libstdc++-v3/libsupc++/typeinfo
 --- gcc-4.5.3.orig/libstdc++-v3/libsupc++/typeinfo	2010-02-18 09:58:53.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/libsupc++/typeinfo	2012-02-20 05:17:51.620272100 -0800
++++ gcc-4.5.3/libstdc++-v3/libsupc++/typeinfo	2012-09-23 13:04:58.574590500 -0700
 @@ -84,7 +84,7 @@
     *  The @c type_info class describes type information generated by
     *  an implementation.
@@ -1103,7 +718,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/libsupc++/typeinfo gcc-4.5.3/libstdc++-v3/
      bad_typeid () throw() { }
 diff -urN gcc-4.5.3.orig/libstdc++-v3/scripts/testsuite_flags.in gcc-4.5.3/libstdc++-v3/scripts/testsuite_flags.in
 --- gcc-4.5.3.orig/libstdc++-v3/scripts/testsuite_flags.in	2007-09-11 15:32:51.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/scripts/testsuite_flags.in	2012-02-20 05:17:51.623272700 -0800
++++ gcc-4.5.3/libstdc++-v3/scripts/testsuite_flags.in	2012-09-23 13:04:58.576590700 -0700
 @@ -27,6 +27,7 @@
  BUILD_DIR=@glibcxx_builddir@
  SRC_DIR=@glibcxx_srcdir@
@@ -1127,7 +742,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/scripts/testsuite_flags.in gcc-4.5.3/libst
      *)
 diff -urN gcc-4.5.3.orig/libstdc++-v3/src/Makefile.am gcc-4.5.3/libstdc++-v3/src/Makefile.am
 --- gcc-4.5.3.orig/libstdc++-v3/src/Makefile.am	2010-10-11 11:08:36.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/src/Makefile.am	2012-02-20 05:17:51.626773400 -0800
++++ gcc-4.5.3/libstdc++-v3/src/Makefile.am	2012-09-23 13:04:58.581591200 -0700
 @@ -210,7 +210,8 @@
  	$(top_builddir)/libsupc++/libsupc++convenience.la
  
@@ -1140,7 +755,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/src/Makefile.am gcc-4.5.3/libstdc++-v3/src
  
 diff -urN gcc-4.5.3.orig/libstdc++-v3/src/Makefile.in gcc-4.5.3/libstdc++-v3/src/Makefile.in
 --- gcc-4.5.3.orig/libstdc++-v3/src/Makefile.in	2010-10-11 11:08:36.000000000 -0700
-+++ gcc-4.5.3/libstdc++-v3/src/Makefile.in	2012-02-20 05:17:51.631774400 -0800
++++ gcc-4.5.3/libstdc++-v3/src/Makefile.in	2012-09-23 13:05:50.954828000 -0700
 @@ -452,7 +452,8 @@
  	$(top_builddir)/libsupc++/libsupc++convenience.la
  
@@ -1153,7 +768,7 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/src/Makefile.in gcc-4.5.3/libstdc++-v3/src
  
 diff -urN gcc-4.5.3.orig/libstdc++-v3/testsuite/lib/libstdc++.exp gcc-4.5.3/libstdc++-v3/testsuite/lib/libstdc++.exp
 --- gcc-4.5.3.orig/libstdc++-v3/testsuite/lib/libstdc++.exp	2010-12-17 06:36:49.000000000 -0800
-+++ gcc-4.5.3/libstdc++-v3/testsuite/lib/libstdc++.exp	2012-02-20 05:17:51.636775400 -0800
++++ gcc-4.5.3/libstdc++-v3/testsuite/lib/libstdc++.exp	2012-09-23 13:04:58.589592000 -0700
 @@ -124,6 +124,9 @@
  	if { [string match "powerpc-*-darwin*" $target_triplet] } {
  	    append DEFAULT_CXXFLAGS " -multiply_defined suppress"
@@ -1174,36 +789,3 @@ diff -urN gcc-4.5.3.orig/libstdc++-v3/testsuite/lib/libstdc++.exp gcc-4.5.3/libs
      v3track gccdir 3
  
      # Locate libgomp. This is only required for parallel mode.
-diff -urN gcc-4.5.3.orig/libffi/configure gcc-4.5.3/libffi/configure
---- gcc-4.5.3.orig/libffi/configure	2012-09-10 03:27:40.186010500 -0700
-+++ gcc-4.5.3/libffi/configure	2012-09-10 03:42:47.337249700 -0700
-@@ -11360,7 +11360,7 @@
-   i?86-win32* | i?86-*-cygwin* | i?86-*-mingw*)
- 	TARGET=X86_WIN32; TARGETDIR=x86
- 	# All mingw/cygwin/win32 builds require this for sharedlib
--	AM_LTLDFLAGS="-no-undefined"
-+	AM_LTLDFLAGS='-no-undefined -bindir $(bindir)'
- 	;;
-   i?86-*-darwin*)
- 	TARGET=X86_DARWIN; TARGETDIR=x86
-@@ -12628,7 +12628,7 @@
-   toolexeclibdir='$(toolexecdir)/lib'
- else
-   toolexecdir='$(libdir)/gcc-lib/$(target_alias)'
--  toolexeclibdir='$(libdir)'
-+  toolexeclibdir="${host__toolexeclibdir:-\$(libdir)}"
- fi
- multi_os_directory=`$CC -print-multi-os-directory`
- case $multi_os_directory in
-diff -urN gcc-4.5.3.orig/libjava/classpath/configure gcc-4.5.3/libjava/classpath/configure
---- gcc-4.5.3.orig/libjava/classpath/configure	2012-09-10 03:02:42.580506300 -0700
-+++ gcc-4.5.3/libjava/classpath/configure	2012-09-10 03:43:36.375973200 -0700
-@@ -3157,7 +3157,7 @@
- 	cp_module=""
- 	;;
- 	*)
--	cp_module="-module"
-+	cp_module="-module -avoid-version"
- 	;;
- esac
- 

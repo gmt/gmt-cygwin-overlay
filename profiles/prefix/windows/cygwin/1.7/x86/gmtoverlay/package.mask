@@ -30,6 +30,7 @@ sys-apps/coreutils
 sys-devel/autoconf
 sys-devel/automake
 sys-devel/binutils-config
+sys-devel/gcc
 sys-devel/gcc-config
 sys-devel/gettext
 sys-devel/gnuconfig

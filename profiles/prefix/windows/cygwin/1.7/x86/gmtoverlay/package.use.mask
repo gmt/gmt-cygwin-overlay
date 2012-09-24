@@ -18,3 +18,8 @@ sys-devel/gettext java
 # work, so masked.  Cygwin does have -lpthread support; where does this come
 # from, and how related to USE-flag here?  Need to investigate.
 sys-devel/gcc nptl
+
+# See TODO: we must ensure that there is only one gcc in the system until
+# a serious bug in gcc-config is resolved.  If we allow multislot, this
+# constraint becomes (even more) impossible to enforce.  So for now:
+sys-devel/gcc multislot
