@@ -4,7 +4,7 @@
 
 EAPI="2"
 
-inherit flag-o-matic eutils multilib toolchain-funcs mono libtool java-pkg-opt-2 autotools
+inherit flag-o-matic eutils multilib toolchain-funcs mono libtool java-pkg-opt-2 autotools multiprocessing
 
 DESCRIPTION="GNU locale utilities"
 HOMEPAGE="http://www.gnu.org/software/gettext/"
@@ -49,6 +49,7 @@ src_prepare() {
 	fi
 
 	epunt_cxx
+	elibtoolize
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
 		epatch "${FILESDIR}"/${PN}-${PV}-cygport.patch
@@ -60,32 +61,45 @@ src_prepare() {
 		epatch "${FILESDIR}"/${PN}-${PV}-cygwin1.7-hostglob.patch
 		epatch "${FILESDIR}"/${PN}-${PV}-cygwin-am_gnu_gettext_version.patch
 
-		einfo "=-=-=-=-= Welcome to GNU autohell...  TIP: a watched ebuild never merges =-=-=-=-="
 		# TODO: audit to ensure that all files are being regenerated that
 		# should be from the cygport patches, which is the point, after all.
-		AT_NO_RECURSIVE=yes
-		cd "${S}"/gettext-runtime/libasprintf || die
-		eautoreconf
-		cd "${S}"/gettext-runtime || die
-		eautoreconf
-		cd "${S}"/gettext-tools/examples || die
-		AT_NOELIBTOOLIZE=yes eautoreconf
-		cd "${S}"/gettext-tools || die
-		eautoreconf
-		cd "${S}" || die
-		AT_NOELIBTOOLIZE=yes eautoreconf
-		cd "${S}"/build-aux || die
-		elibtoolize
-		cd "${S}" || die
+		export AT_TOPLEVEL_EAUTORECONF=yes
+		export AT_NO_RECURSIVE=yes
+		export AT_NOELIBTOOLIZE=yes
+		multijob_init
+		(
+			multijob_child_init
+			eautoreconf
+		) & multijob_post_fork
+		(
+			multijob_child_init
+			cd "${S}"/gettext-runtime || die
+			eautoreconf
+		) & multijob_post_fork
+		(
+			multijob_child_init
+			cd "${S}"/gettext-runtime/libasprintf || die
+			eautoreconf
+		) & multijob_post_fork
+		(
+			multijob_child_init
+			cd "${S}"/gettext-tools || die
+			eautoreconf
+		) & multijob_post_fork
+		(
+			multijob_child_init
+			cd "${S}"/gettext-tools/examples || die
+			eautoreconf
+		) & multijob_post_fork
+
+		multijob_finish || die
+
 		ebegin "Touching generated files (avoid maintainer-mode)"
 		for f in gettext-runtime/{,libasprintf/}config.h.in ; do
 			einfo "  ${f}"
 			touch ./${f} || die
 		done
 		eend 0
-		einfo "=-=-=-=-= Now resuming your regularly scheduled ebuild.  Sorry for the delay! =-=-=-=-="
-	else
-		elibtoolize
 	fi
 	epatch "${FILESDIR}"/${P}-uclibc-sched_param-def.patch
 	epatch "${FILESDIR}"/${P}-no-gets.patch
