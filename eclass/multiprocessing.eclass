@@ -133,37 +133,6 @@ multijob_child_init() {
 	fi
 }
 
-# @FUNCTION: _multijob_fork
-# @INTERNAL
-# @DESCRIPTION:
-# Do the actual book keeping.
-_multijob_fork() {
-	[[ $# -eq 1 ]] || die "incorrect number of arguments"
-
-	local ret=0
-	[[ $1 == "post" ]] && : $(( ++mj_num_jobs ))
-	if [[ ${mj_num_jobs} -ge ${mj_max_jobs} ]] ; then
-		multijob_finish_one
-		ret=$?
-	fi
-	[[ $1 == "pre" ]] && : $(( ++mj_num_jobs ))
-	return ${ret}
-}
-
-# @FUNCTION: multijob_pre_fork
-# @DESCRIPTION:
-# You must call this in the parent process before forking a child process.
-# If the parallel limit has been hit, it will wait for one child to finish
-# and return its exit status.
-multijob_pre_fork() { _multijob_fork pre "$@" ; }
-
-# @FUNCTION: multijob_post_fork
-# @DESCRIPTION:
-# You must call this in the parent process after forking a child process.
-# If the parallel limit has been hit, it will wait for one child to finish
-# and return its exit status.
-multijob_post_fork() { _multijob_fork post "$@" ; }
-
 # @FUNCTION: multijob_finish_one
 # @DESCRIPTION:
 # Wait for a single process to exit and return its exit code.
@@ -227,23 +196,152 @@ redirect_alloc_fd() {
 }
 
 else
-# Cygwin Host: dummy versions since cygwin can't handle this stuff
-multijob_init() { :; }
+
+# On Cygwin, bidirectional pipes are broken in bash.  Until this can be
+# fixed, we need an alternative implementation that works.  For now, we
+# use a named-pipe directly rather than file descriptors.
+
+get_multijob_pipe() {
+        MULTIJOB_PARENT=${MULTIJOB_PARENT:-0}
+        if [[ ${MULTIJOB_PARENT} -eq 0 ]] ; then
+                echo "${T}/multijob-error-fake.pipe"
+        else
+                echo "${T}/multijob-${MULTIJOB_PARENT}.pipe"
+        fi
+}
+
+# make sure someone called multijob_init
+multijob_assert() {
+        MULTIJOB_PARENT=${MULTIJOB_PARENT:-0}
+        [[ $MULTIJOB_PARENT -eq 0 ]] && die "multijob initialization required"
+        [[ $( file -b "$(get_multijob_pipe)" ) != fifo* ]] && die "multijob fifo gone"
+}
+
+multijob_init() {
+        [[ ${MULTIJOB_PARENT} -ne 0 && ${MULTIJOB_PARENT} -eq ${BASHPID} ]] && \
+                die "Nested multijob_init"
+        export MULTIJOB_PARENT=${BASHPID}
+
+        # When something goes wrong, try to wait for all the children so we
+        # don't leave any zombies around.
+        has wait ${EBUILD_DEATH_HOOKS} || EBUILD_DEATH_HOOKS+=" wait "
+
+	rm -f "$(get_multijob_pipe)"
+
+        # Setup a pipe for children to write their pids to when they finish.
+        mkfifo "$(get_multijob_pipe)"
+
+        # See how many children we can fork based on the user's settings.
+        mj_max_jobs=$(makeopts_jobs "$@")
+        mj_num_jobs=0
+}
+
 multijob_child_init() {
 	case $1 in
 		--pre)  shift ;;
 		--post) shift ;;
 	esac
+	multijob_assert
 
-	"$@"
+	if [[ $# -eq 0 ]] ; then
+                trap 'echo ${BASHPID} $? >'$(get_multijob_pipe) EXIT
+                trap 'exit 1' INT TERM
+        else
+                local ret
+                [[ ${mode} == "pre" ]] && { multijob_pre_fork; ret=$?; }
+                ( multijob_child_init ; "$@" ) &
+                [[ ${mode} == "post" ]] && { multijob_post_fork; ret=$?; }
+                return ${ret}
+        fi
 }
-multijob_pre_fork() { :; }
-multijob_post_fork() { :; }
-multijob_finish_one() { return "$?" ; }
-multijob_finish() { :; }
-redirect_alloc_fd() { die "FIXME: unimplemented" ; }
+
+multijob_finish_one() {
+        [[ $# -eq 0 ]] || die "${FUNCNAME} takes no arguments"
+
+        multijob_assert
+
+        local pid ret
+        read -r pid ret < $(get_multijob_pipe) || die
+        : $(( --mj_num_jobs ))
+        return ${ret}
+}
+
+multijob_finish() {
+        local ret=0
+        while [[ ${mj_num_jobs} -gt 0 ]] ; do
+                multijob_finish_one
+                : $(( ret |= $? ))
+        done
+        # Let bash clean up its internal child tracking state.
+        wait
+
+        # Do this after reaping all the children.
+        [[ $# -eq 0 ]] || die "${FUNCNAME} takes no arguments"
+
+        # No need to hook anymore.
+        EBUILD_DEATH_HOOKS=${EBUILD_DEATH_HOOKS/ wait / }
+        rm -f $(get_multijob_pipe)
+        export MULTIJOB_PARENT=0
+
+        return ${ret}
+}
+
+redirect_alloc_fd() {
+	local var=$1 file=$2 redir=${3:-"<>"}
+
+	[[ "${redir}" == "<>" ]] && die "<> is broken on Cygwin"
+
+	if [[ $(( (BASH_VERSINFO[0] << 8) + BASH_VERSINFO[1] )) -ge $(( (4 << 8) + 1 )) ]] ; then
+		# Newer bash provides this functionality.
+		eval "exec {${var}}${redir}'${file}'"
+	else
+		# Need to provide the functionality ourselves.
+		local fd=10
+		while :; do
+			# Make sure the fd isn't open.  It could be a char device,
+			# or a symlink (possibly broken) to something else.
+			if [[ ! -e /dev/fd/${fd} ]] && [[ ! -L /dev/fd/${fd} ]] ; then
+				eval "exec ${fd}${redir}'${file}'" && break
+			fi
+			[[ ${fd} -gt 1024 ]] && die 'could not locate a free temp fd !?'
+			: $(( ++fd ))
+		done
+		: $(( ${var} = fd ))
+	fi
+}
 
 fi # if cygwin (look ma, no indentation!)
+
+# @FUNCTION: _multijob_fork
+# @INTERNAL
+# @DESCRIPTION:
+# Do the actual book keeping.
+_multijob_fork() {
+	[[ $# -eq 1 ]] || die "incorrect number of arguments"
+
+	local ret=0
+	[[ $1 == "post" ]] && : $(( ++mj_num_jobs ))
+	if [[ ${mj_num_jobs} -ge ${mj_max_jobs} ]] ; then
+		multijob_finish_one
+		ret=$?
+	fi
+	[[ $1 == "pre" ]] && : $(( ++mj_num_jobs ))
+	return ${ret}
+}
+
+# @FUNCTION: multijob_pre_fork
+# @DESCRIPTION:
+# You must call this in the parent process before forking a child process.
+# If the parallel limit has been hit, it will wait for one child to finish
+# and return its exit status.
+multijob_pre_fork() { _multijob_fork pre "$@" ; }
+
+# @FUNCTION: multijob_post_fork
+# @DESCRIPTION:
+# You must call this in the parent process after forking a child process.
+# If the parallel limit has been hit, it will wait for one child to finish
+# and return its exit status.
+multijob_post_fork() { _multijob_fork post "$@" ; }
 
 fi
 
