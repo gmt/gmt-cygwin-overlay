@@ -4220,3 +4220,13 @@ index b9c4183..b721816 100644
  				_rename(dest_tmp_bytes, dest_bytes)
  				_os.unlink(src_bytes)
  			except SystemExit as e:
+--- a/man/Makefile.in	2012-08-12 00:56:00.000000000 -0700
++++ b/man/Makefile.in	2012-09-16 20:20:41.871050500 -0700
+@@ -221,6 +221,7 @@
+ top_srcdir = @top_srcdir@
+ man_MANS = \
+ 	color.map.5 \
++	cygdll-update.1 \
+ 	dispatch-conf.1 \
+ 	ebuild.1 \
+ 	ebuild.5 \

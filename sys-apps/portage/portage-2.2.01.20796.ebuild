@@ -191,7 +191,7 @@ src_prepare() {
 	}
 
 	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
-	epatch "${FILESDIR}"/${PN}-2.2.01.20796-cygwin-revert-problematic-commits.patch
+	epatch "${FILESDIR}"/${PN}-2.2.01.20837-cygwin-multijob.patch
 }
 
 src_configure() {

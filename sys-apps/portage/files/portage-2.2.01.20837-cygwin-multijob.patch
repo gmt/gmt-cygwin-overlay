@@ -1,0 +1,130 @@
+commit 570470413f2788871a55d6dec80711c0d08ba1ff
+Author: Gregory M. Turner <gmturner007@ameritech.net>
+Date:   Sun Sep 16 18:52:58 2012 -0700
+
+    bin/helper-functions.sh: fix cygwin
+    
+    On cygwin, bash has broken '<>' two-way pipe redirection.
+    
+    This breaks the multijob stuff, so, we work around it by
+    using the pipe directly instead of all the fancy fd footwork.
+    Requires that children inherit environment variables from parents.
+    
+    Eventually it would be nice if we could just fix bash -- Cygwin
+    is capable of successfully doing two-way redirection in code,
+    i.e., see http://bisqwit.iki.fi/source/twinpipe.html, which works,
+    so there appears to be some kind of quirk triggered by the
+    semantics of bash's <> implementation which could almost certainly
+    be worked around.
+    
+    Signed-off-by: Gregory M. Turner <gmturner007@ameritech.net>
+
+diff --git a/bin/helper-functions.sh b/bin/helper-functions.sh
+index c7400fa..87f3120 100644
+--- a/bin/helper-functions.sh
++++ b/bin/helper-functions.sh
+@@ -7,6 +7,36 @@
+ 
+ source "${PORTAGE_BIN_PATH:-/usr/lib/portage/bin}"/isolated-functions.sh
+ 
++# try real hard to figure out if this is a cygwin host; cache results.
++this_host_is_cygwin() {
++	if [[ -n ${_this_host_is_cygwin} ]] ; then
++		return $_this_host_is_cygwin
++	fi
++	[[ -x ${EPREFIX}/usr/bin/uname ]] && \
++		[[ $( ${EPREFIX}/usr/bin/uname -o 2>/dev/null ) == Cygwin* ]] && \
++			export _this_host_is_cygwin=0 && return 0
++	[[ -x /usr/bin/uname ]] && \
++		[[ $( /usr/bin/uname -o 2>/dev/null ) == Cygwin* ]] && \
++			export _this_host_is_cygwin=0 && return 0
++	[[ -x /bin/uname ]] && \
++		[[ $( /bin/uname -o 2>/dev/null ) == Cygwin* ]] && \
++			export _this_host_is_cygwin=0 && return 0
++	# hail-mary before we resort to envvars
++	[[ $( uname -o 2>/dev/null ) == Cygwin* ]] && \
++		export _this_host_is_cygwin=0 && return 0
++
++	[[ -n ${CHOST} ]] && \
++		[[ ${CHOST} == *-cygwin* ]] && \
++			export _this_host_is_cygwin=0 && return 0
++	[[ -n ${CTARGET} ]] && \
++		[[ ${CTARGET} == *-cygwin* ]] && \
++			export _this_host_is_cygwin=0 && return 0
++
++	# either it ain't cygwin or something is very broken.
++	export _this_host_is_cygwin=1
++	return 1
++}
++
+ #
+ # API functions for doing parallel processing
+ #
+@@ -19,25 +49,51 @@ numjobs() {
+ 
+ multijob_init() {
+ 	# Setup a pipe for children to write their pids to when they finish.
+-	mj_control_pipe=$(mktemp -t multijob.XXXXXX)
+-	rm "${mj_control_pipe}"
+-	mkfifo "${mj_control_pipe}"
+-	redirect_alloc_fd mj_control_fd "${mj_control_pipe}"
++	export mj_control_pipe=$(mktemp -t multijob.XXXXXX)
+ 	rm -f "${mj_control_pipe}"
++	mkfifo "${mj_control_pipe}"
++
++	if ! this_host_is_cygwin ; then
++		redirect_alloc_fd mj_control_fd "${mj_control_pipe}"
++		rm -f "${mj_control_pipe}"
++	fi
+ 
+ 	# See how many children we can fork based on the user's settings.
+ 	mj_max_jobs=$(numjobs)
+ 	mj_num_jobs=0
+ }
+ 
++# make sure someone called multijob_init
++multijob_assert() {
++	if this_host_is_cygwin ; then
++		[[ -z ${mj_control_pipe} ]] && \
++			die "multijob initialization required"
++		[[ $( file -b "${mj_control_pipe}" ) != fifo* ]] && \
++			die "multijob fifo gone"
++	else
++		[[ -z ${mj_control_fd} ]] && \
++			die "multijob initialization required"
++	fi
++}
++
+ multijob_child_init() {
+-	trap 'echo ${BASHPID} $? >&'${mj_control_fd} EXIT
++	multijob_assert
++	if this_host_is_cygwin ; then
++		trap 'echo ${BASHPID} $? >'${mj_control_pipe} EXIT
++	else
++		trap 'echo ${BASHPID} $? >&'${mj_control_fd} EXIT
++	fi
+ 	trap 'exit 1' INT TERM
+ }
+ 
+ multijob_finish_one() {
+ 	local pid ret
+-	read -r -u ${mj_control_fd} pid ret
++	multijob_assert
++	if this_host_is_cygwin ; then
++		read -r pid ret < ${mj_control_pipe}
++	else
++		read -r -u ${mj_control_fd} pid ret
++	fi
+ 	: $(( --mj_num_jobs ))
+ 	return ${ret}
+ }
+@@ -70,6 +126,9 @@ multijob_post_fork() {
+ redirect_alloc_fd() {
+ 	local var=$1 file=$2 redir=${3:-"<>"}
+ 
++	[[ "${redir}" == "<>" ]] && this_host_is_cygwin && \
++		die "Cygwin bash has broken <> bidirectional redirection support."
++
+ 	if [[ $(( (BASH_VERSINFO[0] << 8) + BASH_VERSINFO[1] )) -ge $(( (4 << 8) + 1 )) ]] ; then
+ 			# Newer bash provides this functionality.
+ 			eval "exec {${var}}${redir}'${file}'"

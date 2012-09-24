@@ -2,16 +2,39 @@
 ----[ "sys-apps/portage/ChangeLog" ]----->8----->
 --- PORTAGE/sys-apps/portage/ChangeLog
 +++ OVERLAY/sys-apps/portage/ChangeLog
-@@ -1,50 +1,15 @@
+@@ -1,73 +1,15 @@
  # ChangeLog for sys-apps/portage
  # Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
 -# $Id: $
 +# $Id: ChangeLog $
  
--  12 Aug 2012; Fabian Groffen <grobian@gentoo.org> portage-2.2.01.20837.ebuild:
--  Add sys-devel/patch to DEPEND for bug #429746
+-*portage-2.2.01.21003 (12 Sep 2012)
 +*portage-2.2.01.20271 (06 Mar 2012)
  
+-  12 Sep 2012; Fabian Groffen <grobian@gentoo.org> +portage-2.2.01.21003.ebuild,
+-  -portage-2.2.01.20837.ebuild:
+-  Version bump, matches 2.2.0_alpha127
+-
+-*portage-2.2.01.20972 (09 Sep 2012)
+-
+-  09 Sep 2012; Fabian Groffen <grobian@gentoo.org> +portage-2.2.01.20972.ebuild,
+-  -portage-2.2.01.20796.ebuild:
+-  Version bump, matches 2.2.0_alpha125+
+-
+-*portage-2.2.01.20894 (27 Aug 2012)
+-
+-  27 Aug 2012; Fabian Groffen <grobian@gentoo.org> +portage-2.2.01.20894.ebuild,
+-  -portage-2.2.01.20757.ebuild:
+-  Version bump, matches 2.2.0_alpha123
+-
+-  20 Aug 2012; Fabian Groffen <grobian@gentoo.org> portage-2.2.01.20837.ebuild:
+-  Up the requirement for bash to 4.1, since redirect_alloc_fd better relies on
+-  bash' built-in to find a free filedescriptor than a rather Linux-specific way
+-  to figure one out.
+-
+-  12 Aug 2012; Fabian Groffen <grobian@gentoo.org> portage-2.2.01.20837.ebuild:
+-  Add sys-devel/patch to DEPEND for bug #429746
+-
 -  12 Aug 2012; Fabian Groffen <grobian@gentoo.org> portage-2.2.01.20837.ebuild:
 -  Remove /etc/make.globals symlink code (bug #427862)
 -
@@ -73,99 +96,12 @@
  	</use>
  </pkgmetadata>
 <-----8<-----
-----[ "sys-apps/portage/portage-2.2.01.20796.ebuild" ]----->8----->
---- PORTAGE/sys-apps/portage/portage-2.2.01.20796.ebuild
-+++ OVERLAY/sys-apps/portage/portage-2.2.01.20796.ebuild
-@@ -14,7 +14,7 @@
- LICENSE="GPL-2"
- KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
- SLOT="0"
--IUSE="build doc epydoc ipc linguas_pl selinux xattr prefix-chaining"
-+IUSE="build doc epydoc ipc linguas_pl selinux xattr prefix-chaining cygdll-protect"
- 
- # Import of the io module in python-2.6 raises ImportError for the
- # thread module if threading is disabled.
-@@ -168,6 +168,30 @@
- 	fi
- 
- 	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
-+
-+	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20389-cygwin-dosym-exe-hack.patch
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-unc-prevention.patch
-+	else
-+		use cygdll-protect && {
-+			ewarn "cygdll-protect outside of cygwin?  Hope you"
-+			ewarn "know what you're doing -- seems pretty wierd."
-+		}
-+	fi
-+
-+# WIP, not working yet
-+	use cygdll-protect && { \
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20796-cygdll_protect.patch
-+		for f in "bin/cygdll-update" ; do
-+			einfo "setting executable bits for ${f} since patch doesn't"
-+			chmod a+x "${S}"/${f}
-+		done
-+	}
-+
-+	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
-+	epatch "${FILESDIR}"/${PN}-2.2.01.20796-cygwin-revert-problematic-commits.patch
- }
- 
- src_configure() {
-<-----8<-----
-----[ "sys-apps/portage/portage-2.2.01.20837.ebuild" ]----->8----->
---- PORTAGE/sys-apps/portage/portage-2.2.01.20837.ebuild
-+++ OVERLAY/sys-apps/portage/portage-2.2.01.20837.ebuild
-@@ -14,7 +14,7 @@
- LICENSE="GPL-2"
- KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
- SLOT="0"
--IUSE="build doc epydoc ipc linguas_pl selinux xattr prefix-chaining"
-+IUSE="build doc epydoc ipc linguas_pl selinux xattr prefix-chaining cygdll-protect"
- 
- # Import of the io module in python-2.6 raises ImportError for the
- # thread module if threading is disabled.
-@@ -168,6 +168,31 @@
- 	fi
- 
- 	epatch "${FILESDIR}"/${PN}-2.2.01.20239-ebuildshell.patch
-+	epatch "${FILESDIR}"/portageq_eroot_sanity.patch #433475
-+
-+	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20389-cygwin-dosym-exe-hack.patch
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-unc-prevention.patch
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20837-cygwin-ebuildshell-path.patch
-+	else
-+		use cygdll-protect && {
-+			ewarn "cygdll-protect outside of cygwin?  Hope you"
-+			ewarn "know what you're doing -- seems pretty wierd."
-+		}
-+	fi
-+
-+	use cygdll-protect && { \
-+		epatch "${FILESDIR}"/${PN}-2.2.01.20837-cygdll_protect.patch
-+		for f in "bin/cygdll-update" ; do
-+			einfo "setting executable bits for ${f} since patch doesn't"
-+			chmod a+x "${S}"/${f}
-+		done
-+	}
-+
-+	epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-lib-qa-fix.patch
-+	epatch "${FILESDIR}"/${PN}-2.2.01.20796-cygwin-revert-problematic-commits.patch
- }
- 
- src_configure() {
-<-----8<-----
 ===== mutual sub-directory: "sys-apps/portage/files" =====
 
 *** The following files appear only in the overlay ***
 overlay/sys-apps/portage/portage-2.2.01.20389.ebuild: ASCII text
+overlay/sys-apps/portage/portage-2.2.01.20796.ebuild: ASCII text
+overlay/sys-apps/portage/portage-2.2.01.20837.ebuild: ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cyg_whitelist.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-lib-qa-fix.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20271-cygwin-locking-nightmare.patch: unified diff output, ASCII text
@@ -175,11 +111,13 @@ overlay/sys-apps/portage/files/portage-2.2.01.20389-cygwin-dosym-exe-hack.patch:
 overlay/sys-apps/portage/files/portage-2.2.01.20389-distracting-error-message.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20389-fix-perform-all.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20796-cygdll_protect.patch: unified diff output, ASCII text
-overlay/sys-apps/portage/files/portage-2.2.01.20796-cygwin-revert-problematic-commits.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20837-cygdll_protect.patch: ASCII text
 overlay/sys-apps/portage/files/portage-2.2.01.20837-cygwin-ebuildshell-path.patch: unified diff output, ASCII text
+overlay/sys-apps/portage/files/portage-2.2.01.20837-cygwin-multijob.patch: unified diff output, ASCII text
 overlay/sys-apps/portage/files/portageq_eroot_sanity.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-apps/portage/portage-2.2.01.20757.ebuild: ASCII text
+usr/portage/sys-apps/portage/portage-2.2.01.20894.ebuild: ASCII text
+usr/portage/sys-apps/portage/portage-2.2.01.20972.ebuild: ASCII text
+usr/portage/sys-apps/portage/portage-2.2.01.21003.ebuild: ASCII text
 
