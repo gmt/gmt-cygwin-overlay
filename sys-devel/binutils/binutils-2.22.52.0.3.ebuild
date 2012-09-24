@@ -1,14 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 PATCHVER="1.0"
 ELF2FLT_VER=""
 inherit toolchain-binutils
-
-# 66_all_binutils-2.22-warn-textrel.patch fails to apply with
-# patch-2.5.9, so require a version that for sure works
-DEPEND+=" >=sys-devel/patch-2.6.1"
 
 KEYWORDS="~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 
@@ -17,7 +13,8 @@ src_unpack() {
 	cd "${S}"
 	[[ $SYMLINK_LIB == yes ]] &&
 	epatch "${FILESDIR}"/${PN}-2.20.51.0.1-linux-x86-on-amd64.patch
-	#fails: epatch "${FILESDIR}"/${PN}-2.21.53.0.2-mint.patch
+	# fails
+	# epatch "${FILESDIR}"/${PN}-2.22-mint.patch
 	epatch "${FILESDIR}"/${PN}-2.19.50.0.1-mint.patch
 	[[ ${CHOST} == *-cygwin* ]] && \
 		epatch "${FILESDIR}"/${PN}-2.22.52.0.1-cygwin-libiberty.patch

@@ -1,11 +1,41 @@
 ===== mutual sub-directory: "sys-devel/binutils" =====
----("sys-devel/binutils/ChangeLog")--->8--->
---- usr/portage/sys-devel/binutils/ChangeLog [[PORTAGE]]
-+++ overlay/sys-devel/binutils/ChangeLog [[OVERLAY]]
-@@ -1,41 +1,6 @@
+----[ "sys-devel/binutils/ChangeLog" ]----->8----->
+--- PORTAGE/sys-devel/binutils/ChangeLog
++++ OVERLAY/sys-devel/binutils/ChangeLog
+@@ -1,71 +1,6 @@
  # ChangeLog for sys-devel/binutils
 -# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/sys-devel/binutils/ChangeLog,v 1.437 2012/02/06 04:29:29 vapier Exp $
+-# $Header: $
+-
+-  31 May 2012; Mike Frysinger <vapier@gentoo.org> binutils-2.20.1-r1.ebuild:
+-  Push out fix for POSIX test behavior #417549 by Richard Yao.
+-
+-  22 May 2012; Mike Frysinger <vapier@gentoo.org> binutils-2.22-r1.ebuild,
+-  binutils-2.22.52.0.1.ebuild, binutils-2.22.52.0.2.ebuild,
+-  binutils-2.22.52.0.3.ebuild:
+-  Drop patch-2.6 requirement now that the profile pulls it in.
+-
+-*binutils-2.22.52.0.3 (09 May 2012)
+-
+-  09 May 2012; Mike Frysinger <vapier@gentoo.org> +binutils-2.22.52.0.3.ebuild:
+-  Version bump.
+-
+-  26 Apr 2012; Alexis Ballier <aballier@gentoo.org> binutils-2.20.1-r1.ebuild:
+-  keyword ~amd64-fbsd
+-
+-  26 Apr 2012; Mike Frysinger <vapier@gentoo.org> -binutils-2.21.1.ebuild,
+-  -binutils-2.21.52.0.1.ebuild, -binutils-2.21.52.0.2.ebuild,
+-  -binutils-2.21.53.0.1.ebuild, -binutils-2.21.53.0.2.ebuild,
+-  -binutils-2.21.ebuild, -binutils-2.22.ebuild:
+-  Move older versions to the toolchain overlay.
+-
+-*binutils-2.22.52.0.2 (26 Apr 2012)
+-
+-  26 Apr 2012; Mike Frysinger <vapier@gentoo.org> +binutils-2.22.52.0.2.ebuild:
+-  Version bump.
+-
+-  04 Mar 2012; Mike Frysinger <vapier@gentoo.org> binutils-2.22-r1.ebuild:
+-  Add fix from upstream for hppa/plt handling #406349 by Jeroen Roovers.
 -
 -  06 Feb 2012; Mike Frysinger <vapier@gentoo.org> binutils-2.22.52.0.1.ebuild:
 -  Drop KEYWORDS -- didn't mean to add those.
@@ -46,21 +76,46 @@
  
    23 Nov 2011; Diego E. Pettenò <flameeyes@gentoo.org> binutils-2.22.ebuild:
    QA: make sure to depend on a patch(1) version that actually applies all the
-<---8<---
+<-----8<-----
+----[ "sys-devel/binutils/binutils-2.22.52.0.3.ebuild" ]----->8----->
+--- PORTAGE/sys-devel/binutils/binutils-2.22.52.0.3.ebuild
++++ OVERLAY/sys-devel/binutils/binutils-2.22.52.0.3.ebuild
+@@ -6,15 +6,20 @@
+ ELF2FLT_VER=""
+ inherit toolchain-binutils
+ 
+-#KEYWORDS="~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
++KEYWORDS="~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+ 
+ src_unpack() {
+ 	toolchain-binutils_src_unpack
+ 	cd "${S}"
+ 	[[ $SYMLINK_LIB == yes ]] &&
+ 	epatch "${FILESDIR}"/${PN}-2.20.51.0.1-linux-x86-on-amd64.patch
+-	epatch "${FILESDIR}"/${PN}-2.22-mint.patch
++	# fails
++	# epatch "${FILESDIR}"/${PN}-2.22-mint.patch
+ 	epatch "${FILESDIR}"/${PN}-2.19.50.0.1-mint.patch
++	[[ ${CHOST} == *-cygwin* ]] && \
++		epatch "${FILESDIR}"/${PN}-2.22.52.0.1-cygwin-libiberty.patch
++	epatch "${FILESDIR}"/${PN}-2.22.52.0.1-cygwin-hostglob.patch
++	epatch "${FILESDIR}"/${PN}-2.22.52.0.1-cygwin-cygstdc++-eh_frame.patch
+ }
+ 
+ src_compile() {
+<-----8<-----
 ===== mutual sub-directory: "sys-devel/binutils/files" =====
 
 *** The following files appear only in the overlay ***
-overlay/sys-devel/binutils/binutils-2.22.52.0.1.ebuild: ASCII English text
+overlay/sys-devel/binutils/binutils-2.22.52.0.1.ebuild: ASCII text
+overlay/sys-devel/binutils/files/binutils-2.22.52.0.1-cygwin-cygstdc++-eh_frame.patch: unified diff output, ASCII text
 overlay/sys-devel/binutils/files/binutils-2.22.52.0.1-cygwin-hostglob.patch: unified diff output, ASCII text
 overlay/sys-devel/binutils/files/binutils-2.22.52.0.1-cygwin-libiberty.patch: unified diff output, ASCII text
 
 *** The following files appear only in portage ***
-usr/portage/sys-devel/binutils/binutils-2.18-r04.1.ebuild: ASCII English text
-usr/portage/sys-devel/binutils/binutils-2.19.1-r01.1.ebuild: ASCII English text
-usr/portage/sys-devel/binutils/binutils-2.20.1-r1.ebuild: ASCII English text
-usr/portage/sys-devel/binutils/binutils-2.21.1-r1.ebuild: ASCII English text
-usr/portage/sys-devel/binutils/binutils-2.21.53.0.2.ebuild: ASCII English text
-usr/portage/sys-devel/binutils/binutils-2.22-r1.ebuild: ASCII English text
-usr/portage/sys-devel/binutils/binutils-2.22.ebuild: ASCII English text
-usr/portage/sys-devel/binutils/files/binutils-2.22-mint.patch: unified diff output, ASCII text
+usr/portage/sys-devel/binutils/binutils-2.18-r04.1.ebuild: ASCII text
+usr/portage/sys-devel/binutils/binutils-2.19.1-r01.1.ebuild: ASCII text
+usr/portage/sys-devel/binutils/binutils-2.20.1-r1.ebuild: ASCII text
+usr/portage/sys-devel/binutils/binutils-2.21.1-r1.ebuild: ASCII text
+usr/portage/sys-devel/binutils/binutils-2.22-r1.ebuild: ASCII text
 

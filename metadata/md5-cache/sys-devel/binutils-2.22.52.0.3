@@ -1,12 +1,12 @@
 DEFINED_PHASES=compile install postinst postrm test unpack
-DEPEND=>=sys-devel/patch-2.6.1 sys-devel/gnuconfig >=sys-devel/binutils-config-1.9 zlib? ( sys-libs/zlib ) test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) sys-devel/flex virtual/yacc
+DEPEND=sys-devel/gnuconfig >=sys-devel/binutils-config-1.9 zlib? ( sys-libs/zlib ) test? ( dev-util/dejagnu ) nls? ( sys-devel/gettext ) sys-devel/flex virtual/yacc
 DESCRIPTION=Tools necessary to build programs
 HOMEPAGE=http://sources.redhat.com/binutils/
 IUSE=cxx nls multitarget multislot static-libs test vanilla zlib
 KEYWORDS=~x64-freebsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
 LICENSE=|| ( GPL-3 LGPL-3 )
-RDEPEND=>=sys-devel/patch-2.6.1 >=sys-devel/binutils-config-1.9 zlib? ( sys-libs/zlib )
+RDEPEND=>=sys-devel/binutils-config-1.9 zlib? ( sys-libs/zlib )
 SLOT=0
-SRC_URI=mirror://kernel/linux/devel/binutils/binutils-2.22.52.0.1.tar.xz mirror://gentoo/binutils-2.22.52.0.1-patches-1.0.tar.bz2 http://dev.gentoo.org/~vapier/dist/binutils-2.22.52.0.1-patches-1.0.tar.bz2
+SRC_URI=mirror://kernel/linux/devel/binutils/binutils-2.22.52.0.3.tar.xz mirror://gentoo/binutils-2.22.52.0.3-patches-1.0.tar.xz http://dev.gentoo.org/~vapier/dist/binutils-2.22.52.0.3-patches-1.0.tar.xz
 _eclasses_=eutils	24483bd91d3d074753a77bfe3e69993f	flag-o-matic	f8651713795af42726abd3efcd5caad0	gnuconfig	dd0d4950ca69b37015e95db8de2eb9dd	libtool	98f9b1e34df9125cd0e7cd9f2545de40	multilib	1d1aae8e5a9b929410d1e7a677df52d7	prefix	21058c21ca48453d771df15500873ede	toolchain-binutils	173cac254888619b89c5261b9ca66def	toolchain-funcs	0e714f499b5324892ca6becaf2bf9fa5	unpacker	50e1227854e96469a19a63f053496328	user	caa4a66cca1103139b68c2fad83b8313	versionator	6601b4c5b3f019a993db59a50e1854e4
-_md5_=d71bf8dd7b68854893a5d93dd4b10174
+_md5_=635842ddf5970ce4a4b22398b449bb00

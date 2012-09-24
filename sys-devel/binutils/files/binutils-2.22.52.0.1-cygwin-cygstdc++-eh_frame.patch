@@ -1,0 +1,35 @@
+There's a problem that crops up when rebasing cygstdc++-6.dll,
+resulting in an ugly, hard-to-debug mess that results in
+executables silently terminating.
+
+It has something to do with exception handling and frame
+analysis, blah blah blah -- I didn't bother to understand
+this one.
+
+Here we implement the solution recommended by Dave Korn in
+this thread:
+
+http://cygwin.com/ml/cygwin/2011-09/msg00350.html
+
+-gmt
+
+diff -urN binutils-2.22.52.0.1.orig/ld/pe-dll.c binutils-2.22.52.0.1/ld/pe-dll.c
+--- binutils-2.22.52.0.1.orig/ld/pe-dll.c	2012-09-17 19:10:16.905360800 -0700
++++ binutils-2.22.52.0.1/ld/pe-dll.c	2012-09-17 19:11:29.964360800 -0700
+@@ -1404,6 +1404,16 @@
+ 		      if (!strcmp (s->name, ".eh_frame"))
+ 			continue;
+ 		    }
++		  /* Nor for Dwarf FDE references to discarded sections.  */
++		  else if (bfd_is_abs_section (sym->section->output_section))
++		    {
++		      /* These are the same section names that
++			 _bfd_elf_default_action_discarded chooses to discard
++			 relocs against.  */
++		      if (!strcmp (s->name, ".eh_frame")
++			  || !strcmp (s->name, ".gcc_except_table"))
++			continue;
++		    }
+ 
+ 		  reloc_data[total_relocs].vma = sec_vma + relocs[i]->address;
+ 
