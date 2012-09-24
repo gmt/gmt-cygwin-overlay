@@ -1,6 +1,6 @@
 # Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/eclass/multiprocessing.eclass,v 1.2 2012/07/30 14:52:18 vapier Exp $
+# $Header: $
 
 # @ECLASS: multiprocessing.eclass
 # @MAINTAINER:

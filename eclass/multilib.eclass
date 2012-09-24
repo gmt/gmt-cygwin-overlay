@@ -121,7 +121,7 @@ get_abi_LIBDIR() { get_abi_var LIBDIR "$@"; }
 # Return a list of the ABIs we want to install for with
 # the last one in the list being the default.
 get_install_abis() {
-	local order=""
+	local x order=""
 
 	if [[ -z ${MULTILIB_ABIS} ]] ; then
 		echo "default"
@@ -162,7 +162,7 @@ get_install_abis() {
 # Return a list of the ABIs supported by this profile.
 # the last one in the list being the default.
 get_all_abis() {
-	local order="" mvar dvar
+	local x order="" mvar dvar
 
 	mvar="MULTILIB_ABIS"
 	dvar="DEFAULT_ABI"
@@ -193,9 +193,7 @@ get_all_abis() {
 # those that might not be touched by the current ebuild and always includes
 # "lib".
 get_all_libdirs() {
-	local libdirs
-	local abi
-	local dir
+	local libdirs abi
 
 	for abi in ${MULTILIB_ABIS}; do
 		libdirs+=" $(get_abi_LIBDIR ${abi})"
@@ -287,6 +285,7 @@ multilib_env() {
 		x86_64*)
 			export CFLAGS_x86=${CFLAGS_x86--m32}
 			export CHOST_x86=${CTARGET/x86_64/i686}
+			CHOST_x86=${CHOST_x86/%-gnux32/-gnu}
 			export CTARGET_x86=${CHOST_x86}
 			if [[ ${SYMLINK_LIB} == "yes" ]] ; then
 				export LIBDIR_x86="lib32"
@@ -295,17 +294,25 @@ multilib_env() {
 			fi
 
 			export CFLAGS_amd64=${CFLAGS_amd64--m64}
-			export CHOST_amd64=${CTARGET}
+			export CHOST_amd64=${CTARGET/%-gnux32/-gnu}
 			export CTARGET_amd64=${CHOST_amd64}
 			export LIBDIR_amd64="lib64"
 
 			export CFLAGS_x32=${CFLAGS_x32--mx32}
-			export CHOST_x32=${CTARGET}
+			export CHOST_x32=${CTARGET/%-gnu/-gnux32}
 			export CTARGET_x32=${CHOST_x32}
 			export LIBDIR_x32="libx32"
 
-			: ${MULTILIB_ABIS=amd64 x86}
-			: ${DEFAULT_ABI=amd64}
+			case ${CTARGET} in
+			*-gnux32)
+				: ${MULTILIB_ABIS=x32 amd64 x86}
+				: ${DEFAULT_ABI=x32}
+				;;
+			*)
+				: ${MULTILIB_ABIS=amd64 x86}
+				: ${DEFAULT_ABI=amd64}
+				;;
+			esac
 		;;
 		mips64*)
 			export CFLAGS_o32=${CFLAGS_o32--mabi=32}

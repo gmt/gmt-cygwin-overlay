@@ -33,8 +33,6 @@ elt_patch_dir() {
 	echo "${d}"
 }
 
-DESCRIPTION="Based on the ${ECLASS} eclass"
-
 inherit multilib toolchain-funcs
 
 #

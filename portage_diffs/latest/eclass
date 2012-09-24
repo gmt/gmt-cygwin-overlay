@@ -2,7 +2,7 @@
 ----[ "eclass/libtool.eclass" ]----->8----->
 --- PORTAGE/eclass/libtool.eclass
 +++ OVERLAY/eclass/libtool.eclass
-@@ -27,9 +27,14 @@
+@@ -27,6 +27,9 @@
  	if [[ ! -d ${d} ]] ; then
  		d="${ECLASSDIR_LOCAL}/ELT-patches"
  	fi
@@ -12,12 +12,7 @@
  	echo "${d}"
  }
  
-+DESCRIPTION="Based on the ${ECLASS} eclass"
-+
- inherit multilib toolchain-funcs
- 
- #
-@@ -83,10 +88,22 @@
+@@ -83,10 +86,22 @@
  	local file=$1
  	local patch_set=$2
  	local patch_dir="$(elt_patch_dir)/${patch_set}"
@@ -40,7 +35,7 @@
  
  	# Allow patches to use @GENTOO_LIBDIR@ replacements
  	local sed_args=( -e "s:@GENTOO_LIBDIR@:$(get_libdir):g" )
-@@ -96,7 +113,36 @@
+@@ -96,7 +111,36 @@
  		sed_args+=( -e "s|@REM_INT_DEP@|${rem_int_dep}|g" )
  	fi
  
@@ -78,7 +73,7 @@
  
  	# Go through the patches in reverse order (newer version to older)
  	for patch in $(find "${patch_set}" -maxdepth 1 -type f | LC_ALL=C sort -r) ; do
-@@ -110,6 +156,11 @@
+@@ -110,6 +154,11 @@
  	done
  
  	popd >/dev/null
@@ -90,7 +85,7 @@
  	return ${ret}
  }
  
-@@ -185,6 +236,7 @@
+@@ -185,6 +234,7 @@
  		*-hpux*)    elt_patches+=" hpux-conf deplibs hc-flag-ld hardcode hardcode-relink relink-prog no-lc" ;;
  		*-irix*)    elt_patches+=" irix-ltmain" ;;
  		*-mint*)    elt_patches+=" mint-conf" ;;
@@ -98,7 +93,7 @@
  	esac
  
  	if $(tc-getLD) --version 2>&1 | grep -qs 'GNU gold'; then
-@@ -360,6 +412,10 @@
+@@ -360,6 +410,10 @@
  						ret=$?
  					fi
  					;;
@@ -113,36 +108,7 @@
 ----[ "eclass/multilib.eclass" ]----->8----->
 --- PORTAGE/eclass/multilib.eclass
 +++ OVERLAY/eclass/multilib.eclass
-@@ -121,7 +121,7 @@
- # Return a list of the ABIs we want to install for with
- # the last one in the list being the default.
- get_install_abis() {
--	local x order=""
-+	local order=""
- 
- 	if [[ -z ${MULTILIB_ABIS} ]] ; then
- 		echo "default"
-@@ -162,7 +162,7 @@
- # Return a list of the ABIs supported by this profile.
- # the last one in the list being the default.
- get_all_abis() {
--	local x order="" mvar dvar
-+	local order="" mvar dvar
- 
- 	mvar="MULTILIB_ABIS"
- 	dvar="DEFAULT_ABI"
-@@ -193,7 +193,9 @@
- # those that might not be touched by the current ebuild and always includes
- # "lib".
- get_all_libdirs() {
--	local libdirs abi
-+	local libdirs
-+	local abi
-+	local dir
- 
- 	for abi in ${MULTILIB_ABIS}; do
- 		libdirs+=" $(get_abi_LIBDIR ${abi})"
-@@ -236,7 +238,7 @@
+@@ -236,7 +236,7 @@
  	local libname
  	local ver=$1
  	case ${CHOST} in
@@ -151,55 +117,10 @@
  		*-darwin*)                libname="dylib";;
  		*-mint*)                  libname="irrelevant";;
  		hppa*-hpux*)              libname="sl";;
-@@ -285,7 +287,6 @@
- 		x86_64*)
- 			export CFLAGS_x86=${CFLAGS_x86--m32}
- 			export CHOST_x86=${CTARGET/x86_64/i686}
--			CHOST_x86=${CHOST_x86/%-gnux32/-gnu}
- 			export CTARGET_x86=${CHOST_x86}
- 			if [[ ${SYMLINK_LIB} == "yes" ]] ; then
- 				export LIBDIR_x86="lib32"
-@@ -294,26 +295,18 @@
- 			fi
- 
- 			export CFLAGS_amd64=${CFLAGS_amd64--m64}
--			export CHOST_amd64=${CTARGET/%-gnux32/-gnu}
-+			export CHOST_amd64=${CTARGET}
- 			export CTARGET_amd64=${CHOST_amd64}
- 			export LIBDIR_amd64="lib64"
- 
- 			export CFLAGS_x32=${CFLAGS_x32--mx32}
--			export CHOST_x32=${CTARGET/%-gnu/-gnux32}
-+			export CHOST_x32=${CTARGET}
- 			export CTARGET_x32=${CHOST_x32}
- 			export LIBDIR_x32="libx32"
- 
--			case ${CTARGET} in
--			*-gnux32)
--				: ${MULTILIB_ABIS=x32 amd64 x86}
--				: ${DEFAULT_ABI=x32}
--				;;
--			*)
- 				: ${MULTILIB_ABIS=amd64 x86}
- 				: ${DEFAULT_ABI=amd64}
- 				;;
--			esac
--		;;
- 		mips64*)
- 			export CFLAGS_o32=${CFLAGS_o32--mabi=32}
- 			export CHOST_o32=${CTARGET/mips64/mips}
 <-----8<-----
 ----[ "eclass/multiprocessing.eclass" ]----->8----->
 --- PORTAGE/eclass/multiprocessing.eclass
 +++ OVERLAY/eclass/multiprocessing.eclass
-@@ -1,6 +1,6 @@
- # Copyright 1999-2012 Gentoo Foundation
- # Distributed under the terms of the GNU General Public License v2
--# $Header: $
-+# $Header: /var/cvsroot/gentoo-x86/eclass/multiprocessing.eclass,v 1.2 2012/07/30 14:52:18 vapier Exp $
- 
- # @ECLASS: multiprocessing.eclass
- # @MAINTAINER:
 @@ -55,6 +55,8 @@
  	echo ${jobs:-1}
  }
@@ -466,7 +387,7 @@
 +	# nb: on my cygwin (and maybe all non-multilib build-hosts?) it comes out as OUTPUT_FORMAT(pei-i386),
 +	# without quotes.  I changed the sed magic to permit this, while still doing the right thing (I actually
 +	# tested this!!!) for the quoted case. -gmt
-+	output_format=$( $(tc-getCC) ${CFLAGS} ${LDFLAGS} -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\?\([^"),]*\).*$/\1/p' )
++	output_format=$($(tc-getCC) ${CFLAGS} ${LDFLAGS} -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\?\([^"),]*\).*$/\1/p')
 +
  	[[ -n ${output_format} ]] && output_format="OUTPUT_FORMAT ( ${output_format} )"
  
@@ -693,7 +614,6 @@
 ===== mutual sub-directory: "eclass/ELT-patches" =====
 
 *** The following files appear only in the overlay ***
-overlay/eclass/bar: fifo (named pipe)
 overlay/eclass/prefix-gmt.eclass: ASCII text
 overlay/eclass/ELT-patches/cygwin-install-sh: directory
 overlay/eclass/ELT-patches/cygwin-ltmain: directory

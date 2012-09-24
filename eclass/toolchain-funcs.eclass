@@ -661,7 +661,7 @@ gen_usr_ldscript() {
 	# nb: on my cygwin (and maybe all non-multilib build-hosts?) it comes out as OUTPUT_FORMAT(pei-i386),
 	# without quotes.  I changed the sed magic to permit this, while still doing the right thing (I actually
 	# tested this!!!) for the quoted case. -gmt
-	output_format=$( $(tc-getCC) ${CFLAGS} ${LDFLAGS} -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\?\([^"),]*\).*$/\1/p' )
+	output_format=$($(tc-getCC) ${CFLAGS} ${LDFLAGS} -Wl,--verbose 2>&1 | sed -n 's/^OUTPUT_FORMAT("\?\([^"),]*\).*$/\1/p')
 
 	[[ -n ${output_format} ]] && output_format="OUTPUT_FORMAT ( ${output_format} )"
 
