@@ -52,26 +52,45 @@ writing (3/3/12).
 INSTALLATION (Getting started)
 ==============================
 
-That being stated, to get started with gentoo-prefix under cygwin, a good place
-to start is:
+You will need a reasonably complete cygwin installation -- the exact requirements,
+as far as which packages are needed, are unknown at this time.  For the time
+being, you will also need to build a custom patched cygwin1.dll.  To do so:
 
-  http://en.gentoo-wiki.com/wiki/Prefix/Cygwin
+o Check out cygwin from cvs according to the instructions here:
 
-Note that this is a different iteration on the gentoo-cygwin concept than the
-one you will find at:
+    http://cygwin.com/cvs.html
 
-  http://gentoocygwin.sourceforge.net/
+o apply the multiprocessing patch available here:
 
-If I'm not mistaken, the former is referring to a (modified) vanilla Gentoo
-Prefix bootstrap process, whereas the latter is a Gentoo (non-prefix) fork which
-died on the vine sometime in 2008.
+    http://cygwin.com/ml/cygwin/2012-10/txt00000.txt
 
-Cygwin has come a long way since either project has received any Cygwin-specific
-love and that is why this overlay exists as a Gentoo Prefix overly, instead of as
-a fork of the sourceforge project.  "Generalizing" this overlay to be compatible
-with both Gentoo Prefix and regular Gentoo would, in my opinion, be a very worthy
-endeavor with little downside.
+o Follow the instructions at
 
+    http://cygwin.com/faq/#faq.programming.building-cygwin
+
+  to configure, build, and install a new cygwin1.dll to the
+  prefix of your choosing (but not "/"!)
+
+o Shut down all cygwin processes and replace your cygwin1.dll with the new one
+
+This is required to work around a problem with fifos in cygwin which is triggered
+by both portage (the portage program itself) and the multiprocessing eclass,
+in both cases due to use of the bash duplex-redirection construct '<>'.
+
+It is actually pretty easy to fix this problem in portage/multiprocessing.eclass
+if it turns out that the problem is going to languish in cygwin.  Efforts are
+underway to get the underlying problem solved so for now I'm choosing to ignore
+the issue in Gentoo, pending some outcome of that process.
+
+Once all that is ready you can proceed with a bootstrap (or an attempt at one,
+see below for reasons that bootstrapping is unlikely to actually work at this
+time -- if you do attempt to bootstrap and encounter problems please let me
+know via email (gmt@be-evil.net is fine) so that I know and can address them
+(which is not (!!!) to say that I /will/ address your problem.  Lord knows,
+you are probably, statistically speaking, some kind of imbecile asshole, and
+I will just ignore you or even make fun of you.  But if you are reasonable,
+and willing to help out, then I will gladly take a look at your problem and
+we'll see what we can do about it).
 
 BOOTSTRAPPING
 =============
@@ -80,17 +99,15 @@ To bootstrap, you will, roughly, follow the recipe at:
 
   http://www.gentoo.org/proj/en/gentoo-alt/prefix/bootstrap-solaris.xml
 
-But please also do skim over:
-
-  http://en.gentoo-wiki.com/wiki/Prefix/Cygwin
-
-Which contains the more-nearly correct instructions for initial setup of your
-prefix.
-
 A word of warning: I've been hacking on this for a while.   My initial bootstrap
 efforts involved some very aggressive hacks; I have no idea, as of right now, what
 would be a working, straightforward bootstrap recipe.  Going forward, I plan to
 fix this somehow, either with explicit instructions or a script or both.
+
+In fact, the bootstrap process has been completely reengineered since I last tried
+it.  It WILL fail.  If not, it's a fucking miracle.  So by all means, go for it!
+Just be advised you are in for a rocky ride, as you will most likely literally be
+the first person, ever, to have tried it.
 
 SHOWSTOPPER LIMITATIONS YOU WANT TO KNOW ABOUT
 ==============================================
