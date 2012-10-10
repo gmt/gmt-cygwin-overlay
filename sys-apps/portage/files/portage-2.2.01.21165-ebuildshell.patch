@@ -1,0 +1,153 @@
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.21165.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.21165.orig/bin/ebuild.sh prefix-portage-2.2.01.21165/bin/ebuild.sh
+--- prefix-portage-2.2.01.21165.orig/bin/ebuild.sh	2012-10-08 15:46:45.320301629 -0700
++++ prefix-portage-2.2.01.21165/bin/ebuild.sh	2012-10-08 16:49:16.202392939 -0700
+@@ -86,7 +86,7 @@
+ __qa_call() {
+ 	local shopts=$(shopt) OLDIFS="$IFS"
+ 	local retval
+-	"$@"
++	call-ebuildshell "$@"
+ 	retval=$?
+ 	set +e
+ 	[[ $shopts != $(shopt) ]] &&
+@@ -473,6 +473,58 @@
+ 	unset BIN_PATH BIN BODY FUNC_SRC
+ fi
+ 
++call-ebuildshell() {
++	if ! has ebuildshell ${FEATURES}; then
++		"$@"
++		return $?
++	fi
++	(
++		umask 002
++		(
++			(
++				set
++				declare -p
++				declare -fp
++				shopt -p
++				if [[ ${BASH_VERSINFO[0]} == 3 ]]; then
++					export
++				fi
++			) | __filter_readonly_variables --filter-for-subshell
++			echo 'declare -r $PORTAGE_READONLY_METADATA $PORTAGE_READONLY_VARS'
++			echo "export PS1='EBUILD ${PN} $1 \$ '" 
++			echo 'unset ENV'
++			echo "type $1"
++			echo "echo WANTED: $@"
++			echo "trap '"
++			echo "umask 002"
++			echo "("
++			echo "	set"
++			echo "	declare -p"
++			echo "	declare -fp"
++			echo "	shopt -p | grep -v extdebug$"
++			if [[ ${BASH_VERSINFO[0]} == 3 ]]; then
++				echo "	export"
++			fi
++			echo -n ")"
++			echo -n " | __filter_readonly_variables --filter-metadata"
++			echo " > ${T}/ebuildshell-environment-outcome' 0"
++			echo "shopt -u extdebug"
++			echo "trap - DEBUG"
++		) > ${T}/ebuildshell-environment
++		chown ${PORTAGE_USER:-portage}:${PORTAGE_GROUP:-portage} "${T}/ebuildshell-environment" &>/dev/null
++		chmod g+w "${T}/ebuildshell-environment" &>/dev/null
++	)
++
++	rm -f "${T}/ebuildshell-environment-outcome" >&/dev/null
++
++	unset BASH_ENV
++	env -i ${BASH} --rcfile "${T}/ebuildshell-environment"  -i || die
++
++	chown ${PORTAGE_USER:-portage}:${PORTAGE_GROUP:-portage} "${T}/ebuildshell-environment-outcome" &>/dev/null
++	chmod g+w "${T}/ebuildshell-environment-outcome" &>/dev/null
++	source "${T}/ebuildshell-environment-outcome" &>/dev/null
++}
++
+ # Subshell/helper die support (must export for the die helper).
+ export EBUILD_MASTER_PID=$BASHPID
+ trap 'exit 1' SIGTERM
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.21165.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.21165.orig/bin/phase-functions.sh prefix-portage-2.2.01.21165/bin/phase-functions.sh
+--- prefix-portage-2.2.01.21165.orig/bin/phase-functions.sh	2012-10-08 15:46:45.320301629 -0700
++++ prefix-portage-2.2.01.21165/bin/phase-functions.sh	2012-10-08 16:35:16.207202403 -0700
+@@ -84,7 +84,7 @@
+ __filter_readonly_variables() {
+ 	local x filtered_vars
+ 	local readonly_bash_vars="BASHOPTS BASHPID DIRSTACK EUID
+-		FUNCNAME GROUPS PIPESTATUS PPID SHELLOPTS UID"
++		FUNCNAME GROUPS PIPESTATUS PPID SHELLOPTS UID BASH_VERSINFO"
+ 	local bash_misc_vars="BASH BASH_.* COLUMNS COMP_WORDBREAKS HISTCMD
+ 		HISTFILE HOSTNAME HOSTTYPE IFS LINENO MACHTYPE OLDPWD
+ 		OPTERR OPTIND OSTYPE POSIXLY_CORRECT PS4 PWD RANDOM
+@@ -95,12 +95,14 @@
+ 	# Untrusted due to possible application of package renames to binpkgs
+ 	local binpkg_untrusted_vars="CATEGORY P PF PN PR PV PVR"
+ 	local misc_garbage_vars="_portage_filter_opts"
+-	filtered_vars="$readonly_bash_vars $bash_misc_vars
+-		$PORTAGE_READONLY_VARS $misc_garbage_vars"
++	filtered_vars="$readonly_bash_vars"
++	if ! has --filter-for-subshell $* ; then
++		filtered_vars="$filtered_vars $bash_misc_vars $PORTAGE_READONLY_VARS $misc_garbage_vars"
++	fi
+ 
+ 	# Don't filter/interfere with prefix variables unless they are
+ 	# supported by the current EAPI.
+-	if ___eapi_has_prefix_variables; then
++	if ___eapi_has_prefix_variables && ! has --filter-for-subshell $* ; then
+ 		filtered_vars+=" ED EPREFIX EROOT"
+ 	fi
+ 
+@@ -120,7 +122,11 @@
+ 			LC_CTYPE LC_MESSAGES LC_MONETARY
+ 			LC_NUMERIC LC_PAPER LC_TIME"
+ 	fi
+-	if ! has --allow-extra-vars $* ; then
++	if has --filter-metadata $* ; then
++		filtered_vars="$filtered_vars $PORTAGE_READONLY_METADATA"
++	fi
++	if ! has --allow-extra-vars $* &&
++	   ! has --filter-for-subshell $* ; then
+ 		if [ "${EMERGE_FROM}" = binary ] ; then
+ 			# preserve additional variables from build time,
+ 			# while excluding untrusted variables
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.21165.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.21165.orig/man/make.conf.5 prefix-portage-2.2.01.21165/man/make.conf.5
+--- prefix-portage-2.2.01.21165.orig/man/make.conf.5	2012-10-08 15:46:45.321301743 -0700
++++ prefix-portage-2.2.01.21165/man/make.conf.5	2012-10-08 15:46:44.996264530 -0700
+@@ -313,6 +313,12 @@
+ Use locks to ensure that unsandboxed ebuild phases never execute
+ concurrently. Also see \fIparallel\-install\fR.
+ .TP
++.B ebuildshell
++Drop into an interactive shell for each phase function, meant for
++debugging.  Because the shell would normally be used to execute the
++phase function, commands like src_unpack or epatch are available in the
++interactive shell.  Use `exit 1` to terminate the merge.
++.TP
+ .B fakeroot
+ Enable fakeroot for the install and package phases when a non-root user runs
+ the \fBebuild\fR(1) command.
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.21165.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.21165.orig/pym/_emerge/AbstractEbuildProcess.py prefix-portage-2.2.01.21165/pym/_emerge/AbstractEbuildProcess.py
+--- prefix-portage-2.2.01.21165.orig/pym/_emerge/AbstractEbuildProcess.py	2012-10-08 15:46:45.322301858 -0700
++++ prefix-portage-2.2.01.21165/pym/_emerge/AbstractEbuildProcess.py	2012-10-08 15:46:44.996264530 -0700
+@@ -97,6 +97,7 @@
+ 			self.fd_pipes = {}
+ 		null_fd = None
+ 		if 0 not in self.fd_pipes and \
++			"ebuildshell" not in self.settings.features and \
+ 			self.phase not in self._phases_interactive_whitelist and \
+ 			"interactive" not in self.settings.get("PROPERTIES", "").split():
+ 			null_fd = os.open('/dev/null', os.O_RDONLY)
+diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-portage-2.2.01.21165.orig -x '*.swp' -x .gitignore prefix-portage-2.2.01.21165.orig/pym/portage/const.py prefix-portage-2.2.01.21165/pym/portage/const.py
+--- prefix-portage-2.2.01.21165.orig/pym/portage/const.py	2012-10-08 15:46:45.322301858 -0700
++++ prefix-portage-2.2.01.21165/pym/portage/const.py	2012-10-08 15:46:44.997264645 -0700
+@@ -131,7 +131,7 @@
+                            "collision-protect", "compress-build-logs", "compressdebug",
+                            "compress-index", "config-protect-if-modified",
+                            "digest", "distcc", "distcc-pump", "distlocks",
+-                           "downgrade-backup", "ebuild-locks", "fakeroot",
++                           "downgrade-backup", "ebuildshell", "ebuild-locks", "fakeroot",
+                            "fail-clean", "force-mirror", "force-prefix", "getbinpkg",
+                            "installsources", "keeptemp", "keepwork", "fixlafiles", "lmirror",
+                            "metadata-transfer", "mirror", "multilib-strict", "news",

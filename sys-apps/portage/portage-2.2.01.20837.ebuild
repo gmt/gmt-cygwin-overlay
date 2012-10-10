@@ -171,7 +171,7 @@ src_prepare() {
 	epatch "${FILESDIR}"/portageq_eroot_sanity.patch #433475
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
-		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-locking-nightmare.patch
+		epatch "${FILESDIR}"/${PN}-2.2.01.20837-cygwin-locking-fix.patch
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cyg_whitelist.patch
 		epatch "${FILESDIR}"/${PN}-2.2.01.20389-cygwin-dosym-exe-hack.patch
 		epatch "${FILESDIR}"/${PN}-2.2.01.20271-cygwin-unc-prevention.patch

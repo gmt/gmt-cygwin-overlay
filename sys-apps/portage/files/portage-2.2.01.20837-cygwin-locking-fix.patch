@@ -1,0 +1,40 @@
+commit b1d61b60673118b7b4c06e2e9facea4baf4f6d58
+Author: Gregory M. Turner <gmturner007@ameritech.net>
+Date:   Wed Oct 10 02:13:02 2012 -0700
+
+    dbapi: avoid employing locking semantics that break cygwin
+    
+    This has been in my overlay as a patch for ages (for a long
+    time, I'd forgotten it even existed).
+    
+    It uses the wantnewlockfile feature of
+    portage.locks.lockfile() to avoid triggering a Win32
+    file-removal limitation that would otherwise cause portage
+    to deadlock itself.
+    
+    Signed-off-by: Gregory M. Turner <gmturner007@ameritech.net>
+
+diff --git a/pym/portage/dbapi/vartree.py b/pym/portage/dbapi/vartree.py
+index dc97491..b42e96f 100644
+--- a/pym/portage/dbapi/vartree.py
++++ b/pym/portage/dbapi/vartree.py
+@@ -253,10 +253,17 @@ class vardbapi(dbapi):
+ 			if self._fs_lock_obj is not None:
+ 				raise AssertionError("already locked")
+ 			try:
+-				self._fs_lock_obj = lockfile(self._conf_mem_file)
++				# cygwin cannot handle deleting a file (which we do as
++				# part of our "atomic replace") while additional handles
++				# refer to it.  Here we rely on the wantnewlockfile feature
++				# to avoid creating handles onto the file itself while
++				# retaining correct locking semantics.
++				self._fs_lock_obj = lockfile(self._conf_mem_file,
++					wantnewlockfile=(sys.platform == 'cygwin'))
+ 			except InvalidLocation:
+ 				self.settings._init_dirs()
+-				self._fs_lock_obj = lockfile(self._conf_mem_file)
++				self._fs_lock_obj = lockfile(self._conf_mem_file,
++					wantnewlockfile=(sys.platform == 'cygwin'))
+ 		self._fs_lock_count += 1
+ 
+ 	def _fs_unlock(self):

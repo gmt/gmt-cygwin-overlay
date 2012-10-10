@@ -23,6 +23,7 @@
 =app-shells/bash-4.2_p10
 =app-shells/bash-4.2_p36
 =dev-lang/perl-5.12.4-r2
+=dev-lang/python-2.7.3-r2
 =dev-libs/glib-2.32.4
 =dev-libs/gmp-5.0.2_p1
 =dev-libs/gmp-5.0.5
@@ -33,6 +34,10 @@
 =sys-apps/coreutils-8.14
 =sys-apps/coreutils-8.15
 =sys-apps/coreutils-8.17
+=sys-apps/portage-2.2.01.20389
+=sys-apps/portage-2.2.01.20796
+=sys-apps/portage-2.2.01.20837
+=sys-apps/portage-2.2.01.21165
 =sys-devel/autoconf-2.13
 =sys-devel/autoconf-2.59-r7
 =sys-devel/autoconf-2.61-r2
@@ -57,6 +62,7 @@
 =sys-devel/binutils-config-3-r3
 =sys-devel/gcc-4.5.3-r1
 =sys-devel/gcc-4.5.3-r2
+=sys-devel/gcc-4.5.4
 =sys-devel/gcc-config-1.4.1-r00.2
 =sys-devel/gcc-config-1.5-r2
 =sys-devel/gettext-0.18.1.1-r2
