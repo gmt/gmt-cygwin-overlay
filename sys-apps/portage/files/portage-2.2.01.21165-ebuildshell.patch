@@ -6,7 +6,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	local shopts=$(shopt) OLDIFS="$IFS"
  	local retval
 -	"$@"
-+	call-ebuildshell "$@"
++	__call-ebuildshell "$@"
  	retval=$?
  	set +e
  	[[ $shopts != $(shopt) ]] &&
@@ -14,7 +14,7 @@ diff -u -rN -x autom4te.cache -x config.log -x config.status -x tags -x prefix-p
  	unset BIN_PATH BIN BODY FUNC_SRC
  fi
  
-+call-ebuildshell() {
++__call-ebuildshell() {
 +	if ! has ebuildshell ${FEATURES}; then
 +		"$@"
 +		return $?
