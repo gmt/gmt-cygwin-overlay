@@ -1,0 +1,39 @@
+http://bugs.python.org/issue14635
+
+diff -urN Python-2.7.3.orig/Python/pystate.c Python-2.7.3/Python/pystate.c
+--- Python-2.7.3.orig/Python/pystate.c	2012-10-06 02:39:07.715033100 -0700
++++ Python-2.7.3/Python/pystate.c	2012-10-06 02:40:06.248885900 -0700
+@@ -22,6 +22,9 @@
+ #endif
+ #endif
+ 
++#ifdef __cplusplus
++extern "C" {
++#endif
+ 
+ #ifdef WITH_THREAD
+ #include "pythread.h"
+@@ -30,10 +33,6 @@
+ #define HEAD_LOCK() PyThread_acquire_lock(head_mutex, WAIT_LOCK)
+ #define HEAD_UNLOCK() PyThread_release_lock(head_mutex)
+ 
+-#ifdef __cplusplus
+-extern "C" {
+-#endif
+-
+ /* The single PyInterpreterState used by this process'
+    GILState implementation
+ */
+@@ -654,10 +653,10 @@
+         PyEval_SaveThread();
+ }
+ 
++#endif /* WITH_THREAD */
++
+ #ifdef __cplusplus
+ }
+ #endif
+ 
+-#endif /* WITH_THREAD */
+-
+ 

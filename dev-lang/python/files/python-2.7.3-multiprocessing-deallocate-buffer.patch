@@ -1,0 +1,58 @@
+# HG changeset patch
+# User Richard Oudkerk <shibturn@gmail.com>
+# Date 1339423895 -3600
+# Branch 2.7
+# Node ID 60a7b704de5c05b97528aa367f7339bdf499a86e
+# Parent  272e7dcffd30a918ebc2ede8142224bd901fee58
+Issue #10133: Make multiprocessing deallocate buffer if socket read fails.
+
+Patch by Hallvard B Furuseth.
+
+diff -r 272e7dcffd30 -r 60a7b704de5c Modules/_multiprocessing/socket_connection.c
+--- a/Modules/_multiprocessing/socket_connection.c	Sat Jun 09 17:27:23 2012 -0700
++++ b/Modules/_multiprocessing/socket_connection.c	Mon Jun 11 15:11:35 2012 +0100
+@@ -117,7 +117,7 @@
+ conn_recv_string(ConnectionObject *conn, char *buffer,
+                  size_t buflength, char **newbuffer, size_t maxlength)
+ {
+-    int res;
++    Py_ssize_t res;
+     UINT32 ulength;
+ 
+     *newbuffer = NULL;
+@@ -132,20 +132,23 @@
+     if (ulength > maxlength)
+         return MP_BAD_MESSAGE_LENGTH;
+ 
+-    if (ulength <= buflength) {
+-        Py_BEGIN_ALLOW_THREADS
+-        res = _conn_recvall(conn->handle, buffer, (size_t)ulength);
+-        Py_END_ALLOW_THREADS
+-        return res < 0 ? res : ulength;
+-    } else {
+-        *newbuffer = PyMem_Malloc((size_t)ulength);
+-        if (*newbuffer == NULL)
++    if (ulength > buflength) {
++        *newbuffer = buffer = PyMem_Malloc((size_t)ulength);
++        if (buffer == NULL)
+             return MP_MEMORY_ERROR;
+-        Py_BEGIN_ALLOW_THREADS
+-        res = _conn_recvall(conn->handle, *newbuffer, (size_t)ulength);
+-        Py_END_ALLOW_THREADS
+-        return res < 0 ? (Py_ssize_t)res : (Py_ssize_t)ulength;
+     }
++
++    Py_BEGIN_ALLOW_THREADS
++    res = _conn_recvall(conn->handle, buffer, (size_t)ulength);
++    Py_END_ALLOW_THREADS
++
++    if (res >= 0) {
++        res = (Py_ssize_t)ulength;
++    } else if (*newbuffer != NULL) {
++        PyMem_Free(*newbuffer);
++        *newbuffer = NULL;
++    }
++    return res;
+ }
+ 
+ /*

@@ -1,0 +1,20 @@
+# HG changeset patch
+# User Benjamin Peterson <benjamin@python.org>
+# Date 1336085049 14400
+# Branch 2.7
+# Node ID b2031eb95dd9d986382050003567fa5ab9b1f809
+# Parent  8aab13719c02633ecb1f17374ac45645b5a3c870
+close() doesn't take any args (closes #14717)
+
+diff -r 8aab13719c02 -r b2031eb95dd9 Objects/genobject.c
+--- a/Objects/genobject.c	Thu May 03 19:21:40 2012 +0300
++++ b/Objects/genobject.c	Thu May 03 18:44:09 2012 -0400
+@@ -120,7 +120,7 @@
+ }
+ 
+ PyDoc_STRVAR(close_doc,
+-"close(arg) -> raise GeneratorExit inside generator.");
++"close() -> raise GeneratorExit inside generator.");
+ 
+ static PyObject *
+ gen_close(PyGenObject *gen, PyObject *args)

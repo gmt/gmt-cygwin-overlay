@@ -1,0 +1,21 @@
+(patch lifted from python3 cygport)
+
+Enabling SSL support causes all threading operations to dump core, as
+can be seen from many tests (starting with test_asynchat).
+
+Cause is yet unknown, but this appears to be a workaround.
+
+diff -urN Python-2.7.2.orig/Modules/_ssl.c Python-2.7.2/Modules/_ssl.c
+--- Python-2.7.2.orig/Modules/_ssl.c	2011-06-11 08:46:27.000000000 -0700
++++ Python-2.7.2/Modules/_ssl.c	2012-10-04 18:50:25.050440800 -0700
+@@ -16,6 +16,10 @@
+ 
+ #include "Python.h"
+ 
++#ifdef __CYGWIN__
++#undef WITH_THREAD
++#endif
++
+ #ifdef WITH_THREAD
+ #include "pythread.h"
+ #define PySSL_BEGIN_ALLOW_THREADS { \

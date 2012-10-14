@@ -1,0 +1,34 @@
+diff -urN Python-2.7.3.orig/setup.py Python-2.7.3/setup.py
+--- Python-2.7.3.orig/setup.py	2012-10-06 05:50:31.003687600 -0700
++++ Python-2.7.3/setup.py	2012-10-06 05:55:43.982687600 -0700
+@@ -1107,7 +1107,29 @@
+         # Curses support, requiring the System V version of curses, often
+         # provided by the ncurses library.
+         panel_library = 'panel'
+-        if curses_library.startswith('ncurses'):
++        if self.get_platform() == 'cygwin':
++		curses_library_prefix = '@GENTOO_PORTAGE_EPREFIX@/usr/lib/lib'
++		if curses_library.startswith(curses_library_prefix + 'ncurses'):
++			if curses_library.startswith(curses_library_prefix + 'ncursesw'):
++				# Bug 1464056: If _curses.so links with ncursesw,
++				# _curses_panel.so must link with panelw.
++				panel_library = 'panelw'
++				curses_library = 'ncursesw'
++			else:
++				curses_library = 'ncurses'
++			curses_libs = [curses_library]
++			exts.append( Extension('_curses', ['_cursesmodule.c'],
++					libraries = curses_libs) )
++		elif curses_library.startswith('ncurses'):
++			if curses_library.startswith('ncursesw'):
++				panel_library = 'panelw'
++
++			curses_libs = [curses_library]
++			exts.append( Extension('_curses', ['_cursesmodule.c'],
++					libraries = curses_libs) )
++		else:
++			missing.append('_curses')
++        elif curses_library.startswith('ncurses'):
+             if curses_library == 'ncursesw':
+                 # Bug 1464056: If _curses.so links with ncursesw,
+                 # _curses_panel.so must link with panelw.

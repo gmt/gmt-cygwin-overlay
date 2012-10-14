@@ -1,0 +1,117 @@
+diff -urN Python-2.7.3.orig/Lib/bdb.py Python-2.7.3/Lib/bdb.py
+--- Python-2.7.3.orig/Lib/bdb.py	2012-04-09 16:07:29.000000000 -0700
++++ Python-2.7.3/Lib/bdb.py	2012-10-06 02:58:14.397689900 -0700
+@@ -24,6 +24,7 @@
+         self.skip = set(skip) if skip else None
+         self.breaks = {}
+         self.fncache = {}
++        self.frame_returning = None
+ 
+     def canonic(self, filename):
+         if filename == "<" + filename[1:-1] + ">":
+@@ -82,7 +83,9 @@
+ 
+     def dispatch_return(self, frame, arg):
+         if self.stop_here(frame) or frame == self.returnframe:
++            self.frame_returning = frame
+             self.user_return(frame, arg)
++            self.frame_returning = None
+             if self.quitting: raise BdbQuit
+         return self.trace_dispatch
+ 
+@@ -186,6 +189,14 @@
+ 
+     def set_step(self):
+         """Stop after one line of code."""
++        # Issue #13183: pdb skips frames after hitting a breakpoint and running
++        # step commands.
++        # Restore the trace function in the caller (that may not have been set
++        # for performance reasons) when returning from the current frame.
++        if self.frame_returning:
++            caller_frame = self.frame_returning.f_back
++            if caller_frame and not caller_frame.f_trace:
++                caller_frame.f_trace = self.trace_dispatch
+         self._set_stopinfo(None, None)
+ 
+     def set_next(self, frame):
+diff -urN Python-2.7.3.orig/Lib/test/test_pdb.py Python-2.7.3/Lib/test/test_pdb.py
+--- Python-2.7.3.orig/Lib/test/test_pdb.py	2012-04-09 16:07:32.000000000 -0700
++++ Python-2.7.3/Lib/test/test_pdb.py	2012-10-06 02:58:14.406690800 -0700
+@@ -6,12 +6,66 @@
+ import os
+ import unittest
+ import subprocess
++import textwrap
+ 
+ from test import test_support
+ # This little helper class is essential for testing pdb under doctest.
+ from test_doctest import _FakeInput
+ 
+ 
++class PdbTestCase(unittest.TestCase):
++
++    def run_pdb(self, script, commands):
++        """Run 'script' lines with pdb and the pdb 'commands'."""
++        filename = 'main.py'
++        with open(filename, 'w') as f:
++            f.write(textwrap.dedent(script))
++        cmd = [sys.executable, '-m', 'pdb', filename]
++        stdout = stderr = None
++        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
++                                   stdin=subprocess.PIPE,
++                                   stderr=subprocess.STDOUT,
++                                   )
++        stdout, stderr = proc.communicate(commands)
++        proc.stdout.close()
++        proc.stdin.close()
++        return stdout, stderr
++
++    def test_issue13183(self):
++        script = """
++            from bar import bar
++
++            def foo():
++                bar()
++
++            def nope():
++                pass
++
++            def foobar():
++                foo()
++                nope()
++
++            foobar()
++        """
++        commands = """
++            from bar import bar
++            break bar
++            continue
++            step
++            step
++            quit
++        """
++        bar = """
++            def bar():
++                print('1')
++        """
++        with open('bar.py', 'w') as f:
++            f.write(textwrap.dedent(bar))
++        stdout, stderr = self.run_pdb(script, commands)
++        self.assertIn('main.py(5)foo()->None', stdout.split('\n')[-3],
++                         'Fail to step into the caller after a return')
++
++
+ class PdbTestInput(object):
+     """Context manager that makes testing Pdb in doctests easier."""
+ 
+@@ -309,7 +363,9 @@
+ def test_main():
+     from test import test_pdb
+     test_support.run_doctest(test_pdb, verbosity=True)
+-    test_support.run_unittest(ModuleInitTester)
++    test_support.run_unittest(
++        PdbTestCase,
++        ModuleInitTester)
+ 
+ if __name__ == '__main__':
+     test_main()

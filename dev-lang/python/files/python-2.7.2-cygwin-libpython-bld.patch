@@ -1,0 +1,11 @@
+diff -urN Python-2.7.2.orig/configure.in Python-2.7.2/configure.in
+--- Python-2.7.2.orig/configure.in	2012-10-04 19:35:03.473953600 -0700
++++ Python-2.7.2/configure.in	2012-10-04 19:46:55.534337200 -0700
+@@ -771,6 +771,7 @@
+           ;;
+     CYGWIN*)
+           LDLIBRARY='libpython$(VERSION).dll.a'
++          BLDLIBRARY='-L. -lpython$(VERSION)'
+           DLLLIBRARY='libpython$(VERSION).dll'
+           ;;
+     SunOS*)

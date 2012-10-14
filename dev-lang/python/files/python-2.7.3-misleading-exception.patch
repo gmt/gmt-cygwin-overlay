@@ -1,0 +1,119 @@
+# HG changeset patch
+# User Meador Inge <meadori@gmail.com>
+# Date 1338231179 18000
+# Branch 2.7
+# Node ID 8a65eceea56ccbcabc81abef3317e41c242f286f
+# Parent  938b12452af718faa31dc7f19ab96232be28cd63
+Issue #9041: raised exception is misleading
+
+An issue in ctypes.c_longdouble, ctypes.c_double, and ctypes.c_float that
+caused an incorrect exception to be returned in the case of overflow has been
+fixed.
+
+diff -r 938b12452af7 -r 8a65eceea56c Lib/ctypes/test/test_numbers.py
+--- a/Lib/ctypes/test/test_numbers.py	Sun May 27 21:28:42 2012 -0400
++++ b/Lib/ctypes/test/test_numbers.py	Mon May 28 13:52:59 2012 -0500
+@@ -216,6 +216,16 @@
+         # probably be changed:
+         self.assertRaises(TypeError, c_int, c_long(42))
+ 
++    def test_float_overflow(self):
++        import sys
++        big_int = int(sys.float_info.max) * 2
++        for t in float_types + [c_longdouble]:
++            self.assertRaises(OverflowError, t, big_int)
++            if (hasattr(t, "__ctype_be__")):
++                self.assertRaises(OverflowError, t.__ctype_be__, big_int)
++            if (hasattr(t, "__ctype_le__")):
++                self.assertRaises(OverflowError, t.__ctype_le__, big_int)
++
+ ##    def test_perf(self):
+ ##        check_perf()
+ 
+diff -r 938b12452af7 -r 8a65eceea56c Misc/NEWS
+--- a/Misc/NEWS	Sun May 27 21:28:42 2012 -0400
++++ b/Misc/NEWS	Mon May 28 13:52:59 2012 -0500
+@@ -708,6 +708,10 @@
+ Extension Modules
+ -----------------
+ 
++- Issue #9041: An issue in ctypes.c_longdouble, ctypes.c_double, and
++  ctypes.c_float that caused an incorrect exception to be returned in the
++  case of overflow has been fixed.
++
+ - bsddb module: Erratic behaviour of "DBEnv->rep_elect()" because a typo.
+   Possible crash.
+ 
+diff -r 938b12452af7 -r 8a65eceea56c Modules/_ctypes/cfield.c
+--- a/Modules/_ctypes/cfield.c	Sun May 27 21:28:42 2012 -0400
++++ b/Modules/_ctypes/cfield.c	Mon May 28 13:52:59 2012 -0500
+@@ -1003,12 +1003,8 @@
+     long double x;
+ 
+     x = PyFloat_AsDouble(value);
+-    if (x == -1 && PyErr_Occurred()) {
+-        PyErr_Format(PyExc_TypeError,
+-                     " float expected instead of %s instance",
+-                     value->ob_type->tp_name);
++    if (x == -1 && PyErr_Occurred())
+         return NULL;
+-    }
+     memcpy(ptr, &x, sizeof(long double));
+     _RET(value);
+ }
+@@ -1027,12 +1023,8 @@
+     double x;
+ 
+     x = PyFloat_AsDouble(value);
+-    if (x == -1 && PyErr_Occurred()) {
+-        PyErr_Format(PyExc_TypeError,
+-                     " float expected instead of %s instance",
+-                     value->ob_type->tp_name);
++    if (x == -1 && PyErr_Occurred())
+         return NULL;
+-    }
+     memcpy(ptr, &x, sizeof(double));
+     _RET(value);
+ }
+@@ -1051,12 +1043,8 @@
+     double x;
+ 
+     x = PyFloat_AsDouble(value);
+-    if (x == -1 && PyErr_Occurred()) {
+-        PyErr_Format(PyExc_TypeError,
+-                     " float expected instead of %s instance",
+-                     value->ob_type->tp_name);
++    if (x == -1 && PyErr_Occurred())
+         return NULL;
+-    }
+ #ifdef WORDS_BIGENDIAN
+     if (_PyFloat_Pack8(x, (unsigned char *)ptr, 1))
+         return NULL;
+@@ -1083,12 +1071,8 @@
+     float x;
+ 
+     x = (float)PyFloat_AsDouble(value);
+-    if (x == -1 && PyErr_Occurred()) {
+-        PyErr_Format(PyExc_TypeError,
+-                     " float expected instead of %s instance",
+-                     value->ob_type->tp_name);
++    if (x == -1 && PyErr_Occurred())
+         return NULL;
+-    }
+     memcpy(ptr, &x, sizeof(x));
+     _RET(value);
+ }
+@@ -1107,12 +1091,8 @@
+     float x;
+ 
+     x = (float)PyFloat_AsDouble(value);
+-    if (x == -1 && PyErr_Occurred()) {
+-        PyErr_Format(PyExc_TypeError,
+-                     " float expected instead of %s instance",
+-                     value->ob_type->tp_name);
++    if (x == -1 && PyErr_Occurred())
+         return NULL;
+-    }
+ #ifdef WORDS_BIGENDIAN
+     if (_PyFloat_Pack4(x, (unsigned char *)ptr, 1))
+         return NULL;

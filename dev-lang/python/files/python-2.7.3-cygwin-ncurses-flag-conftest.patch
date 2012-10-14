@@ -1,0 +1,14 @@
+--- a/configure.in	2012-10-06 04:59:47.470687600 -0700
++++ b/configure.in	2012-10-06 05:01:31.241687600 -0700
+@@ -4159,7 +4159,10 @@
+ 
+ AC_MSG_CHECKING(whether WINDOW has _flags)
+ AC_CACHE_VAL(ac_cv_window_has_flags,
+-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <curses.h>]], [[
++AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#ifdef __CYGWIN__
++#define NCURSES_INTERNALS
++#endif
++#include <curses.h>]], [[
+   WINDOW *w;
+   w->_flags = 0;
+ ]])],

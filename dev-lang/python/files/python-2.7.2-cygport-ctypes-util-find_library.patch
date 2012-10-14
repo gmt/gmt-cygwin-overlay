@@ -1,0 +1,40 @@
+diff -urN Python-2.7.2.orig/Lib/ctypes/util.py Python-2.7.2/Lib/ctypes/util.py
+--- Python-2.7.2.orig/Lib/ctypes/util.py	2011-06-11 08:46:24.000000000 -0700
++++ Python-2.7.2/Lib/ctypes/util.py	2012-10-04 19:05:50.440440800 -0700
+@@ -84,6 +84,25 @@
+                 continue
+         return None
+ 
++elif sys.platform == "cygwin":
++    def find_library(name):
++        for libdir in ['@GENTOO_PORTAGE_EPREFIX@/usr/lib', '/usr/lib']:
++            for libext in ['lib%s.dll.a' % name, 'lib%s.a' % name]:
++                implib = os.path.join(libdir, libext)
++                if not os.path.exists(implib):
++                    continue
++                cmd = "dlltool -I " + implib + " 2>/dev/null"
++                f = os.popen(cmd)
++                try:
++                    data = f.read()
++                finally:
++                    f.close()
++                res = data.replace("\n", "")
++                if not res:
++                    continue
++                return res
++        return None
++
+ elif os.name == "posix":
+     # Andreas Degert's find functions, using gcc, /sbin/ldconfig, objdump
+     import re, tempfile, errno
+@@ -261,6 +280,10 @@
+             print cdll.LoadLibrary("libcrypto.dylib")
+             print cdll.LoadLibrary("libSystem.dylib")
+             print cdll.LoadLibrary("System.framework/System")
++        elif sys.platform == "cygwin":
++            print cdll.LoadLibrary("cygbz2-1.dll")
++            print find_library("crypt")
++            print cdll.LoadLibrary("cygcrypt-0.dll")
+         else:
+             print cdll.LoadLibrary("libm.so")
+             print cdll.LoadLibrary("libcrypt.so")

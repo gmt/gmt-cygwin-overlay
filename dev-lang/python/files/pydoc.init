@@ -1,7 +1,7 @@
 #!/sbin/runscript
 # Copyright 1999-2011 Gentoo Technologies, Inc.
 # Distributed under the terms of the GNU General Public Licence v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/files/pydoc.init,v 1.4 2011/10/27 13:56:55 neurogeek Exp $
+# $Header: $
 
 depend() {
 	need net
@@ -30,7 +30,7 @@ stop() {
 #!/sbin/runscript
 # Copyright 1999-2008 Gentoo Technologies, Inc.
 # Distributed under the terms of the GNU General Public Licence v2
-# $Header:
+# $Header: $
 
 depend() {
 	need net

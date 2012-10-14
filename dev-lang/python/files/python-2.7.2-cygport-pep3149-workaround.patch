@@ -1,0 +1,21 @@
+diff -urN Python-2.7.2.orig/setup.py Python-2.7.2/setup.py
+--- Python-2.7.2.orig/setup.py	2012-10-05 09:22:57.341656700 -0700
++++ Python-2.7.2/setup.py	2012-10-05 10:00:04.415656700 -0700
+@@ -162,7 +162,16 @@
+     def build_extensions(self):
+ 
+         # Detect which modules should be compiled
+-        missing = self.detect_modules()
++        old_so = self.compiler.shared_lib_extension
++        # Workaround PEP 3149 stuff
++        if self.get_platform() == 'cygwin':
++            self.compiler.shared_lib_extension = ".dll.a"
++        else:
++            self.compiler.shared_lib_extension = os.environ.get("SO", ".so")
++        try:
++            missing = self.detect_modules()
++        finally:
++            self.compiler.shared_lib_extension = old_so
+ 
+         # Remove modules that are present on the disabled list
+         extensions = [ext for ext in self.extensions

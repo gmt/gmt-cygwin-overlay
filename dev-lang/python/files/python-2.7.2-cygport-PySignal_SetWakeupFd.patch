@@ -1,0 +1,15 @@
+diff -urN Python-2.7.2.orig/Include/pyerrors.h Python-2.7.2/Include/pyerrors.h
+--- Python-2.7.2.orig/Include/pyerrors.h	2011-06-11 08:46:23.000000000 -0700
++++ Python-2.7.2/Include/pyerrors.h	2012-10-04 20:08:25.265231800 -0700
+@@ -231,7 +231,11 @@
+ PyAPI_FUNC(void) PyErr_SetInterrupt(void);
+ 
+ /* In signalmodule.c */
++#ifdef  __CYGWIN__
++PyAPI_FUNC(int) PySignal_SetWakeupFd(int fd);
++#else
+ int PySignal_SetWakeupFd(int fd);
++#endif
+ 
+ /* Support for adding program text to SyntaxErrors */
+ PyAPI_FUNC(void) PyErr_SyntaxLocation(const char *, int);

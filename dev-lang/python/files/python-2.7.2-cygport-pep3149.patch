@@ -1,0 +1,48 @@
+Binary files Python-2.7.2.orig/.configure.in.swp and Python-2.7.2/.configure.in.swp differ
+diff -urN Python-2.7.2.orig/Makefile.pre.in Python-2.7.2/Makefile.pre.in
+--- Python-2.7.2.orig/Makefile.pre.in	2012-10-04 20:10:48.433859800 -0700
++++ Python-2.7.2/Makefile.pre.in	2012-10-04 20:16:44.079974800 -0700
+@@ -824,12 +824,11 @@
+ 	fi
+ 	@if test -f $(LIBRARY) && test $(LIBRARY) != $(LDLIBRARY); then \
+ 		if test "$(PYTHONFRAMEWORKDIR)" = no-framework; then \
+-			if test "$(SO)" = .dll; then \
+-				$(INSTALL_DATA) $(LDLIBRARY) $(DESTDIR)$(LIBDIR); \
+-			else \
+-				$(INSTALL_DATA) $(LIBRARY) $(DESTDIR)$(LIBDIR); \
+-				$(RANLIB) $(DESTDIR)$(LIBDIR)/$(LIBRARY); \
+-			fi; \
++			case "$(SO)" in \
++			*dll)	$(INSTALL_DATA) $(LDLIBRARY) $(DESTDIR)$(LIBDIR) ;; \
++			*)	$(INSTALL_DATA) $(LIBRARY) $(DESTDIR)$(LIBDIR); \
++				$(RANLIB) $(DESTDIR)$(LIBDIR)/$(LIBRARY) ;; \
++			esac; \
+ 		else \
+ 			echo "Skipped install of $(LIBRARY) - use make frameworkinstall"; \
+ 		fi; \
+diff -urN Python-2.7.2.orig/Python/dynload_shlib.c Python-2.7.2/Python/dynload_shlib.c
+--- Python-2.7.2.orig/Python/dynload_shlib.c	2012-10-04 20:10:43.031779600 -0700
++++ Python-2.7.2/Python/dynload_shlib.c	2012-10-04 20:17:45.471250600 -0700
+@@ -33,6 +33,10 @@
+ 
+ const struct filedescr _PyImport_DynLoadFiletab[] = {
+ #ifdef __CYGWIN__
++    {"." SOABI ".dll", "rb", C_EXTENSION},
++    {"module." SOABI ".dll", "rb", C_EXTENSION},
++    {".abi" PYTHON_ABI_STRING ".dll", "rb", C_EXTENSION},
++    {"module.abi" PYTHON_ABI_STRING ".dll", "rb", C_EXTENSION},
+     {".dll", "rb", C_EXTENSION},
+     {"module.dll", "rb", C_EXTENSION},
+ #else
+diff -urN Python-2.7.2.orig/configure.in Python-2.7.2/configure.in
+--- Python-2.7.2.orig/configure.in	2012-10-04 20:10:45.117196600 -0700
++++ Python-2.7.2/configure.in	2012-10-04 20:14:04.674100000 -0700
+@@ -1766,7 +1766,7 @@
+ 	  		*)    SO=.sl;;
+ 		esac
+ 		;;
+-	CYGWIN*)   SO=.dll;;
++	CYGWIN*)   SO=.${SOABI}.dll;;
+ 	Darwin*)   SO=.bundle;;
+ 	*)	   SO=.so;;
+ 	esac

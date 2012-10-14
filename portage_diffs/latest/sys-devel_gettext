@@ -94,7 +94,7 @@
  
  DESCRIPTION="GNU locale utilities"
  HOMEPAGE="http://www.gnu.org/software/gettext/"
-@@ -50,6 +50,57 @@
+@@ -50,6 +50,56 @@
  
  	epunt_cxx
  	elibtoolize
@@ -118,9 +118,8 @@
 +		(
 +			multijob_child_init
 +			eautoreconf
-+		) & multijob_post_fork
-+		(
-+			multijob_child_init
++			# These two can't run in parallel due to a race-condition caused by
++			# libtoolize's brief removal of libtool script files in build-aux
 +			cd "${S}"/gettext-runtime || die
 +			eautoreconf
 +		) & multijob_post_fork
@@ -141,7 +140,7 @@
 +		) & multijob_post_fork
 +
 +		multijob_finish || die
-+
++		
 +		ebegin "Touching generated files (avoid maintainer-mode)"
 +		for f in gettext-runtime/{,libasprintf/}config.h.in ; do
 +			einfo "  ${f}"
@@ -152,7 +151,7 @@
  	epatch "${FILESDIR}"/${P}-uclibc-sched_param-def.patch
  	epatch "${FILESDIR}"/${P}-no-gets.patch
  }
-@@ -64,6 +115,12 @@
+@@ -64,6 +114,12 @@
  	fi
  	use cxx || export CXX=$(tc-getCC)
  

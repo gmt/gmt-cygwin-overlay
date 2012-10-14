@@ -1,0 +1,20 @@
+diff -urN Python-2.7.3.orig/setup.py Python-2.7.3/setup.py
+--- Python-2.7.3.orig/setup.py	2012-10-06 05:57:45.793687600 -0700
++++ Python-2.7.3/setup.py	2012-10-06 06:29:13.323687600 -0700
+@@ -962,8 +962,14 @@
+                 os.path.join(sqlite_incdir, '..', '..', 'lib64'),
+                 os.path.join(sqlite_incdir, '..', '..', 'lib'),
+             ]
+-            sqlite_libfile = self.compiler.find_library_file(
+-                                sqlite_dirs_to_check + lib_dirs, 'sqlite3')
++	    if sys.platform == 'cygwin':
++ 	           # too much drama... just fucking fake it. 
++ 	           sqlite_libfile = '@GENTOO_PORTAGE_EPREFIX@/usr/lib/libsqlite' + sqlite_version[0] + '.dll.a'
++		   if not os.path.exists(sqlite_libfile):
++			   sqlite_libfile = None
++	    else:
++ 	           sqlite_libfile = self.compiler.find_library_file(
++        	                        sqlite_dirs_to_check + lib_dirs, 'sqlite3')
+             if sqlite_libfile:
+                 sqlite_libdir = [os.path.abspath(os.path.dirname(sqlite_libfile))]
+ 

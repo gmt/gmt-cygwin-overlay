@@ -1,0 +1,14 @@
+DEFINED_PHASES=compile configure install postinst postrm preinst prepare setup test
+DEPEND=app-arch/bzip2 >=sys-libs/zlib-1.1.3 !m68k-mint? ( virtual/libffi ) virtual/libintl !build? ( berkdb? ( || ( sys-libs/db:4.8 sys-libs/db:4.7 sys-libs/db:4.6 sys-libs/db:4.5 sys-libs/db:4.4 sys-libs/db:4.3 sys-libs/db:4.2 ) ) gdbm? ( sys-libs/gdbm[berkdb] ) ncurses? ( >=sys-libs/ncurses-5.2 readline? ( >=sys-libs/readline-4.1 ) ) sqlite? ( >=dev-db/sqlite-3.3.8:3[extensions] ) ssl? ( dev-libs/openssl ) tk? ( >=dev-lang/tk-8.0[-aqua] dev-tcltk/blt ) xml? ( >=dev-libs/expat-2.1 ) ) !!<sys-apps/portage-2.1.9 virtual/pkgconfig >=sys-devel/autoconf-2.65 !sys-devel/gcc[libffi] sys-devel/automake >=sys-devel/autoconf-2.68 >=app-admin/eselect-python-20091230
+DESCRIPTION=Python is an interpreted, interactive, object-oriented programming language.
+EAPI=2
+HOMEPAGE=http://www.python.org/
+IUSE=aqua -berkdb build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml
+KEYWORDS=~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris
+LICENSE=PSF-2
+PDEPEND=app-admin/python-updater
+RDEPEND=app-arch/bzip2 >=sys-libs/zlib-1.1.3 !m68k-mint? ( virtual/libffi ) virtual/libintl !build? ( berkdb? ( || ( sys-libs/db:4.8 sys-libs/db:4.7 sys-libs/db:4.6 sys-libs/db:4.5 sys-libs/db:4.4 sys-libs/db:4.3 sys-libs/db:4.2 ) ) gdbm? ( sys-libs/gdbm[berkdb] ) ncurses? ( >=sys-libs/ncurses-5.2 readline? ( >=sys-libs/readline-4.1 ) ) sqlite? ( >=dev-db/sqlite-3.3.8:3[extensions] ) ssl? ( dev-libs/openssl ) tk? ( >=dev-lang/tk-8.0[-aqua] dev-tcltk/blt ) xml? ( >=dev-libs/expat-2.1 ) ) !!<sys-apps/portage-2.1.9 !build? ( app-misc/mime-types ) doc? ( dev-python/python-docs:2.7 ) >=app-admin/eselect-python-20091230
+SLOT=2.7
+SRC_URI=http://www.python.org/ftp/python/2.7.3/Python-2.7.3.tar.bz2 mirror://gentoo/python-gentoo-patches-2.7.3-1.tar.bz2 prefix? ( http://dev.gentoo.org/~grobian/distfiles/python-prefix-2.7.3-gentoo-patches-r1.tar.bz2 )
+_eclasses_=autotools	1361ba45750e15615f1975fec261031a	eutils	24483bd91d3d074753a77bfe3e69993f	flag-o-matic	3fe823e59e555140674e3403977f688f	libtool	98f9b1e34df9125cd0e7cd9f2545de40	multilib	1d1aae8e5a9b929410d1e7a677df52d7	multiprocessing	a2130e6fc4aa4c6a24b265ca0cbcc2b6	pax-utils	0ace932c4045349c7fc1af0fe7091acf	prefix	21058c21ca48453d771df15500873ede	python	3db636724bc2886c6425058e210067d2	toolchain-funcs	0e714f499b5324892ca6becaf2bf9fa5	user	caa4a66cca1103139b68c2fad83b8313
+_md5_=02e3ac93fcec60cbc54979022d28c2bd

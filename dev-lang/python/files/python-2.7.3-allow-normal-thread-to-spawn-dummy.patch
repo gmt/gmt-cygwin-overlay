@@ -1,0 +1,23 @@
+# HG changeset patch
+# User Richard Oudkerk <shibturn@gmail.com>
+# Date 1337946993 -3600
+# Branch 2.7
+# Node ID 1f5d2642929a53512e6f0d12dbbac4f56efd7adb
+# Parent  83d500908ffc2be08bad4a390bac78ef50842e39
+Issue #14881: Allow normal non-main thread to spawn a dummy process
+
+Fix suggested by Itay Brandes
+
+diff -r 83d500908ffc -r 1f5d2642929a Lib/multiprocessing/dummy/__init__.py
+--- a/Lib/multiprocessing/dummy/__init__.py	Fri May 25 09:24:18 2012 +0200
++++ b/Lib/multiprocessing/dummy/__init__.py	Fri May 25 12:56:33 2012 +0100
+@@ -70,7 +70,8 @@
+     def start(self):
+         assert self._parent is current_process()
+         self._start_called = True
+-        self._parent._children[self] = None
++        if hasattr(self._parent, '_children'):
++            self._parent._children[self] = None
+         threading.Thread.start(self)
+ 
+     @property

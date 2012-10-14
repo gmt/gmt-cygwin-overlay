@@ -1,44 +1,30 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="2"
 WANT_AUTOMAKE="none"
+WANT_LIBTOOL="none"
 
-inherit autotools eutils flag-o-matic multilib python toolchain-funcs
+inherit autotools eutils flag-o-matic multilib pax-utils python toolchain-funcs prefix
 
-if [[ "${PV}" == *_pre* ]]; then
-	inherit mercurial
-
-	EHG_REPO_URI="http://hg.python.org/cpython"
-	EHG_REVISION=""
-else
-	MY_PV="${PV%_p*}"
-	MY_P="Python-${MY_PV}"
-fi
-
-PATCHSET_REVISION="0"
-PREFIX_PATCHREV="-r3"
+MY_P="Python-${PV}"
+PATCHSET_REVISION="1"
+PREFIX_PATCHREV="-r1"
 
 DESCRIPTION="Python is an interpreted, interactive, object-oriented programming language."
 HOMEPAGE="http://www.python.org/"
-if [[ "${PV}" == *_pre* ]]; then
-	SRC_URI=""
-else
-	SRC_URI="http://www.python.org/ftp/python/${MY_PV}/${MY_P}.tar.bz2
-		mirror://gentoo/python-gentoo-patches-${MY_PV}$([[ "${PATCHSET_REVISION}" != "0" ]] && echo "-r${PATCHSET_REVISION}").tar.bz2"
-	SRC_URI+=" prefix? ( http://dev.gentoo.org/~grobian/distfiles/python-prefix-${MY_PV}-gentoo-patches${PREFIX_PATCHREV}.tar.bz2 )"
-fi
+SRC_URI="http://www.python.org/ftp/python/${PV}/${MY_P}.tar.bz2
+	mirror://gentoo/python-gentoo-patches-${PV}-${PATCHSET_REVISION}.tar.bz2
+	prefix? ( http://dev.gentoo.org/~grobian/distfiles/python-prefix-${PV}-gentoo-patches${PREFIX_PATCHREV}.tar.bz2 )"
 
 LICENSE="PSF-2"
 SLOT="2.7"
 PYTHON_ABI="${SLOT}"
 KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="aqua -berkdb build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml -cygbootstraphack"
+IUSE="aqua -berkdb build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
 
-RDEPEND=">=app-admin/eselect-python-20091230
-		|| ( >=app-arch/bzip2-1.0.6-r3[static-libs]
-		     <app-arch/bzip2-1.0.6-r3 )
+RDEPEND="app-arch/bzip2
 		>=sys-libs/zlib-1.1.3
 		!m68k-mint? ( virtual/libffi )
 		virtual/libintl
@@ -52,7 +38,7 @@ RDEPEND=">=app-admin/eselect-python-20091230
 				sys-libs/db:4.3
 				sys-libs/db:4.2
 			) )
-			gdbm? ( sys-libs/gdbm )
+			gdbm? ( sys-libs/gdbm[berkdb] )
 			ncurses? (
 				>=sys-libs/ncurses-5.2
 				readline? ( >=sys-libs/readline-4.1 )
@@ -63,22 +49,17 @@ RDEPEND=">=app-admin/eselect-python-20091230
 				>=dev-lang/tk-8.0[-aqua]
 				dev-tcltk/blt
 			)
-			xml? ( >=dev-libs/expat-2 )
+			xml? ( >=dev-libs/expat-2.1 )
 		)
 		!!<sys-apps/portage-2.1.9"
-DEPEND=">=sys-devel/autoconf-2.65
-		${RDEPEND}
-		$([[ "${PV}" == *_pre* ]] && echo "=${CATEGORY}/${PN}-${PV%%.*}*")
-		dev-util/pkgconfig
-		$([[ "${PV}" =~ ^[[:digit:]]+\.[[:digit:]]+_pre ]] && echo "doc? ( dev-python/sphinx )")
+DEPEND="${RDEPEND}
+		virtual/pkgconfig
+		>=sys-devel/autoconf-2.65
 		!sys-devel/gcc[libffi]"
 RDEPEND+=" !build? ( app-misc/mime-types )
-		$([[ "${PV}" =~ ^[[:digit:]]+\.[[:digit:]]+_pre ]] || echo "doc? ( dev-python/python-docs:${SLOT} )")"
-PDEPEND="app-admin/python-updater"
+	doc? ( dev-python/python-docs:${SLOT} )"
 
-if [[ "${PV}" != *_pre* ]]; then
-	S="${WORKDIR}/${MY_P}"
-fi
+S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
 	python_pkg_setup
@@ -97,70 +78,69 @@ pkg_setup() {
 }
 
 src_prepare() {
-
-	if [[ $CHOST == *-cygwin* ]] ; then
-		epatch "${FILESDIR}"/${PN}-${PV}-cygwin.patch
-	fi
-	epatch "${FILESDIR}"/${PN}-2.7.2-cygwin-ctypes-error.patch
-
-	local excluded_patches
-
 	# Ensure that internal copies of expat, libffi and zlib are not used.
 	rm -fr Modules/expat
 	rm -fr Modules/_ctypes/libffi*
 	rm -fr Modules/zlib
 
-	# if building a patched source-tar, comment the rm's above, and uncomment
-	# this line:
-	#excluded_patches="01_all_prefix-no-patch-invention.patch"
-
-	if [[ "${PV}" =~ ^[[:digit:]]+\.[[:digit:]]+_pre ]]; then
-		if [[ "$(hg branch)" != "default" ]]; then
-			die "Invalid EHG_REVISION"
-		fi
-	fi
-
-	if [[ "${PV}" =~ ^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+_pre ]]; then
-		if [[ "$(hg branch)" != "${SLOT}" ]]; then
-			die "Invalid EHG_REVISION"
-		fi
-
-		if grep -Eq '#define PY_RELEASE_LEVEL[[:space:]]+PY_RELEASE_LEVEL_FINAL' Include/patchlevel.h; then
-			# Update micro version, release level and version string.
-			local micro_version="${PV%_pre*}"
-			micro_version="${micro_version##*.}"
-			local version_string="${PV%.*}.$((${micro_version} - 1))+"
-			sed \
-				-e "s/\(#define PY_MICRO_VERSION[[:space:]]\+\)[^[:space:]]\+/\1${micro_version}/" \
-				-e "s/\(#define PY_RELEASE_LEVEL[[:space:]]\+\)[^[:space:]]\+/\1PY_RELEASE_LEVEL_ALPHA/" \
-				-e "s/\(#define PY_VERSION[[:space:]]\+\"\)[^\"]\+\(\"\)/\1${version_string}\2/" \
-				-i Include/patchlevel.h || die "sed failed"
-		fi
-	fi
-
+	local excluded_patches
 	if ! tc-is-cross-compiler; then
 		excluded_patches+=" *_all_crosscompile.patch"
 	fi
 
-	local patchset_dir
-	if [[ "${PV}" == *_pre* ]]; then
-		patchset_dir="${FILESDIR}/${SLOT}-${PATCHSET_REVISION}"
-	else
-		patchset_dir="${WORKDIR}/${MY_PV}"
-	fi
+	# if building a patched source-tar, comment the rm's above, and uncomment
+	# this line:
+	#excluded_patches="01_all_prefix-no-patch-invention.patch"
 
-	EPATCH_EXCLUDE="${excluded_patches}" EPATCH_SUFFIX="patch" epatch "${patchset_dir}"
-	epatch "${FILESDIR}/linux2.patch"
+	EPATCH_EXCLUDE="${excluded_patches}" EPATCH_SUFFIX="patch" \
+		epatch "${WORKDIR}/${PV}-${PATCHSET_REVISION}"
 
 	# Prefix' round of patches
 	# http://prefix.gentooexperimental.org:8000/python-patches-2_7
 	EPATCH_EXCLUDE="${excluded_patches}" EPATCH_SUFFIX="patch" \
-		epatch "${WORKDIR}"/python-prefix-${MY_PV}-gentoo-patches${PREFIX_PATCHREV}
+		epatch "${WORKDIR}"/python-prefix-${PV}-gentoo-patches${PREFIX_PATCHREV}
 
-	# need this to have _NSGetEnviron being used, which by default isn't, also
-	# in a non-Framework build (use !aqua)   upstream doesn't build like this
-	[[ ${CHOST} == *-darwin* ]] && use !aqua && \
-		append-flags -DWITH_NEXT_FRAMEWORK
+	if [[ $CHOST == *-cygwin* ]] ; then
+		epatch "${FILESDIR}"/${PN}-2.7.2-cygwin.patch
+		epatch "${FILESDIR}"/${PN}-2.7.2-cygwin-libpython-bld.patch
+	fi
+	epatch "${FILESDIR}"/${PN}-2.7.2-cygwin-ssl_thread.patch
+	epatch "${FILESDIR}"/${PN}-2.7.2-cygwin-ctypes-error.patch
+	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-ctypes-util-find_library.patch
+	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-enable-new-dtags.patch
+	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-ncurses-abi6.patch
+	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-system-libffi.patch
+	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-PySignal_SetWakeupFd.patch
+	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-getpath-exe-extension.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-cygwin-ncurses-flag-conftest.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-cygwin-ncurses-setup_py.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-cygwin-sqlite-hack.patch
+	eprefixify "Lib/ctypes/util.py" "setup.py"
+
+	epatch "${FILESDIR}"/${PN}-2.7.2-exit-requires-stdlib_h.patch
+
+	# backport some serious fixes from pre-2.7.4 -- this is done only in
+	# the cygwin overlay as a means to rule out various issues resolved upstream
+	# as a source of trouble.  However, some of these patches are quite important
+	# so it's worth considering whether to upstream some or all of them (unless
+	# a python-2.7.4 release comes around soon, incorporating them).
+	epatch "${FILESDIR}"/${PN}-2.7.3-with_thread-conditional.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-bisect-overflow.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-ssl-cert-update.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-pdb-skips-frames.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-tolerate-unpickleability.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-test-posix.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-close-arguments.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-win32-multiprocessing-np.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-fix-refleak.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-allow-normal-thread-to-spawn-dummy.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-misleading-exception.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-avoid-quadratic-gc-buildup.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-multiprocessing-deallocate-buffer.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-close-socket-on-connection-failure.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-use-less-stack.patch
+	epatch "${FILESDIR}"/${PN}-2.7.3-istrue-check.patch
+
 	if use aqua ; then
 		# make sure we don't get a framework reference here
 		sed -i -e '/-DPREFIX=/s:$(prefix):$(FRAMEWORKUNIXTOOLSPREFIX):' \
@@ -183,52 +163,6 @@ src_prepare() {
 		Modules/Setup.dist \
 		Modules/getpath.c \
 		setup.py || die "sed failed to replace @@GENTOO_LIBDIR@@"
-
-	# Linux-3 compat. Bug #374579 (upstream issue12571)
-	cp -r "${S}/Lib/plat-linux2" "${S}/Lib/plat-linux3" || die
-
-	# hacks for bootstrap
-	if [[ ${CHOST} == *-cygwin* ]] ; then
-		if use threads ; then
-			ewarn
-			ewarn "YO!  Building with threads on cygwin is all fucked up."
-			ewarn "Don't do it, or at least read ${S}/README."
-			ewarn "Ctrl-C and disable the threads USE flag."
-			ewarn
-			ebeep
-		fi
-		if use cygbootstraphack ; then
-			cd "${S}"
-			einfo "cygbootstraphack: in $(pwd)"
-			local ldpath
-			if [[ -e ${EPREFIX}/etc/env.d/05gcc-i686-pc-cygwin1.7 ]] ; then
-				ldpath="$( cat ${EPREFIX}/etc/env.d/05gcc-i686-pc-cygwin1.7 | grep ^LDPATH | sed 's/^LDPATH="//;s/"$//' )"
-				einfo "cygbootstraphack got ldpath=\"${ldpath}\""
-			else
-				die "cygbootstraphack: FIXME: ldpath needs to be set for bootstrap compiler"
-			fi
-			local ldpaths
-			ldpaths="$(echo ${ldpath} | sed 's/:/ /g')"
-			einfo "cygbootstraphack: ldpaths=\"${ldpaths}\""
-			local ldflags=" "
-			local crtpath=""
-			for ldpathelt in ${ldpaths} ; do
-				ldflags="${ldflags} -L${ldpathelt}"
-				if [[ -e ${ldpathelt}/crtbegin.o && -e ${ldpathelt}/crtend.o ]] ; then
-					crtpath="${ldpathelt}"			
-				fi
-			done
-			ewarn "Shoving LDFLAGS+=\"${ldflags}\" down throat."
-			sed -i -e 's!^\(LDFLAGS=.*\)$!\1 '"${ldflags}"'!' Makefile.pre.in
-			ewarn "result: $(grep '^LDFLAGS=' Makefile.pre.in)"
-			if [[ -n "${crtpath}" ]] ; then
-				ewarn "stealing crtbegin.o and crtend.o from ${crtpath}"
-				cp -v "${crtpath}/crtbegin.o" "${crtpath}/crtend.o" .
-			else
-				ewarn "couldn't figure out a suitable crtpath!"
-			fi
-		fi
-	fi
 
 	eautoconf
 	eautoheader
@@ -293,7 +227,7 @@ src_configure() {
 	if use prefix ; then
 		# for Python's setup.py not to do false assumptions (only looking in
 		# host paths) we need to make explicit where Prefix stuff is
-		append-flags -I${EPREFIX}/usr/include
+		append-cppflags -I${EPREFIX}/usr/include
 		append-ldflags -L${EPREFIX}/$(get_libdir)
 		append-ldflags -L${EPREFIX}/usr/$(get_libdir)
 		# fix compilation on some 64-bits Linux hosts, #381163
@@ -321,13 +255,16 @@ src_configure() {
 
 	# Export CXX so it ends up in /usr/lib/python2.X/config/Makefile.
 	tc-export CXX
+	# The configure script fails to use pkg-config correctly.
+	# http://bugs.python.org/issue15506
+	export ac_cv_path_PKG_CONFIG=$(tc-getPKG_CONFIG)
 
 	# Set LDFLAGS so we link modules with -lpython2.7 correctly.
 	# Needed on FreeBSD unless Python 2.7 is already installed.
 	# Please query BSD team before removing this!
 	# On AIX this is not needed, but would record '.' as runpath.
 	[[ ${CHOST} == *-aix* ]] ||
-	append-ldflags "-L."
+		LDFLAGS="-L.${LDFLAGS:+ }${LDFLAGS}"
 
 	local dbmliborder
 	if use gdbm; then
@@ -353,16 +290,16 @@ src_configure() {
 		|| myconf="${myconf} --enable-shared"
 
 	if [[ ${CHOST} == *-cygwin* ]] ; then
-		fpeconfig="--without-fpectl"
+		export ac_cv_func_bind_textdomain_codeset=yes
+		myconf="${myconf} --without-fpectl"
 	else
-		fpeconfig="--with-fpectl"
+		myconf="${myconf} --with-fpectl"
 	fi
 
 	# note: for a framework build we need to use ucs2 because OSX
 	# uses that internally too:
 	# http://bugs.python.org/issue763708
 	OPT="" econf \
-		${fpeconfig} \
 		$(use_enable ipv6) \
 		$(use_with threads) \
 		$( (use wide-unicode && use !aqua) && echo "--enable-unicode=ucs4" || echo "--enable-unicode=ucs2") \
@@ -378,6 +315,9 @@ src_configure() {
 
 src_compile() {
 	emake EPYTHON="python${PV%%.*}" || die "emake failed"
+
+	# Work around bug 329499. See also bug 413751.
+	pax-mark m python
 }
 
 src_test() {
@@ -395,7 +335,7 @@ src_test() {
 	local skipped_tests="distutils gdb"
 
 	for test in ${skipped_tests}; do
-		mv "${S}/Lib/test/test_${test}.py" "${T}"
+		mv Lib/test/test_${test}.py "${T}"
 	done
 
 	# Rerun failed tests in verbose mode (regrtest -w).
@@ -403,7 +343,7 @@ src_test() {
 	local result="$?"
 
 	for test in ${skipped_tests}; do
-		mv "${T}/test_${test}.py" "${S}/Lib/test/test_${test}.py"
+		mv "${T}/test_${test}.py" Lib/test
 	done
 
 	elog "The following tests have been skipped:"
@@ -433,8 +373,8 @@ src_install() {
 		# sharedmods (during bootstrap), would build them twice in parallel.
 
 		# let the makefiles do their thing
-		emake -j1 CC="$(tc-getCC)" DESTDIR="${D}" STRIPFLAG= frameworkinstall || die "emake frameworkinstall failed"
-		emake DESTDIR="${D}" maninstall || die "emake maninstall failed"
+		emake -j1 CC="$(tc-getCC)" DESTDIR="${D}" STRIPFLAG= altinstall || die
+		emake DESTDIR="${D}" maninstall || die
 
 		# avoid framework incompatability, degrade to a normal UNIX lib
 		mkdir -p "${ED}"/usr/$(get_libdir)
@@ -582,22 +522,11 @@ EOF
 
 	if use examples; then
 		insinto /usr/share/doc/${PF}/examples
-		doins -r "${S}/Tools" || die "doins failed"
+		doins -r Tools || die "doins failed"
 	fi
 
 	newconfd "${FILESDIR}/pydoc.conf" pydoc-${SLOT} || die "newconfd failed"
 	newinitd "${FILESDIR}/pydoc.init" pydoc-${SLOT} || die "newinitd failed"
-
-	if use kernel_linux; then
-		if [ -d "${ED}$(python_get_libdir)/plat-linux2" ];then
-			cp -r "${ED}$(python_get_libdir)/plat-linux2" \
-				"${ED}$(python_get_libdir)/plat-linux3" || die "copy plat-linux failed"
-		else
-			cp -r "${ED}$(python_get_libdir)/plat-linux3" \
-				"${ED}$(python_get_libdir)/plat-linux2" || die "copy plat-linux failed"
-		fi
-	fi
-
 	sed \
 		-e "s:@PYDOC_PORT_VARIABLE@:PYDOC${SLOT/./_}_PORT:" \
 		-e "s:@PYDOC@:pydoc${SLOT}:" \
@@ -629,21 +558,9 @@ pkg_postinst() {
 	python_mod_optimize -f -x "/(site-packages|test|tests)/" $(python_get_libdir)
 
 	if [[ "${python_updater_warning}" == "1" ]]; then
-		ewarn
-		ewarn "\e[1;31m************************************************************************\e[0m"
-		ewarn
 		ewarn "You have just upgraded from an older version of Python."
 		ewarn "You should switch active version of Python ${PV%%.*} and run"
-		ewarn "'python-updater \${options}' to rebuild Python modules."
-		ewarn
-		ewarn "\e[1;31m************************************************************************\e[0m"
-		ewarn
-
-		local n
-		for ((n = 0; n < 12; n++)); do
-			echo -ne "\a"
-			sleep 1
-		done
+		ewarn "'python-updater [options]' to rebuild Python modules."
 	fi
 }
 

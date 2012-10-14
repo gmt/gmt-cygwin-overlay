@@ -1,0 +1,15 @@
+diff -urN Python-2.7.2.orig/setup.py Python-2.7.2/setup.py
+--- Python-2.7.2.orig/setup.py	2012-10-04 19:25:54.999280600 -0700
++++ Python-2.7.2/setup.py	2012-10-04 19:28:21.934661800 -0700
+@@ -1775,6 +1775,11 @@
+         if not '--with-system-ffi' in sysconfig.get_config_var("CONFIG_ARGS"):
+             return
+ 
++	if sys.platform == 'cygwin':
++	    # provided by GCC
++	    ext.libraries.append('ffi')
++	    self.use_system_libffi = True
++
+         ffi_inc = [sysconfig.get_config_var("LIBFFI_INCLUDEDIR")]
+         if not ffi_inc or ffi_inc[0] == '':
+             ffi_inc = find_file('ffi.h', [], inc_dirs)

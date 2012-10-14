@@ -1,0 +1,61 @@
+# HG changeset patch
+# User Richard Oudkerk <shibturn@gmail.com>
+# Date 1336246868 -3600
+# Branch 2.7
+# Node ID 35ef949e85d77907ed55e036e1b81669097db256
+# Parent  8215aaccc9dd5ec0a61a735e02bb5c1b9f3a03a5
+Fix for issue 14725 for 2.7 branch
+
+diff -r 8215aaccc9dd -r 35ef949e85d7 Lib/multiprocessing/connection.py
+--- a/Lib/multiprocessing/connection.py	Fri May 04 16:33:30 2012 +0200
++++ b/Lib/multiprocessing/connection.py	Sat May 05 20:41:08 2012 +0100
+@@ -348,7 +348,10 @@
+             try:
+                 win32.ConnectNamedPipe(handle, win32.NULL)
+             except WindowsError, e:
+-                if e.args[0] != win32.ERROR_PIPE_CONNECTED:
++                # ERROR_NO_DATA can occur if a client has already connected,
++                # written data and then disconnected -- see Issue 14725.
++                if e.args[0] not in (win32.ERROR_PIPE_CONNECTED,
++                                     win32.ERROR_NO_DATA):
+                     raise
+             return _multiprocessing.PipeConnection(handle)
+ 
+diff -r 8215aaccc9dd -r 35ef949e85d7 Lib/test/test_multiprocessing.py
+--- a/Lib/test/test_multiprocessing.py	Fri May 04 16:33:30 2012 +0200
++++ b/Lib/test/test_multiprocessing.py	Sat May 05 20:41:08 2012 +0100
+@@ -1669,6 +1669,23 @@
+             self.assertEqual(conn.recv(), 'hello')
+             p.join()
+             l.close()
++
++    def test_issue14725(self):
++        l = self.connection.Listener()
++        p = self.Process(target=self._test, args=(l.address,))
++        p.daemon = True
++        p.start()
++        time.sleep(1)
++        # On Windows the client process should by now have connected,
++        # written data and closed the pipe handle by now.  This causes
++        # ConnectNamdedPipe() to fail with ERROR_NO_DATA.  See Issue
++        # 14725.
++        conn = l.accept()
++        self.assertEqual(conn.recv(), 'hello')
++        conn.close()
++        p.join()
++        l.close()
++
+ #
+ # Test of sending connection and socket objects between processes
+ #
+diff -r 8215aaccc9dd -r 35ef949e85d7 Modules/_multiprocessing/win32_functions.c
+--- a/Modules/_multiprocessing/win32_functions.c	Fri May 04 16:33:30 2012 +0200
++++ b/Modules/_multiprocessing/win32_functions.c	Sat May 05 20:41:08 2012 +0100
+@@ -244,6 +244,7 @@
+     Py_INCREF(&Win32Type);
+ 
+     WIN32_CONSTANT(F_DWORD, ERROR_ALREADY_EXISTS);
++    WIN32_CONSTANT(F_DWORD, ERROR_NO_DATA);
+     WIN32_CONSTANT(F_DWORD, ERROR_PIPE_BUSY);
+     WIN32_CONSTANT(F_DWORD, ERROR_PIPE_CONNECTED);
+     WIN32_CONSTANT(F_DWORD, ERROR_SEM_TIMEOUT);

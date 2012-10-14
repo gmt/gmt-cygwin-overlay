@@ -1,0 +1,32 @@
+# HG changeset patch
+# User Benjamin Peterson <benjamin@python.org>
+# Date 1336483344 14400
+# Branch 2.7
+# Node ID 5319a4bf72e784cb0cfd8f71f8b15121ccc27257
+# Parent  72df255a7716483a275500105b7623ed003aa308
+fix possible refleak (closes #14752)
+
+diff -r 72df255a7716 -r 5319a4bf72e7 Objects/typeobject.c
+--- a/Objects/typeobject.c	Mon May 07 22:23:48 2012 -0400
++++ b/Objects/typeobject.c	Tue May 08 09:22:24 2012 -0400
+@@ -3565,6 +3565,7 @@
+ 
+     for (; meth->ml_name != NULL; meth++) {
+         PyObject *descr;
++        int err;
+         if (PyDict_GetItemString(dict, meth->ml_name) &&
+             !(meth->ml_flags & METH_COEXIST))
+                 continue;
+@@ -3588,9 +3589,10 @@
+         }
+         if (descr == NULL)
+             return -1;
+-        if (PyDict_SetItemString(dict, meth->ml_name, descr) < 0)
++        err = PyDict_SetItemString(dict, meth->ml_name, descr);
++        Py_DECREF(descr);
++        if (err < 0)
+             return -1;
+-        Py_DECREF(descr);
+     }
+     return 0;
+ }

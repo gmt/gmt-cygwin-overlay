@@ -118,212 +118,80 @@
  		*-mint*)                  libname="irrelevant";;
  		hppa*-hpux*)              libname="sl";;
 <-----8<-----
-----[ "eclass/multiprocessing.eclass" ]----->8----->
---- PORTAGE/eclass/multiprocessing.eclass
-+++ OVERLAY/eclass/multiprocessing.eclass
-@@ -55,6 +55,8 @@
- 	echo ${jobs:-1}
- }
- 
-+if [[ ${CHOST} != *-cygwin* ]] ; then
-+
- # @FUNCTION: multijob_init
- # @USAGE: [${MAKEOPTS}]
- # @DESCRIPTION:
-@@ -131,37 +133,6 @@
+----[ "eclass/python.eclass" ]----->8----->
+--- PORTAGE/eclass/python.eclass
++++ OVERLAY/eclass/python.eclass
+@@ -401,6 +401,64 @@
  	fi
  }
  
--# @FUNCTION: _multijob_fork
--# @INTERNAL
--# @DESCRIPTION:
--# Do the actual book keeping.
--_multijob_fork() {
--	[[ $# -eq 1 ]] || die "incorrect number of arguments"
--
--	local ret=0
--	[[ $1 == "post" ]] && : $(( ++mj_num_jobs ))
--	if [[ ${mj_num_jobs} -ge ${mj_max_jobs} ]] ; then
--		multijob_finish_one
--		ret=$?
--	fi
--	[[ $1 == "pre" ]] && : $(( ++mj_num_jobs ))
--	return ${ret}
--}
--
--# @FUNCTION: multijob_pre_fork
--# @DESCRIPTION:
--# You must call this in the parent process before forking a child process.
--# If the parallel limit has been hit, it will wait for one child to finish
--# and return its exit status.
--multijob_pre_fork() { _multijob_fork pre "$@" ; }
--
--# @FUNCTION: multijob_post_fork
--# @DESCRIPTION:
--# You must call this in the parent process after forking a child process.
--# If the parallel limit has been hit, it will wait for one child to finish
--# and return its exit status.
--multijob_post_fork() { _multijob_fork post "$@" ; }
--
- # @FUNCTION: multijob_finish_one
++# see http://thread.gmane.org/gmane.linux.gentoo.devel/80633/focus=80635
++_python_prepend_cwd_ldpath() {
++	local new=()
++	local f
++	local done=no
++	for f in ${LDFLAGS} ; do
++		case "${f}" in
++			-Tbss=*|-Tdata=*|-Ttext=*|-Ttext-segment=*)
++				new+=( "${f}" )
++				;;
++			-L*|-T*|--library-path*|--script*)
++				if [[ ${done} == yes ]] ; then
++					new+=( "${f}" )
++				elif [[ "${f}" == "-L." ]] ; then
++					# if it's somehow already there, don't duplicate it
++					new+=( "-L." )
++					done=yes
++				else
++					new+=( "-L." "${f}" )
++					done=yes
++				fi
++				;;
++			*)
++				new+=( "${f}" )
++				;;
++		esac
++	done
++	[[ ${done} == no ]] && new+=( "-L." )
++	export LDFLAGS="${new[*]}"
++}
++
++# @FUNCTION: cpython_econf
++# @DESCRIPTION:
++# econf() substitute for use in dev-lang/python ebuilds
++#
++# On some platforms, it is neccesary to prepend "-L." to ldpath before
++# proceeding with python's configure process.  Using cpython_econf()
++# instead of econf() will ensure that this is taken care of correctly
++# before python's configure step can proceed.  This is not needed for
++# any python ebuilds other than dev-lang/python; any other ebuild
++# calling this function will receive an error.
++cpython_econf() {
++	if [[ "${CATEGORY}/${PN}" != "dev-lang/python" ]] ; then
++		die "cpython_econf can only be used by dev-lang/python ebuilds"
++	fi
++	# econf will enforce ${EBUILD_PHASE} requirements, so we don't bother.
++	
++	# Set LDFLAGS so we link modules with -lpython2.7 correctly.
++	# Needed on FreeBSD unless Python 2.7 is already installed.
++	# Even if python is already installed, linking against the old
++	# python will cause problems, i.e., when toggling USE="threads".
++	# Also needed on cygwin.  Please query BSD team before removing this!
++	# On AIX this is not needed, and would record '.' as runpath.
++	[[ ${CHOST} == *-aix* ]] || _python_prepend_cwd_ldpath
++
++	econf "$@"
++}
++
+ # @FUNCTION: python_pkg_setup
  # @DESCRIPTION:
- # Wait for a single process to exit and return its exit code.
-@@ -224,4 +195,155 @@
- 	fi
- }
+ # Perform sanity checks and initialize environment.
+@@ -3179,3 +3237,5 @@
+ # ================================================================================================
  
-+else
-+
-+# On Cygwin, bidirectional pipes are broken in bash.  Until this can be
-+# fixed, we need an alternative implementation that works.  For now, we
-+# use a named-pipe directly rather than file descriptors.
-+
-+get_multijob_pipe() {
-+        MULTIJOB_PARENT=${MULTIJOB_PARENT:-0}
-+        if [[ ${MULTIJOB_PARENT} -eq 0 ]] ; then
-+                echo "${T}/multijob-error-fake.pipe"
-+        else
-+                echo "${T}/multijob-${MULTIJOB_PARENT}.pipe"
- fi
-+}
-+
-+# make sure someone called multijob_init
-+multijob_assert() {
-+        MULTIJOB_PARENT=${MULTIJOB_PARENT:-0}
-+        [[ $MULTIJOB_PARENT -eq 0 ]] && die "multijob initialization required"
-+        [[ $( file -b "$(get_multijob_pipe)" ) != fifo* ]] && die "multijob fifo gone"
-+}
-+
-+multijob_init() {
-+        [[ ${MULTIJOB_PARENT} -ne 0 && ${MULTIJOB_PARENT} -eq ${BASHPID} ]] && \
-+                die "Nested multijob_init"
-+        export MULTIJOB_PARENT=${BASHPID}
-+
-+        # When something goes wrong, try to wait for all the children so we
-+        # don't leave any zombies around.
-+        has wait ${EBUILD_DEATH_HOOKS} || EBUILD_DEATH_HOOKS+=" wait "
-+
-+	rm -f "$(get_multijob_pipe)"
-+
-+        # Setup a pipe for children to write their pids to when they finish.
-+        mkfifo "$(get_multijob_pipe)"
-+
-+        # See how many children we can fork based on the user's settings.
-+        mj_max_jobs=$(makeopts_jobs "$@")
-+        mj_num_jobs=0
-+}
-+
-+multijob_child_init() {
-+	case $1 in
-+		--pre)  shift ;;
-+		--post) shift ;;
-+	esac
-+	multijob_assert
-+
-+	if [[ $# -eq 0 ]] ; then
-+                trap 'echo ${BASHPID} $? >'$(get_multijob_pipe) EXIT
-+                trap 'exit 1' INT TERM
-+        else
-+                local ret
-+                [[ ${mode} == "pre" ]] && { multijob_pre_fork; ret=$?; }
-+                ( multijob_child_init ; "$@" ) &
-+                [[ ${mode} == "post" ]] && { multijob_post_fork; ret=$?; }
-+                return ${ret}
-+        fi
-+}
-+
-+multijob_finish_one() {
-+        [[ $# -eq 0 ]] || die "${FUNCNAME} takes no arguments"
-+
-+        multijob_assert
-+
-+        local pid ret
-+        read -r pid ret < $(get_multijob_pipe) || die
-+        : $(( --mj_num_jobs ))
-+        return ${ret}
-+}
-+
-+multijob_finish() {
-+        local ret=0
-+        while [[ ${mj_num_jobs} -gt 0 ]] ; do
-+                multijob_finish_one
-+                : $(( ret |= $? ))
-+        done
-+        # Let bash clean up its internal child tracking state.
-+        wait
-+
-+        # Do this after reaping all the children.
-+        [[ $# -eq 0 ]] || die "${FUNCNAME} takes no arguments"
-+
-+        # No need to hook anymore.
-+        EBUILD_DEATH_HOOKS=${EBUILD_DEATH_HOOKS/ wait / }
-+        rm -f $(get_multijob_pipe)
-+        export MULTIJOB_PARENT=0
-+
-+        return ${ret}
-+}
-+
-+redirect_alloc_fd() {
-+	local var=$1 file=$2 redir=${3:-"<>"}
-+
-+	[[ "${redir}" == "<>" ]] && die "<> is broken on Cygwin"
-+
-+	if [[ $(( (BASH_VERSINFO[0] << 8) + BASH_VERSINFO[1] )) -ge $(( (4 << 8) + 1 )) ]] ; then
-+		# Newer bash provides this functionality.
-+		eval "exec {${var}}${redir}'${file}'"
-+	else
-+		# Need to provide the functionality ourselves.
-+		local fd=10
-+		while :; do
-+			# Make sure the fd isn't open.  It could be a char device,
-+			# or a symlink (possibly broken) to something else.
-+			if [[ ! -e /dev/fd/${fd} ]] && [[ ! -L /dev/fd/${fd} ]] ; then
-+				eval "exec ${fd}${redir}'${file}'" && break
-+			fi
-+			[[ ${fd} -gt 1024 ]] && die 'could not locate a free temp fd !?'
-+			: $(( ++fd ))
-+		done
-+		: $(( ${var} = fd ))
-+	fi
-+}
-+
-+fi # if cygwin (look ma, no indentation!)
-+
-+# @FUNCTION: _multijob_fork
-+# @INTERNAL
-+# @DESCRIPTION:
-+# Do the actual book keeping.
-+_multijob_fork() {
-+	[[ $# -eq 1 ]] || die "incorrect number of arguments"
-+
-+	local ret=0
-+	[[ $1 == "post" ]] && : $(( ++mj_num_jobs ))
-+	if [[ ${mj_num_jobs} -ge ${mj_max_jobs} ]] ; then
-+		multijob_finish_one
-+		ret=$?
-+	fi
-+	[[ $1 == "pre" ]] && : $(( ++mj_num_jobs ))
-+	return ${ret}
-+}
-+
-+# @FUNCTION: multijob_pre_fork
-+# @DESCRIPTION:
-+# You must call this in the parent process before forking a child process.
-+# If the parallel limit has been hit, it will wait for one child to finish
-+# and return its exit status.
-+multijob_pre_fork() { _multijob_fork pre "$@" ; }
-+
-+# @FUNCTION: multijob_post_fork
-+# @DESCRIPTION:
-+# You must call this in the parent process after forking a child process.
-+# If the parallel limit has been hit, it will wait for one child to finish
-+# and return its exit status.
-+multijob_post_fork() { _multijob_fork post "$@" ; }
-+
-+fi
+ fi # _PYTHON_ECLASS_INHERITED
 +
 +# vim: syntax=sh
-+
 <-----8<-----
 ----[ "eclass/toolchain-funcs.eclass" ]----->8----->
 --- PORTAGE/eclass/toolchain-funcs.eclass
@@ -615,6 +483,7 @@
 
 *** The following files appear only in the overlay ***
 overlay/eclass/prefix-gmt.eclass: ASCII text
+overlay/eclass/revertme.patch: unified diff output, ASCII text
 overlay/eclass/ELT-patches/cygwin-install-sh: directory
 overlay/eclass/ELT-patches/cygwin-ltmain: directory
 
@@ -625,6 +494,7 @@ usr/portage/eclass/ant-tasks.eclass: ASCII text
 usr/portage/eclass/apache-2.eclass: ASCII text
 usr/portage/eclass/apache-module.eclass: ASCII text
 usr/portage/eclass/aspell-dict.eclass: ASCII text
+usr/portage/eclass/autotools-multilib.eclass: UTF-8 Unicode text
 usr/portage/eclass/autotools-utils.eclass: UTF-8 Unicode text
 usr/portage/eclass/autotools.eclass: UTF-8 Unicode text
 usr/portage/eclass/base.eclass: ASCII text
@@ -662,7 +532,6 @@ usr/portage/eclass/eutils.eclass: ASCII text
 usr/portage/eclass/fdo-mime.eclass: ASCII text
 usr/portage/eclass/findlib.eclass: ASCII text
 usr/portage/eclass/fixheadtails.eclass: ASCII text
-usr/portage/eclass/flag-o-matic.eclass: ASCII text
 usr/portage/eclass/font-ebdftopcf.eclass: ASCII text
 usr/portage/eclass/font.eclass: ASCII text
 usr/portage/eclass/fortran-2.eclass: ASCII text
@@ -726,6 +595,7 @@ usr/portage/eclass/mozcoreconf-2.eclass: ASCII text
 usr/portage/eclass/mozextension.eclass: ASCII text
 usr/portage/eclass/mozilla-launcher.eclass: ASCII text
 usr/portage/eclass/mozlinguas.eclass: ASCII text
+usr/portage/eclass/multiprocessing.eclass: ASCII text
 usr/portage/eclass/myspell-r2.eclass: UTF-8 Unicode text
 usr/portage/eclass/myspell.eclass: ASCII text
 usr/portage/eclass/mysql-autotools.eclass: ASCII text
@@ -760,7 +630,6 @@ usr/portage/eclass/phpconfutils.eclass: ASCII text
 usr/portage/eclass/portability.eclass: UTF-8 Unicode text
 usr/portage/eclass/prefix.eclass: ASCII text
 usr/portage/eclass/python-distutils-ng.eclass: ASCII text
-usr/portage/eclass/python.eclass: ASCII text, with very long lines
 usr/portage/eclass/qmail.eclass: ASCII text
 usr/portage/eclass/qt4-build.eclass: ASCII text
 usr/portage/eclass/qt4-r2.eclass: ASCII text

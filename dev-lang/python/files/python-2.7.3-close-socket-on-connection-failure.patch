@@ -1,0 +1,24 @@
+# HG changeset patch
+# User Vinay Sajip <vinay_sajip@yahoo.co.uk>
+# Date 1340662627 -3600
+# Branch 2.7
+# Node ID 99f0c0207faa706f7d09a37c172909831239c094
+# Parent  723dbf99f9c225e44122386956f58cb906e9ab27
+Issue #15179: Closed socket on connection failure. Thanks to Kazutaka Morita for the patch.
+
+diff -r 723dbf99f9c2 -r 99f0c0207faa Lib/logging/handlers.py
+--- a/Lib/logging/handlers.py	Mon Jun 25 15:20:51 2012 +0200
++++ b/Lib/logging/handlers.py	Mon Jun 25 23:17:07 2012 +0100
+@@ -771,7 +771,11 @@
+         except socket.error:
+             self.socket.close()
+             self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+-            self.socket.connect(address)
++            try:
++                self.socket.connect(address)
++            except socket.error:
++                self.socket.close()
++                raise
+ 
+     # curious: when talking to the unix-domain '/dev/log' socket, a
+     #   zero-terminator seems to be required.  this string is placed

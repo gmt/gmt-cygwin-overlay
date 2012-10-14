@@ -1,118 +1,87 @@
 ===== mutual sub-directory: "dev-lang/python" =====
----("dev-lang/python/ChangeLog")--->8--->
---- usr/portage/dev-lang/python/ChangeLog [[PORTAGE]]
-+++ overlay/dev-lang/python/ChangeLog [[OVERLAY]]
-@@ -1,10 +1,6 @@
- # ChangeLog for dev-lang/python
--# Copyright 1999-2012 Gentoo Foundation; Distributed under the GPL v2
--# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/ChangeLog,v 1.570 2012/02/18 16:09:29 jer Exp $
--
--  01 Jan 2012; Fabian Groffen <grobian@gentoo.org> python-2.7.2-r3.ebuild:
--  Drop -u PyMac_Error from LINKFORSHARED since it assumes a framework build,
--  which we don't reference in UNIX mode
-+# Copyright 1999-2011 Gentoo Foundation; Distributed under the GPL v2
-+# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/ChangeLog,v 1.557 2011/10/31 04:02:01 vapier Exp $
- 
-   01 Dec 2011; Fabian Groffen <grobian@gentoo.org> python-2.7.2.ebuild,
-   python-2.7.2-r3.ebuild:
-<---8<---
----("dev-lang/python/python-2.7.2-r3.ebuild")--->8--->
---- usr/portage/dev-lang/python/python-2.7.2-r3.ebuild [[PORTAGE]]
-+++ overlay/dev-lang/python/python-2.7.2-r3.ebuild [[OVERLAY]]
-@@ -1,6 +1,6 @@
--# Copyright 1999-2012 Gentoo Foundation
-+# Copyright 1999-2011 Gentoo Foundation
+----[ "dev-lang/python/python-2.7.3-r2.ebuild" ]----->8----->
+--- PORTAGE/dev-lang/python/python-2.7.3-r2.ebuild
++++ OVERLAY/dev-lang/python/python-2.7.3-r2.ebuild
+@@ -2,11 +2,11 @@
  # Distributed under the terms of the GNU General Public License v2
--# $Header: /var/cvsroot/gentoo-x86/dev-lang/python/python-2.7.2-r3.ebuild,v 1.11 2012/02/13 18:29:32 xarthisius Exp $
-+# $Header: $
+ # $Header: $
  
- EAPI="2"
+-EAPI="3"
++EAPI="2"
  WANT_AUTOMAKE="none"
-@@ -34,10 +34,11 @@
- SLOT="2.7"
- PYTHON_ABI="${SLOT}"
- KEYWORDS="~ppc-aix ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
--IUSE="aqua -berkdb build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml"
-+IUSE="aqua -berkdb build doc elibc_uclibc examples gdbm ipv6 +ncurses +readline sqlite +ssl +threads tk +wide-unicode wininst +xml -cygbootstraphack"
+ WANT_LIBTOOL="none"
  
- RDEPEND=">=app-admin/eselect-python-20091230
--		app-arch/bzip2
-+		|| ( >=app-arch/bzip2-1.0.6-r3[static-libs]
-+		     <app-arch/bzip2-1.0.6-r3 )
- 		>=sys-libs/zlib-1.1.3
- 		!m68k-mint? ( virtual/libffi )
- 		virtual/libintl
-@@ -96,6 +97,12 @@
- }
+-inherit autotools eutils flag-o-matic multilib pax-utils python toolchain-funcs
++inherit autotools eutils flag-o-matic multilib pax-utils python toolchain-funcs prefix
  
- src_prepare() {
-+
+ MY_P="Python-${PV}"
+ PATCHSET_REVISION="1"
+@@ -100,6 +100,47 @@
+ 	EPATCH_EXCLUDE="${excluded_patches}" EPATCH_SUFFIX="patch" \
+ 		epatch "${WORKDIR}"/python-prefix-${PV}-gentoo-patches${PREFIX_PATCHREV}
+ 
 +	if [[ $CHOST == *-cygwin* ]] ; then
-+		epatch "${FILESDIR}"/${PN}-${PV}-cygwin.patch
++		epatch "${FILESDIR}"/${PN}-2.7.2-cygwin.patch
++		epatch "${FILESDIR}"/${PN}-2.7.2-cygwin-libpython-bld.patch
 +	fi
++	epatch "${FILESDIR}"/${PN}-2.7.2-cygwin-ssl_thread.patch
 +	epatch "${FILESDIR}"/${PN}-2.7.2-cygwin-ctypes-error.patch
++	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-ctypes-util-find_library.patch
++	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-enable-new-dtags.patch
++	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-ncurses-abi6.patch
++	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-system-libffi.patch
++	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-PySignal_SetWakeupFd.patch
++	epatch "${FILESDIR}"/${PN}-2.7.2-cygport-getpath-exe-extension.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-cygwin-ncurses-flag-conftest.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-cygwin-ncurses-setup_py.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-cygwin-sqlite-hack.patch
++	eprefixify "Lib/ctypes/util.py" "setup.py"
 +
- 	local excluded_patches
- 
- 	# Ensure that internal copies of expat, libffi and zlib are not used.
-@@ -180,6 +187,49 @@
- 	# Linux-3 compat. Bug #374579 (upstream issue12571)
- 	cp -r "${S}/Lib/plat-linux2" "${S}/Lib/plat-linux3" || die
- 
-+	# hacks for bootstrap
-+	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		if use threads ; then
-+			ewarn
-+			ewarn "YO!  Building with threads on cygwin is all fucked up."
-+			ewarn "Don't do it, or at least read ${S}/README."
-+			ewarn "Ctrl-C and disable the threads USE flag."
-+			ewarn
-+			ebeep
-+		fi
-+		if use cygbootstraphack ; then
-+			cd "${S}"
-+			einfo "cygbootstraphack: in $(pwd)"
-+			local ldpath
-+			if [[ -e ${EPREFIX}/etc/env.d/05gcc-i686-pc-cygwin1.7 ]] ; then
-+				ldpath="$( cat ${EPREFIX}/etc/env.d/05gcc-i686-pc-cygwin1.7 | grep ^LDPATH | sed 's/^LDPATH="//;s/"$//' )"
-+				einfo "cygbootstraphack got ldpath=\"${ldpath}\""
-+			else
-+				die "cygbootstraphack: FIXME: ldpath needs to be set for bootstrap compiler"
-+			fi
-+			local ldpaths
-+			ldpaths="$(echo ${ldpath} | sed 's/:/ /g')"
-+			einfo "cygbootstraphack: ldpaths=\"${ldpaths}\""
-+			local ldflags=" "
-+			local crtpath=""
-+			for ldpathelt in ${ldpaths} ; do
-+				ldflags="${ldflags} -L${ldpathelt}"
-+				if [[ -e ${ldpathelt}/crtbegin.o && -e ${ldpathelt}/crtend.o ]] ; then
-+					crtpath="${ldpathelt}"			
-+				fi
-+			done
-+			ewarn "Shoving LDFLAGS+=\"${ldflags}\" down throat."
-+			sed -i -e 's!^\(LDFLAGS=.*\)$!\1 '"${ldflags}"'!' Makefile.pre.in
-+			ewarn "result: $(grep '^LDFLAGS=' Makefile.pre.in)"
-+			if [[ -n "${crtpath}" ]] ; then
-+				ewarn "stealing crtbegin.o and crtend.o from ${crtpath}"
-+				cp -v "${crtpath}/crtbegin.o" "${crtpath}/crtend.o" .
-+			else
-+				ewarn "couldn't figure out a suitable crtpath!"
-+			fi
-+		fi
-+	fi
++	epatch "${FILESDIR}"/${PN}-2.7.2-exit-requires-stdlib_h.patch
 +
- 	eautoconf
- 	eautoheader
- }
-@@ -302,11 +352,17 @@
++	# backport some serious fixes from pre-2.7.4 -- this is done only in
++	# the cygwin overlay as a means to rule out various issues resolved upstream
++	# as a source of trouble.  However, some of these patches are quite important
++	# so it's worth considering whether to upstream some or all of them (unless
++	# a python-2.7.4 release comes around soon, incorporating them).
++	epatch "${FILESDIR}"/${PN}-2.7.3-with_thread-conditional.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-bisect-overflow.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-ssl-cert-update.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-pdb-skips-frames.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-tolerate-unpickleability.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-test-posix.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-close-arguments.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-win32-multiprocessing-np.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-fix-refleak.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-allow-normal-thread-to-spawn-dummy.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-misleading-exception.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-avoid-quadratic-gc-buildup.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-multiprocessing-deallocate-buffer.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-close-socket-on-connection-failure.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-use-less-stack.patch
++	epatch "${FILESDIR}"/${PN}-2.7.3-istrue-check.patch
++
+ 	if use aqua ; then
+ 		# make sure we don't get a framework reference here
+ 		sed -i -e '/-DPREFIX=/s:$(prefix):$(FRAMEWORKUNIXTOOLSPREFIX):' \
+@@ -223,7 +264,7 @@
+ 	# Please query BSD team before removing this!
+ 	# On AIX this is not needed, but would record '.' as runpath.
+ 	[[ ${CHOST} == *-aix* ]] ||
+-	append-ldflags "-L."
++		LDFLAGS="-L.${LDFLAGS:+ }${LDFLAGS}"
+ 
+ 	local dbmliborder
+ 	if use gdbm; then
+@@ -248,11 +289,17 @@
  		&& myconf="${myconf} --enable-framework=${EPREFIX}/usr/lib" \
  		|| myconf="${myconf} --enable-shared"
  
 +	if [[ ${CHOST} == *-cygwin* ]] ; then
-+		fpeconfig="--without-fpectl"
++		export ac_cv_func_bind_textdomain_codeset=yes
++		myconf="${myconf} --without-fpectl"
 +	else
-+		fpeconfig="--with-fpectl"
++		myconf="${myconf} --with-fpectl"
 +	fi
 +
  	# note: for a framework build we need to use ucs2 because OSX
@@ -120,14 +89,46 @@
  	# http://bugs.python.org/issue763708
  	OPT="" econf \
 -		--with-fpectl \
-+		${fpeconfig} \
  		$(use_enable ipv6) \
  		$(use_with threads) \
  		$( (use wide-unicode && use !aqua) && echo "--enable-unicode=ucs4" || echo "--enable-unicode=ucs2") \
-<---8<---
+<-----8<-----
 ===== mutual sub-directory: "dev-lang/python/files" =====
 
 *** The following files appear only in the overlay ***
+overlay/dev-lang/python/files/python-2.7.2-cygport-PySignal_SetWakeupFd.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygport-ctypes-util-find_library.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygport-enable-new-dtags.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygport-getpath-exe-extension.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygport-ncurses-abi6.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygport-pep3149-workaround.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygport-pep3149.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygport-system-libffi.patch: unified diff output, ASCII text
 overlay/dev-lang/python/files/python-2.7.2-cygwin-ctypes-error.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygwin-libpython-bld.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-cygwin-ssl_thread.patch: unified diff output, ASCII text
 overlay/dev-lang/python/files/python-2.7.2-cygwin.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.2-exit-requires-stdlib_h.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-allow-normal-thread-to-spawn-dummy.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-avoid-quadratic-gc-buildup.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-bisect-overflow.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-close-arguments.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-close-socket-on-connection-failure.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-cygwin-ncurses-flag-conftest.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-cygwin-ncurses-setup_py.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-cygwin-sqlite-hack.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-fix-refleak.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-istrue-check.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-misleading-exception.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-multiprocessing-deallocate-buffer.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-pdb-skips-frames.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-ssl-cert-update.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-test-posix.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-tolerate-unpickleability.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-use-less-stack.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-win32-multiprocessing-np.patch: unified diff output, ASCII text
+overlay/dev-lang/python/files/python-2.7.3-with_thread-conditional.patch: unified diff output, ASCII text
+
+*** The following files appear only in portage ***
+usr/portage/dev-lang/python/python-3.3.0.ebuild: ASCII text
 
