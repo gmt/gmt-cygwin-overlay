@@ -530,3 +530,77 @@ grepit()
     # annoying messages end up on the console
     )
 }
+int_fmt () 
+{ 
+    [[ ${2} =~ ^[[:space:]]*-?0+.$ ]] || { 
+        echo "int_fmt: bad fmt \"${2}\"." 1>&2;
+        return 1
+    };
+    declare -i int;
+    local int="${1}";
+    local fmt="${2}";
+    [[ "${int}" == "" ]] && int=0;
+    is_int "${int}" || { 
+        echo "int_fmt: bad int \"${int}\"." 1>&2;
+        return 1
+    };
+    local whitespc=;
+    while [[ ${fmt:0:1} =~ [[:space:]] ]]; do
+        whitespc="${whitespc}${fmt:0:1}";
+        fmt="${fmt:1:$(( ${#fmt} - 1 ))}";
+    done;
+    local minus=no;
+    if [[ ${fmt:0:1} == - ]]; then
+        minus=yes;
+        fmt="${fmt:1:$(( ${#fmt} - 1 ))}";
+    fi;
+    declare -i zeros;
+    zeros=0;
+    while [[ ${fmt:0:1} == 0 ]]; do
+        zeros=$(( zeros + 1 ));
+        fmt="${fmt:1:$(( ${#fmt} - 1 ))}";
+    done;
+    commas=;
+    case ${#fmt} in 
+        0)
+
+        ;;
+        1)
+            commas="${fmt}"
+        ;;
+        *)
+            echo "int_fmt: unexpected bad fmt." 1>&2;
+            return 1
+        ;;
+    esac;
+    local negative=no;
+    (( int < 0 )) && { 
+        negative=yes;
+        int=$(( - int ))
+    };
+    local numlen=${#int};
+    if [[ ${negative} == yes && ${minus} == yes ]]; then
+        (( zeros > 1 )) && zeros=$(( zeros - 1 ));
+    fi;
+    local prefix="${whitespc}";
+    [[ $negative == yes ]] && prefix="${prefix}-";
+    (( numlen < zeros )) && prefix="${prefix}$( for x in $( seq $(( zeros - numlen )) ) ; do echo -n '0' ; done )";
+    local intstr="${int}";
+    if [[ -n "$commas" ]]; then
+        local commacount=$(( ( ${#intstr} - 1 ) / 3 ));
+        local s;
+        declare -i trail_len;
+        declare -i lchunk_len;
+        for s in $( seq ${commacount} );
+        do
+            trail_len=$(( 4 * s - 1 ));
+            lchunk_len=$(( ${#intstr} - trail_len ));
+            intstr="${intstr:0:${lchunk_len}}${commas}${intstr:${lchunk_len}:${trail_len}}";
+        done;
+    fi;
+    echo -e -n "${prefix}${intstr}"
+}
+is_int () 
+{ 
+    return $(test "$@" -eq "$@" > /dev/null 2>&1)
+}
