@@ -140,7 +140,7 @@
 +		) & multijob_post_fork
 +
 +		multijob_finish || die
-+		
++
 +		ebegin "Touching generated files (avoid maintainer-mode)"
 +		for f in gettext-runtime/{,libasprintf/}config.h.in ; do
 +			einfo "  ${f}"

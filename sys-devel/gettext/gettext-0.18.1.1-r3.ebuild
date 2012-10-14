@@ -70,9 +70,8 @@ src_prepare() {
 		(
 			multijob_child_init
 			eautoreconf
-		) & multijob_post_fork
-		(
-			multijob_child_init
+			# These two can't run in parallel due to a race-condition caused by
+			# libtoolize's brief removal of libtool script files in build-aux
 			cd "${S}"/gettext-runtime || die
 			eautoreconf
 		) & multijob_post_fork
