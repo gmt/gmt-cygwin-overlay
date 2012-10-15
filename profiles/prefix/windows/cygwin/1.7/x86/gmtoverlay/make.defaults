@@ -2,6 +2,12 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
+# for now we accept ~x86-linux and use the mask/unmask hack to pin down
+# ebuilds to the overlay as needed.  We need more users before it becomes
+# "economical" to do proper keywording, and even so, that should probably
+# be done upstream so it's a "down-the-line" thing.
+ACCEPT_KEYWORDS="~x86-linux ~x86-cygwin"
+
 # for now we are activating "ultra-prefixification" until some better solution can be found
 # this has some pretty gruesome ramifications but not doing it, unfortunately, ends up
 # being even worse
